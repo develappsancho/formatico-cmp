@@ -4,15 +4,71 @@ root = true
 charset = utf-8
 end_of_line = lf
 insert_final_newline = true
+trim_trailing_whitespace = true
 indent_style = space
 indent_size = 4
 
 [*.{kt,kts}]
-max_line_length = 120
-ktlint_code_style = intellij_idea
-ktlint_function_naming_ignore_when_annotated_with = Composable
+max_line_length = 140
+ktlint_standard_class-signature=disabled
+# Bu ayar, tüm Kotlin dosyalarında { return ... } kullanımının hata olarak işaretlenmesini engelleyecektir.
+ktlint_standard_function-expression-body = disabled
+
+# Parametrelerin otomatik olarak alt satıra indirilmesini engeller
+ktlint_standard_parameter-list-wrapping = disabled
+
+# @Composable functions are PascalCase by convention; without this every
+# component in the library is a lint error.
+ktlint_function_naming_ignore_when_annotated_with = Composable, Preview
+
+# ktlint's default "ktlint_official" style disagrees with how Compose is written
+# everywhere else, including by Google and JetBrains, and with what Android Studio
+# produces when you press format. Two of its rules are turned off rather than the
+# whole style, so the rest of ktlint_official still applies.
+#
+#   multiline-expression-wrapping forces
+#       modifier =
+#           Modifier
+#               .fillMaxSize()
+#   where the convention — and the IDE — give
+#       modifier = Modifier
+#           .fillMaxSize()
+#   It moves a function's multiline body below its `=` the same way; the body stays on the `=` line:
+#       fun every_variant() = runComposeUiTest {
+ktlint_standard_multiline-expression-wrapping = disabled
+#   chain-method-continuation glues a call onto a closing brace, `}.padding(16.dp)`,
+#   which hides the last link of a modifier chain.
+ktlint_standard_chain-method-continuation = disabled
+
+# Generated sources are nobody's to fix.
+ktlint_ignore_back_ticked_identifier = true
+
+# Sondaki virgül yok. Bu iki satır IDE'nin otomatik virgül eklemesini engeller. Aşağıdaki iki ktlint kuralı da yönünü
+# bunlardan alır: ktlint_official'ın varsayılanı (true) virgül ister, false iken virgül yasaktır.
 ij_kotlin_allow_trailing_comma = false
 ij_kotlin_allow_trailing_comma_on_call_site = false
 
-[*.{yml,yaml}]
+# IDE'nin constructor ve fonksiyon parametrelerini alt satıra indirmesini engeller
+ij_kotlin_wrap_around_constructor = false
+ij_kotlin_wrap_around_function_parentheses = false
+
+# Sondaki virgülü yakalayan iki kural (çağrı ve bildirim tarafı ayrı kurallar). Yukarıdaki iki satır false olduğu için
+# virgül istemezler: lintKotlin sondaki virgülde "Unnecessary trailing comma" der, formatKotlin onu siler. Kapalıyken
+# ktlint virgüle hiç bakmıyordu ve elle yazılan virgüller lint'ten geçiyordu.
+ktlint_standard_trailing-comma-on-call-site = enabled
+ktlint_standard_trailing-comma-on-declaration-site = enabled
+
+# Fonksiyon ve constructor imzalarının otomatik sarmalanmasını engeller. ktlint_official'da bu kural çok satırlı bir
+# ifade gövdesini de `=`'dan sonra alt satıra indirir; bizde gövde `=` satırında kalır.
+ktlint_standard_function-signature = disabled
+# Kural yeniden açılırsa gövdeyi yalnızca `=` satırına sığmadığında sarsın (ktlint_official'ın varsayılanı multiline).
+ktlint_function_signature_body_expression_wrapping = default
+
+[*.{yml,yaml,json}]
 indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+
+[gradle/libs.versions.toml]
+indent_size = 4
