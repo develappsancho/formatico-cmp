@@ -47,6 +47,8 @@ loads it.
 - Characters that cannot be seen, in the Kotlin sources: `./gradlew checkInvisibleCharacters` (part of `check`)
 - The boards' screens on the desktop (Roborazzi): `./gradlew :app:shared:verifyRoborazziJvm` compares against
   [`app/shared/screenshots`](app/shared/screenshots), `./gradlew :app:shared:recordRoborazziJvm` writes them again
+- The app icons, from the canvas's icon board: `python3 tools/icons/generate.py` (fontTools and Pillow; iconutil
+  on macOS) writes them into each app's folders
 - On a device (Maestro, installed apart): install the debug build, then
   `maestro --device <id> test -e APP_ID=com.developersancho.formatico app/maestro/flows`
 

@@ -22,8 +22,16 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "Formatico"
             packageVersion = "1.0.0"
+            // The icons are drawn by tools/icons/generate.py from the canvas's icon board.
             macOS {
                 bundleID = "com.developersancho.formatico"
+                iconFile.set(project.file("icons/Formatico.icns"))
+            }
+            windows {
+                iconFile.set(project.file("icons/Formatico.ico"))
+            }
+            linux {
+                iconFile.set(project.file("icons/Formatico.png"))
             }
         }
     }
