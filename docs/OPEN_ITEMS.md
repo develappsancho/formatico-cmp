@@ -553,6 +553,28 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
         `GraphStyle`'da ebeveynin çocuklarının ortasına değil ilkinin hizasına konması (ağacın satırları gibi).
         Hangisinin daha iyi okunduğu sahibinin kararı.
     *   Durum: açık.
+*   [ ] **Workspace panolarının bazı durumları editörü bekleyen eski uygulamayı çiziyor (2026-11-09).**
+    *   Ne: Tuvalde Workspace-1440 ve -834'ün `waiting` ve `yaml` durumları, Workspace-390'ın `text` durumu metin
+        bölmesini "Text editing is on its way" yer tutucusuyla çiziyor. Uygulama 2026-11-03'ten beri metni
+        `PantrixCodeEditor`'la gösteriyor; `EditorComing` yalnızca `WorkspacePreviews.kt`'den çağrılıyor. `yaml`'da
+        uygulama YAML'ın metnini editörde, telefonun `text`'inde editörü dokunmatik tuş sırasıyla gösterirdi.
+        Panoların öteki durumları 2026-11-09'da tasarım sisteminin `CodeEditor`'üne geçirildi; bu üçü dokunulmadan
+        kaldı.
+    *   Nerede: tuval, `project/Workspace-1440.dc.html`, `-834`, `-390`; `feature/workspace/.../WorkspacePreviews.kt`.
+    *   Öneri: `waiting` durumu kalksın (ya da yalnızca önizlemede kalsın); `yaml` ve telefonun `text`'i
+        `Pantrix.CodeEditor` ile çizilsin (telefonda `touch`); kullanılmayan `EditorComing` silinsin.
+    *   Durum: açık.
+*   [ ] **Query, öteki eşleşmeleri metinde işaretlemiyor; Pantrix artık işaretleyebiliyor (2026-11-09).**
+    *   Ne: Query panoları sorgunun bütün eşleşmelerini metinde gösteriyor (2026-11-09'dan beri tasarım sisteminin
+        `CodeEditor`'ünde `rangeMarks`'ın `highlight`'ıyla, uyarı tonunda); uygulama yalnızca seçilen eşleşmeyi seçiyor.
+        Engel PANTRIX_FINDINGS'teki "CodeEditor, bir uygulamanın verdiği aralıkları vurgulayamıyor" bulgusuydu; onun
+        dolgu yarısı `CodeRangeStyle.Highlight` ile geldi (Compare onu kullanıyor). İpucu da bu yüzden kısaltılmıştı
+        ("Choosing a match moves the cursor to it.").
+    *   Nerede: Query'nin metne verdiği işaretler (`DocumentEditor`'ın `rangeMarks`'ı); `query_choose_hint`.
+    *   Öneri: eşleşmeler `CodeRangeMark(style = CodeRangeStyle.Highlight, mark = CodeMark(CodeTone.Warning))` ile
+        işaretlensin, ipucu panodaki tam cümleye dönsün ("A match is marked in the text; choosing one moves the cursor
+        to it."). Şimdiki eşleşmenin çerçevesi bulguda kalıyor.
+    *   Durum: açık.
 
 ## Üst çubuk
 
