@@ -251,7 +251,7 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
         Üçü geçti. Derleyicisi verilmeyen test atlanıyor. Açık kalan, Faz 17'yi bekletmeden: tablette menünün
         düğmesindeki odak halkası (`OPEN_ITEMS.md`, gerçek bir tablette denenecek).
 *   [ ] **Faz 18: Grafik görünümü.** Panolar kanvasta (2026-11-09, sürüm 117–118): Graph-1440, Graph-834,
-    Graph-390. Önerilen kararlar, sahibinin onayını bekliyor:
+    Graph-390. Kararlar, sahibinin onayıyla (2026-11-09: "Evet, onaylıyorum"):
     *   **Yeri:** Graph, Tree ve Table'ın yanında üçüncü görünüm (`DocumentPane.Graph`): masaüstünde metnin yanında,
         tablette metnin altında, telefonda Text, Tree, Table, Graph seçiminde.
     *   **Kartlar:** belgenin her nesnesi ve dizisi bir kart; başında adı ve sayısı (`{4}`, `[2]`), satırlarında bir
@@ -267,6 +267,8 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
     *   **Pantrix:** düğümleri ve bağları çizen, kaydırılıp yakınlaştırılan bir grafik bileşeni yok; bulgu,
         `tıkıyor` (`PANTRIX_FINDINGS.md`, önerilen bir `PantrixGraph` ile). Kod, bileşen yerel pakete girince
         yazılır; öteki panoların görünüm seçimine Graph o zaman eklenir.
+    *   **Durum (2026-11-09):** panolar ve kararlar onaylandı; kod, Pantrix'in `PantrixGraph`'ını bekliyor (kütüphane
+        başka bir oturumda, sahibinin onayıyla).
 *   [ ] **Faz 19: JSON Schema.**
 *   [ ] **Faz 20: Uygulama içi yapay zekâ,** kullanıcının kendi anahtarıyla.
 
