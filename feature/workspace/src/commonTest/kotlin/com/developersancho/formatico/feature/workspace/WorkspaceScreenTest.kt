@@ -3,6 +3,7 @@ package com.developersancho.formatico.feature.workspace
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertWidthIsAtLeast
@@ -15,6 +16,7 @@ import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.format.Format
+import com.developersancho.formatico.core.testing.awaitNode
 import com.developersancho.formatico.core.testing.awaitText
 import com.pantrixui.foundation.adaptive.PantrixWindow
 import com.pantrixui.foundation.diagnostics.PantrixFindings
@@ -25,6 +27,7 @@ import com.pantrixui.testing.PantrixTestTheme
 import com.pantrixui.testing.TestClock
 import com.pantrixui.testing.TestFileSaver
 import com.pantrixui.testing.assertNoFindings
+import com.pantrixui.testing.hasPantrixTag
 import com.pantrixui.testing.onPantrixNode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -72,7 +75,7 @@ class WorkspaceScreenTest {
     ): WorkspaceState = readState(OpenDocument(id = 1, name = name, text = text, format = format, view = view))
 
     @Test
-    fun aWideWindowShowsTheTreeBesideTheEditorsPlace() = runComposeUiTest {
+    fun aWideWindowShowsTheTreeBesideTheText() = runComposeUiTest {
         val findings = PantrixFindings()
         val intents = mutableListOf<WorkspaceIntent>()
         setContent {
@@ -85,8 +88,10 @@ class WorkspaceScreenTest {
             }
         }
 
-        awaitText("Text editing is on its way", forgetting = findings)
+        awaitNode(hasPantrixTag("CodeEditor", "text"), "The editor", forgetting = findings)
+        onPantrixNode("CodeEditor", "text").assert(hasText("\"id\": \"ord_8842\"", substring = true))
         awaitText("Valid JSON")
+        awaitText("Ln 1, Col 1")
         awaitText("5 lines · ", substring = true)
         awaitText("UTF-8 · LF · 2 spaces")
         onPantrixNode("Node", "id", scope = "TreeView_document").assertExists()
@@ -144,7 +149,7 @@ class WorkspaceScreenTest {
     }
 
     @Test
-    fun aPhoneReadsTheChosenDateOutAndSwitchesToTheText() = runComposeUiTest {
+    fun aPhoneReadsTheChosenDateOutAndShowsItInTheText() = runComposeUiTest {
         val findings = PantrixFindings()
         val intents = mutableListOf<WorkspaceIntent>()
         setContent {
@@ -160,10 +165,10 @@ class WorkspaceScreenTest {
         awaitText("Copy the value", forgetting = findings)
         onPantrixNode("Tag", "kind").assertExists()
         awaitText("Date")
-        onPantrixNode("Button", "show_in_text").assertIsNotEnabled()
+        onPantrixNode("Button", "show_in_text").performClick()
         onPantrixNode("Segment", "text", scope = "SegmentButton_view").performClick()
 
-        assertEquals(listOf<WorkspaceIntent>(WorkspaceIntent.ShowPane(DocumentPane.Text)), intents)
+        assertEquals(List<WorkspaceIntent>(2) { WorkspaceIntent.ShowPane(DocumentPane.Text) }, intents)
         assertNoFindings(findings)
     }
 
@@ -217,7 +222,7 @@ class WorkspaceScreenTest {
     }
 
     @Test
-    fun aPhoneShowsTheEditorsPlaceForTheText() = runComposeUiTest {
+    fun aPhoneShowsTheTextInTheEditor() = runComposeUiTest {
         setContent {
             PantrixTestTheme(window = phone, clock = clock) {
                 WorkspaceScreen(
@@ -228,7 +233,7 @@ class WorkspaceScreenTest {
             }
         }
 
-        awaitText("Text editing is on its way")
+        awaitNode(hasPantrixTag("CodeEditor", "text"), "The editor")
         onPantrixNode("TreeView", "document").assertDoesNotExist()
         onPantrixNode("Card", "selected_value").assertDoesNotExist()
     }

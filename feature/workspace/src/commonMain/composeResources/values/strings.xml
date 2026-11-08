@@ -33,6 +33,8 @@
     <string name="workspace_no_value_title">No value could be read</string>
     <string name="workspace_no_value_body">The document’s problems stand in the way of its tree.</string>
 
+    <string name="workspace_text_of">The text of %1$s</string>
+    <string name="workspace_line_column">Ln %1$d, Col %2$d</string>
     <string name="workspace_status_reading">Reading…</string>
     <string name="workspace_status_valid">Valid %1$s</string>
     <plurals name="workspace_status_problems">

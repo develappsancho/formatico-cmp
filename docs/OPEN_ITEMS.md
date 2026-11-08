@@ -48,10 +48,10 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Ne: Hedef masaüstünde 50 MB, telefonda ve web'de 10 MB. JSON okuyucusu her belirteci ve her değeri bir nesne olarak tutuyor, iç içe değerleri özyinelemeyle okuyor (512 düzeyle sınırlı).
     *   Öneri: 10 ve 50 MB'lık örneklerle her hedefte süre ve bellek ölçümü; gerekirse belirteçleri dizilerde tutmak ve okuyucuyu yığıtla yazmak.
     *   Durum: açık.
-*   [ ] **Sütun UTF-16 birimiyle sayılıyor (2026-11-02).**
+*   [x] **Sütun UTF-16 birimiyle sayılıyor (2026-11-02).**
     *   Ne: `TextPosition.column` UTF-16 birimi sayıyor; bir emoji iki sütun sayılır. Editörlerin çoğu kod noktası ya da görünen karakter sayar.
     *   Öneri: PantrixCodeEditor'ın imleci neyi sayıyorsa onu sayan bir dönüşüm.
-    *   Durum: açık.
+    *   Durum: kapandı (2026-11-04). PantrixCodeEditor da bir yeri UTF-16 birimiyle sayıyor ("A place in the text counts its characters from nought", `String`'in karakterleri): durum çubuğundaki sütun editörünkiyle aynı; bir emoji ikisinde de iki sütun.
 *   [x] **Kaynaklarda görünmeyen karakterler kaçış dizisiyle yazılmalı (2026-11-02).**
     *   Ne: `'﻿'`, `' '` gibi karakterler dosyaya kendileri olarak girerse Kotlinter'ın biçimlendiricisi BOM'u siliyor ve `''` derlenmiyor. Bu oturumda öyle oldu ve düzeltildi.
     *   Öneri: detekt'e ya da bir teste "Kotlin kaynağında görünmeyen karakter yok" denetimi.
@@ -107,18 +107,18 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Ne: Panolar bölgelere ad veriyor: ağaç "Document tree", telefonda tablonun sıralama düğmeleri "Sort by", kayıtların listesi "$.orders, 248 records". HTML'de bu bir `aria-label`; Compose'da bir bölgeye ad verecek bir anlam (landmark) yok, `PantrixTreeView` de bir ad almıyor; Pantrix'in belgeleri bunun yolunu söylemiyor.
     *   Öneri: ekran okuyucuyla Android'de ve iOS'ta denemek; gerekirse bölümün başlığını bir başlık (`TextRole.Heading`) yapmak.
     *   Durum: açık. Tabletin More düğmesi panodaki gibi içindekileri söylüyor (2026-11-04): "More actions: sort keys, compare, save as a file".
-*   [ ] **Metin bölmesi editörü bekliyor (2026-11-03).**
+*   [x] **Metin bölmesi editörü bekliyor (2026-11-03).**
     *   Ne: Sahibinin kararıyla (2026-11-03) metin bölmesi `PantrixCodeEditor` bir sürümde gelene kadar boş: "Text editing is on its way". Metin ile ağacın seçimi birlikte yürümüyor; durum çubuğunda "Ln, Col" yok; telefondaki "Show in text" basılmıyor. Belge yalnızca ağaçta okunuyor, Format, Minify, Sort keys, Copy ve Save as a file metnin tamamında çalışıyor.
     *   Öneri: Pantrix'in editörü yayımlanınca metin bölmesi, seçimin iki yönlü bağı ve imlecin satırı ile sütunu.
-    *   Durum: açık.
+    *   Durum: kapandı (2026-11-04). Metin bölmesi `PantrixCodeEditor` (Pantrix'in yerel 0.1.2-SNAPSHOT'ı): her biçimin kendi renklendiricisi (JSON ailesi, YAML, CSV ve TSV, TOML, INI, properties, XML), Formatico'nun sözdizimi renkleri, belgenin girintisi. Yazılan duraklayınca belgeye gidiyor; Format, Minify ve Sort keys editöre geri alınabilir bir adım olarak geliyor. Ağaçta seçilen değer metinde seçiliyor, imlecin durduğu değer ağaçta seçiliyor. Durum çubuğunda "Ln, Col"; telefonda "Show in text" basılıyor.
 *   [ ] **Yalnızca JSON ailesi okunuyor; dört örneğin üçü okunmuyor (2026-11-03).**
     *   Ne: Workspace'in ağacı ve düzenlemeleri JSON, JSONC ve JSON5'te çalışıyor. YAML, TOML, CSV ve diğerleri "isn’t read yet" diyor; Start'ın dört örneğinden üçü (deployment.yaml, Cargo.toml, countries.csv) bugün yalnızca bu hâli gösteriyor. NDJSON da okunmuyor.
     *   Öneri: `core:format`'ın sıradaki okuyucuları; ilk olarak YAML (`snakeyaml-engine-kmp`) ve CSV, çünkü örnekleri var.
     *   Durum: açık. YAML okunuyor (2026-11-03): deployment.yaml'ın ağacı, anchor'ları ve alias'ları görünüyor. countries.csv okunuyor (2026-11-03): Table'da açılıyor, ağaçta kayıtları görünüyor. Cargo.toml hâlâ "isn’t read yet" diyor.
-*   [ ] **Geri alma tek adım ve yalnızca bildirimden (2026-11-03).**
+*   [x] **Geri alma tek adım ve yalnızca bildirimden (2026-11-03).**
     *   Ne: Format, Minify ve Sort keys bir "Undo" bildirimi gösteriyor; bildirim kapanınca önceki metin gidiyor. Minify yorumları siliyor: bildirim kapandıktan sonra JSONC'nin ve YAML'ın yorumları geri gelmez. Telefonda eylemli bildirim, kapatılana kadar alttaki araç çubuğunun üstünde duruyor (Pantrix'in kuralı: eylemli bildirim kendiliğinden kapanmaz).
     *   Öneri: editörle birlikte belge başına bir geri alma geçmişi (`⌘Z`); o zamana kadar yorumu olan bir belgeyi küçültmeden önce uyarmak ya da yorumlar silinecekse bildirimde söylemek.
-    *   Durum: açık. Minify artık sildiği yorumları söylüyor (2026-11-04): "Minified, and its 2 comments removed", Undo ile. Belge başına geri alma geçmişi editörle (Faz 5).
+    *   Durum: kapandı (2026-11-04). Her açık belgenin editörü kendi geri alma geçmişini tutuyor (`Editors`), belge açık kaldıkça, Start'a gidip gelince de: ⌘Z ve telefonun tuş satırındaki geri al, yazılanı bir kelime bir kelime, Format'ı, Minify'ı ve Sort keys'i bir adımda geri alıyor. Bildirimdeki Undo da duruyor.
 *   [x] **Açık belgeler uygulama kapanınca gidiyor (2026-11-03).**
     *   Ne: `Workbench` belgeleri bellekte tutuyor; uygulama kapanınca sekmeler de içerikleri de gidiyor. Android süreci öldürülürse geri yığını `Workspace(id)`'yi geri getiriyor, `Workbench` boş olduğu için Start'a dönülüyor.
     *   Öneri: kalıcı geçmişle aynı depo: açık sekmelerin listesi ve içerikleri cihazda.
@@ -259,3 +259,11 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
 *   [x] **Webpack'in ve Karma'nın parçaları değişince derleme kendini yenilemiyordu (2026-11-04).**
     *   Ne: `config/webpack` ve `config/karma` Gradle'ın girdileri değildi: yeni bir parça eklenince web dağıtımı UP-TO-DATE kalıyor, eski betik çıkıyordu.
     *   Durum: kapandı (2026-11-04). İki klasör `KotlinWebpack` ve `KotlinJsTest` görevlerinin girdisi.
+*   [ ] **Telefonda bul ve değiştir açılamıyor (2026-11-04).**
+    *   Ne: PantrixCodeEditor'ın bul ve değiştir çubuğu ⌘F ve ⌘H ile açılıyor; masaüstünde, tablette klavyeyle ve web'de çalışıyor. Klavyesi olmayan bir telefonda onu açacak bir düğme yok; panolarda da çizili değil.
+    *   Öneri: telefonun "more" menüsüne ya da metin bölmesinin araç çubuğuna "Find" (`CodeEditorState.find`); önce Workspace-390'a çizilir.
+    *   Durum: açık.
+*   [ ] **TOML, INI, properties ve XML'in renklendiricisi basit (2026-11-04).**
+    *   Ne: Bu biçimler henüz okunmuyor (Faz 7). Editör onları bir satırda gördüğü kadarıyla renklendiriyor: bölüm adı, anahtar, değer, yorum, etiket ve öznitelik. TOML'un birkaç satıra yayılan dizgisi ve dizisi, XML'in CDATA'sı satır satır renkleniyor.
+    *   Öneri: Faz 7'de her biçimin okuyucusuyla birlikte renklendiricisini de tamamlamak.
+    *   Durum: açık, Faz 7'yle.

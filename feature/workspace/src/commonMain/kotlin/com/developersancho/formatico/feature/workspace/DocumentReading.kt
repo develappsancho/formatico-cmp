@@ -148,6 +148,14 @@ internal fun defaultExpanded(root: ValueNode?): Set<String> {
         root.children.filter { it.kind == ValueKind.Object && it.children.isNotEmpty() }.map { it.key }
 }
 
+/** The innermost value of [root] whose text holds the place [offset], or null where none does. */
+internal fun nodeAt(root: ValueNode?, offset: Int): ValueNode? {
+    var node = root?.takeIf { offset in it.range.start..it.range.end } ?: return null
+    while (true) {
+        node = node.children.firstOrNull { offset in it.range.start..it.range.end } ?: return node
+    }
+}
+
 /** The nodes from [root] down to the one whose key is [key], both included, or nothing where there is none. */
 internal fun trail(root: ValueNode?, key: String?): List<ValueNode> {
     if (root == null || key == null) return emptyList()

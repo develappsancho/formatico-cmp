@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -22,9 +23,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.base.MviScreen
 import com.developersancho.formatico.core.format.Format
+import com.developersancho.formatico.feature.workspace.editor.DocumentEditor
 import com.pantrixui.components.container.twopane.PaneSize
 import com.pantrixui.components.container.twopane.PantrixTwoPane
 import com.pantrixui.components.container.twopane.TwoPaneOrientation
+import com.pantrixui.components.data.codeeditor.CodeEditorState
 import com.pantrixui.components.elements.button.ButtonSize
 import com.pantrixui.components.elements.button.ButtonVariant
 import com.pantrixui.components.elements.button.PantrixButton
@@ -68,6 +71,7 @@ private val TextHeight = 480.dp
 fun WorkspaceRoute(documentId: Long, modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<WorkspaceViewModel>(key = "workspace_$documentId") { parametersOf(documentId) }
     val commands = rememberDocumentCommands(koinInject())
+    val editors = koinInject<Editors>()
     MviScreen(
         viewModel = viewModel,
         onEffect = { effect ->
@@ -76,24 +80,36 @@ fun WorkspaceRoute(documentId: Long, modifier: Modifier = Modifier) {
             }
         }
     ) { state, dispatch ->
-        WorkspaceScreen(state = state, onIntent = dispatch, commands = commands, modifier = modifier)
+        WorkspaceScreen(
+            state = state,
+            onIntent = dispatch,
+            commands = commands,
+            editor = state.document?.let(editors::of),
+            modifier = modifier
+        )
     }
 }
 
-/** A workspace drawn from [state]; what the user does goes to [onIntent], or to [commands]. */
+/**
+ * A workspace drawn from [state]; what the user does goes to [onIntent], or to [commands]. Its text is [editor]'s, the
+ * document's own editor, which outlives the workspace; a preview or a test that gives none has one made for it.
+ */
 @Composable
 internal fun WorkspaceScreen(
     state: WorkspaceState,
     onIntent: (WorkspaceIntent) -> Unit,
     commands: DocumentCommands,
+    editor: CodeEditorState? = null,
     modifier: Modifier = Modifier
 ) {
     val document = state.document ?: return
+    val text = editor ?: remember(document.id) { CodeEditorState(document.text) }
     val layout = workspaceLayout()
     if (layout == WorkspaceLayout.Phone) {
         PhoneWorkspace(
             state = state,
             document = document,
+            editor = text,
             onIntent = onIntent,
             commands = commands,
             modifier = modifier
@@ -115,12 +131,12 @@ internal fun WorkspaceScreen(
             first = {
                 if (wide) {
                     Row(modifier = Modifier.fillMaxSize()) {
-                        TextPane(state = state, modifier = Modifier.weight(1f).fillMaxHeight())
+                        TextPane(state, text, onIntent, Modifier.weight(1f).fillMaxHeight())
                         PantrixVerticalDivider()
                     }
                 } else {
                     Column(modifier = Modifier.fillMaxSize()) {
-                        TextPane(state = state, modifier = Modifier.weight(1f).fillMaxWidth())
+                        TextPane(state, text, onIntent, Modifier.weight(1f).fillMaxWidth())
                         PantrixHorizontalDivider()
                     }
                 }
@@ -142,7 +158,7 @@ internal fun WorkspaceScreen(
             gap = 0.dp,
             tagKey = "panes"
         )
-        StatusBar(state = state, layout = layout)
+        StatusBar(state = state, layout = layout, editor = text)
     }
 }
 
@@ -323,8 +339,21 @@ internal fun FormatMenu(format: Format?, size: ButtonSize, onChange: (Format?) -
 
 /** What stands where the text editor will: a word on why it is not there yet. */
 @Composable
-private fun TextPane(state: WorkspaceState, modifier: Modifier = Modifier) {
-    Box(modifier = modifier) {
-        EditorComing(state = state, modifier = Modifier.fillMaxSize())
-    }
+private fun TextPane(
+    state: WorkspaceState,
+    editor: CodeEditorState,
+    onIntent: (WorkspaceIntent) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val document = state.document ?: return
+    DocumentEditor(
+        document = document,
+        editor = editor,
+        indentation = state.stats?.layout?.indentation,
+        root = state.root,
+        selected = state.selected,
+        onWrite = { onIntent(WorkspaceIntent.Write(it)) },
+        onSelect = { onIntent(WorkspaceIntent.Select(it)) },
+        modifier = modifier
+    )
 }

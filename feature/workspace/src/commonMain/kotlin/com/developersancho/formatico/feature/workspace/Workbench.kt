@@ -308,3 +308,6 @@ private fun editedYaml(text: String, edit: DocumentEdit, indentation: Indentatio
         }
     }
 }
+
+/** The text of the document whose id is [id] is now [text], as its editor wrote it: changed, not saved to its file. */
+fun Workbench.write(id: Long, text: String) = change(id) { if (it.text == text) it else it.copy(text = text, edited = true) }

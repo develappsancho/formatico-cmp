@@ -22,5 +22,6 @@ val workspaceModule: Module = module {
         ).also { it.start() }
     }
     single { Readings(workbench = get()) }
+    single { Editors(workbench = get()) }
     viewModel { (documentId: Long) -> WorkspaceViewModel(documentId = documentId, workbench = get(), readings = get()) }
 }

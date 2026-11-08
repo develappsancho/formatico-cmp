@@ -66,6 +66,8 @@ internal class WorkspaceViewModel(
                 it.copy(hiddenColumns = intent.hidden)
             }
 
+            is WorkspaceIntent.Write -> workbench.write(documentId, intent.text)
+
             WorkspaceIntent.Close -> workbench.close(documentId)
         }
     }

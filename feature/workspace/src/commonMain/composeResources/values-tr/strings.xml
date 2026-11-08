@@ -33,6 +33,8 @@
     <string name="workspace_no_value_title">Bir değer okunamadı</string>
     <string name="workspace_no_value_body">Belgenin sorunları ağacının önünde duruyor.</string>
 
+    <string name="workspace_text_of">%1$s metni</string>
+    <string name="workspace_line_column">Satır %1$d, Sütun %2$d</string>
     <string name="workspace_status_reading">Okunuyor…</string>
     <string name="workspace_status_valid">Geçerli %1$s</string>
     <plurals name="workspace_status_problems">

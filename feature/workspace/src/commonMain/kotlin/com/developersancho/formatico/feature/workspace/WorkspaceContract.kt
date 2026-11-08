@@ -66,6 +66,9 @@ internal sealed interface WorkspaceIntent {
     /** Filter the table's rows by [filter], or show them all where it is empty. */
     data class FilterTable(val filter: String) : WorkspaceIntent
 
+    /** The document's text is now [text], as its editor wrote it. */
+    data class Write(val text: String) : WorkspaceIntent
+
     /** Close the document. */
     data object Close : WorkspaceIntent
 }

@@ -19,8 +19,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.format.json.jsonPath
+import com.developersancho.formatico.feature.workspace.editor.DocumentEditor
 import com.pantrixui.components.container.card.CardVariant
 import com.pantrixui.components.container.card.PantrixCard
+import com.pantrixui.components.data.codeeditor.CodeEditorState
 import com.pantrixui.components.data.tag.PantrixTag
 import com.pantrixui.components.elements.button.ButtonSize
 import com.pantrixui.components.elements.button.ButtonVariant
@@ -50,6 +52,7 @@ import org.jetbrains.compose.resources.stringResource
 internal fun PhoneWorkspace(
     state: WorkspaceState,
     document: OpenDocument,
+    editor: CodeEditorState,
     onIntent: (WorkspaceIntent) -> Unit,
     commands: DocumentCommands,
     modifier: Modifier = Modifier
@@ -80,13 +83,14 @@ internal fun PhoneWorkspace(
         }
         PantrixHorizontalDivider()
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
-            PhonePane(state = state, pane = pane, onIntent = onIntent)
+            PhonePane(state = state, editor = editor, pane = pane, onIntent = onIntent)
         }
         val selected = state.selected
         if (pane == DocumentPane.Tree && selected != null) {
             SelectedValueCard(
                 node = selected,
                 document = document,
+                onShowInText = { onIntent(WorkspaceIntent.ShowPane(DocumentPane.Text)) },
                 onCopy = commands.copyValue,
                 onGoTo = { onIntent(WorkspaceIntent.Select(it)) },
                 modifier = Modifier.fillMaxWidth().padding(start = spacing.sm, end = spacing.sm, top = spacing.sm)
@@ -98,10 +102,25 @@ internal fun PhoneWorkspace(
 
 /** The pane the phone shows: the editor's place, the tree, or what stands in for the tree. */
 @Composable
-private fun PhonePane(state: WorkspaceState, pane: DocumentPane, onIntent: (WorkspaceIntent) -> Unit) {
+private fun PhonePane(
+    state: WorkspaceState,
+    editor: CodeEditorState,
+    pane: DocumentPane,
+    onIntent: (WorkspaceIntent) -> Unit
+) {
     val spacing = PantrixTheme.spacing
-    if (pane == DocumentPane.Text) {
-        EditorComing(state = state, modifier = Modifier.fillMaxSize())
+    val document = state.document
+    if (pane == DocumentPane.Text && document != null) {
+        DocumentEditor(
+            document = document,
+            editor = editor,
+            indentation = state.stats?.layout?.indentation,
+            root = state.root,
+            selected = state.selected,
+            onWrite = { onIntent(WorkspaceIntent.Write(it)) },
+            onSelect = { onIntent(WorkspaceIntent.Select(it)) },
+            modifier = Modifier.fillMaxSize()
+        )
         return
     }
     if (state.root == null) {
@@ -173,12 +192,13 @@ private fun PhoneToolbar(
 
 /**
  * The chosen value, read out: its path and its kind, the value itself, what more there is to say of it, and its
- * actions. Showing it in the text waits for the editor.
+ * actions: showing it in the text ([onShowInText]), copying it, going to an alias's anchor.
  */
 @Composable
 private fun SelectedValueCard(
     node: ValueNode,
     document: OpenDocument,
+    onShowInText: () -> Unit,
     onCopy: (String) -> Unit,
     onGoTo: (String) -> Unit,
     modifier: Modifier = Modifier
@@ -221,6 +241,7 @@ private fun SelectedValueCard(
             }
             ValueActions(
                 target = node.target?.key,
+                onShowInText = onShowInText,
                 onCopy = { onCopy(node.value ?: document.text.substring(node.range.start, node.range.end)) },
                 onGoTo = onGoTo,
                 modifier = Modifier.padding(top = spacing.xs)
@@ -230,11 +251,17 @@ private fun SelectedValueCard(
 }
 
 /**
- * The chosen value's actions: showing it in the text, which waits for the editor, and copying it, or for an alias,
- * going to the value its anchor is given, whose key is [target].
+ * The chosen value's actions: showing it in the text ([onShowInText]), where it is selected, and copying it, or for an
+ * alias, going to the value its anchor is given, whose key is [target].
  */
 @Composable
-private fun ValueActions(target: String?, onCopy: () -> Unit, onGoTo: (String) -> Unit, modifier: Modifier = Modifier) {
+private fun ValueActions(
+    target: String?,
+    onShowInText: () -> Unit,
+    onCopy: () -> Unit,
+    onGoTo: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     FlowRow(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(PantrixTheme.spacing.sm),
@@ -242,9 +269,8 @@ private fun ValueActions(target: String?, onCopy: () -> Unit, onGoTo: (String) -
     ) {
         PantrixButton(
             text = stringResource(Res.string.workspace_show_in_text),
-            onClick = {},
+            onClick = onShowInText,
             variant = ButtonVariant.Soft,
-            enabled = false,
             tagKey = "show_in_text"
         )
         if (target != null) {

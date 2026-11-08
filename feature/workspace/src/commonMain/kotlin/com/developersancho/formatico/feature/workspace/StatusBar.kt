@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -16,6 +17,8 @@ import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.format.json.jsonPath
 import com.developersancho.formatico.core.format.text.Indentation
 import com.developersancho.formatico.core.format.text.LineEnding
+import com.developersancho.formatico.core.format.text.LineMap
+import com.pantrixui.components.data.codeeditor.CodeEditorState
 import com.pantrixui.components.data.tag.PantrixTag
 import com.pantrixui.components.data.tag.TagTone
 import com.pantrixui.components.elements.divider.PantrixHorizontalDivider
@@ -25,6 +28,7 @@ import formatico.feature.workspace.generated.resources.Res
 import formatico.feature.workspace.generated.resources.workspace_encoding
 import formatico.feature.workspace.generated.resources.workspace_indent_spaces
 import formatico.feature.workspace.generated.resources.workspace_indent_tabs
+import formatico.feature.workspace.generated.resources.workspace_line_column
 import formatico.feature.workspace.generated.resources.workspace_lines
 import formatico.feature.workspace.generated.resources.workspace_plain_text
 import formatico.feature.workspace.generated.resources.workspace_separated
@@ -35,9 +39,12 @@ import formatico.feature.workspace.generated.resources.workspace_status_valid
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
-/** The bar under the panes: whether the document is valid, how long it is, the chosen value and the text's layout. */
+/**
+ * The bar under the panes: whether the document is valid, how long it is, the line and column of [editor]'s caret or
+ * of the chosen value, the chosen value's path and the text's layout.
+ */
 @Composable
-internal fun StatusBar(state: WorkspaceState, layout: WorkspaceLayout) {
+internal fun StatusBar(state: WorkspaceState, layout: WorkspaceLayout, editor: CodeEditorState? = null) {
     val spacing = PantrixTheme.spacing
     val style = PantrixTheme.typography.footnote.copy(fontWeight = FontWeight.Medium)
     val quiet = PantrixTheme.colors.textSecondary
@@ -64,6 +71,13 @@ internal fun StatusBar(state: WorkspaceState, layout: WorkspaceLayout) {
                 )
             }
             Spacer(modifier = Modifier.weight(1f))
+            caretOf(state, editor)?.let { (line, column) ->
+                PantrixText(
+                    text = stringResource(Res.string.workspace_line_column, line, column),
+                    style = style,
+                    color = quiet
+                )
+            }
             state.selected?.let { selected ->
                 PantrixText(
                     text = jsonPath(selected.path),
@@ -77,6 +91,23 @@ internal fun StatusBar(state: WorkspaceState, layout: WorkspaceLayout) {
             }
         }
     }
+}
+
+/**
+ * The line and the column, from 1, that the bar says: of [editor]'s caret where the text is shown, or else of the start
+ * of the value chosen in the tree or the table. Both count a line's characters as the editor does, in UTF-16 units.
+ */
+@Composable
+private fun caretOf(state: WorkspaceState, editor: CodeEditorState?): Pair<Int, Int>? {
+    if (editor != null) {
+        val caret = editor.selection.end
+        val line = editor.lineOf(caret)
+        return line + 1 to caret - editor.lineStart(line) + 1
+    }
+    val text = state.document?.text ?: return null
+    val selected = state.selected ?: return null
+    val lines = remember(text) { LineMap(text) }
+    return lines.position(selected.range.start).let { it.line to it.column }
 }
 
 /** `UTF-8 · LF · 2 spaces`: how the text is encoded, ends its lines and indents them, as far as it says. */

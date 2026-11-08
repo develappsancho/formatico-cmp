@@ -69,7 +69,7 @@ eksikler Faz 4'te.
         görüntü), sekiz bileşenin kendi hâlleri (58), çubuğun on hâli (20), uygulamanın panoları koyu temada da (12);
         boş belge, sayı sütununun hizası ve hâllerin UI testleri. Açık menüler, `core:testing`, metinlerin şifrelenmesi,
         sekmenin görünümünün saklanması, tek metin, açılışın ve dönüşün yeniden okumaması da yapıldı (2026-11-04).
-*   [ ] **Faz 5: Metin editörü.** `PantrixCodeEditor` ve Formatico'nun renklendiricisi; metin ile ağacın seçimi iki
+*   [x] **Faz 5: Metin editörü.** Yapıldı (2026-11-04); telefonda bul ve değiştirin düğmesi panoyu bekliyor (OPEN_ITEMS). `PantrixCodeEditor` ve Formatico'nun renklendiricisi; metin ile ağacın seçimi iki
     yönde; Ln ve Col durum çubuğunda ve Table'da; telefonda "Show in text"; belge başına geri alma geçmişi; bul ve
     değiştir; sütun editörün saydığı birimle.
 *   [ ] **Faz 6: Geçersiz belge.** Satırlarda işaretler, bütün problemlerin listesi, her probleme kendi onarımı.
