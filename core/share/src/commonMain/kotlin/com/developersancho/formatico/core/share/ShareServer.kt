@@ -6,7 +6,9 @@ package com.developersancho.formatico.core.share
  *
  * - `POST /api/shares?days=7`, the encrypted share as its body (`application/octet-stream`): `201`, and
  *   `{"id": …, "deleteToken": …, "expiresAt": …}`; `400` for days the server does not keep a share for, or no body;
- *   `413` for a body over [MAX_SHARE_BYTES].
+ *   `413` for a body over [MAX_SHARE_BYTES]; `429` and `{"error": "daily-limit", "limit": 50}` ([DAILY_LIMIT]) once
+ *   the address it comes from has left as many shares today, until midnight UTC (`Retry-After`); `507` while the room
+ *   the server keeps for shares is full. A `429` without that body is nginx's: too many at once.
  * - `GET /api/shares/{id}`: `200` and the encrypted share; `404` for a share that is not there, has expired or was
  *   deleted, which the server does not tell apart.
  * - `DELETE /api/shares/{id}` with its delete token in [DELETE_TOKEN]: `204`; `403` for another token; `404` as above.
@@ -32,6 +34,9 @@ object ShareServer {
 
     /** The header a share is deleted with. */
     const val DELETE_TOKEN = "X-Delete-Token"
+
+    /** The `error` of a `429` the server gives when an address has left as many shares as it keeps from one a day. */
+    const val DAILY_LIMIT = "daily-limit"
 
     /**
      * The most bytes an encrypted share may have: a document of [ShareLinks.MAX_TEXT], with what compressing a text

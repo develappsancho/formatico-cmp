@@ -32,6 +32,12 @@ sealed interface Keeping {
     /** The server would not keep it: larger than it keeps (413). */
     data object Refused : Keeping
 
+    /** The server takes no share now: the room it keeps for them is full (507), or too many came at once (429). */
+    data object Busy : Keeping
+
+    /** The address this comes from has left the [limit] of shares the server keeps from one a day (429). */
+    data class DailyLimit(val limit: Int) : Keeping
+
     /** The server could not be reached, or did not answer as it does. */
     data object Unreachable : Keeping
 }
@@ -75,9 +81,16 @@ class FormaticoServer(private val client: HttpClient, private val address: Strin
             contentType(ContentType.Application.OctetStream)
             setBody(encrypted)
         }
-        when {
-            response.status == HttpStatusCode.Created -> Keeping.Kept(Answers.decodeFromString<KeptAnswer>(response.bodyAsText()).share())
-            response.status == HttpStatusCode.PayloadTooLarge -> Keeping.Refused
+        when (response.status) {
+            HttpStatusCode.Created -> Keeping.Kept(Answers.decodeFromString<KeptAnswer>(response.bodyAsText()).share())
+
+            HttpStatusCode.PayloadTooLarge -> Keeping.Refused
+
+            HttpStatusCode.InsufficientStorage -> Keeping.Busy
+
+            // The server's own says the day's limit; nginx's, of too many at once, has no body the app reads.
+            HttpStatusCode.TooManyRequests -> limitOf(response.bodyAsText())?.let(Keeping::DailyLimit) ?: Keeping.Busy
+
             else -> Keeping.Unreachable
         }
     }
@@ -127,8 +140,15 @@ class FormaticoServer(private val client: HttpClient, private val address: Strin
         fun share() = KeptShare(id, deleteToken, Instant.parse(expiresAt))
     }
 
+    /** The day's limit a `429` gives, where it is the server's own: [ShareServer.DAILY_LIMIT]. */
+    private fun limitOf(body: String): Int? =
+        runCatching { Answers.decodeFromString<LimitAnswer>(body) }.getOrNull()?.takeIf { it.error == ShareServer.DAILY_LIMIT }?.limit
+
     @Serializable
     private class FetchAnswer(val error: String, val status: Int? = null, val bytes: Long? = null)
+
+    @Serializable
+    private class LimitAnswer(val error: String, val limit: Int)
 
     private companion object {
         /** The server's answers, read as far as the app knows them: a key it adds later is passed over. */

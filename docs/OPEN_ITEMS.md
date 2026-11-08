@@ -607,22 +607,38 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
 
 ## Sunucu
 
-*   [ ] **Paylaşımların sayısına ve diskine sınır yok (2026-11-07).**
+*   [x] **Paylaşımların sayısına ve diskine sınır yok (2026-11-07).**
     *   Ne: Sunucu bir paylaşımı en çok 10 MB ve 30 gün tutuyor; nginx bir adresten saniyede ikiden fazla paylaşım ve
         vekil isteği almıyor (`limit_req`). Ama bir adresin toplamda kaç paylaşım bırakabileceğine, sunucunun diskte
         ne kadar tutacağına sınır yok: biri günlerce yükleyerek sunucunun diskini doldurabilir.
     *   Nerede: `server` (`ShareStore`), `deploy/web/default.conf`.
     *   Öneri: sunucuya toplam bir sınır (örneğin 5 GB; aşılınca `507` ve uygulamada "sunucu şu an paylaşım
         almıyor"), ve bir adrese günde bir paylaşım sayısı. Sahibinin kararı: diskin ve ne kadar paylaşılacağının sınırı.
-    *   Durum: açık.
+    *   Durum: kapandı (2026-11-07), sahibinin onayıyla önerilen değerler. Paylaşımlar toplamda en çok 5 GB
+        (`formatico.shares.max-total`): `ShareStore` kayıtlardan saydığını açılışta topluyor, her kayıtta ve silmede
+        güncelliyor; dolunca `507`. Bir adres günde en çok 50 (`formatico.shares.per-address-per-day`), UTC gece
+        yarısından gece yarısına: sayım yalnızca bellekte, ne log'a ne diske yazılıyor; tutulmayan paylaşım sayılmıyor;
+        aşılınca `429`, `{"error": "daily-limit", "limit": 50}` ve `Retry-After`. Adres nginx'in `X-Real-IP`'si. Share
+        penceresinde iki yeni uyarı (Share-1440'ta busy ve limit): "Formatico’s server is not taking shares right now"
+        (507 ya da nginx'in 429'u, Try again ile) ve "No more encrypted links from this network today" (Try again
+        yok).
 
-*   [ ] **Web'in sayfası bir Content-Security-Policy olmadan sunuluyor (2026-11-07).**
+*   [x] **Web'in sayfası bir Content-Security-Policy olmadan sunuluyor (2026-11-07).**
     *   Ne: `deploy/web/default.conf` `nosniff`, `no-referrer` ve `X-Frame-Options` gönderiyor, ama sayfanın neyi
         yükleyip çalıştırabileceğini söyleyen bir CSP yok. Site raporlayan (report-only) bir CSP gönderiyor.
         Vekilin verdiği belgeler kendi `sandbox` CSP'siyle, indirilecek dosya olarak geliyor (sunucunun kararı).
     *   Öneri: sayfanın yüklediklerini (Wasm, JS yedeği, yükleyicinin satır içi betiği, yazı tipleri) ölçüp önce
         raporlayan bir CSP; tarayıcı testleriyle denendikten sonra zorlayan.
-    *   Durum: açık.
+    *   Durum: kapandı (2026-11-07). Zorlayan CSP, `deploy/web/headers.conf`'ta: `default-src 'none'; script-src 'self'
+        'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self'; connect-src 'self';
+        manifest-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'`. Ölçülerek: yükleyicide satır
+        içi betik yok; `'unsafe-eval'` gerekmiyor (`new Function` yalnızca `globalThis` olmayan tarayıcıda); Compose
+        kendi kökünde bir `<style>` yazıyor, `'unsafe-inline'` olmadan dokuz tarayıcı testinin dokuzu
+        `style-src-elem`'de reddediliyor. `app/webTest` uygulamayı aynı başlıklarla sunuyor ve her sayfada
+        reddedilen her şeyi hata sayıyor; Wasm, JS yedeği, Safari'nin kimliği, sekmeler, bağlantılar, yeniden yükleme,
+        telefon genişliği ve Türkçe onunla geçiyor; yeni bir test sayfaya yazılan bir betiğin çalışmadığını gösteriyor.
+        Aynı dosya nginx'in `/api` yerlerine de giriyor: önce `nosniff`, `Referrer-Policy` ve `X-Frame-Options` oraya
+        hiç gitmiyordu (bir yerin kendi `add_header`'ı sunucununkini siliyor). Denenmedi: gerçek Safari ve Firefox.
 
 ## Metinler
 

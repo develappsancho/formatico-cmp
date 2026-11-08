@@ -20,6 +20,9 @@ private const val EVENTS_BYTES = 4_200_000
 /** The size of the Share-834 board's access.ndjson, too large for an encrypted link as well: 24 MB. */
 private const val ACCESS_BYTES = 24_000_000
 
+/** The encrypted links Formatico's server keeps from one network a day. */
+private const val DAILY_LIMIT = 50
+
 /** The boards' encrypted link, kept for a week from the day they were drawn. */
 private val PreviewEncryptedLink = EncryptedLink(
     link = "https://formatico.pantrixui.com/#s=7Qm2xLp9fK&k=Hq3vN8cTz1Wb5yRk0LmPa2XsD7eFgJ4uV9nQ6tYhC8w",
@@ -66,8 +69,9 @@ private val PreviewEventsState = previewState("events.ndjson", PreviewEvents, Fo
 /**
  * The share's cases: the Share boards' order, whose link every app takes; a link that some apps cut; the order in
  * the link formatted; plain text, which cannot be formatted; the dialog while its first link is being made. Then the
- * encrypted link: chosen, being made, its server not reached, made, and not deleted; a document too large for a link
- * that goes only as an encrypted one, as Share-834 draws it, and that link made; one too large for that as well.
+ * encrypted link: chosen, being made, its server not reached, taking no share now, or no more from this network
+ * today, made, and not deleted; a document too large for a link that goes only as an encrypted one, as Share-834 draws
+ * it, that link made, and this network's links of the day made; one too large for that as well.
  */
 internal class ShareCases :
     PreviewCases<WorkspaceState>(
@@ -78,7 +82,11 @@ internal class ShareCases :
         "making" to shared(PreviewOrderState, outcome = null),
         "encrypted" to shared(PreviewOrderState) { copy(way = ShareWay.Encrypted) },
         "creating" to shared(PreviewOrderState) { copy(way = ShareWay.Encrypted, encrypted = EncryptedShare.Creating) },
-        "unreachable" to shared(PreviewOrderState) { copy(way = ShareWay.Encrypted, encrypted = EncryptedShare.Failed) },
+        "unreachable" to shared(PreviewOrderState) { copy(way = ShareWay.Encrypted, encrypted = EncryptedShare.Failed()) },
+        "busy" to shared(PreviewOrderState) { copy(way = ShareWay.Encrypted, encrypted = EncryptedShare.Failed(ShareFailure.Busy)) },
+        "daily limit" to shared(PreviewOrderState) {
+            copy(way = ShareWay.Encrypted, encrypted = EncryptedShare.Failed(ShareFailure.DailyLimit(DAILY_LIMIT)))
+        },
         "created" to shared(PreviewOrderState) { copy(way = ShareWay.Encrypted, encrypted = EncryptedShare.Created(PreviewEncryptedLink)) },
         "not deleted" to shared(PreviewOrderState) {
             copy(way = ShareWay.Encrypted, encrypted = EncryptedShare.Created(PreviewEncryptedLink, deleteFailed = true))
@@ -86,6 +94,9 @@ internal class ShareCases :
         "encrypted only" to shared(PreviewEventsState, outcome = ShareOutcome.TooLarge(EVENTS_BYTES)),
         "encrypted only created" to shared(PreviewEventsState, ShareOutcome.TooLarge(EVENTS_BYTES)) {
             copy(encrypted = EncryptedShare.Created(PreviewEncryptedLink))
+        },
+        "encrypted only daily limit" to shared(PreviewEventsState, ShareOutcome.TooLarge(EVENTS_BYTES)) {
+            copy(encrypted = EncryptedShare.Failed(ShareFailure.DailyLimit(DAILY_LIMIT)))
         },
         "too large" to shared(previewState("access.ndjson", PreviewEvents, Format.Ndjson), outcome = ShareOutcome.TooLarge(ACCESS_BYTES))
     )

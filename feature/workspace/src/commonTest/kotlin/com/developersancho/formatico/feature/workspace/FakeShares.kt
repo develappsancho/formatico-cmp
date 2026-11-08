@@ -18,15 +18,19 @@ internal val TestEncryptedLink = EncryptedLink(
     expiresAt = Instant.parse("2099-01-01T00:00:00Z")
 )
 
-/** Formatico's server as a workspace's tests need it: what it was asked to share and delete, and whether it answers. */
+/**
+ * Formatico's server as a workspace's tests need it: what it was asked to share and delete, whether it answers, and
+ * what it [answer]s a share with where it does.
+ */
 internal class FakeShares(var reachable: Boolean = true) : EncryptedShares {
     val shared = mutableListOf<Pair<SharedDocument, ShareKeep>>()
     val deleted = mutableListOf<EncryptedLink>()
+    var answer: Sharing = Sharing.Shared(TestEncryptedLink)
 
     override suspend fun share(document: SharedDocument, keep: ShareKeep): Sharing {
         if (!reachable) return Sharing.Unreachable
         shared += document to keep
-        return Sharing.Shared(TestEncryptedLink)
+        return answer
     }
 
     override suspend fun open(link: LinkReading.Encrypted): SharedOpening = SharedOpening.Unreachable

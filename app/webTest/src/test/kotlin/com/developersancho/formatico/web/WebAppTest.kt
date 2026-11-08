@@ -1,6 +1,7 @@
 package com.developersancho.formatico.web
 
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import java.io.File
 import java.util.Base64
@@ -19,11 +20,12 @@ import kotlin.test.assertTrue
  */
 class WebAppTest {
     private val dist = File(checkNotNull(System.getProperty("formatico.web.dist")) { "formatico.web.dist is not set" })
+    private val headers = File(checkNotNull(System.getProperty("formatico.web.headers")) { "formatico.web.headers is not set" })
     private lateinit var server: DistServer
 
     @BeforeTest
     fun serve() {
-        server = DistServer(dist)
+        server = DistServer(dist, nginxHeadersOf(headers))
     }
 
     @AfterTest
@@ -52,6 +54,20 @@ class WebAppTest {
         page.press("ListItem_sample_order")
         page.awaitText("Valid JSON")
         assertEquals(emptyList(), chrome.errors)
+    }
+
+    @Test
+    fun thePageRunsUnderItsContentSecurityPolicy() = browse { page, chrome ->
+        page.open()
+        page.awaitText("Paste anything")
+        // A script written into the page, as an injected one would be, does not run, and its refusal is reported.
+        // (What DevTools evaluates itself, as `evaluate` does, the policy lets run: the script is the page's here.)
+        chrome.evaluate(
+            "document.body.appendChild(Object.assign(document.createElement('script'), { textContent: 'window.injected = true' }))"
+        )
+        chrome.awaitUntil("the refusal was reported") { chrome.errors.any { POLICY in it && "script-src" in it } }
+        assertEquals("undefined", chrome.evaluate("typeof window.injected")?.jsonPrimitive?.content)
+        chrome.errors.removeAll { POLICY in it && "script-src" in it }
     }
 
     @Test
@@ -136,9 +152,14 @@ class WebAppTest {
         page.awaitText("Geçerli JSON")
     }
 
-    /** Runs [test] in a Chrome of its own, started with [flags], on a page of Formatico served from its distribution. */
+    /**
+     * Runs [test] in a Chrome of its own, started with [flags], on a page of Formatico served from its distribution with
+     * nginx's headers; and fails it where the page did anything its Content-Security-Policy refuses.
+     */
     private fun browse(vararg flags: String, test: (FormaticoPage, Chrome) -> Unit) = Chrome(*flags).use { chrome ->
+        chrome.beforeEachPage(VIOLATIONS)
         test(FormaticoPage(chrome, server.address), chrome)
+        assertEquals(emptyList(), chrome.errors.filter { POLICY in it }, "What the Content-Security-Policy refused")
     }
 
     private companion object {
@@ -147,6 +168,13 @@ class WebAppTest {
          * (OPEN_ITEMS: "Web: konsolda Compose'un kaynak okuyucusundan bir hata satırı").
          */
         fun isComposes(error: String): Boolean = "Accessing `memory` via `wasmExports` is deprecated" in error
+
+        /** What a test's errors say of what the policy refused. */
+        const val POLICY = "Content-Security-Policy refused"
+
+        /** Writes each thing the policy refuses, or only reports, as an error, before anything else on the page runs. */
+        const val VIOLATIONS = "document.addEventListener('securitypolicyviolation', e => console.error('$POLICY ' + " +
+            "e.disposition + ' ' + e.effectiveDirective + ': ' + (e.blockedURI || '') + ' ' + (e.sample || '')));"
 
         const val KEEP_MILLIS = 1_500L
         const val SAFARI = "Mozilla/5.0 (Macintosh; Intel Mac OS X 15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) " +

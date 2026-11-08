@@ -6,6 +6,7 @@ import com.developersancho.formatico.server.fetch.FetchGuard
 import com.developersancho.formatico.server.fetch.FetchHandler
 import com.developersancho.formatico.server.share.ShareCleanup
 import com.developersancho.formatico.server.share.ShareHandler
+import com.developersancho.formatico.server.share.ShareQuota
 import com.developersancho.formatico.server.share.ShareStore
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
@@ -30,9 +31,14 @@ class ServerConfiguration(private val properties: FormaticoProperties) {
     @Bean
     fun clock(): Clock = Clock.systemUTC()
 
-    /** The shares, in `formatico.shares.directory`. */
+    /** The shares, in `formatico.shares.directory`, `formatico.shares.max-total` of them at the most. */
     @Bean
-    fun shareStore(clock: Clock): ShareStore = ShareStore(Path.of(properties.shares.directory), clock)
+    fun shareStore(clock: Clock): ShareStore =
+        ShareStore(Path.of(properties.shares.directory), clock, maxBytes = properties.shares.maxTotal.toBytes())
+
+    /** How many shares an address leaves a day: `formatico.shares.per-address-per-day`. */
+    @Bean
+    fun shareQuota(clock: Clock): ShareQuota = ShareQuota(properties.shares.perAddressPerDay, clock)
 
     /** The hourly deletion of the shares that have expired. */
     @Bean
@@ -48,8 +54,8 @@ class ServerConfiguration(private val properties: FormaticoProperties) {
 
     /** The API's routes, as [ShareServer] sets them out. */
     @Bean
-    fun routes(store: ShareStore, fetcher: DocumentFetcher): RouterFunction<ServerResponse> {
-        val shares = ShareHandler(store)
+    fun routes(store: ShareStore, quota: ShareQuota, fetcher: DocumentFetcher, clock: Clock): RouterFunction<ServerResponse> {
+        val shares = ShareHandler(store, quota, clock)
         val fetch = FetchHandler(fetcher)
         return coRouter {
             GET(ShareServer.HEALTH) { ServerResponse.ok().contentType(MediaType.TEXT_PLAIN).bodyValueAndAwait("ok") }

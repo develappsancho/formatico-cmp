@@ -11,6 +11,7 @@ import com.developersancho.formatico.core.designsystem.inTheLanguage
  * In English, [ShareStringsEnglish], and in Turkish, [ShareStringsTurkish]. A sentence that holds values is a
  * function of them, in their order; one whose form follows a number takes it first, as `count`.
  */
+@Suppress("TooManyFunctions") // A sentence that holds values is a function of them.
 internal interface ShareStrings {
     /** "Share {first}" */
     fun title(first: String): String
@@ -47,6 +48,17 @@ internal interface ShareStrings {
     val unreachableTitle: String
     val unreachableBody: String
     val unreachableBodyEncryptedOnly: String
+    val busyTitle: String
+    val busyBody: String
+    val busyBodyEncryptedOnly: String
+    val dailyLimitTitle: String
+
+    /** "Formatico’s server keeps up to {count} a day from one network." */
+    fun dailyLimitBody(count: Int): String
+
+    val dailyLimitLater: String
+    val dailyLimitLaterEncryptedOnly: String
+
     val deleteFailed: String
     val cancel: String
     val copy: String

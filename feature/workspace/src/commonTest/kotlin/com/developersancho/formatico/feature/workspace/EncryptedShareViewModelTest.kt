@@ -1,6 +1,7 @@
 package com.developersancho.formatico.feature.workspace
 
 import com.developersancho.formatico.core.format.Format
+import com.developersancho.formatico.core.network.Sharing
 import com.developersancho.formatico.core.share.ShareKeep
 import com.developersancho.formatico.core.share.SharedDocument
 import com.developersancho.formatico.core.storage.MemorySmallStore
@@ -75,12 +76,26 @@ class EncryptedShareViewModelTest {
         val viewModel = sharing()
         viewModel.dispatch(WorkspaceIntent.ShareBy(ShareWay.Encrypted))
         viewModel.dispatch(WorkspaceIntent.CreateEncryptedLink)
-        assertEquals(EncryptedShare.Failed, viewModel.share?.encrypted)
+        assertEquals(EncryptedShare.Failed(ShareFailure.Unreachable), viewModel.share?.encrypted)
         assertNull(links.find("""{"a":1}"""))
 
         shares.reachable = true
         viewModel.dispatch(WorkspaceIntent.CreateEncryptedLink)
         assertEquals(EncryptedShare.Created(TestEncryptedLink), viewModel.share?.encrypted)
+    }
+
+    @Test
+    fun aServerTakingNoShareNowOrNoMoreTodayIsSaid() = runTest(dispatcher) {
+        val viewModel = sharing()
+        viewModel.dispatch(WorkspaceIntent.ShareBy(ShareWay.Encrypted))
+        shares.answer = Sharing.Busy
+        viewModel.dispatch(WorkspaceIntent.CreateEncryptedLink)
+        assertEquals(EncryptedShare.Failed(ShareFailure.Busy), viewModel.share?.encrypted)
+
+        shares.answer = Sharing.DailyLimit(50)
+        viewModel.dispatch(WorkspaceIntent.CreateEncryptedLink)
+        assertEquals(EncryptedShare.Failed(ShareFailure.DailyLimit(50)), viewModel.share?.encrypted)
+        assertNull(links.find("""{"a":1}"""))
     }
 
     @Test

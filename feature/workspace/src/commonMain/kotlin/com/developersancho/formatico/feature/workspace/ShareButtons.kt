@@ -48,7 +48,10 @@ internal fun SendButton(link: String?, actions: ShareActions) {
     )
 }
 
-/** Makes the encrypted link, waiting while it is made; again where the server was not reached. */
+/**
+ * Makes the encrypted link, waiting while it is made; again where it failed. Not where this network has made the day's
+ * links: trying again today is no use.
+ */
 @Composable
 internal fun CreateButton(
     encrypted: EncryptedShare,
@@ -56,7 +59,8 @@ internal fun CreateButton(
     modifier: Modifier = Modifier,
     size: ButtonSize = ButtonSize.Medium
 ) {
-    if (encrypted == EncryptedShare.Failed) {
+    if (encrypted is EncryptedShare.Failed && encrypted.failure is ShareFailure.DailyLimit) return
+    if (encrypted is EncryptedShare.Failed) {
         PantrixButton(
             text = shareStrings.tryAgain,
             onClick = actions.create,

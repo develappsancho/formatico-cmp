@@ -13,6 +13,18 @@ internal enum class ShareWay {
 }
 
 /** Where the document's encrypted link stands. */
+internal sealed interface ShareFailure {
+    /** Formatico's server could not be reached. */
+    data object Unreachable : ShareFailure
+
+    /** It was reached, but takes no share now: its room for them is full, or too many came at once. */
+    data object Busy : ShareFailure
+
+    /** This network has made the [limit] of encrypted links the server keeps from one a day: trying again today is no use. */
+    data class DailyLimit(val limit: Int) : ShareFailure
+}
+
+/** Where a document's encrypted link stands. */
 internal sealed interface EncryptedShare {
     /** None is made yet: the reader chooses how long it is kept. */
     data object Choosing : EncryptedShare
@@ -20,8 +32,8 @@ internal sealed interface EncryptedShare {
     /** It is being made: the document encrypted on this device, and sent. */
     data object Creating : EncryptedShare
 
-    /** Formatico's server could not be reached, and none was made. */
-    data object Failed : EncryptedShare
+    /** None was made: [failure] says why. */
+    data class Failed(val failure: ShareFailure = ShareFailure.Unreachable) : EncryptedShare
 
     /** It is made, as [link]; [deleteFailed] where deleting it could not reach the server. */
     data class Created(val link: EncryptedLink, val deleteFailed: Boolean = false) : EncryptedShare

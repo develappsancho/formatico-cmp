@@ -18,6 +18,8 @@ LABEL org.opencontainers.image.title="Formatico web" \
       org.opencontainers.image.description="Formatico's web app, served by nginx, with its server at /api" \
       org.opencontainers.image.revision="$REVISION"
 COPY default.conf /etc/nginx/conf.d/default.conf
+# Outside conf.d, which nginx reads as servers of their own: default.conf includes it.
+COPY headers.conf /etc/nginx/formatico-headers.conf
 COPY --from=files /app/ /usr/share/nginx/html/
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
     CMD wget -q -O /dev/null http://127.0.0.1/ || exit 1

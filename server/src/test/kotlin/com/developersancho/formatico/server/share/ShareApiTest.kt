@@ -321,6 +321,8 @@ class ShareApiTest {
         @DynamicPropertySource
         fun properties(registry: DynamicPropertyRegistry) {
             registry.add("formatico.shares.directory") { shares.toString() }
+            // Every test here keeps its shares from one address, in one server: ShareLimitsApiTest counts them.
+            registry.add("formatico.shares.per-address-per-day") { "1000" }
         }
 
         @JvmStatic

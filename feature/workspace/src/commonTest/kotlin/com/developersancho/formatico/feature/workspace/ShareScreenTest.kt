@@ -131,13 +131,56 @@ class ShareScreenTest {
     @Test
     fun aLinkWhoseServerWasNotReachedIsTriedAgain() = runComposeUiTest {
         val intents = mutableListOf<WorkspaceIntent>()
-        share(sharing(way = ShareWay.Encrypted, encrypted = EncryptedShare.Failed), intents)
+        share(sharing(way = ShareWay.Encrypted, encrypted = EncryptedShare.Failed()), intents)
 
         awaitText("Formatico’s server could not be reached")
         awaitText("The document was not sent. Try again, or share it in the link.")
         onPantrixNode("Button", "try_again").performClick()
 
         assertEquals(listOf<WorkspaceIntent>(WorkspaceIntent.CreateEncryptedLink), intents)
+    }
+
+    @Test
+    fun aServerTakingNoShareNowIsTriedAgainLater() = runComposeUiTest {
+        val intents = mutableListOf<WorkspaceIntent>()
+        share(sharing(way = ShareWay.Encrypted, encrypted = EncryptedShare.Failed(ShareFailure.Busy)), intents)
+
+        awaitText("Formatico’s server is not taking shares right now")
+        awaitText("The document was not sent. Try again later, or share it in the link.")
+        onPantrixNode("Alert", "busy").assertExists()
+        onPantrixNode("Button", "try_again").performClick()
+
+        assertEquals(listOf<WorkspaceIntent>(WorkspaceIntent.CreateEncryptedLink), intents)
+    }
+
+    @Test
+    fun theDaysLinksOfANetworkMadeAreSaidWithNoTryingAgain() = runComposeUiTest {
+        val intents = mutableListOf<WorkspaceIntent>()
+        share(sharing(way = ShareWay.Encrypted, encrypted = EncryptedShare.Failed(ShareFailure.DailyLimit(50))), intents)
+
+        awaitText("No more encrypted links from this network today")
+        awaitText("Formatico’s server keeps up to 50 a day from one network. Try again tomorrow, or share it in the link.")
+        onPantrixNode("Button", "try_again").assertDoesNotExist()
+        onPantrixNode("Button", "create_link").assertDoesNotExist()
+        onPantrixNode("RadioButton", "link", scope = "RadioGroup_way").performClick()
+
+        assertEquals(listOf<WorkspaceIntent>(WorkspaceIntent.ShareBy(ShareWay.Link)), intents)
+    }
+
+    @Test
+    fun aDocumentOnlyAnEncryptedLinkTakesSaysTheDaysLinksAreMadeWithoutTheLink() = runComposeUiTest {
+        share(
+            sharing(
+                name = "events.ndjson",
+                format = Format.Ndjson,
+                outcome = ShareOutcome.TooLarge(4_200_000),
+                encrypted = EncryptedShare.Failed(ShareFailure.DailyLimit(50))
+            ),
+            mutableListOf()
+        )
+
+        awaitText("Formatico’s server keeps up to 50 a day from one network. Try again tomorrow.")
+        onPantrixNode("RadioGroup", "way").assertDoesNotExist()
     }
 
     @Test

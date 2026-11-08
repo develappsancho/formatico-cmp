@@ -205,7 +205,10 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
         address", şifreli bağlantının açılışı ve uyarıları, `deploy/` (compose, iki Dockerfile, nginx, `deploy.sh
         local`, `check.sh`). Yığın bu Mac'te çalıştı (`deploy.sh local`, `localhost:4005`): `check.sh` geçti, tarayıcıda
         şifreli bağlantı yapıldı, açıldı, silindi; bir web adresi sunucu üzerinden açıldı, özel bir adres geri
-        çevrildi. Kalan: yayın (GHCR, Coolify'da kaynak), Faz 22'de.
+        çevrildi. Sınırlar (2026-11-07, sahibinin onayı): paylaşımlar toplamda en çok 5 GB (`507`), bir adresten
+        günde en çok 50 (`429`, UTC gece yarısında sıfırlanıyor); Share'de iki yeni uyarı. Web'in sayfası zorlayan bir
+        CSP ile sunuluyor (`deploy/web/headers.conf`), tarayıcı testleri aynı başlıklarla. Kalan: yayın (GHCR,
+        Coolify'da kaynak), Faz 22'de.
 *   [ ] **Faz 17: Tip üretimi.** Kotlin, TypeScript, Swift ve Go.
 *   [ ] **Faz 18: Grafik görünümü.**
 *   [ ] **Faz 19: JSON Schema.**

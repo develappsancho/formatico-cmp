@@ -72,18 +72,37 @@ internal fun ShareChoices(share: DocumentShare, link: ShareOutcome.Link?, action
         else -> {
             KeepFor(share, actions, phone)
             FormattedSwitch(share, actions, label = strings.formattedEncrypted)
-            if (encrypted == EncryptedShare.Failed) {
-                PantrixAlert(
-                    message = if (share.encryptedOnly) strings.unreachableBodyEncryptedOnly else strings.unreachableBody,
-                    tone = AlertTone.Danger,
-                    title = strings.unreachableTitle,
-                    tagKey = "unreachable"
-                )
+            if (encrypted is EncryptedShare.Failed) {
+                FailureAlert(encrypted.failure, share.encryptedOnly)
             } else {
                 PantrixAlert(message = strings.trust, tone = AlertTone.Info, announce = false, tagKey = "trust")
             }
         }
     }
+}
+
+/**
+ * Why no encrypted link was made, as the server said: not reached, taking no share now, or no more from this network
+ * today. Where the document is too large for a link, the way of the link is not offered.
+ */
+@Composable
+private fun FailureAlert(failure: ShareFailure, encryptedOnly: Boolean) {
+    val strings = shareStrings
+    val (title, message, tag) = when (failure) {
+        ShareFailure.Unreachable -> Triple(
+            strings.unreachableTitle,
+            if (encryptedOnly) strings.unreachableBodyEncryptedOnly else strings.unreachableBody,
+            "unreachable"
+        )
+
+        ShareFailure.Busy -> Triple(strings.busyTitle, if (encryptedOnly) strings.busyBodyEncryptedOnly else strings.busyBody, "busy")
+
+        is ShareFailure.DailyLimit -> {
+            val later = if (encryptedOnly) strings.dailyLimitLaterEncryptedOnly else strings.dailyLimitLater
+            Triple(strings.dailyLimitTitle, "${strings.dailyLimitBody(failure.limit)} $later", "daily_limit")
+        }
+    }
+    PantrixAlert(message = message, tone = AlertTone.Danger, title = title, tagKey = tag)
 }
 
 /**

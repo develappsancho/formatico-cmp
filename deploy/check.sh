@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Checks a Formatico stack at its address: the app's page, the server's health, a share kept, read back and deleted,
-# and a fetch of an address the server must never reach.
+# Checks a Formatico stack at its address: the app's page and its headers, the server's health, a share kept, read
+# back and deleted, and a fetch of an address the server must never reach.
 #
 #   deploy/check.sh http://localhost:4005
 set -euo pipefail
@@ -26,6 +26,15 @@ status() {
 
 curl -fsS "$BASE/" | grep -q "Formatico" || fail "$BASE/ is not Formatico's page"
 ok "the app's page"
+
+# The headers of deploy/web/headers.conf, on the page and on the API's answers too, which add headers of their own.
+headers() {
+    curl -fsS -D - -o /dev/null "$1" | tr -d '\r'
+}
+headers "$BASE/" | grep -qi "^content-security-policy: default-src 'none'" || fail "the page has no Content-Security-Policy"
+headers "$BASE/api/health" | grep -qi '^x-content-type-options: nosniff' || fail "the API answers without nosniff"
+headers "$BASE/api/health" | grep -qi '^content-security-policy:' || fail "the API answers without a Content-Security-Policy"
+ok "the page's and the API's headers"
 
 [ "$(curl -fsS "$BASE/api/health")" = ok ] || fail "the server is not up at $BASE/api/health"
 ok "the server's health"

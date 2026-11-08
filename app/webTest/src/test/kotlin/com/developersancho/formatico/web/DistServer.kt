@@ -7,10 +7,10 @@ import java.net.InetSocketAddress
 
 /**
  * Serves [root], the web app's distribution, on this machine at a port of its own, as a static host serves it: each
- * file with its type, `index.html` for the root. A Wasm module is `application/wasm`, which the browser compiles as it
- * downloads it.
+ * file with its type, `index.html` for the root, and with [headers], nginx's on the host. A Wasm module is
+ * `application/wasm`, which the browser compiles as it downloads it.
  */
-class DistServer(private val root: File) : AutoCloseable {
+class DistServer(private val root: File, private val headers: Map<String, String> = emptyMap()) : AutoCloseable {
     private val server = HttpServer.create(InetSocketAddress(InetAddress.getLoopbackAddress(), 0), 0).apply {
         createContext("/") { exchange ->
             val path = exchange.requestURI.path.removePrefix("/").ifEmpty { "index.html" }
@@ -19,6 +19,7 @@ class DistServer(private val root: File) : AutoCloseable {
                 exchange.sendResponseHeaders(NOT_FOUND, -1)
             } else {
                 exchange.responseHeaders.add("Content-Type", typeOf(file.name))
+                headers.forEach { (name, value) -> exchange.responseHeaders.add(name, value) }
                 exchange.sendResponseHeaders(OK, file.length())
                 exchange.responseBody.use { body -> file.inputStream().use { it.copyTo(body) } }
             }
@@ -57,3 +58,11 @@ class DistServer(private val root: File) : AutoCloseable {
         fun typeOf(name: String): String = TYPES[name.substringAfterLast('.', "")] ?: "application/octet-stream"
     }
 }
+
+/** An `add_header` line of nginx's: its name, and its value, quoted or not. */
+private val AddHeader = Regex("""^\s*add_header\s+(\S+)\s+(?:"([^"]*)"|(\S+))\s+always;""")
+
+/** The headers [file], nginx's `deploy/web/headers.conf`, adds to every answer, by name. */
+fun nginxHeadersOf(file: File): Map<String, String> = file.readLines().mapNotNull { line ->
+    AddHeader.find(line)?.let { it.groupValues[1] to it.groupValues[2].ifEmpty { it.groupValues[3] } }
+}.toMap()

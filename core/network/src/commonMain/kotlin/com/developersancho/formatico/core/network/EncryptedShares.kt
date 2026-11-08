@@ -28,6 +28,12 @@ sealed interface Sharing {
 
     /** Formatico's server could not be reached, or would not keep it. */
     data object Unreachable : Sharing
+
+    /** Formatico's server takes no share now: its room for them is full, or too many came at once. */
+    data object Busy : Sharing
+
+    /** The network this comes from has made the [limit] of encrypted links the server keeps from one a day. */
+    data class DailyLimit(val limit: Int) : Sharing
 }
 
 /** What came of opening an encrypted link. */
@@ -79,6 +85,10 @@ internal class ServerShares(
             }
 
             Keeping.Refused -> Sharing.TooLarge
+
+            Keeping.Busy -> Sharing.Busy
+
+            is Keeping.DailyLimit -> Sharing.DailyLimit(kept.limit)
 
             Keeping.Unreachable -> Sharing.Unreachable
         }

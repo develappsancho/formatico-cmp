@@ -21,10 +21,12 @@ internal class EncryptedSharing(
     /** The link made of [text] that has not expired, if one was. */
     suspend fun find(text: String): EncryptedLink? = links.find(text)
 
-    /** Makes the link of [document], kept for [keep]: made and kept here, or failed where the server was not reached. */
+    /** Makes the link of [document], kept for [keep]: made and kept here, or failed, with what the server said. */
     suspend fun create(document: SharedDocument, keep: ShareKeep): EncryptedShare = when (val sharing = shares.share(document, keep)) {
         is Sharing.Shared -> EncryptedShare.Created(sharing.link).also { links.keep(document.text, sharing.link) }
-        Sharing.TooLarge, Sharing.Unreachable -> EncryptedShare.Failed
+        Sharing.TooLarge, Sharing.Unreachable -> EncryptedShare.Failed(ShareFailure.Unreachable)
+        Sharing.Busy -> EncryptedShare.Failed(ShareFailure.Busy)
+        is Sharing.DailyLimit -> EncryptedShare.Failed(ShareFailure.DailyLimit(sharing.limit))
     }
 
     /** Deletes [created]'s link from the server, and forgets it here; it stays where the server is not reached. */

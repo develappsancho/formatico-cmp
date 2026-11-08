@@ -1,6 +1,7 @@
 package com.developersancho.formatico.feature.workspace.strings
 
 /** [ShareStrings] in Turkish. */
+@Suppress("TooManyFunctions") // A sentence that holds values is a function of them.
 internal object ShareStringsTurkish : ShareStrings {
     override fun title(first: String) = "$first belgesini paylaş"
 
@@ -37,6 +38,16 @@ internal object ShareStringsTurkish : ShareStrings {
     override val unreachableTitle = "Formatico’nun sunucusuna ulaşılamadı"
     override val unreachableBody = "Belge gönderilmedi. Yeniden dene ya da bağlantının içinde paylaş."
     override val unreachableBodyEncryptedOnly = "Belge gönderilmedi. Yeniden dene."
+    override val busyTitle = "Formatico’nun sunucusu şu an paylaşım almıyor"
+    override val busyBody = "Belge gönderilmedi. Sonra yeniden dene ya da bağlantının içinde paylaş."
+    override val busyBodyEncryptedOnly = "Belge gönderilmedi. Sonra yeniden dene."
+    override val dailyLimitTitle = "Bu ağdan bugün başka şifreli bağlantı yapılamıyor"
+
+    override fun dailyLimitBody(count: Int) = "Formatico’nun sunucusu bir ağdan günde en çok $count tane alıyor."
+
+    override val dailyLimitLater = "Yarın yeniden dene ya da bağlantının içinde paylaş."
+    override val dailyLimitLaterEncryptedOnly = "Yarın yeniden dene."
+
     override val deleteFailed = "Bağlantı silinmedi. Yeniden dene."
     override val cancel = "Vazgeç"
     override val copy = "Bağlantıyı kopyala"

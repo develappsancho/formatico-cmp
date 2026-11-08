@@ -46,6 +46,7 @@ class FormaticoServerTest {
     fun aShareTheServerWillNotKeepOrCannotTakeIsSaidSo() = runTest {
         for ((status, keeping) in listOf(
             HttpStatusCode.PayloadTooLarge to Keeping.Refused,
+            HttpStatusCode.InsufficientStorage to Keeping.Busy,
             HttpStatusCode.BadRequest to Keeping.Unreachable,
             HttpStatusCode.BadGateway to Keeping.Unreachable
         )) {
@@ -56,6 +57,17 @@ class FormaticoServerTest {
         assertEquals(Keeping.Unreachable, down.keep(byteArrayOf(1), ShareKeep.Day))
         val garbled = FormaticoServer(clientOf { json("not json", HttpStatusCode.Created) }, SERVER)
         assertEquals(Keeping.Unreachable, garbled.keep(byteArrayOf(1), ShareKeep.Day))
+    }
+
+    @Test
+    fun theServersDailyLimitIsToldFromNginxsTooManyAtOnce() = runTest {
+        val limited =
+            FormaticoServer(clientOf { json("""{"error": "daily-limit", "limit": 50}""", HttpStatusCode.TooManyRequests) }, SERVER)
+        assertEquals(Keeping.DailyLimit(50), limited.keep(byteArrayOf(1), ShareKeep.Day))
+        val nginx = FormaticoServer(clientOf { respond("<html>429 Too Many Requests</html>", HttpStatusCode.TooManyRequests) }, SERVER)
+        assertEquals(Keeping.Busy, nginx.keep(byteArrayOf(1), ShareKeep.Day))
+        val other = FormaticoServer(clientOf { json("""{"error": "later", "limit": 1}""", HttpStatusCode.TooManyRequests) }, SERVER)
+        assertEquals(Keeping.Busy, other.keep(byteArrayOf(1), ShareKeep.Day))
     }
 
     @Test

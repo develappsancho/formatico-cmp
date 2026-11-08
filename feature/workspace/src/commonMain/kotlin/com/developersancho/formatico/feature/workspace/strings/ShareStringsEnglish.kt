@@ -1,6 +1,7 @@
 package com.developersancho.formatico.feature.workspace.strings
 
 /** [ShareStrings] in English. */
+@Suppress("TooManyFunctions") // A sentence that holds values is a function of them.
 internal object ShareStringsEnglish : ShareStrings {
     override fun title(first: String) = "Share $first"
 
@@ -36,6 +37,16 @@ internal object ShareStringsEnglish : ShareStrings {
     override val unreachableTitle = "Formatico’s server could not be reached"
     override val unreachableBody = "The document was not sent. Try again, or share it in the link."
     override val unreachableBodyEncryptedOnly = "The document was not sent. Try again."
+    override val busyTitle = "Formatico’s server is not taking shares right now"
+    override val busyBody = "The document was not sent. Try again later, or share it in the link."
+    override val busyBodyEncryptedOnly = "The document was not sent. Try again later."
+    override val dailyLimitTitle = "No more encrypted links from this network today"
+
+    override fun dailyLimitBody(count: Int) = "Formatico’s server keeps up to $count a day from one network."
+
+    override val dailyLimitLater = "Try again tomorrow, or share it in the link."
+    override val dailyLimitLaterEncryptedOnly = "Try again tomorrow."
+
     override val deleteFailed = "The link was not deleted. Try again."
     override val cancel = "Cancel"
     override val copy = "Copy the link"

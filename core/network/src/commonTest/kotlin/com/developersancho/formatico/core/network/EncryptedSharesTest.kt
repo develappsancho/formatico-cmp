@@ -4,6 +4,8 @@ import com.developersancho.formatico.core.share.LinkReading
 import com.developersancho.formatico.core.share.ShareKeep
 import com.developersancho.formatico.core.share.ShareLinks
 import com.developersancho.formatico.core.share.SharedDocument
+import io.ktor.client.engine.mock.respond
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -61,6 +63,16 @@ class EncryptedSharesTest {
         fake.reachable = false
         assertEquals(Sharing.Unreachable, shares.share(order, ShareKeep.Day))
         assertEquals(SharedOpening.Unreachable, shares.open(assertIs<LinkReading.Encrypted>(ShareLinks.read(shared.link))))
+    }
+
+    @Test
+    fun aServerThatTakesNoShareNowOrNoMoreTodayIsSaidSo() = runTest {
+        val full = ServerShares(FormaticoServer(clientOf { respond("", HttpStatusCode.InsufficientStorage) }, SERVER))
+        assertEquals(Sharing.Busy, full.share(order, ShareKeep.Day))
+        val limited = ServerShares(
+            FormaticoServer(clientOf { json("""{"error": "daily-limit", "limit": 50}""", HttpStatusCode.TooManyRequests) }, SERVER)
+        )
+        assertEquals(Sharing.DailyLimit(50), limited.share(order, ShareKeep.Day))
     }
 
     @Test

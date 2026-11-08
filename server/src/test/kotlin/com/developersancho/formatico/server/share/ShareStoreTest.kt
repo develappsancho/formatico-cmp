@@ -191,6 +191,42 @@ class ShareStoreTest {
         assertContentEquals(byteArrayOf(3), store.read(month.id))
     }
 
+    @Test
+    fun keepsNoShareThatWouldTakeTheSharesPastTheMostTheyHold() = runBlocking {
+        val small = ShareStore(root, clock, maxBytes = 250)
+        val first = kept(small.keep(chunks(ByteArray(100)), ShareKeep.Day))
+        kept(small.keep(chunks(ByteArray(100)), ShareKeep.Day))
+        assertEquals(Keeping.Full, small.keep(chunks(ByteArray(100)), ShareKeep.Day))
+        assertEquals(200, small.usedBytes)
+        assertEquals(emptyList(), Files.list(root.resolve(".incoming")).use { it.toList() })
+
+        assertEquals(Deleting.Deleted, small.delete(first.id, first.deleteToken))
+        assertEquals(100, small.usedBytes)
+        kept(small.keep(chunks(ByteArray(150)), ShareKeep.Day))
+        assertEquals(250, small.usedBytes)
+    }
+
+    @Test
+    fun readsNoShareOnceTheSharesHoldTheMost() = runBlocking {
+        val small = ShareStore(root, clock, maxBytes = 100)
+        kept(small.keep(chunks(ByteArray(100)), ShareKeep.Day))
+        val unread = Flux.error<DataBuffer>(AssertionError("A full store reads no share"))
+        assertEquals(Keeping.Full, small.keep(unread, ShareKeep.Day))
+    }
+
+    @Test
+    fun countsTheSharesOnDiskWhenItOpensAndAsTheyExpire() = runBlocking {
+        kept(store.keep(chunks(ByteArray(300)), ShareKeep.Day))
+        kept(store.keep(chunks(ByteArray(500)), ShareKeep.Month))
+        Files.writeString(root.resolve("README"), "not a share")
+        val opened = ShareStore(root, clock)
+        assertEquals(800, opened.usedBytes)
+
+        clock.advance(Duration.ofDays(2))
+        assertEquals(1, opened.deleteExpired())
+        assertEquals(500, opened.usedBytes)
+    }
+
     /** Says [draft] and what it holds were last written [at]. */
     private fun written(draft: Path, at: Instant) {
         Files.list(draft).use { files -> files.forEach { Files.setLastModifiedTime(it, FileTime.from(at)) } }
