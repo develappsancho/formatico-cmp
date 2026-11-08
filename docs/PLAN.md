@@ -160,7 +160,8 @@ eksikler Faz 4'te.
 
 Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
 
-*   [ ] **Faz 16: Sunucu.** Spring Boot: uçtan uca şifreli paylaşım bağlantıları ve URL vekili. Sahibinin kararları
+*   [x] **Faz 16: Sunucu.** Spring Boot: uçtan uca şifreli paylaşım bağlantıları ve URL vekili (989b632, 65fe0a2;
+    yayını Faz 22'de). Sahibinin kararları
     (2026-11-06):
     *   **Yeri:** aynı depoda bir `server` modülü. Spring Boot, pantrix-ui-site'ın sunucusuyla aynı sürüm (4.1.2,
         WebFlux), Java 21.
@@ -209,7 +210,33 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
         günde en çok 50 (`429`, UTC gece yarısında sıfırlanıyor); Share'de iki yeni uyarı. Web'in sayfası zorlayan bir
         CSP ile sunuluyor (`deploy/web/headers.conf`), tarayıcı testleri aynı başlıklarla. Kalan: yayın (GHCR,
         Coolify'da kaynak), Faz 22'de.
-*   [ ] **Faz 17: Tip üretimi.** Kotlin, TypeScript, Swift ve Go.
+*   [ ] **Faz 17: Tip üretimi.** Kotlin, TypeScript, Swift ve Go. Panolar kanvasta (2026-11-07, sürüm 97–101):
+    Types-1440, Types-834, Types-390 ve paletin dört komutu. Önerilen kararlar, sahibinin onayını bekliyor:
+    *   **Yeri:** Types, Convert'in yanında bir bölme (`DocumentPane.Types`): masaüstünde ve tablette araç çubuğunda
+        Convert'ten sonra, telefonda "more" menüsünde ve kendi sayfasında; komut paletinde "Generate Kotlin, TypeScript,
+        Swift, Go types". PantrixIcons'ta kod simgesi yok: düğme Compare gibi yalnızca yazıyla.
+    *   **Diller:** Kotlin, kotlinx.serialization'ın `@Serializable data class`'ları (Formatico'nun kendi yığını; JSON'daki
+        ad Kotlin'de yazılamıyorsa `@SerialName`); TypeScript `export interface`; Swift `Codable` `struct` (ad farklıysa
+        `CodingKeys`); Go `encoding/json` etiketli `struct` (alan adları Go'nun büyük harfiyle, `ID` gibi kısaltmalar).
+    *   **Çıkarım:** `core:format`'ta saf Kotlin bir `types` paketi, her biçimin `DataValue`'sundan: her nesne bir tip,
+        adı anahtarından (`customer` → `Customer`, `items`'ın öğesi `Item`), kök dosyanın adından (`order.json` →
+        `Order`, değiştirilebilir); aynı biçimdeki nesneler tek tip; dizideki nesneler birleşir (bazısında olmayan alan
+        isteğe bağlı, bazısında `null` olan boş olabilir); tam sayı `Int` (2³¹'i aşınca `Long`; Go'da `int`), öteki
+        `Double`; karışık türler dilin "herhangi bir"i; tarihler `String` kalır; yalnızca `null` olan değerin tipi
+        bilinemez (Kotlin `JsonElement?`, TypeScript `unknown`, Go `any`, Swift `String?` ve bir yorum) ve bölmenin
+        uyarısı bunu söyler. Ayrılmış sözcükler ve geçersiz adlar her dilin kuralıyla (Kotlin ve Swift'te ters tırnak,
+        Go'da ekli ad).
+    *   **Biçimler:** okunan her biçim: JSON ailesi, YAML, TOML, CSV ve TSV (bir satırın tipi), properties ve INI;
+        NDJSON'da her satır kökün bir örneği; XML, Convert'in okuduğu gibi. Hatalı bir belgede bölme Convert gibi
+        önce düzeltmeyi ister.
+    *   **Bölme:** dil ve kökün adı; en son seçilen dil hatırlanır. Kod salt okunur editörde, Formatico'nun dört yeni
+        highlighter'ıyla (anahtar sözcükler literal'lerin, tipler anahtarların, notasyonlar sayıların, Go etiketleri
+        dizgilerin renginde); Kopyala ve "Save as Order.kt / order.ts / Order.swift / order.go".
+    *   **Testler:** çıkarımın ve dört yazıcının birim testleri (örnek çıktılar, adlar, ayrılmış sözcükler, birleşme,
+        boş dizi, karışık türler, her biçim), highlighter'lar, view model, bölmenin önizlemeleri, ekran görüntüleri ve
+        UI testleri her hedefte. Yazılan kodun derlendiği de denenir: Kotlin'inki testlerde derlenen bir örnekle
+        (kotlinc bu makinede yok), Swift'inki `swiftc` ile (var); `tsc` ve `go` bu makinede yok, indirmeleri sahibinin
+        onayıyla.
 *   [ ] **Faz 18: Grafik görünümü.**
 *   [ ] **Faz 19: JSON Schema.**
 *   [ ] **Faz 20: Uygulama içi yapay zekâ,** kullanıcının kendi anahtarıyla.

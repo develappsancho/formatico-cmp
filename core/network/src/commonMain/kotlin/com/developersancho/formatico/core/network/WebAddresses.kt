@@ -8,7 +8,7 @@ import io.ktor.http.Url
 import io.ktor.http.contentLength
 import io.ktor.http.isSuccess
 import io.ktor.http.parseUrl
-import io.ktor.utils.io.readRemaining
+import io.ktor.utils.io.readBuffer
 import kotlinx.io.readByteArray
 
 /** What came of opening the document at a web address. */
@@ -80,7 +80,7 @@ internal class HttpWebAddresses(
 
                     else -> {
                         // One byte past the most tells a document too large from one just as large.
-                        val bytes = response.bodyAsChannel().readRemaining(maxBytes + 1).readByteArray()
+                        val bytes = response.bodyAsChannel().readBuffer(maxBytes + 1).readByteArray()
                         if (bytes.size > maxBytes) Downloading.Failed(AddressReading.TooLarge(null)) else Downloading.Bytes(bytes)
                     }
                 }
