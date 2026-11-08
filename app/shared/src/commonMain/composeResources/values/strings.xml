@@ -5,4 +5,11 @@
     <string name="use_dark_theme">Use the dark theme</string>
     <string name="use_light_theme">Use the light theme</string>
     <string name="settings">Settings</string>
+    <string name="untitled">Untitled</string>
+    <string name="changes_not_saved">changes not saved to its file</string>
+    <string name="switch_documents">%1$s, one of %2$d open documents. Switch documents</string>
+    <plurals name="open_documents">
+        <item quantity="one">%1$d open document</item>
+        <item quantity="other">%1$d open documents</item>
+    </plurals>
 </resources>

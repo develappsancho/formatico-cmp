@@ -5,7 +5,8 @@ plugins {
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation(projects.core.format)
+            // What it opens is in a format of core:format's, which the app hands on.
+            api(projects.core.format)
         }
     }
 }

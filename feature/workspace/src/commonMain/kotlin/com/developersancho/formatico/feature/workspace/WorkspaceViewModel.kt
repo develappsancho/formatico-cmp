@@ -1,0 +1,66 @@
+package com.developersancho.formatico.feature.workspace
+
+import androidx.lifecycle.viewModelScope
+import com.developersancho.formatico.core.base.MviViewModel
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
+/**
+ * The workspace of the document whose id is [documentId]: reads it again whenever its text or its format changes, and
+ * keeps how its tree is left in the [workbench], so that its tab shows it so again.
+ *
+ * @param reader where the document is read, off the main thread.
+ */
+internal class WorkspaceViewModel(
+    private val documentId: Long,
+    private val workbench: Workbench,
+    private val reader: CoroutineDispatcher = Dispatchers.Default
+) : MviViewModel<WorkspaceState, WorkspaceIntent, WorkspaceEffect>(WorkspaceState()) {
+    init {
+        val document = workbench.state
+            .map { state -> state.documents.firstOrNull { it.id == documentId } }
+            .distinctUntilChanged()
+        viewModelScope.launch {
+            document.collect { open -> setState { copy(document = open).arranged() } }
+        }
+        viewModelScope.launch {
+            document
+                .map { open -> open?.let { it.text to it.format } }
+                .distinctUntilChanged()
+                .collectLatest { source ->
+                    val (text, format) = source ?: return@collectLatest
+                    val (reading, stats) = withContext(reader) { readDocument(text, format) to TextStats.of(text) }
+                    setState { copy(reading = reading, stats = stats).arranged() }
+                }
+        }
+    }
+
+    override fun handle(intent: WorkspaceIntent) {
+        when (intent) {
+            is WorkspaceIntent.Expand -> workbench.changeView(documentId) { it.copy(expanded = intent.keys) }
+
+            is WorkspaceIntent.Select -> workbench.changeView(documentId) { it.copy(selected = intent.key) }
+
+            is WorkspaceIntent.ShowPane -> workbench.changeView(documentId) { it.copy(pane = intent.pane) }
+
+            is WorkspaceIntent.ChangeFormat -> workbench.changeFormat(documentId, intent.format)
+
+            is WorkspaceIntent.Edit -> viewModelScope.launch {
+                sendEffect(WorkspaceEffect.Edited(intent.edit, workbench.edit(documentId, intent.edit)))
+            }
+
+            WorkspaceIntent.Close -> workbench.close(documentId)
+        }
+    }
+
+    /** The state with its open branches and the trail to its chosen value, from its document's view and its tree. */
+    private fun WorkspaceState.arranged(): WorkspaceState {
+        val view = document?.view ?: DocumentView()
+        return copy(expanded = view.expanded ?: defaultExpanded(root), trail = trail(root, view.selected))
+    }
+}

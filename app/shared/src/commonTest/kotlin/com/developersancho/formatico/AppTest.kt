@@ -33,4 +33,22 @@ class AppTest {
         val after = onPantrixNode("IconButton", "theme").fetchSemanticsNode().config.toString()
         check(before != after) { "The theme's switch did not change: $after" }
     }
+
+    @Test
+    fun aSampleOpensInATabOfItsOwnAndANewTabGoesBackToStart() = runComposeUiTest {
+        setContent { App() }
+        waitUntilExactlyOneExists(hasText("Paste anything"), timeoutMillis = 10_000)
+
+        onPantrixNode("ListItem", "sample_order").performClick()
+
+        waitUntilExactlyOneExists(hasText("Valid JSON"), timeoutMillis = 10_000)
+        onPantrixNode("Tab", "document_1", scope = "Tabs_documents").assertExists()
+        onPantrixNode("Tab", "new", scope = "Tabs_documents").assertDoesNotExist()
+
+        onPantrixNode("IconButton", "new_tab").performClick()
+
+        waitUntilExactlyOneExists(hasText("Paste anything"), timeoutMillis = 10_000)
+        onPantrixNode("Tab", "document_1", scope = "Tabs_documents").assertExists()
+        onPantrixNode("Tab", "new", scope = "Tabs_documents").assertExists()
+    }
 }

@@ -5,4 +5,11 @@
     <string name="use_dark_theme">Koyu temayı kullan</string>
     <string name="use_light_theme">Açık temayı kullan</string>
     <string name="settings">Ayarlar</string>
+    <string name="untitled">Adsız</string>
+    <string name="changes_not_saved">dosyasına kaydedilmemiş değişiklikleri var</string>
+    <string name="switch_documents">%1$s, açık %2$d belgeden biri. Belgeyi değiştir</string>
+    <plurals name="open_documents">
+        <item quantity="one">%1$d açık belge</item>
+        <item quantity="other">%1$d açık belge</item>
+    </plurals>
 </resources>

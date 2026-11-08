@@ -1,0 +1,106 @@
+<resources>
+    <string name="workspace_untitled">Adsız</string>
+    <string name="workspace_plain_text">Düz metin</string>
+
+    <string name="workspace_format_menu">Biçim: %1$s. Biçimi değiştir</string>
+    <string name="workspace_format">Biçimlendir</string>
+    <string name="workspace_minify">Küçült</string>
+    <string name="workspace_sort_keys">Anahtarları sırala</string>
+    <string name="workspace_query">Sorgu</string>
+    <string name="workspace_convert">Dönüştür</string>
+    <string name="workspace_compare">Karşılaştır</string>
+    <string name="workspace_copy_document">Belgeyi kopyala</string>
+    <string name="workspace_save_file">Dosya olarak kaydet</string>
+    <string name="workspace_more_actions">Diğer işlemler</string>
+    <string name="workspace_close_document">Belgeyi kapat</string>
+
+    <string name="workspace_view_text">Metin</string>
+    <string name="workspace_view_tree">Ağaç</string>
+    <string name="workspace_view_table">Tablo</string>
+    <string name="workspace_find">Bir anahtar ya da değer bul</string>
+
+    <string name="workspace_editor_title">Metin düzenleme yolda</string>
+    <string name="workspace_editor_body">Sonraki bir sürümle geliyor. O zamana kadar belge ağaçta görünüyor; Biçimlendir, Küçült ve Kopyala belgenin tamamında çalışıyor.</string>
+    <string name="workspace_editor_body_unread">Sonraki bir sürümle geliyor. O zamana kadar Kopyala ve Dosya olarak kaydet belgenin tamamında çalışıyor.</string>
+    <string name="workspace_unread_title">%1$s henüz okunmuyor</string>
+    <string name="workspace_unread_body">Formatico bugün JSON, JSONC ve JSON5 okuyor; sırada %1$s var.</string>
+    <string name="workspace_plain_title">Düz metnin ağacı yok</string>
+    <string name="workspace_plain_body">Hangi biçimde yazıldığını seçersen öyle okunur.</string>
+    <string name="workspace_empty_title">Belge boş</string>
+    <string name="workspace_empty_body">İçinde henüz okunacak bir şey yok.</string>
+    <string name="workspace_no_value_title">Bir değer okunamadı</string>
+    <string name="workspace_no_value_body">Belgenin sorunları ağacının önünde duruyor.</string>
+
+    <string name="workspace_status_reading">Okunuyor…</string>
+    <string name="workspace_status_valid">Geçerli %1$s</string>
+    <plurals name="workspace_status_problems">
+        <item quantity="one">%1$d sorun</item>
+        <item quantity="other">%1$d sorun</item>
+    </plurals>
+    <string name="workspace_status_not_checked">%1$s, denetlenmedi</string>
+    <plurals name="workspace_lines">
+        <item quantity="one">%1$d satır</item>
+        <item quantity="other">%1$d satır</item>
+    </plurals>
+    <string name="workspace_separated">%1$s · %2$s</string>
+    <string name="workspace_encoding">UTF-8</string>
+    <string name="workspace_indent_tabs">Sekme</string>
+    <plurals name="workspace_indent_spaces">
+        <item quantity="one">%1$d boşluk</item>
+        <item quantity="other">%1$d boşluk</item>
+    </plurals>
+
+    <string name="workspace_formatted">Biçimlendirildi</string>
+    <string name="workspace_minified">Küçültüldü</string>
+    <string name="workspace_keys_sorted">Anahtarlar sıralandı</string>
+    <string name="workspace_undo">Geri al</string>
+    <string name="workspace_already_formatted">Zaten biçimli</string>
+    <string name="workspace_already_minified">Zaten küçültülmüş</string>
+    <string name="workspace_already_sorted">Anahtarları zaten sıralı</string>
+    <string name="workspace_edit_impossible">Formatico yalnızca geçerli bir JSON, JSONC ya da JSON5 belgesini değiştirir</string>
+    <string name="workspace_copied">Belge kopyalandı</string>
+    <string name="workspace_copy_failed">Belge kopyalanamadı</string>
+    <string name="workspace_value_copied">Değer kopyalandı</string>
+    <string name="workspace_value_copy_failed">Değer kopyalanamadı</string>
+    <string name="workspace_save_failed">Dosya kaydedilemedi</string>
+    <string name="workspace_document_label">Belge</string>
+    <string name="workspace_value_label">Değer</string>
+
+    <string name="workspace_show_in_text">Metinde göster</string>
+    <string name="workspace_copy_value">Değeri kopyala</string>
+    <string name="workspace_kind_date">Tarih</string>
+    <string name="workspace_kind_colour">Renk</string>
+    <string name="workspace_kind_link">Bağlantı</string>
+    <string name="workspace_kind_picture">Resim</string>
+    <string name="workspace_kind_string">Metin</string>
+    <string name="workspace_kind_number">Sayı</string>
+    <string name="workspace_kind_boolean">Mantıksal</string>
+    <string name="workspace_kind_null">Boş</string>
+    <string name="workspace_kind_object">Nesne</string>
+    <string name="workspace_kind_array">Dizi</string>
+    <plurals name="workspace_keys">
+        <item quantity="one">%1$d anahtar</item>
+        <item quantity="other">%1$d anahtar</item>
+    </plurals>
+    <plurals name="workspace_items">
+        <item quantity="one">%1$d öğe</item>
+        <item quantity="other">%1$d öğe</item>
+    </plurals>
+    <plurals name="workspace_characters">
+        <item quantity="one">%1$d karakter</item>
+        <item quantity="other">%1$d karakter</item>
+    </plurals>
+    <string name="workspace_moment_utc">%1$s, %2$s UTC</string>
+    <string name="workspace_moment_local">senin saatinle %1$s</string>
+    <string name="workspace_today">bugün</string>
+    <string name="workspace_yesterday">dün</string>
+    <string name="workspace_tomorrow">yarın</string>
+    <plurals name="workspace_days_ago">
+        <item quantity="one">%1$d gün önce</item>
+        <item quantity="other">%1$d gün önce</item>
+    </plurals>
+    <plurals name="workspace_days_ahead">
+        <item quantity="one">%1$d gün sonra</item>
+        <item quantity="other">%1$d gün sonra</item>
+    </plurals>
+</resources>

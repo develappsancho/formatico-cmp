@@ -10,10 +10,11 @@ properties. It is a Compose Multiplatform app for Android, iOS, the desktop and 
 | :--- | :--- |
 | [`app/shared`](app/shared) | The app every platform draws: `App()`, in Formatico's theme, with its bar, Koin and the navigation3 back stack |
 | [`app/androidApp`](app/androidApp), [`app/desktopApp`](app/desktopApp), [`app/webApp`](app/webApp), [`app/iosApp`](app/iosApp) | Each platform's entry point |
-| [`core/format`](core/format) | Pure Kotlin: the formats, their lossless parsers, format detection, problems with their line and column |
+| [`core/format`](core/format) | Pure Kotlin: the formats, their lossless parsers, format detection, problems with their line and column, JSON formatted, minified and with its keys sorted, JSONPath |
 | [`core/base`](core/base) | The bases every feature builds on: `MviViewModel`, `MviScreen` |
 | [`core/designsystem`](core/designsystem) | Formatico's look over Pantrix UI: `FormaticoPreset` (Teal), Geist and Geist Mono, the syntax colours, `FormaticoTheme`, Formatico's own icons |
 | [`feature/start`](feature/start) | The Start screen: paste, open, drop, recent documents and samples |
+| [`feature/workspace`](feature/workspace) | The open documents and their workspace: the toolbar, the tree with its value previews, the status bar |
 | [`build-logic`](build-logic) | The convention plugins, as Kotlin classes: `formatico.kmp.library`, `formatico.kmp.compose`, `formatico.feature`, `formatico.quality`, `formatico.web.application` |
 
 ## Setting up

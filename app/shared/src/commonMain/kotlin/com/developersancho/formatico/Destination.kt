@@ -14,12 +14,26 @@ internal sealed interface Destination : NavKey {
     @Serializable
     data object Start : Destination
 
+    /** The workspace of the open document whose id is [documentId]. */
+    @Serializable
+    data class Workspace(val documentId: Long) : Destination
+
     companion object {
+        /**
+         * Puts the workspace of the document whose id is [documentId] over Start, the root, or none where it is null:
+         * the back stack follows the chosen tab.
+         */
+        fun MutableList<NavKey>.showDocument(documentId: Long?) {
+            removeAll { it is Workspace }
+            if (documentId != null) add(Workspace(documentId))
+        }
+
         /** How the back stack is saved: every destination, by its serializer. */
         val Saving = SavedStateConfiguration {
             serializersModule = SerializersModule {
                 polymorphic(NavKey::class) {
                     subclass(Start::class)
+                    subclass(Workspace::class)
                 }
             }
         }

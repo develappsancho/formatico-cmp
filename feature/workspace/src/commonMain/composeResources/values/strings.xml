@@ -1,0 +1,106 @@
+<resources>
+    <string name="workspace_untitled">Untitled</string>
+    <string name="workspace_plain_text">Plain text</string>
+
+    <string name="workspace_format_menu">Format: %1$s. Change the format</string>
+    <string name="workspace_format">Format</string>
+    <string name="workspace_minify">Minify</string>
+    <string name="workspace_sort_keys">Sort keys</string>
+    <string name="workspace_query">Query</string>
+    <string name="workspace_convert">Convert</string>
+    <string name="workspace_compare">Compare</string>
+    <string name="workspace_copy_document">Copy the document</string>
+    <string name="workspace_save_file">Save as a file</string>
+    <string name="workspace_more_actions">More actions</string>
+    <string name="workspace_close_document">Close the document</string>
+
+    <string name="workspace_view_text">Text</string>
+    <string name="workspace_view_tree">Tree</string>
+    <string name="workspace_view_table">Table</string>
+    <string name="workspace_find">Find a key or a value</string>
+
+    <string name="workspace_editor_title">Text editing is on its way</string>
+    <string name="workspace_editor_body">It comes in a later version. Until then, the tree shows the document, and Format, Minify and Copy work on all of it.</string>
+    <string name="workspace_editor_body_unread">It comes in a later version. Until then, Copy and Save as a file work on all of the document.</string>
+    <string name="workspace_unread_title">%1$s isn’t read yet</string>
+    <string name="workspace_unread_body">Formatico reads JSON, JSONC and JSON5 today; %1$s comes next.</string>
+    <string name="workspace_plain_title">Plain text has no tree</string>
+    <string name="workspace_plain_body">Choose the format it is written in, and it is read as one.</string>
+    <string name="workspace_empty_title">The document is empty</string>
+    <string name="workspace_empty_body">There is nothing in it to read yet.</string>
+    <string name="workspace_no_value_title">No value could be read</string>
+    <string name="workspace_no_value_body">The document’s problems stand in the way of its tree.</string>
+
+    <string name="workspace_status_reading">Reading…</string>
+    <string name="workspace_status_valid">Valid %1$s</string>
+    <plurals name="workspace_status_problems">
+        <item quantity="one">%1$d problem</item>
+        <item quantity="other">%1$d problems</item>
+    </plurals>
+    <string name="workspace_status_not_checked">%1$s, not checked</string>
+    <plurals name="workspace_lines">
+        <item quantity="one">%1$d line</item>
+        <item quantity="other">%1$d lines</item>
+    </plurals>
+    <string name="workspace_separated">%1$s · %2$s</string>
+    <string name="workspace_encoding">UTF-8</string>
+    <string name="workspace_indent_tabs">Tabs</string>
+    <plurals name="workspace_indent_spaces">
+        <item quantity="one">%1$d space</item>
+        <item quantity="other">%1$d spaces</item>
+    </plurals>
+
+    <string name="workspace_formatted">Formatted</string>
+    <string name="workspace_minified">Minified</string>
+    <string name="workspace_keys_sorted">Keys sorted</string>
+    <string name="workspace_undo">Undo</string>
+    <string name="workspace_already_formatted">It is formatted already</string>
+    <string name="workspace_already_minified">It is minified already</string>
+    <string name="workspace_already_sorted">Its keys are in order already</string>
+    <string name="workspace_edit_impossible">Formatico changes only a valid JSON, JSONC or JSON5 document</string>
+    <string name="workspace_copied">Document copied</string>
+    <string name="workspace_copy_failed">The document couldn’t be copied</string>
+    <string name="workspace_value_copied">Value copied</string>
+    <string name="workspace_value_copy_failed">The value couldn’t be copied</string>
+    <string name="workspace_save_failed">The file couldn’t be saved</string>
+    <string name="workspace_document_label">Document</string>
+    <string name="workspace_value_label">Value</string>
+
+    <string name="workspace_show_in_text">Show in text</string>
+    <string name="workspace_copy_value">Copy the value</string>
+    <string name="workspace_kind_date">Date</string>
+    <string name="workspace_kind_colour">Colour</string>
+    <string name="workspace_kind_link">Link</string>
+    <string name="workspace_kind_picture">Picture</string>
+    <string name="workspace_kind_string">String</string>
+    <string name="workspace_kind_number">Number</string>
+    <string name="workspace_kind_boolean">Boolean</string>
+    <string name="workspace_kind_null">Null</string>
+    <string name="workspace_kind_object">Object</string>
+    <string name="workspace_kind_array">Array</string>
+    <plurals name="workspace_keys">
+        <item quantity="one">%1$d key</item>
+        <item quantity="other">%1$d keys</item>
+    </plurals>
+    <plurals name="workspace_items">
+        <item quantity="one">%1$d item</item>
+        <item quantity="other">%1$d items</item>
+    </plurals>
+    <plurals name="workspace_characters">
+        <item quantity="one">%1$d character</item>
+        <item quantity="other">%1$d characters</item>
+    </plurals>
+    <string name="workspace_moment_utc">%1$s, %2$s UTC</string>
+    <string name="workspace_moment_local">%1$s in your time zone</string>
+    <string name="workspace_today">today</string>
+    <string name="workspace_yesterday">yesterday</string>
+    <string name="workspace_tomorrow">tomorrow</string>
+    <plurals name="workspace_days_ago">
+        <item quantity="one">%1$d day ago</item>
+        <item quantity="other">%1$d days ago</item>
+    </plurals>
+    <plurals name="workspace_days_ahead">
+        <item quantity="one">in %1$d day</item>
+        <item quantity="other">in %1$d days</item>
+    </plurals>
+</resources>
