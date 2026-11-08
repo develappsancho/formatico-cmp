@@ -21,6 +21,7 @@ import com.developersancho.formatico.core.designsystem.PreviewCases
 import com.pantrixui.foundation.diagnostics.PantrixFinding
 import com.pantrixui.foundation.diagnostics.PantrixFindings
 import com.pantrixui.testing.PantrixTestTheme
+import kotlin.time.Duration.Companion.minutes
 
 /** A case drawn at a board: what [checkPreviewCases] shows at a time. */
 private class Shown<T>(val case: PreviewCase<T>, val board: Board)
@@ -43,7 +44,7 @@ fun <T> checkPreviewCases(
     content: @Composable (PreviewCase<T>) -> Unit,
     known: (finding: PantrixFinding, case: PreviewCase<T>, board: Board) -> Boolean = { _, _, _ -> false },
     check: suspend ComposeUiTest.(case: PreviewCase<T>, board: Board) -> Unit
-) = runComposeUiTest {
+) = runComposeUiTest(testTimeout = PREVIEW_CASES_TIMEOUT) {
     val findings = PantrixFindings()
     var shown by mutableStateOf<Shown<T>?>(null)
     setContent {
@@ -78,6 +79,12 @@ fun <T> checkPreviewCases(
         }
     }
 }
+
+/**
+ * How long every case's drawing and checking may take in all: the share dialog's 14 cases at three boards are 42, which
+ * a browser drawing beside the other targets' tests took more than the minute a test is given by default for.
+ */
+private val PREVIEW_CASES_TIMEOUT = 3.minutes
 
 /** How long a finding takes to be reported at the most: a tag on two nodes, after a second and a half. */
 private const val FINDINGS_SETTLE_MILLIS = 2_000L

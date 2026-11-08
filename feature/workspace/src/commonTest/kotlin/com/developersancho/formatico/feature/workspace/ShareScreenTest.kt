@@ -1,13 +1,10 @@
 package com.developersancho.formatico.feature.workspace
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsNotEnabled
@@ -67,11 +64,7 @@ class ShareScreenTest {
         PantrixTestTheme(window = window, clipboard = clipboard) {
             CompositionLocalProvider(LocalFileSaver provides saver) {
                 val commands = rememberDocumentCommands(remember { Workbench() })
-                // Over a screen, as the workspace has it: a dialog over nothing is laid out at nought in a window told of
-                // (PANTRIX_FINDINGS, "Pencere verilen test temasında boş bir içeriğin üstündeki dialog").
-                Box(Modifier.fillMaxSize()) {
-                    ShareDocument(state, workspaceLayout(), onIntent = { intents += it }, commands = commands, sending = sending)
-                }
+                ShareDocument(state, workspaceLayout(), onIntent = { intents += it }, commands = commands, sending = sending)
             }
         }
     }
@@ -110,7 +103,7 @@ class ShareScreenTest {
         setContent {
             PantrixTestTheme(window = desktop) {
                 val commands = rememberDocumentCommands(remember { Workbench() })
-                Box(Modifier.fillMaxSize()) { ShareDocument(state, workspaceLayout(), onIntent = { intents += it }, commands = commands) }
+                ShareDocument(state, workspaceLayout(), onIntent = { intents += it }, commands = commands)
             }
         }
 

@@ -77,37 +77,31 @@ internal data class RowEnd(val preview: ValuePreview?, val written: String?, val
 internal class DocumentRows(val nodes: List<TreeNode>, val ends: Map<String, RowEnd>)
 
 /**
- * The rows of [root] that the [expanded] branches show: each value as `name: value` in the document's colours, the
- * [selected] one in the chosen row's own colour, and what a search [marks] marked in each. A closed branch's rows are
- * made as it opens: in a large document they are most of it, and the tree shows none of them.
+ * The rows of [root] that the [expanded] branches show: each value as `name: value` in the document's colours, which
+ * the tree writes a chosen row's in its own, and what a search [marks] marked in each. A closed branch's rows are made
+ * as it opens: in a large document they are most of it, and the tree shows none of them.
  */
-internal fun documentRows(root: ValueNode, inks: RowInks, selected: String?, marks: TreeMarks?, expanded: Set<String>): DocumentRows =
-    RowMaker(root, inks).rows(selected, marks, expanded)
+internal fun documentRows(root: ValueNode, inks: RowInks, marks: TreeMarks?, expanded: Set<String>): DocumentRows =
+    RowMaker(root, inks).rows(marks, expanded)
 
 /**
- * Makes the rows of [root] in [inks], as [documentRows] says, again each time the choice, the search or the open
- * branches change, keeping every row that did not change: a value chosen or a branch opened makes that row again and
- * the rows it stands in, not the hundred thousand beside them. A new search makes them all again.
+ * Makes the rows of [root] in [inks], as [documentRows] says, again each time the search or the open branches change,
+ * keeping every row that did not change: a branch opened makes that row again and the rows it stands in, not the
+ * hundred thousand beside them. A new search makes them all again; a value chosen, none.
  */
 internal class RowMaker(private val root: ValueNode, private val inks: RowInks) {
     private var made: TreeNode? = null
-    private var selected: String? = null
     private var marks: TreeMarks? = null
     private var expanded: Set<String> = emptySet()
 
     // What each row made ends in: the same for a key while the document is, and only looked up for the rows shown.
     private val ends = HashMap<String, RowEnd>()
 
-    /** The rows for [selected], [marks] and [expanded], the rows made last kept where nothing of theirs changed. */
-    fun rows(selected: String?, marks: TreeMarks?, expanded: Set<String>): DocumentRows {
+    /** The rows for [marks] and [expanded], the rows made last kept where nothing of theirs changed. */
+    fun rows(marks: TreeMarks?, expanded: Set<String>): DocumentRows {
         val before = made.takeIf { marks == this.marks }
-        // The keys whose rows are made again: the value chosen before and the one chosen now, which a chosen row's
-        // label tells (PANTRIX_FINDINGS, "Seçili satırın biçimli etiketi"), and the branches opened or closed.
+        // The keys whose rows are made again: the branches opened or closed.
         val changed = HashSet<String>()
-        if (selected != this.selected) {
-            this.selected?.let(changed::add)
-            selected?.let(changed::add)
-        }
         expanded.filterTo(changed) { it !in this.expanded }
         this.expanded.filterTo(changed) { it !in expanded }
         val keeping = before.takeIf { changed.size <= MOST_CHANGED }
@@ -126,12 +120,11 @@ internal class RowMaker(private val root: ValueNode, private val inks: RowInks) 
                 children = if (open) node.children.mapIndexed { index, child -> nodeOf(child, oldChildren?.get(index)) } else emptyList(),
                 hasChildren = node.children.isNotEmpty(),
                 tagKey = tagOf(node),
-                styledLabel = styledLabelOf(node, inks, chosen = node.key == selected, marks = marks, label = label)
+                styledLabel = styledLabelOf(node, inks, marks = marks, label = label)
             )
         }
         val top = nodeOf(root, keeping)
         made = top
-        this.selected = selected
         this.marks = marks
         this.expanded = expanded
         return DocumentRows(listOf(top), ends)
@@ -152,28 +145,24 @@ internal fun rowLabel(node: ValueNode): String = node.name + colonOf(node) + nod
 private fun colonOf(node: ValueNode): String = if (node.path.isEmpty()) " " else ": "
 
 /**
- * [rowLabel] in the document's colours: the key, the colon and the value each in its kind's, or none on a [chosen]
- * row, which is written in its own; and over them what [marks] found in the key and in the value. [label] is the
- * row's label, which the styled one is written over.
+ * [rowLabel] in the document's colours: the key, the colon and the value each in its kind's, which the tree writes a
+ * chosen row's in its own; and over them what [marks] found in the key and in the value, the current match stronger,
+ * whose own colours the tree keeps on a chosen row too. [label] is the row's label, which the styled one is written
+ * over.
  */
 internal fun styledLabelOf(
     node: ValueNode,
     inks: RowInks,
-    chosen: Boolean,
     marks: TreeMarks?,
     label: String = rowLabel(node)
 ): AnnotatedString {
     val nameEnd = node.name.length
     val valueStart = nameEnd + colonOf(node).length
-    val parts = if (chosen) {
-        emptyList()
-    } else {
-        listOf(
-            AnnotatedString.Range(inks.keyStyle, 0, nameEnd),
-            AnnotatedString.Range(inks.colonStyle, nameEnd, valueStart),
-            AnnotatedString.Range(inks.styleOf(node.kind), valueStart, label.length)
-        )
-    }
+    val parts = listOf(
+        AnnotatedString.Range(inks.keyStyle, 0, nameEnd),
+        AnnotatedString.Range(inks.colonStyle, nameEnd, valueStart),
+        AnnotatedString.Range(inks.styleOf(node.kind), valueStart, label.length)
+    )
     val styled = AnnotatedString(label, parts)
     if (marks == null) return styled
     return buildAnnotatedString {
@@ -244,7 +233,7 @@ internal fun DocumentTree(
     val inks = rowInks()
     val selected = state.selected?.key
     val maker = remember(root, inks) { RowMaker(root, inks) }
-    val rows = remember(maker, selected, marks, state.expanded) { maker.rows(selected, marks, state.expanded) }
+    val rows = remember(maker, marks, state.expanded) { maker.rows(marks, state.expanded) }
     val words = previewWords()
     val links = LocalUriHandler.current
     val openLink = workspaceStrings.openLink

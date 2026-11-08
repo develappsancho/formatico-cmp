@@ -54,19 +54,14 @@ class LargeDocumentsMeasure {
         if (root != null) {
             val afterReading = used()
             val opened = defaultExpanded(root)
-            val maker = RowMaker(root, inks)
-            val rows = step(format, size, "tree rows", keep = true, base = afterReading, note = ::shownRows) {
-                maker.rows(null, null, opened)
+            step(format, size, "tree rows", keep = true, base = afterReading, note = ::shownRows) {
+                RowMaker(root, inks).rows(null, opened)
             }
-            // A row in the middle of the rows shown chosen, as a reader chooses one: its row and the root's made again.
-            val shown = rows.nodes.single().children
-            val chosen = shown.getOrNull(shown.size / 2)?.key ?: root.key
-            step(format, size, "tree rows, a value chosen") { maker.rows(chosen, null, opened) }
             // The branch that holds the most, opened with the ones it stands in: the rows a reader scrolls through.
             val largest = largestBranch(root)
             val withLargest = opened + trail(root, largest.key).map { it.key }
             step(format, size, "tree rows, its largest branch open", note = ::shownRows) {
-                documentRows(root, inks, null, null, withLargest)
+                documentRows(root, inks, null, withLargest)
             }
             // A search in the tree, its matches looked for in every value, as each letter typed looks again.
             step(format, size, "tree search", note = { found: List<ValueNode> -> "${found.size} matches" }) {

@@ -432,6 +432,16 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
                 arama alanının adı, `FileDrop`'un sözcükleri, dokuz yeni simge, `PantrixToolbar` ve `PantrixStatusBar`
                 (2026-11-10). Workspace'in araç ve durum çubuğu artık Pantrix'in. Panoların bu iki bileşenle yeniden
                 çizilmesi tuval oturumunda; liste paylaşılan notlarda, `2026-11-10-faz21-toolbar-statusbar.md`.
+            *   Compare `PantrixDiffView`'e geçiyor (sahibinin kararı, 2026-11-10, bulgu "İki metni yan yana
+                karşılaştıran bir görünüm yok"). Sırası: tasarım sisteminin `DiffView`'i yayımlanır (sahibinin
+                onayıyla), Compare panoları onunla çizilir, sonra kod. Liste paylaşılan notlarda,
+                `2026-11-10-faz21-compare-diffview.md`.
+            *   Kütüphanenin davranış partisi geldi (0.1.2-SNAPSHOT, 2026-11-10 18:58): on dört madde denendi, geçici
+                yollar kaldırıldı (yol izinin kırpılması, seçili satırın renksiz etiketi, testlerde dialog'u ekranı
+                dolduran kutu, durum çubuğunun tablete taşınan önizleme hâli), bulgular işaretlendi. Araç çubuğu artık
+                tek öncelik sırasıyla katlanıyor; açık görünümün düğmesi Repair kadar uzun kalıyor. Yeni bir bulgu,
+                "Seçili satırda uygulamanın işaretinin yazı rengi de siliniyor", aynı akşam kapandı. Snackbar'ın
+                web'deki ekran okuyucusu Compose 1.13'ü bekliyor; salt okunur editörün bandı tasarım sisteminde açık.
         *   7 ve 8 sırada.
     *   **Sahibinin kararları (2026-11-10):** sahibi önerileri kabul etti ("önerilerin olsun"):
         *   **Kodda seçilip panolarda olmayanlar: kod onaylandı, panolar koda göre çizilir.**

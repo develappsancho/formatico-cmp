@@ -25,12 +25,14 @@ private fun toolbarHeight(layout: WorkspaceLayout): Dp = if (layout == Workspace
 
 /**
  * How long each of the toolbar's items stays as room runs short, the lowest going first: drawn as its icon where it
- * has one, and then folded into the "…" menu.
+ * has one, and then folded into the "…" menu, before the next gives way. The view shown keeps its button as long as
+ * Repair: the bar says which is open.
  */
 private object ToolbarPriority {
     const val FORMATS = 10
     const val COPY = 10
     const val REPAIR = 9
+    const val SHOWN = 9
     const val FORMAT = 8
     const val QUERY = 7
     const val CONVERT = 6
@@ -46,8 +48,8 @@ private object ToolbarPriority {
  * The actions on the whole document, over its text and its tree: the format it is read as, what changes it, what is
  * made of it, and at the end copying it and the "…" menu, which holds sharing and closing it. In a wide window Sort
  * keys, Compare and Save have buttons of their own; a tablet's menu holds them, as Workspace-834 draws it. Where even so
- * the bar has no room, in Turkish or with a document to repair, Pantrix's toolbar draws the lowest buttons as their icons
- * and then folds them into the menu, by their [ToolbarPriority].
+ * the bar has no room, in Turkish or with a document to repair, Pantrix's toolbar draws the lowest button as its icon or
+ * folds it into the menu, one at a time, by their [ToolbarPriority].
  */
 @Composable
 internal fun WorkspaceToolbar(
@@ -179,7 +181,7 @@ private fun madeItems(document: OpenDocument, wide: Boolean, onIntent: (Workspac
             icon = icon,
             variant = if (shown) ButtonVariant.Soft else ButtonVariant.Text,
             enabled = document.format != null,
-            priority = priority
+            priority = if (shown) ToolbarPriority.SHOWN else priority
         )
     }
     val strings = workspaceStrings

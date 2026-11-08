@@ -191,7 +191,7 @@ private class Trip(
             AppBoard.Convert -> {
                 openSample("order")
                 // A phone converts from its bar's "more" menu, a wider window from its toolbar.
-                if (phone) documentMenu("convert") else press("Action", "convert", scope = "Toolbar_document")
+                if (phone) documentMenu("convert") else toolbarAction("convert")
                 awaitShown(words.nothingLost)
             }
 
@@ -269,7 +269,7 @@ private class Trip(
         openFile("feed.xml", FEED)
         chooseTab("order.json")
         awaitRead()
-        if (phone) documentMenu("query") else press("Action", "query", scope = "Toolbar_document")
+        if (phone) documentMenu("query") else toolbarAction("query")
         val field = test.onPantrixNode("TextField", "query")
         listOf(
             "$.items[?(@.qty > 1)]" to "$.items[0]",
@@ -297,7 +297,7 @@ private class Trip(
         chooseTab("order.json")
         awaitRead()
         // Only a wide window's toolbar has Compare; a narrower one has it in the document's "more" menu.
-        if (window == Board.Desktop) press("Action", "compare", scope = "Toolbar_document") else documentMenu("compare")
+        if (window == Board.Desktop) toolbarAction("compare") else documentMenu("compare")
         // A wide window heads the differences with their count; each width lists them, the first chosen.
         test.awaitUntil("the differences were listed") {
             test.onAllNodes(hasKeyEnding("difference0")).fetchSemanticsNodes().isNotEmpty()
@@ -354,7 +354,7 @@ private class Trip(
      */
     private suspend fun types() {
         openSample("order")
-        if (phone) documentMenu("types") else press("Action", "types", scope = "Toolbar_document")
+        if (phone) documentMenu("types") else toolbarAction("types")
         awaitShown(words.types)
         val (language, file) = when (window) {
             Board.Desktop -> null to "Order.kt"
@@ -380,7 +380,7 @@ private class Trip(
         newTab()
         openFile("order.schema.json", BOARD_SCHEMA)
         chooseTab("order.json")
-        if (phone) documentMenu("schema") else press("Action", "schema", scope = "Toolbar_document")
+        if (phone) documentMenu("schema") else toolbarAction("schema")
         press("Button", "schema_against")
         val schema = SemanticsMatcher("the menu's order.schema.json") { node ->
             node.config.getOrNull(SemanticsProperties.TestTag)?.contains("MenuItem_schema_") == true
@@ -407,6 +407,18 @@ private class Trip(
             press("More", "actions", scope = "Toolbar_document")
             press("MenuItem", key, scope = "Menu_document_actions")
         }
+    }
+
+    /**
+     * Presses the toolbar's action [key]: in its bar, or where the toolbar has folded it for want of room, as Schema on a
+     * tablet, in the "…" menu, where its row keeps the action's tag. The toolbar is let settle first, so that what it
+     * folded is folded.
+     */
+    private suspend fun toolbarAction(key: String) {
+        test.awaitIdle()
+        val shown = test.onAllNodes(hasPantrixTag("Action", key, "Toolbar_document")).fetchSemanticsNodes().isNotEmpty()
+        if (!shown) press("More", "actions", scope = "Toolbar_document")
+        press("Action", key, scope = "Toolbar_document")
     }
 
     /**

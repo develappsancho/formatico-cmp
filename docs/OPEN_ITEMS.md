@@ -620,8 +620,13 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Ne: `recordRoborazziAndroidHostTest` aynı kodla iki koşuda Invalid-834-dark'ı farklı çizdi: birinde imlecin
         satırı 1, ötekinde panodaki gibi 10. Tur metni seçip problemi gösteriyor; Robolectric'te imlecin yerine
         oturması görüntüden sonraya kalabiliyor. Doğrulama koşusu (`verify…`) bu yüzden ara sıra düşebilir.
-    *   Nerede: `app/shared/screenshots/android/Invalid-834-dark.png`; turu `BoardTour.invalid()`.
-    *   Öneri: tur, görüntüden önce durum çubuğunun "Ln 10, Col 5"ini beklesin.
+        2026-11-10'da iki pano daha aynı yoldan düştü, birer koşuda, ardından geçti: Settings-390-dark'ın geçmiş
+        satırı "1 document, 665 B" yerine "nothing yet" (geçmiş kaydı görüntüden sonraya kaldı), Query-390-dark'ta ilk
+        eşleşme henüz seçili değildi.
+    *   Nerede: `app/shared/screenshots/android/Invalid-834-dark.png`, `Settings-390-dark.png`, `Query-390-dark.png`;
+        turları `BoardTour.invalid()`, `settings()`, `query()`.
+    *   Öneri: tur, görüntüden önce panonun durumunu beklesin: durum çubuğunun "Ln 10, Col 5"ini, geçmişin satırını,
+        seçili eşleşmeyi.
     *   Durum: açık.
 *   [x] **Büyük bir dizinin grafiğinde kök kart görünmeden açılıyor (2026-11-09).**
     *   Ne: Faz 18'in Graph görünümü, hiçbir değer seçili değilken grafiği sol üstünden gösteriyor. 150 kişilik bir
@@ -656,6 +661,18 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
         işaretlensin, ipucu panodaki tam cümleye dönsün ("A match is marked in the text; choosing one moves the cursor
         to it."). Şimdiki eşleşmenin çerçevesi bulguda kalıyor.
     *   Durum: kapandı (2026-11-10, Faz 21). Sorgunun bütün eşleşmeleri metinde uyarı tonunda `Highlight` (`DocumentEditor`'ın `matches`'i, `matchMarks`); seçilen eşleşme ayrıca seçili. İpucu panodaki cümle: "A match is marked in the text; choosing one moves the cursor to it." / "Eşleşmeler metinde işaretli; birini seçmek imleci ona götürür." `MatchMarksTest` ve `QueryScreenTest` sınıyor. Şimdiki eşleşmenin çerçevesi Pantrix'in bulgusunda kalıyor.
+
+*   [ ] **Query'nin şimdiki eşleşmesinde seçim, eşleşmenin vurgusunun üstünde çiziliyor (2026-11-10).**
+    *   Ne: Pantrix'in yeni paketinde imlecin satırının bandı işaretlerin altına indi (bulgu "CodeEditor, imlecin
+        satırındaki işareti çizmiyor", kapandı). Query'nin şimdiki eşleşmesi hem seçili hem imlecin satırında: önce
+        yalnızca seçimin rengi görünüyordu, artık eşleşmenin kehribar vurgusu da görünüyor ve seçimin yarı saydam rengi
+        onun üstünde. Açıkta zeytin yeşili, koyuda yeşilimsi bir dolgu; "T-shirt"ün yazısı onun üstünde okunuyor, ama
+        karşıtlığı düşük.
+    *   Nerede: `app/shared/screenshots/Query-1440*.png`, `feature/workspace/screenshots/TextPane/query-matches-*-1440.png`;
+        Formatico'da `DocumentEditor` (`matches`).
+    *   Öneri: Query panolarıyla karşılaştırmak (Faz 21 adım 7); panolar başka çiziyorsa şimdiki eşleşmeyi vurgunun
+        dışında bırakmak, yalnızca seçimle göstermek.
+    *   Durum: açık.
 
 ## Üst çubuk
 

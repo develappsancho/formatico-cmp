@@ -320,7 +320,7 @@ class PreviewCasesTest {
             "toml" to listOf("Valid TOML", "Ln 9, Col 21"),
             "plain text" to listOf("Plain text"),
             "csv on a tablet" to listOf("Valid CSV"),
-            "yaml on a tablet" to listOf("Valid YAML", "Ln 21, Col 21")
+            "yaml on a phone" to listOf("Valid YAML", "Ln 21, Col 21")
         )
 
         val TrailTexts = mapOf(

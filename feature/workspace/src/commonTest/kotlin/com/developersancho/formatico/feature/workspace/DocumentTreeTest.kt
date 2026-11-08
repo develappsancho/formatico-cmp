@@ -73,40 +73,34 @@ class DocumentTreeTest {
     fun theKeyTheColonAndTheValueAreEachInTheirKindsColour() {
         val root = root()
         val syntax = SyntaxColors.Light
-        val id = styledLabelOf(root.find("$.id"), inks, chosen = false, marks = null)
+        val id = styledLabelOf(root.find("$.id"), inks, marks = null)
         assertEquals("id: \"ord_8842\"", id.text)
         assertEquals(
             listOf("id" to syntax.key, ": " to syntax.punctuation, "\"ord_8842\"" to syntax.string),
             partsOf(id).map { it.first to it.second.color }
         )
-        val inkOfValue = { key: String -> partsOf(styledLabelOf(root.find(key), inks, false, null)).last().second.color }
+        val inkOfValue = { key: String -> partsOf(styledLabelOf(root.find(key), inks, null)).last().second.color }
         assertEquals(syntax.number, inkOfValue("$.total"))
         assertEquals(syntax.literal, inkOfValue("$.paid"))
         assertEquals(syntax.literal, inkOfValue("$.coupon"))
         assertEquals(inks.size, inkOfValue("$.customer"))
         assertEquals(
             syntax.literal,
-            partsOf(styledLabelOf(root(deployment, Format.Yaml).find("$.spec.selector.matchLabels"), inks, false, null)).last().second.color
+            partsOf(styledLabelOf(root(deployment, Format.Yaml).find("$.spec.selector.matchLabels"), inks, null)).last().second.color
         )
-    }
-
-    @Test
-    fun theChosenRowIsWrittenInItsOwnColour() {
-        val label = styledLabelOf(root().find("$.id"), inks, chosen = true, marks = null)
-        assertEquals("id: \"ord_8842\"", label.text)
-        assertTrue(label.spanStyles.isEmpty())
     }
 
     @Test
     fun aSearchMarksWhatItFoundInTheKeyAndInTheValueTheCurrentMatchStronger() {
         val root = root()
         val marks = TreeMarks(sought = "elif", language = "en", current = "$.customer.name")
-        val name = styledLabelOf(root.find("$.customer.name"), inks, chosen = true, marks = marks)
+        val name = styledLabelOf(root.find("$.customer.name"), inks, marks = marks)
+        // The tree keeps a mark's own colours on the chosen row, where the current match is.
         assertEquals(
             listOf("Elif" to SpanStyle(color = inks.onCurrent, background = inks.current)),
-            partsOf(name)
+            partsOf(name).filter { it.second.background != Color.Unspecified }
         )
-        val email = styledLabelOf(root.find("$.customer.email"), inks, chosen = false, marks = marks)
+        val email = styledLabelOf(root.find("$.customer.email"), inks, marks = marks)
         assertEquals(
             listOf("elif" to SpanStyle(background = inks.match)),
             partsOf(email).filter {
@@ -114,9 +108,9 @@ class DocumentTreeTest {
             }
         )
         // A key is searched too, a value's quotes are not.
-        val key = styledLabelOf(root.find("$.customer.website"), inks, false, TreeMarks("web", "en", current = null))
+        val key = styledLabelOf(root.find("$.customer.website"), inks, TreeMarks("web", "en", current = null))
         assertEquals(listOf("web"), partsOf(key).filter { it.second.background != Color.Unspecified }.map { it.first })
-        val quote = styledLabelOf(root.find("$.id"), inks, false, TreeMarks("\"", "en", current = null))
+        val quote = styledLabelOf(root.find("$.id"), inks, TreeMarks("\"", "en", current = null))
         assertTrue(partsOf(quote).none { it.second.background != Color.Unspecified })
     }
 
@@ -132,7 +126,7 @@ class DocumentTreeTest {
 
     @Test
     fun aRowEndsInWhatItsStringLooksLikeItsAnchorAndWhereItsAliasPoints() {
-        val rows = documentRows(root(), inks, selected = "$.id", marks = null, expanded = root().branches())
+        val rows = documentRows(root(), inks, marks = null, expanded = root().branches())
         val top = rows.nodes.single()
         assertEquals("$", top.key)
         assertEquals("root", top.tagKey)
@@ -141,10 +135,8 @@ class DocumentTreeTest {
         assertEquals("#0F766E", rows.ends.getValue("$.theme.accent").written)
         assertIs<ValuePreview.Link>(rows.ends.getValue("$.customer.website").preview)
         assertNull(rows.ends["$.id"])
-        // The chosen row's label has no colours of its own.
-        assertTrue(top.children.first { it.key == "$.id" }.styledLabel!!.spanStyles.isEmpty())
 
-        val yaml = root(deployment, Format.Yaml).let { documentRows(it, inks, selected = null, marks = null, expanded = it.branches()) }
+        val yaml = root(deployment, Format.Yaml).let { documentRows(it, inks, marks = null, expanded = it.branches()) }
         assertEquals("&labels", yaml.ends.getValue("$.metadata.labels").anchor)
         assertEquals("$.metadata.labels", yaml.ends.getValue("$.spec.selector.matchLabels").target)
     }
@@ -152,7 +144,7 @@ class DocumentTreeTest {
     @Test
     fun aClosedBranchsRowsAreMadeAsItOpens() {
         val root = root()
-        val closed = documentRows(root, inks, selected = null, marks = null, expanded = setOf("$"))
+        val closed = documentRows(root, inks, marks = null, expanded = setOf("$"))
         val customer = closed.nodes.single().children.first { it.key == "$.customer" }
         assertTrue(customer.children.isEmpty())
         assertTrue(customer.hasChildren)
@@ -160,7 +152,7 @@ class DocumentTreeTest {
         assertIs<ValuePreview.Moment>(closed.ends.getValue("$.createdAt").preview)
         assertNull(closed.ends["$.customer.website"])
 
-        val open = documentRows(root, inks, selected = null, marks = null, expanded = setOf("$", "$.customer"))
+        val open = documentRows(root, inks, marks = null, expanded = setOf("$", "$.customer"))
         val opened = open.nodes.single().children.first { it.key == "$.customer" }
         assertEquals(listOf("$.customer.name", "$.customer.email", "$.customer.website"), opened.children.map { it.key })
         assertIs<ValuePreview.Link>(open.ends.getValue("$.customer.website").preview)
@@ -169,36 +161,22 @@ class DocumentTreeTest {
     }
 
     @Test
-    fun aValueChosenOrABranchOpenedMakesItsOwnRowsAgainAndKeepsTheRest() {
+    fun aBranchOpenedMakesItsOwnRowsAgainAndKeepsTheRest() {
         val root = root()
         val maker = RowMaker(root, inks)
-        val first = maker.rows(selected = null, marks = null, expanded = setOf("$", "$.customer"))
+        val first = maker.rows(marks = null, expanded = setOf("$", "$.customer"))
 
         fun DocumentRows.row(key: String) = nodes.single().children.first { it.key == key }
 
-        val chosen = maker.rows(selected = "$.id", marks = null, expanded = setOf("$", "$.customer"))
-        // The chosen row has no colours of its own; the rows beside it, and the branch's rows, are the ones made before.
-        assertTrue(chosen.row("$.id").styledLabel!!.spanStyles.isEmpty())
-        assertSame(first.row("$.total"), chosen.row("$.total"))
-        assertSame(first.row("$.customer"), chosen.row("$.customer"))
-
-        val opened = maker.rows(selected = "$.id", marks = null, expanded = setOf("$", "$.customer", "$.theme"))
+        val opened = maker.rows(marks = null, expanded = setOf("$", "$.customer", "$.theme"))
         assertEquals(listOf("$.theme.accent"), opened.row("$.theme").children.map { it.key })
-        assertSame(chosen.row("$.customer"), opened.row("$.customer"))
-        assertSame(chosen.row("$.id"), opened.row("$.id"))
+        assertSame(first.row("$.customer"), opened.row("$.customer"))
+        assertSame(first.row("$.id"), opened.row("$.id"))
 
-        // The value chosen before is written in its colours again, and a search makes every row again.
-        val other = maker.rows(selected = "$.total", marks = null, expanded = setOf("$", "$.customer", "$.theme"))
-        assertTrue(other.row("$.id").styledLabel!!.spanStyles.isNotEmpty())
-        val searched = maker.rows(
-            selected = "$.total",
-            marks = TreeMarks("elif", "en", current = null),
-            expanded = setOf("$", "$.customer", "$.theme")
-        )
-        assertNotSame(other.row("$.customer"), searched.row("$.customer"))
-        assertEquals(
-            documentRows(root, inks, "$.total", TreeMarks("elif", "en", current = null), setOf("$", "$.customer", "$.theme")).nodes,
-            searched.nodes
-        )
+        // A search makes every row again.
+        val marks = TreeMarks("elif", "en", current = "$.customer.name")
+        val searched = maker.rows(marks = marks, expanded = setOf("$", "$.customer", "$.theme"))
+        assertNotSame(opened.row("$.customer"), searched.row("$.customer"))
+        assertEquals(documentRows(root, inks, marks, setOf("$", "$.customer", "$.theme")).nodes, searched.nodes)
     }
 }

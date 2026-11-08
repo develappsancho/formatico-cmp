@@ -27,7 +27,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -201,9 +200,7 @@ private fun TableToolbar(toolbar: TableToolbarState, layout: WorkspaceLayout, on
                 PathTrail(
                     nodes = trail(toolbar.state.root, table.source.key),
                     onIntent = onIntent,
-                    // A trail keeps a short page whole and draws past its room: it is cut there, not over the count
-                    // (PANTRIX_FINDINGS, "Breadcrumb, kısa bir sayfaya yetmeyen yerde sınırının dışına taşıyor").
-                    modifier = Modifier.weight(1f, fill = false).clipToBounds()
+                    modifier = Modifier.weight(1f, fill = false)
                 )
             }
             CountText(count)

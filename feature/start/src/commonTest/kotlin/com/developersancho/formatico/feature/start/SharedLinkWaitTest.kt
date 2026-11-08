@@ -1,8 +1,5 @@
 package com.developersancho.formatico.feature.start
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.v2.runComposeUiTest
@@ -42,7 +39,7 @@ class SharedLinkWaitTest {
                 online = Online(shares, FakeAddresses(AddressReading.Unreachable))
             )
         setContent {
-            PantrixTestTheme(window = PantrixWindow(DpSize(1000.dp, 700.dp))) { Box(Modifier.fillMaxSize()) { SharedLinkWait(opener) } }
+            PantrixTestTheme(window = PantrixWindow(DpSize(1000.dp, 700.dp))) { SharedLinkWait(opener) }
         }
 
         var opening: Opening? = null

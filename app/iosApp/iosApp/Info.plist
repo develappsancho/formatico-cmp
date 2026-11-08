@@ -4,9 +4,8 @@
 <dict>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
-	<!-- The languages the app speaks, whose words are in Kotlin and not in .lproj folders: iOS gives the app the
-	     device's language, the locale the theme reads, only where it is one of these (PANTRIX_FINDINGS, "iOS'ta
-	     systemPantrixLocale() cihazın dilini değil, uygulamanın paketinin dilini veriyor"). -->
+	<!-- The languages the app speaks, whose words are in Kotlin and not in .lproj folders: Settings offers the app's
+	     own language among them, and iOS writes its own words in the app (its alerts, its share sheet) in it. -->
 	<key>CFBundleLocalizations</key>
 	<array>
 		<string>en</string>

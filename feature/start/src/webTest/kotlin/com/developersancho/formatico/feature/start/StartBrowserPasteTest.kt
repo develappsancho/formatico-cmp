@@ -17,13 +17,14 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 /**
- * A browser's own paste, which follows Cmd+V or Ctrl+V on the page: a test cannot press the browser's keys, and so it
- * presses Compose's and hands the page, while the key is down, the paste the browser would.
+ * A browser's own paste: the one its menu or a right click makes, with no key, and the one that follows Cmd+V or Ctrl+V
+ * on the page. A test cannot press the browser's keys, and so it presses Compose's and hands the page, while the key is
+ * down, the paste the browser would.
  */
 @OptIn(ExperimentalTestApi::class)
 class StartBrowserPasteTest {
     @Test
-    fun theBrowsersPasteThatFollowsItsKeyIsHeardBeforeAnythingHasBeenFocused() = runComposeUiTest {
+    fun theBrowsersPasteWithOrWithoutItsKeyIsHeardBeforeAnythingHasBeenFocused() = runComposeUiTest {
         val intents = mutableListOf<StartIntent>()
         setContent {
             PantrixTestTheme(window = PantrixWindow(DpSize(1440.dp, 900.dp))) {
@@ -32,8 +33,11 @@ class StartBrowserPasteTest {
         }
         awaitText("Paste from clipboard")
 
-        // A paste with no key, as the browser's menu makes, is not the screen's.
-        assertEquals(false, pasteInBrowser("from the menu"))
+        // A paste with no key, as the browser's menu makes, is the screen's too, and is kept from the browser's own.
+        assertEquals(true, pasteInBrowser("from the menu"))
+        awaitUntil("The menu's paste") { intents.isNotEmpty() }
+        assertEquals(listOf<StartIntent>(StartIntent.Paste("from the menu")), intents)
+        intents.clear()
 
         // The screen's root holds the focus: nothing inside it has been focused.
         onRoot().performKeyInput {

@@ -1,10 +1,7 @@
 package com.developersancho.formatico.feature.start
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsNotEnabled
@@ -63,7 +60,7 @@ class WebAddressDialogTest {
                     )
                 }
                 opening = shown
-                Box(Modifier.fillMaxSize()) { WebAddressDialog(shown) }
+                WebAddressDialog(shown)
             }
         }
         waitForIdle()
@@ -108,9 +105,7 @@ class WebAddressDialogTest {
     fun onTheWebTheAddressComesThroughFormaticosServer() = runComposeUiTest {
         setContent {
             PantrixTestTheme(platform = PlatformType.Web, window = desktop) {
-                Box(Modifier.fillMaxSize()) {
-                    WebAddressDialog(ask = AddressAsk(), maxFileSize = 10_000_000, onChange = {}, onOpen = {}, onDismiss = {})
-                }
+                WebAddressDialog(ask = AddressAsk(), maxFileSize = 10_000_000, onChange = {}, onOpen = {}, onDismiss = {})
             }
         }
 
