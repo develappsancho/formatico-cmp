@@ -6,7 +6,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.input.key.Key
 import com.developersancho.formatico.core.format.Format
+import com.developersancho.formatico.core.format.types.TypeLanguage
 import com.developersancho.formatico.feature.workspace.strings.paletteStrings
+import com.developersancho.formatico.feature.workspace.strings.typesStrings
 import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.components.overlay.commandpalette.PantrixCommand
 import com.pantrixui.foundation.icons.PantrixIcons
@@ -30,6 +32,9 @@ internal object DocumentCommandKeys {
 
     /** The key of converting to [format]: `convert_yaml`. */
     fun convert(format: Format): String = "convert_${format.name.lowercase()}"
+
+    /** The key of writing the document's types in [language]: `types_kotlin`. */
+    fun types(language: TypeLanguage): String = "types_${language.name.lowercase()}"
 }
 
 /**
@@ -52,13 +57,14 @@ private val PaletteTargets = listOf(Format.Json, Format.Yaml, Format.Toml, Forma
 
 /**
  * The command palette's commands for [document], the one shown, under their groups: Document's (Format, Minify, Sort
- * keys, Copy, Save and Compare), View's (the tree, the table and the query) and Convert's (to the formats most converted
- * to), as the Palette boards list them. A phone lists fewer, the ones its screen has no button for at hand, and writes
- * no shortcuts; a command the document cannot take, as Sort keys for a CSV or a query of plain text, is listed faint.
+ * keys, Copy, Save and Compare), View's (the tree, the table and the query), Convert's (to the formats most converted
+ * to) and Types' (in each language), as the Palette boards list them. A phone lists fewer, the ones its screen has no
+ * button for at hand, and writes no shortcuts; a command the document cannot take, as Sort keys for a CSV or a query
+ * of plain text, is listed faint.
  */
 @Composable
 fun documentPaletteCommands(document: OpenDocument): List<PantrixCommand> =
-    documentAndViewCommands(document.format) + convertGroup(document.format)
+    documentAndViewCommands(document.format) + convertGroup(document.format) + typesGroup(document.format)
 
 /**
  * The palette's commands of a document that have a shortcut where the app runs, under their groups, as Settings'
@@ -184,6 +190,20 @@ private fun convertGroup(format: Format?): List<PantrixCommand> {
     }
 }
 
+/** The Types group: the document's types in each language; none of plain text. */
+@Composable
+private fun typesGroup(format: Format?): List<PantrixCommand> {
+    val group = typesStrings.groupTypes
+    return TypeLanguage.entries.map { language ->
+        PantrixCommand(
+            key = DocumentCommandKeys.types(language),
+            label = typesStrings.generate(language.displayName),
+            group = group,
+            enabled = format != null
+        )
+    }
+}
+
 /** The other words [words] lists, by commas, that find a command. */
 private fun keywords(words: String): List<String> = words.split(',').map { it.trim() }.filter { it.isNotEmpty() }
 
@@ -201,6 +221,7 @@ class DocumentPalette internal constructor(
     fun run(key: String, documentId: Long): Boolean {
         val document = workbench.state.value.documents.firstOrNull { it.id == documentId } ?: return false
         val target = PaletteTargets.firstOrNull { DocumentCommandKeys.convert(it) == key }
+        val language = TypeLanguage.entries.firstOrNull { DocumentCommandKeys.types(it) == key }
         when {
             key == DocumentCommandKeys.FORMAT -> edit(documentId, DocumentEdit.Format)
 
@@ -222,6 +243,10 @@ class DocumentPalette internal constructor(
 
             target != null -> workbench.changeView(documentId) { view ->
                 view.copy(pane = DocumentPane.Convert, convert = view.convert.copy(to = target))
+            }
+
+            language != null -> workbench.changeView(documentId) { view ->
+                view.copy(pane = DocumentPane.Types, types = view.types.copy(language = language))
             }
 
             else -> return false

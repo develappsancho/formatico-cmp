@@ -158,11 +158,11 @@ internal fun AppTopBar(
 }
 
 /**
- * Whether a phone's screen has a bar of its own in this one's place: Settings, and a document [shown] being converted or
- * compared, as Convert-390 and Compare-390 draw them.
+ * Whether a phone's screen has a bar of its own in this one's place: Settings, and a document [shown] being converted,
+ * typed or compared, as Convert-390, Types-390 and Compare-390 draw them.
  */
 private fun hasOwnBar(shown: OpenDocument?, settingsShown: Boolean): Boolean =
-    settingsShown || shown?.view?.pane == DocumentPane.Convert || shown?.view?.pane == DocumentPane.Compare
+    settingsShown || shown?.view?.pane in setOf(DocumentPane.Convert, DocumentPane.Types, DocumentPane.Compare)
 
 /**
  * A phone's bar, changing as its screen does and over the same time: on iOS the screen slides in, and a bar that

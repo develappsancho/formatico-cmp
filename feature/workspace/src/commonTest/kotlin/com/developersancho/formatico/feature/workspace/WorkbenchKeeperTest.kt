@@ -1,6 +1,7 @@
 package com.developersancho.formatico.feature.workspace
 
 import com.developersancho.formatico.core.format.Format
+import com.developersancho.formatico.core.format.types.TypeLanguage
 import com.developersancho.formatico.core.storage.MemorySmallStore
 import com.developersancho.formatico.core.storage.MemoryTextStore
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -101,7 +102,8 @@ class WorkbenchKeeperTest {
                 pane = DocumentPane.Table,
                 tableSort = TableSort("price", descending = true),
                 hiddenColumns = setOf("name"),
-                tableFilter = "1"
+                tableFilter = "1",
+                types = TypesChoice(language = TypeLanguage.Swift, root = "Purchase")
             )
         }
         settle()
@@ -114,6 +116,7 @@ class WorkbenchKeeperTest {
         assertEquals(TableSort("price", descending = true), view.tableSort)
         assertEquals(setOf("name"), view.hiddenColumns)
         assertEquals("1", view.tableFilter)
+        assertEquals(TypesChoice(language = TypeLanguage.Swift, root = "Purchase"), view.types)
     }
 
     @Test

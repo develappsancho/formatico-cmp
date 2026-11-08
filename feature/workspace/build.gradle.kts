@@ -19,6 +19,10 @@ kotlin {
             // A phone's Convert is a screen of its own, which the system's back leaves.
             implementation(projects.core.navigation)
         }
+        commonTest.dependencies {
+            // The Kotlin Types writes is compiled in the tests, and reads its document with kotlinx.serialization.
+            implementation(libs.kotlinx.serialization.json)
+        }
     }
 }
 

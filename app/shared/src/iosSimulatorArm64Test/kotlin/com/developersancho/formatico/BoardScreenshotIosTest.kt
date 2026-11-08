@@ -58,6 +58,9 @@ class BoardScreenshotIosTest {
     fun compare() = boards(AppBoard.Compare)
 
     @Test
+    fun types() = boards(AppBoard.Types)
+
+    @Test
     fun summary() = boards(AppBoard.Summary)
 
     @Test

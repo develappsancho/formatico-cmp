@@ -1,6 +1,7 @@
 package com.developersancho.formatico.feature.workspace
 
 import com.developersancho.formatico.core.format.Format
+import com.developersancho.formatico.core.format.types.TypeLanguage
 import com.developersancho.formatico.core.share.LinkReading
 import com.developersancho.formatico.core.share.ShareLinks
 import com.developersancho.formatico.core.share.ShareOutcome
@@ -256,6 +257,29 @@ class WorkspaceViewModelTest {
 
         viewModel.dispatch(WorkspaceIntent.ShowPane(DocumentPane.Tree))
         viewModel.state.first { it.conversion == null }
+    }
+
+    @Test
+    fun theDocumentsTypesAreWrittenWhileItsTypesIsShownAndAsItsChoiceSays() = runTest(dispatcher) {
+        val id = workbench.open("order.json", """{"id": "a", "qty": 2}""", Format.Json)
+        val viewModel = viewModel(id)
+        assertNull(viewModel.state.value.types)
+
+        viewModel.dispatch(WorkspaceIntent.ShowPane(DocumentPane.Types))
+        val kotlin = viewModel.state.first { it.types != null }.types.written
+        assertEquals(TypeLanguage.Kotlin, kotlin?.language)
+        assertEquals("Order", kotlin?.root)
+        assertEquals("Order.kt", kotlin?.fileName)
+        assertTrue(kotlin?.text.orEmpty().contains("data class Order("), kotlin?.text)
+
+        viewModel.dispatch(WorkspaceIntent.Types(TypesChoice(language = TypeLanguage.Go, root = "line item")))
+        val go = viewModel.state.first { it.types.written?.language == TypeLanguage.Go }.types.written
+        assertEquals("LineItem", go?.root)
+        assertTrue(go?.text.orEmpty().contains("type LineItem struct {"), go?.text)
+        assertEquals(TypesChoice(language = TypeLanguage.Go, root = "line item"), workbench.state.value.documents.single().view.types)
+
+        viewModel.dispatch(WorkspaceIntent.ShowPane(DocumentPane.Tree))
+        viewModel.state.first { it.types == null }
     }
 
     @Test

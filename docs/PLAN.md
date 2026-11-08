@@ -237,6 +237,12 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
         UI testleri her hedefte. Yazılan kodun derlendiği de denenir: Kotlin'inki testlerde derlenen bir örnekle
         (kotlinc bu makinede yok), Swift'inki `swiftc` ile (var); `tsc` ve `go` bu makinede yok, indirmeleri sahibinin
         onayıyla.
+    *   **Durum (2026-11-07):** sahibi panoları ve kararları onayladı ("Evet, başla"). `core:format`'ta `types`
+        paketi (çıkarım, adlar, dört yazıcı), Workspace'te Types bölmesi, telefon sayfası, araç çubuğu ve "more"
+        menüsünde Types, paletin dört komutu, dört highlighter. Kotlin çıktısı `feature:workspace`'in testlerinde
+        her hedefte derleniyor ve belgeyi okuyor; Swift çıktısı `swiftc -typecheck`'ten geçti; TypeScript çıktısı
+        Node'un tip ayıklayıcısıyla sözdizimi olarak denendi (tsc yok); Go denenmedi. Panolar sürüm 116: Types
+        düğmesi Workspace, Invalid, Table, Query, Convert ve Summary panolarının araç çubuklarına da eklendi.
 *   [ ] **Faz 18: Grafik görünümü.**
 *   [ ] **Faz 19: JSON Schema.**
 *   [ ] **Faz 20: Uygulama içi yapay zekâ,** kullanıcının kendi anahtarıyla.

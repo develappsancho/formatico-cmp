@@ -179,6 +179,23 @@ internal fun ConvertPanes(
     commands: DocumentCommands,
     modifier: Modifier = Modifier
 ) {
+    BesideTextPanes(state, editor, onIntent, modifier) {
+        ConvertPane(state = state, layout = WorkspaceLayout.Wide, onIntent = onIntent, commands = commands)
+    }
+}
+
+/**
+ * A wide window's document beside what is made of it, its conversion or its types: the text under its format, name and
+ * lines, and [second], each half the room, as Convert-1440 and Types-1440 draw them.
+ */
+@Composable
+internal fun BesideTextPanes(
+    state: WorkspaceState,
+    editor: CodeEditorState,
+    onIntent: (WorkspaceIntent) -> Unit,
+    modifier: Modifier = Modifier,
+    second: @Composable () -> Unit
+) {
     PantrixTwoPane(
         first = {
             Row(modifier = Modifier.fillMaxSize()) {
@@ -189,7 +206,7 @@ internal fun ConvertPanes(
                 PantrixVerticalDivider()
             }
         },
-        second = { ConvertPane(state = state, layout = WorkspaceLayout.Wide, onIntent = onIntent, commands = commands) },
+        second = second,
         modifier = modifier,
         firstSize = PaneSize.Fraction(CONVERT_TEXT_SHARE),
         gap = 0.dp,

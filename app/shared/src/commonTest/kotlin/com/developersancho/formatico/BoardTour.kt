@@ -45,6 +45,7 @@ internal enum class AppBoard(val fileName: String) {
     Invalid("Invalid"),
     Query("Query"),
     Convert("Convert"),
+    Types("Types"),
     Compare("Compare"),
     Summary("Summary"),
     Palette("Palette"),
@@ -71,7 +72,8 @@ internal class BoardWords(
     val characters: String,
     val linkBroken: String,
     val secondProblemAt: String,
-    val values: String
+    val values: String,
+    val types: String
 ) {
     companion object {
         val English = BoardWords(
@@ -84,7 +86,8 @@ internal class BoardWords(
             characters = " characters",
             linkBroken = "This link holds no document",
             secondProblemAt = "Line 10, column 5",
-            values = "Values"
+            values = "Values",
+            types = "6 types from order.json"
         )
 
         val Turkish = BoardWords(
@@ -97,7 +100,8 @@ internal class BoardWords(
             characters = " karakter",
             linkBroken = "Bu bağlantıda Formatico’nun okuyabileceği bir belge yok",
             secondProblemAt = "Satır 10, sütun 5",
-            values = "Değerler"
+            values = "Değerler",
+            types = "order.json belgesinden 6 tip"
         )
     }
 }
@@ -193,6 +197,8 @@ private class Trip(
                 if (phone) documentMenu("convert") else press("Button", "convert")
                 awaitShown(words.nothingLost)
             }
+
+            AppBoard.Types -> types()
 
             AppBoard.Compare -> compare()
 
@@ -339,6 +345,29 @@ private class Trip(
         } and hasText(name)
         test.awaitNode(tab, "the tab of $name")
         test.onNode(tab).performSemanticsAction(SemanticsActions.OnClick)
+    }
+
+    /**
+     * The order's types, as the Types boards draw them: in Kotlin on a desktop, from the toolbar; in TypeScript on a
+     * tablet, from the toolbar; in Swift on a phone, from its bar's "more" menu. Each is waited for by its file's name.
+     */
+    private suspend fun types() {
+        openSample("order")
+        if (phone) documentMenu("types") else press("Button", "types")
+        awaitShown(words.types)
+        val (language, file) = when (window) {
+            Board.Desktop -> null to "Order.kt"
+            Board.Tablet -> "typescript" to "order.ts"
+            Board.Phone -> "swift" to "Order.swift"
+        }
+        if (language != null) {
+            press("Button", "types_language")
+            // The row is touched, as a tablet's and a phone's reader touches it: pressed as a screen reader presses it,
+            // the menu gives the focus back to its button with a keyboard's ring.
+            test.awaitNode(hasPantrixTag("MenuItem", language, "Menu_languages"), "MenuItem $language")
+            test.onPantrixNode("MenuItem", language, scope = "Menu_languages").performTouchInput { click() }
+        }
+        awaitShown(file)
     }
 
     /** Presses the document's "more" menu's row [key]: a phone's in its bar, a wider window's in its toolbar. */

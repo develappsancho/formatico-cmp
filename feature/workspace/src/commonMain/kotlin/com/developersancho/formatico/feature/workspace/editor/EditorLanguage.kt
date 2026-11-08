@@ -57,12 +57,17 @@ internal fun editorIndent(indentation: Indentation?): String = when (indentation
     null -> "  "
 }
 
-/** The editor in Formatico's syntax colours: keys, strings, numbers, `true`, `false` and `null`, signs, comments. */
+/**
+ * The editor in Formatico's syntax colours: keys, strings, numbers, `true`, `false` and `null`, signs, comments; and in
+ * the code Types writes, types as keys are, annotations as numbers are, keywords as `true`, `false` and `null` are.
+ */
 @Composable
 internal fun editorColors(): CodeEditorColors {
     val syntax = FormaticoTheme.syntax
     return CodeEditorColors(
         property = syntax.key,
+        type = syntax.key,
+        annotation = syntax.number,
         tag = syntax.key,
         string = syntax.string,
         number = syntax.number,

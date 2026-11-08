@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.base.MviScreen
 import com.developersancho.formatico.core.format.Format
 import com.developersancho.formatico.feature.workspace.editor.DocumentEditor
+import com.developersancho.formatico.feature.workspace.strings.typesStrings
 import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.components.container.twopane.PaneSize
 import com.pantrixui.components.container.twopane.PantrixTwoPane
@@ -103,6 +104,8 @@ internal fun WorkspaceScreen(
             // Convert-390 and Compare-390 draw them.
             DocumentPane.Convert -> PhoneConvert(state = state, onIntent = onIntent, commands = commands, modifier = modifier)
 
+            DocumentPane.Types -> PhoneTypes(state = state, onIntent = onIntent, commands = commands, modifier = modifier)
+
             DocumentPane.Compare -> PhoneCompare(
                 state = state,
                 onIntent = onIntent,
@@ -142,6 +145,12 @@ internal fun WorkspaceScreen(
             StatusBar(state = state, layout = layout, onIntent = onIntent)
             return@Column
         }
+        if (document.view.pane == DocumentPane.Types && !wide) {
+            // And its types, as Types-834 draws them.
+            TypesPane(state, layout, onIntent, commands, Modifier.weight(1f).fillMaxWidth())
+            StatusBar(state = state, layout = layout, onIntent = onIntent)
+            return@Column
+        }
         DocumentPanes(state, text, layout, onIntent, commands, Modifier.weight(1f).fillMaxWidth())
         StatusBar(state = state, layout = layout, editor = text, onIntent = onIntent)
     }
@@ -166,8 +175,8 @@ private fun DocumentPanes(
     val problems = pane == DocumentPane.Problems && state.problems.isNotEmpty()
     val summary = pane == DocumentPane.Summary
     val query = pane == DocumentPane.Query
-    if (wide && pane == DocumentPane.Convert) {
-        ConvertPanes(state, editor, onIntent, commands, modifier)
+    if (wide && (pane == DocumentPane.Convert || pane == DocumentPane.Types)) {
+        MadeBesideText(state, editor, onIntent, commands, modifier)
         return
     }
     // How tall the text stands on a tablet, as its handle leaves it.
@@ -267,6 +276,17 @@ private fun Toolbar(
             enabled = document.format != null,
             leadingIcon = { PantrixIcon(imageVector = PantrixIcons.ArrowForward, contentDescription = null) },
             tagKey = "convert"
+        )
+        val typing = document.view.pane == DocumentPane.Types
+        PantrixButton(
+            text = typesStrings.types,
+            // Pressed again, it gives the view the document opens with back, as Convert does. PantrixIcons has no
+            // icon of code: it stands in words alone, as Compare does.
+            onClick = { onIntent(WorkspaceIntent.ShowPane(if (typing) openingPane(document.format) else DocumentPane.Types)) },
+            variant = if (typing) ButtonVariant.Soft else ButtonVariant.Text,
+            size = size,
+            enabled = document.format != null,
+            tagKey = "types"
         )
         if (wide) {
             PantrixButton(

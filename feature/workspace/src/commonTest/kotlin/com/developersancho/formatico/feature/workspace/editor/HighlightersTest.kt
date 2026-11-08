@@ -1,6 +1,7 @@
 package com.developersancho.formatico.feature.workspace.editor
 
 import com.developersancho.formatico.core.format.Format
+import com.developersancho.formatico.core.format.types.TypeLanguage
 import com.pantrixui.components.data.codeblock.CodeTokenKind
 import com.pantrixui.components.data.codeblock.CodeTokenKind.Comment
 import com.pantrixui.components.data.codeblock.CodeTokenKind.Keyword
@@ -171,6 +172,80 @@ class HighlightersTest {
                 listOf("]]>:sign", "</:sign", "a:tag", ">:sign")
             ),
             XmlHighlighter.read("<a title=\"one", "two\"><![CDATA[if (a < b)", "{ }]]></a>")
+        )
+    }
+
+    /** The highlighter of the code Types writes in [language]. */
+    private fun typesHighlighter(language: TypeLanguage) = editorLanguage(language).highlighter as TypesHighlighter
+
+    @Test
+    fun kotlinTypesHaveKeywordsTypesAndAnnotations() {
+        assertEquals(
+            listOf(
+                listOf("import:word", ".:sign", ".:sign", "Serializable:Type"),
+                listOf("@Serializable:Annotation"),
+                listOf("data:word", "class:word", "Order:Type", "(:sign"),
+                listOf(
+                    "@SerialName:Annotation",
+                    "(:sign",
+                    "\"first_name\":string",
+                    "):sign",
+                    "val:word",
+                    "::sign",
+                    "String:Type",
+                    ",:sign"
+                ),
+                listOf("val:word", "::sign", "List:Type", "<:sign", "Item:Type", ">:sign", "?:sign", "=:sign", "null:word"),
+                listOf("):sign")
+            ),
+            typesHighlighter(TypeLanguage.Kotlin).read(
+                "import kotlinx.serialization.Serializable",
+                "@Serializable",
+                "data class Order(",
+                "    @SerialName(\"first_name\") val firstName: String,",
+                "    val `class`: List<Item>? = null",
+                ")"
+            )
+        )
+    }
+
+    @Test
+    fun typeScriptsOwnTypesAreTypes() {
+        assertEquals(
+            listOf(
+                listOf("export:word", "interface:word", "Order:Type", "{:sign"),
+                listOf("?:sign", "::sign", "string:Type", "|:sign", "null:word", ";:sign"),
+                listOf("\"first-name\":string", "::sign", "Item:Type", "[:sign", "]:sign", ";:sign")
+            ),
+            typesHighlighter(
+                TypeLanguage.TypeScript
+            ).read("export interface Order {", "  nickname?: string | null;", "  \"first-name\": Item[];")
+        )
+    }
+
+    @Test
+    fun swiftCommentsAndGoTagsAreRead() {
+        assertEquals(
+            listOf(listOf("let:word", "::sign", "String:Type", "?:sign", "// Only ever null here: its type is a guess:comment")),
+            typesHighlighter(TypeLanguage.Swift).read("    let coupon: String? // Only ever null here: its type is a guess")
+        )
+        assertEquals(
+            listOf(
+                listOf("type:word", "Order:Type", "struct:word", "{:sign"),
+                listOf("string:Type", "`json:\"id\"`:string"),
+                listOf("[:sign", "]:sign", "Item:Type", "`json:\"items,omitempty\"`:string")
+            ),
+            typesHighlighter(
+                TypeLanguage.Go
+            ).read("type Order struct {", "\tID    string `json:\"id\"`", "\tItems []Item `json:\"items,omitempty\"`")
+        )
+    }
+
+    @Test
+    fun aBlockCommentGoesOnOverLines() {
+        assertEquals(
+            listOf(listOf("/* one:comment"), listOf("two */:comment", "val:word")),
+            typesHighlighter(TypeLanguage.Kotlin).read("/* one", "two */ val a")
         )
     }
 

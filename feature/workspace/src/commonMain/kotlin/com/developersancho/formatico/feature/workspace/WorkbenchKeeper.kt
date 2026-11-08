@@ -2,6 +2,7 @@ package com.developersancho.formatico.feature.workspace
 
 import com.developersancho.formatico.core.format.Format
 import com.developersancho.formatico.core.format.convert.NullHandling
+import com.developersancho.formatico.core.format.types.TypeLanguage
 import com.developersancho.formatico.core.storage.SmallStore
 import com.developersancho.formatico.core.storage.TextStore
 import com.developersancho.formatico.core.storage.historyTextName
@@ -130,7 +131,9 @@ private data class KeptWorkbench(val tabs: List<KeptTab>, val selectedId: Long?)
                     convertSortKeys = view.convert.sortKeys,
                     convertNulls = view.convert.nulls.name,
                     compareWith = view.compare.with,
-                    compareBy = view.compare.by.name
+                    compareBy = view.compare.by.name,
+                    typesLanguage = view.types.language.name,
+                    typesRoot = view.types.root
                 )
             },
             selectedId = state.selectedId
@@ -162,7 +165,9 @@ private data class KeptTab(
     val convertSortKeys: Boolean = false,
     val convertNulls: String? = null,
     val compareWith: Long? = null,
-    val compareBy: String? = null
+    val compareBy: String? = null,
+    val typesLanguage: String? = null,
+    val typesRoot: String? = null
 ) {
     /** What the document was left showing: its pane by name, or the tree where that pane is no longer one. */
     fun view() = DocumentView(
@@ -179,7 +184,11 @@ private data class KeptTab(
             sortKeys = convertSortKeys,
             nulls = NullHandling.entries.firstOrNull { it.name == convertNulls } ?: NullHandling.LeaveOut
         ),
-        compare = CompareChoice(with = compareWith, by = CompareBy.entries.firstOrNull { it.name == compareBy } ?: CompareBy.Meaning)
+        compare = CompareChoice(with = compareWith, by = CompareBy.entries.firstOrNull { it.name == compareBy } ?: CompareBy.Meaning),
+        types = TypesChoice(
+            language = TypeLanguage.entries.firstOrNull { it.name == typesLanguage } ?: TypeLanguage.Kotlin,
+            root = typesRoot
+        )
     )
 }
 

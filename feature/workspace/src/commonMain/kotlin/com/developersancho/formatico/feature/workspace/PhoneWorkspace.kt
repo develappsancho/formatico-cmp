@@ -408,6 +408,7 @@ internal fun PhoneMoreMenu(state: WorkspaceState, document: OpenDocument, onInte
         onSummary = { onIntent(WorkspaceIntent.ShowPane(DocumentPane.Summary)) },
         onQuery = { onIntent(WorkspaceIntent.ShowPane(DocumentPane.Query)) },
         onConvert = { onIntent(WorkspaceIntent.ShowPane(DocumentPane.Convert)) },
+        onTypes = { onIntent(WorkspaceIntent.ShowPane(DocumentPane.Types)) },
         canSort = DocumentEdit.SortKeys in state.edits,
         onSortKeys = { onIntent(WorkspaceIntent.Edit(DocumentEdit.SortKeys)) },
         onSave = {},

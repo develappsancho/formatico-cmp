@@ -78,6 +78,11 @@ class WorkspaceScreenshotTest {
     }
 
     @Test
+    fun types() = TypesCases().values.forEach { case ->
+        capturePreview("Types", case, case.value.board) { TypesPreview(case) }
+    }
+
+    @Test
     fun compare() = CompareCases().values.forEach { case ->
         capturePreview("Compare", case, case.value.board) { ComparePreview(case) }
     }

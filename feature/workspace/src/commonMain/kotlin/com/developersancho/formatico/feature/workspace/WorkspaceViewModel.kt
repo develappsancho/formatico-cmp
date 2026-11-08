@@ -190,6 +190,24 @@ internal class WorkspaceViewModel(
     }
 
     init {
+        // The document's types are written while its Types is shown, off the main thread, again as its text, its name
+        // or the choice changes.
+        viewModelScope.launch {
+            workbench.state
+                .map { state -> state.documents.firstOrNull { it.id == documentId }?.takeIf { it.view.pane == DocumentPane.Types } }
+                .map { shown -> shown?.let { it.copy(edited = false, view = DocumentView(types = it.view.types), historyId = null) } }
+                .distinctUntilChanged()
+                .collectLatest { shown ->
+                    if (shown == null) return@collectLatest setState { copy(types = null) }
+                    val reading = readings.of(documentId, shown.text, shown.format)?.first
+                        ?: withContext(reader) { readDocument(shown.text, shown.format) }
+                    val outcome = withContext(reader) { typesOf(shown, reading, shown.view.types) }
+                    setState { copy(types = outcome) }
+                }
+        }
+    }
+
+    init {
         // The other open documents, which the document can be compared with.
         viewModelScope.launch {
             workbench.state
@@ -265,6 +283,8 @@ internal class WorkspaceViewModel(
             is WorkspaceIntent.Query -> workbench.changeView(documentId) { it.copy(query = intent.query) }
 
             is WorkspaceIntent.Convert -> workbench.changeView(documentId) { it.copy(convert = intent.choice) }
+
+            is WorkspaceIntent.Types -> workbench.changeView(documentId) { it.copy(types = intent.choice) }
 
             is WorkspaceIntent.Compare -> workbench.changeView(documentId) { it.copy(compare = intent.choice) }
 
@@ -374,6 +394,7 @@ internal fun readState(document: OpenDocument, others: List<OpenDocument> = empt
         sizes = if (shown) sizesOf(document, minifiedOf(document)) else null,
         query = if (document.view.pane == DocumentPane.Query) queryOutcome(document, reading, document.view.query) else null,
         conversion = if (document.view.pane == DocumentPane.Convert) previewConversion(document, reading) else null,
+        types = if (document.view.pane == DocumentPane.Types) typesOf(document, reading, document.view.types) else null,
         comparison = if (document.view.pane == DocumentPane.Compare) previewComparison(document, reading, others) else null,
         others = others.map { OtherDocument(it.id, it.name) }
     ).arranged()

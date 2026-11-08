@@ -20,6 +20,7 @@ import com.developersancho.formatico.core.share.ShareKeep
  * @property query what the document's query found, while its Query is shown, or null.
  * @property recentQueries the queries used last on this device, the latest first.
  * @property conversion what converting the document came to, while its Convert is shown, or null.
+ * @property types what writing the document's types came to, while its Types is shown, or null.
  * @property comparison what comparing the document with another came to, while its Compare is shown, or null.
  * @property others the other open documents, which it can be compared with, in the order of their tabs.
  */
@@ -36,6 +37,7 @@ internal data class WorkspaceState(
     val query: QueryOutcome? = null,
     val recentQueries: RecentQueries = RecentQueries(),
     val conversion: ConvertOutcome? = null,
+    val types: TypesOutcome? = null,
     val comparison: CompareOutcome? = null,
     val others: List<OtherDocument> = emptyList(),
     val share: DocumentShare? = null
@@ -144,6 +146,9 @@ internal sealed interface WorkspaceIntent {
 
     /** Convert the document as [choice] says. */
     data class Convert(val choice: ConvertChoice) : WorkspaceIntent
+
+    /** Write the document's types as [choice] says. */
+    data class Types(val choice: TypesChoice) : WorkspaceIntent
 
     /** Compare the document with another as [choice] says. */
     data class Compare(val choice: CompareChoice) : WorkspaceIntent

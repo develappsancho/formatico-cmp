@@ -467,3 +467,18 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Nerede: MCP `get_api PantrixCommandPalette`; `get_component_metadata TextField` (`contentDescription`: "its name where it has no label, as a search field has none").
     *   Öneri: palet alanına yer tutucusunu (ya da temanın komut arama sözcüklerini) `contentDescription` olarak versin.
     *   Durum: açık. Formatico'nun pano testleri (`BoardTour.assertNoFindingsOnBoard`) yalnızca bu bulguyu, yorumunda bu başlığı anarak, saymıyor. Erişilebilirliğin bir eksiği: sahibi `tıkıyor` derse önce düzeltilir.
+*   [ ] **PantrixIcons'ta kod simgesi yok (2026-11-07).**
+    *   Ne: Faz 17'nin Types düğmesi (belgenin değerlerinden Kotlin, TypeScript, Swift, Go tipleri) Convert'in ok
+        simgesi gibi bir simge istiyor; PantrixIcons'ta `</>` ya da `{ }` gibi bir kod simgesi yok (`search_icons
+        code` yalnızca Copy'yi buluyor). Düğme, Compare gibi, yalnızca yazıyla.
+    *   Nerede: MCP `search_icons` ("code", "brackets"); tasarım sistemi, `IconName`.
+    *   Öneri: PantrixIcons'a bir kod simgesi (`Code`), "Simgeler kapalı bir liste" bulgusunun listesine.
+    *   Durum: açık.
+*   [ ] **Adları bir cümlede birleştiren bir yardımcı yok (2026-11-07).**
+    *   Ne: Formatico'nun uyarıları alan adlarını cümlede sayıyor ("createdAt and eta stay strings", Türkçede "createdAt
+        ve eta"). `PantrixStrings`'te bir listeyi dilin kuralıyla birleştiren bir yardımcı ("a, b and c", "a, b ve c")
+        yok; Formatico her dil için kendi "{first} and {second}" ve "{first} and {second} more" sözcüklerini yazıyor.
+    *   Nerede: MCP `search_api` ("join a list of names with and"); `PantrixTheme.strings`.
+    *   Öneri: `PantrixStrings`'e dile göre liste birleştirme (`list(items)`, `listOf(first, more)`), Unicode CLDR'ın
+        "list patterns"i gibi.
+    *   Durum: açık.

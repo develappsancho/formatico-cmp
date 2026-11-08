@@ -21,6 +21,7 @@ import com.developersancho.formatico.core.format.text.LineEnding
 import com.developersancho.formatico.core.format.text.LineMap
 import com.developersancho.formatico.feature.workspace.strings.convertStrings
 import com.developersancho.formatico.feature.workspace.strings.queryStrings
+import com.developersancho.formatico.feature.workspace.strings.typesStrings
 import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.components.data.codeeditor.CodeEditorState
 import com.pantrixui.components.data.tag.PantrixTag
@@ -38,7 +39,7 @@ import com.pantrixui.foundation.theme.PantrixTheme
  * The bar under the panes: whether the document is valid, how long it is, the line and column of [editor]'s caret or
  * of the chosen value, the chosen value's path and the text's layout, or while the query is shown which of its matches
  * is chosen. How long it is shows its Summary, or hides it. While it is converted, the bar says what is lost, where
- * anything is, and how long the document is in each format.
+ * anything is, and how long the document is in each format; while its types are shown, how many and how long.
  */
 @Composable
 internal fun StatusBar(
@@ -61,9 +62,7 @@ internal fun StatusBar(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(spacing.lg)
         ) {
-            val converted = state.conversion.converted?.takeIf { state.document?.view?.pane == DocumentPane.Convert }
-            if (converted != null) {
-                ConvertedStatus(state, converted)
+            if (madeStatus(state)) {
                 Spacer(modifier = Modifier.weight(1f))
                 if (layout == WorkspaceLayout.Wide) state.stats?.let { PantrixText(text = layoutOf(it), style = style, color = quiet) }
                 return@Row
@@ -195,6 +194,38 @@ private fun SizeButton(state: WorkspaceState, stats: TextStats, onIntent: (Works
         },
         contentDescription = if (shown) workspaceStrings.summaryShown(size) else workspaceStrings.showSummary(size),
         tagKey = "size"
+    )
+}
+
+/** The status of what is made of the document, while it is shown: its conversion's or its types'. Whether it has one. */
+@Composable
+private fun madeStatus(state: WorkspaceState): Boolean {
+    val pane = state.document?.view?.pane
+    val converted = state.conversion.converted?.takeIf { pane == DocumentPane.Convert }
+    val written = state.types.written?.takeIf { pane == DocumentPane.Types }
+    when {
+        converted != null -> ConvertedStatus(state, converted)
+        written != null -> TypesStatus(state, written)
+        else -> return false
+    }
+    return true
+}
+
+/** Whether the document is valid, and `JSON 742 B → Kotlin: 6 types, 51 lines`, while its types are shown. */
+@Composable
+private fun TypesStatus(state: WorkspaceState, written: TypesOutcome.Written) {
+    StatusTag(state)
+    PantrixText(
+        text = typesStrings.sizes(
+            written.types,
+            written.from.displayName,
+            PantrixTheme.strings.fileSize(state.stats?.bytes ?: 0),
+            written.language.displayName,
+            written.lines
+        ),
+        style = PantrixTheme.typography.footnote.copy(fontWeight = FontWeight.Medium),
+        color = PantrixTheme.colors.textSecondary,
+        maxLines = 1
     )
 }
 

@@ -14,6 +14,7 @@ import com.developersancho.formatico.feature.workspace.strings.convertStrings
 import com.developersancho.formatico.feature.workspace.strings.queryStrings
 import com.developersancho.formatico.feature.workspace.strings.shareStrings
 import com.developersancho.formatico.feature.workspace.strings.summaryStrings
+import com.developersancho.formatico.feature.workspace.strings.typesStrings
 import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.components.elements.button.ButtonSize
 import com.pantrixui.components.elements.divider.PantrixDivider
@@ -36,7 +37,7 @@ import kotlinx.coroutines.launch
 internal data class NewDocument(val name: String, val text: String, val format: Format)
 
 /** What is copied from a document besides the whole of it, each said in words of its own. */
-internal enum class Copied { Value, Path, Table, Summary, Results, Converted, Link }
+internal enum class Copied { Value, Path, Table, Summary, Results, Converted, Types, Link }
 
 /**
  * What a document's buttons do that is not the workspace's state: copying it, or a part of it ([copyText]), saving as
@@ -194,6 +195,12 @@ private fun partWords(): Map<Copied, CopyWords> = mapOf(
         failed = convertStrings.copyFailed,
         tag = "converted_copied"
     ),
+    Copied.Types to CopyWords(
+        label = typesStrings.label,
+        done = typesStrings.copied,
+        failed = typesStrings.copyFailed,
+        tag = "types_copied"
+    ),
     Copied.Link to CopyWords(
         label = shareStrings.linkLabel,
         done = shareStrings.linkCopied,
@@ -260,15 +267,16 @@ internal enum class DocumentMenuItems {
 
     /**
      * In a phone's bar, where Format, Minify, Copy and Save stand at the bottom: finding in the tree, the Summary, the
-     * query and Convert too.
+     * query, Convert and Types too.
      */
     FindSummarySortCompareClose
 }
 
 /**
  * The "more" button of a phone's bar while the document of [workbench] whose id is [documentId] is shown, and the menu
- * it opens: finding in the tree, showing the Summary, querying, converting, sorting the keys, comparing and closing the
- * document. A phone has no room for the search's button over its tree, nor a status bar whose size shows the Summary.
+ * it opens: finding in the tree, showing the Summary, querying, converting, writing types, sorting the keys, comparing
+ * and closing the document. A phone has no room for the search's button over its tree, nor a status bar whose size
+ * shows the Summary.
  */
 @Composable
 fun DocumentMoreMenu(documentId: Long, workbench: Workbench) {
@@ -285,6 +293,7 @@ fun DocumentMoreMenu(documentId: Long, workbench: Workbench) {
         onSummary = { workbench.changeView(documentId) { it.copy(pane = DocumentPane.Summary) } },
         onQuery = { workbench.changeView(documentId) { it.copy(pane = DocumentPane.Query) } },
         onConvert = { workbench.changeView(documentId) { it.copy(pane = DocumentPane.Convert) } },
+        onTypes = { workbench.changeView(documentId) { it.copy(pane = DocumentPane.Types) } },
         onCompare = { workbench.changeView(documentId) { it.copy(pane = DocumentPane.Compare) } },
         // Whether the document is valid is the workspace's to know; one with errors is told why it is not sorted.
         canSort = format?.edits?.contains(DocumentEdit.SortKeys) == true,
@@ -307,6 +316,7 @@ internal fun DocumentMenu(
     onSummary: () -> Unit = {},
     onQuery: () -> Unit = {},
     onConvert: () -> Unit = {},
+    onTypes: () -> Unit = {},
     canSort: Boolean,
     onSortKeys: () -> Unit,
     onCompare: () -> Unit = {},
@@ -334,7 +344,10 @@ internal fun DocumentMenu(
         alignment = PopoverAlignment.End,
         tagKey = "document"
     ) {
-        if (items == DocumentMenuItems.FindSummarySortCompareClose) FindSummaryAndQueryItems(read, onFind, onSummary, onQuery, onConvert)
+        if (items == DocumentMenuItems.FindSummarySortCompareClose) {
+            FindAndSummaryItems(read, onFind, onSummary)
+            QueryConvertTypesItems(read, onQuery, onConvert, onTypes)
+        }
         if (items != DocumentMenuItems.Close) {
             PantrixMenuItem(
                 text = workspaceStrings.sortKeys,
@@ -371,18 +384,9 @@ internal fun DocumentMenu(
     }
 }
 
-/**
- * The rows only a phone's menu holds: finding in the tree, showing the Summary, querying and converting, which a [read]
- * document has. A phone has no room for the toolbar's Query and Convert.
- */
+/** A phone's menu items for what its bar has no room for: finding in the tree, and the Summary. Plain text has neither. */
 @Composable
-private fun FindSummaryAndQueryItems(
-    read: Boolean,
-    onFind: () -> Unit,
-    onSummary: () -> Unit,
-    onQuery: () -> Unit,
-    onConvert: () -> Unit
-) {
+private fun FindAndSummaryItems(read: Boolean, onFind: () -> Unit, onSummary: () -> Unit) {
     PantrixMenuItem(
         text = workspaceStrings.findInTree,
         onClick = onFind,
@@ -396,6 +400,11 @@ private fun FindSummaryAndQueryItems(
         enabled = read,
         tagKey = "summary"
     )
+}
+
+/** A phone's menu items for what is made of the document: its query, its conversion and its types. Plain text has none. */
+@Composable
+private fun QueryConvertTypesItems(read: Boolean, onQuery: () -> Unit, onConvert: () -> Unit, onTypes: () -> Unit) {
     PantrixMenuItem(
         text = workspaceStrings.query,
         onClick = onQuery,
@@ -408,5 +417,11 @@ private fun FindSummaryAndQueryItems(
         icon = PantrixIcons.ArrowForward,
         enabled = read,
         tagKey = "convert"
+    )
+    PantrixMenuItem(
+        text = typesStrings.types,
+        onClick = onTypes,
+        enabled = read,
+        tagKey = "types"
     )
 }

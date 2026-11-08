@@ -48,6 +48,7 @@ data class OpenDocument(
  *   is left for another view.
  * @property convert how the document is converted, kept when Convert is left for another view.
  * @property compare how the document is compared with another, kept when Compare is left for another view.
+ * @property types how the document's types are written, kept when Types is left for another view.
  */
 data class DocumentView(
     val expanded: Set<String>? = null,
@@ -60,7 +61,8 @@ data class DocumentView(
     val sharing: Boolean = false,
     val query: String = "",
     val convert: ConvertChoice = ConvertChoice(),
-    val compare: CompareChoice = CompareChoice()
+    val compare: CompareChoice = CompareChoice(),
+    val types: TypesChoice = TypesChoice()
 )
 
 /**
@@ -68,7 +70,7 @@ data class DocumentView(
  * query or its conversion beside the text; a tablet's conversion, and a phone's, take the whole room, and the
  * comparison with another document takes it everywhere.
  */
-enum class DocumentPane { Text, Tree, Table, Problems, Summary, Query, Convert, Compare }
+enum class DocumentPane { Text, Tree, Table, Problems, Summary, Query, Convert, Types, Compare }
 
 /** The view a document of [format] opens on: a table its table, any other its tree. */
 internal fun openingPane(format: Format?): DocumentPane =

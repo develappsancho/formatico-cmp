@@ -524,6 +524,16 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Öneri: masaüstü testinde sayfa açılmadan odağın nerede olduğuna bakılsın.
     *   Durum: açık, testin.
 
+*   [ ] **Tablette bir menüden seçilince menünün düğmesinde odak halkası kalıyor (2026-11-07).**
+    *   Ne: Types-834'te dil menüsünden TypeScript seçilince menü kapanırken odağı düğmesine geri veriyor, düğmede
+        klavyenin halkası görünüyor: JVM'nin tablet panosunda ve iOS simülatöründe, satıra dokunarak seçilince de.
+        Android'in tablet panosunda (Robolectric) ve iOS'un telefon panosunda aynı akışta halka yok. Panoda halka
+        yok. Gerçek bir iPad'de ya da Android tablette denenmedi.
+    *   Nerede: `app/shared/screenshots/Types-834.png`, `ios/Types-834.png`; turu `BoardTour.types()`.
+    *   Öneri: gerçek bir tablette dokunarak denemek; orada da görünürse Pantrix'in bulgusu (PantrixMenu odağı geri
+        verirken menünün dokunmayla kullanıldığını hesaba katmıyor), görünmezse testin ortamına özgü.
+    *   Durum: açık.
+
 ## Üst çubuk
 
 *   [ ] **Sekmeler sığmayınca ilki logonun yanında yarım kesiliyor (2026-11-06).**
