@@ -1,3 +1,5 @@
+import java.io.StringReader
+import java.util.Properties
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -19,6 +21,22 @@ dependencies {
     implementation(libs.androidx.activity.compose)
 }
 
+/**
+ * The release's signing key, as local.properties gives it on the machine that signs: storeFile (a path from the
+ * repository's root), storePassword, keyAlias and keyPassword. That file never leaves the machine, and the key's file
+ * stays out of the repository (signing/ is ignored). A machine without them builds the release unsigned.
+ */
+val signing = Properties().apply {
+    val local = providers.fileContents(layout.settingsDirectory.file("local.properties")).asText.orNull
+    if (local != null) load(StringReader(local))
+}
+
+/** The version as Android counts it: 1.2.3 is 10203, so that each release counts above the last. */
+fun versionCodeOf(version: String): Int {
+    val (major, minor, patch) = version.split('.').map(String::toInt)
+    return major * 10_000 + minor * 100 + patch
+}
+
 android {
     namespace = "com.developersancho.formatico"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
@@ -27,8 +45,18 @@ android {
         applicationId = "com.developersancho.formatico"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 1
         versionName = providers.gradleProperty("formatico.version").get()
+        versionCode = versionCodeOf(versionName!!)
+    }
+    signingConfigs {
+        signing.getProperty("storeFile")?.let { path ->
+            create("release") {
+                storeFile = rootProject.file(path)
+                storePassword = signing.getProperty("storePassword")
+                keyAlias = signing.getProperty("keyAlias")
+                keyPassword = signing.getProperty("keyPassword")
+            }
+        }
     }
     packaging {
         resources {
@@ -37,6 +65,7 @@ android {
     }
     buildTypes {
         release {
+            signingConfig = signingConfigs.findByName("release")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),

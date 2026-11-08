@@ -94,3 +94,8 @@ loads it.
 - [`docs/PANTRIX_FINDINGS.md`](docs/PANTRIX_FINDINGS.md): every gap met while learning Pantrix UI from its site.
 - [`docs/OPEN_ITEMS.md`](docs/OPEN_ITEMS.md): what is open in Formatico itself.
 - [`docs/PLAN.md`](docs/PLAN.md): the phases, in order.
+
+## License
+
+Formatico is licensed under the [Apache License 2.0](LICENSE). The fonts it carries, Geist and Geist Mono, are under the
+SIL Open Font License 1.1, and the libraries it is built on under their own licenses, which Settings lists.

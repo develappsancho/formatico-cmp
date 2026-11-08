@@ -18,6 +18,11 @@ captures
 **/xcshareddata/WorkspaceSettings.xcsettings
 node_modules/
 
+# Signing keys never go into the repository: their paths and passwords are in local.properties.
+signing/
+*.jks
+*.keystore
+
 # Swift Package Manager, for the SwiftUI library. Package.resolved is not here because the
 # package has no dependencies to pin.
 .build/
