@@ -2,6 +2,7 @@ package com.developersancho.formatico.feature.workspace
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -61,8 +63,11 @@ private const val TEXT_SHARE = 1.15f / 2.15f
 /** The share of a wide window the text takes beside the table: the design's 0.72 to 1.28. */
 private const val TABLE_TEXT_SHARE = 0.72f / 2f
 
-/** How tall the text stands above the tree on a tablet. */
-private val TextHeight = 480.dp
+/** How tall the text stands above the tree on a tablet until its handle is dragged: the board's 480, and its line. */
+private val TextHeight = 481.dp
+
+/** The strip the handle stands in between the text and the tree on a tablet: the board's 13, less the two lines. */
+private val HandleGap = 11.dp
 
 /** The workspace of the open document whose id is [documentId]: its toolbar, its text, its tree and its status. */
 @Composable
@@ -108,50 +113,83 @@ internal fun WorkspaceScreen(
         return
     }
     val wide = layout == WorkspaceLayout.Wide
-    val table = document.view.pane == DocumentPane.Table
-    val problems = document.view.pane == DocumentPane.Problems && state.problems.isNotEmpty()
     Column(modifier = modifier.fillMaxSize().background(PantrixTheme.colors.surface)) {
         Toolbar(state = state, document = document, layout = layout, onIntent = onIntent, commands = commands)
         PantrixHorizontalDivider()
-        if (table && !wide) {
+        if (document.view.pane == DocumentPane.Table && !wide) {
             // A tablet gives the table the whole room, as its board draws it.
             TablePane(state, layout, onIntent, commands, Modifier.weight(1f).fillMaxWidth())
             StatusBar(state = state, layout = layout)
             return@Column
         }
+        DocumentPanes(state, text, layout, onIntent, commands, Modifier.weight(1f).fillMaxWidth())
+        StatusBar(state = state, layout = layout, editor = text)
+    }
+}
+
+/**
+ * The text and, beside it in a wide window, the tree, the table or the problems; on a tablet the tree or the problems
+ * under it, past a strip of the page's background whose handle makes the text taller and shorter.
+ */
+@Composable
+private fun DocumentPanes(
+    state: WorkspaceState,
+    editor: CodeEditorState,
+    layout: WorkspaceLayout,
+    onIntent: (WorkspaceIntent) -> Unit,
+    commands: DocumentCommands,
+    modifier: Modifier = Modifier
+) {
+    val wide = layout == WorkspaceLayout.Wide
+    val pane = state.document?.view?.pane
+    val table = pane == DocumentPane.Table
+    val problems = pane == DocumentPane.Problems && state.problems.isNotEmpty()
+    // How tall the text stands on a tablet, as its handle leaves it.
+    var textHeight by rememberSaveable { mutableFloatStateOf(TextHeight.value) }
+    val second: @Composable () -> Unit = {
+        when {
+            table -> TablePane(state, layout, onIntent, commands)
+            problems -> ProblemsPane(state = state, editor = editor, layout = layout, onIntent = onIntent)
+            else -> TreePane(state = state, layout = layout, onIntent = onIntent)
+        }
+    }
+    if (wide) {
         PantrixTwoPane(
             first = {
-                if (wide) {
-                    Row(modifier = Modifier.fillMaxSize()) {
-                        TextPane(state, text, onIntent, Modifier.weight(1f).fillMaxHeight())
-                        PantrixVerticalDivider()
-                    }
-                } else {
-                    Column(modifier = Modifier.fillMaxSize()) {
-                        TextPane(state, text, onIntent, Modifier.weight(1f).fillMaxWidth())
-                        PantrixHorizontalDivider()
-                    }
+                Row(modifier = Modifier.fillMaxSize()) {
+                    TextPane(state, editor, onIntent, Modifier.weight(1f).fillMaxHeight())
+                    PantrixVerticalDivider()
                 }
             },
-            second = {
-                when {
-                    table -> TablePane(state, layout, onIntent, commands)
-                    problems -> ProblemsPane(state = state, editor = text, layout = layout, onIntent = onIntent)
-                    else -> TreePane(state = state, layout = layout, onIntent = onIntent)
-                }
-            },
-            modifier = Modifier.weight(1f).fillMaxWidth(),
-            orientation = if (wide) TwoPaneOrientation.SideBySide else TwoPaneOrientation.Stacked,
-            firstSize = when {
-                !wide -> PaneSize.Fixed(TextHeight)
-                table -> PaneSize.Fraction(TABLE_TEXT_SHARE)
-                else -> PaneSize.Fraction(TEXT_SHARE)
-            },
+            second = second,
+            modifier = modifier,
+            firstSize = PaneSize.Fraction(if (table) TABLE_TEXT_SHARE else TEXT_SHARE),
             gap = 0.dp,
             tagKey = "panes"
         )
-        StatusBar(state = state, layout = layout, editor = text)
+        return
     }
+    val surface = Modifier.fillMaxSize().background(PantrixTheme.colors.surface)
+    PantrixTwoPane(
+        first = {
+            Column(modifier = surface) {
+                TextPane(state, editor, onIntent, Modifier.weight(1f).fillMaxWidth())
+                PantrixHorizontalDivider()
+            }
+        },
+        second = {
+            Column(modifier = surface) {
+                PantrixHorizontalDivider()
+                Box(modifier = Modifier.weight(1f).fillMaxWidth()) { second() }
+            }
+        },
+        modifier = modifier.background(PantrixTheme.colors.background),
+        orientation = TwoPaneOrientation.Stacked,
+        firstSize = PaneSize.Fixed(textHeight.dp),
+        gap = HandleGap,
+        tagKey = "panes",
+        onFirstSizeChange = { size -> if (size is PaneSize.Fixed) textHeight = size.size.value }
+    )
 }
 
 /** The design's toolbar heights: 48 in a wide window, 56 on a tablet. */

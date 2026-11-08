@@ -1,6 +1,7 @@
 package com.developersancho.formatico.feature.workspace
 
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsEnabled
@@ -10,7 +11,12 @@ import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.test.requestFocus
+import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -27,6 +33,7 @@ import com.pantrixui.testing.TestFileSaver
 import com.pantrixui.testing.assertNoFindings
 import com.pantrixui.testing.hasPantrixTag
 import com.pantrixui.testing.onPantrixNode
+import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -87,6 +94,8 @@ class WorkspaceScreenTest {
         awaitText("5 lines · ", substring = true)
         awaitText("UTF-8 · LF · 2 spaces")
         onPantrixNode("Node", "id", scope = "TreeView_document").assertExists()
+        // The text and the tree stand as the board splits them: there is no handle between them.
+        onPantrixNode("TwoPaneHandle", "panes").assertDoesNotExist()
         onPantrixNode("Button", "sort_keys").assertIsEnabled()
         onPantrixNode("Button", "format").performClick()
         onPantrixNode("Node", "customer.name", scope = "TreeView_document").performClick()
@@ -137,6 +146,37 @@ class WorkspaceScreenTest {
         onPantrixNode("Item", "customer", scope = "Breadcrumb_path").performClick()
 
         assertEquals(listOf<WorkspaceIntent>(WorkspaceIntent.Select("$.customer")), intents)
+        assertNoFindings(findings)
+    }
+
+    @Test
+    fun aTabletsHandleMakesTheTextTallerAndShorter() = runComposeUiTest {
+        val findings = PantrixFindings()
+        setContent {
+            PantrixTestTheme(window = tablet, findings = findings, clock = clock) {
+                WorkspaceScreen(state = stateOf(order, Format.Json), onIntent = {}, commands = rememberDocumentCommands(Workbench()))
+            }
+        }
+        awaitText("Valid JSON", forgetting = findings)
+        val handle = onPantrixNode("TwoPaneHandle", "panes")
+        val top = onPantrixNode("TwoPane", "panes").getBoundsInRoot().top
+        val split = { handle.getBoundsInRoot().let { (it.top + it.bottom) / 2 } - top }
+        // The handle stands in the middle of the strip under the text's 480 and its line.
+        val start = split()
+        assertTrue(abs((start - 486.5.dp).value) <= 1f, "The handle is at $start")
+
+        // An arrow makes the text a step taller, and Home as short as it may be.
+        handle.requestFocus()
+        handle.performKeyInput { pressKey(Key.DirectionDown) }
+        assertEquals(start + 16.dp, split())
+        handle.performKeyInput { pressKey(Key.MoveHome) }
+        val shortest = split()
+        assertTrue(shortest < start, "The handle is at $shortest")
+
+        // A drag makes it taller again.
+        handle.performTouchInput { swipeDown(startY = centerY, endY = centerY + 200f) }
+        assertTrue(split() > shortest, "The handle is at ${split()}")
+        onPantrixNode("TreeView", "document").assertExists()
         assertNoFindings(findings)
     }
 

@@ -162,9 +162,9 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
 *   [ ] **Değer önizlemesi yalnızca sözcük (2026-11-03).**
     *   Ne: Panolarda ağacın satırı bir renk örneği, bir bağlantı simgesi ve bir küçük resim gösteriyor; `PantrixTreeView` satırın sonuna yalnızca metin aldığı için Formatico "Colour", "Link", "Picture" yazıyor. Tarih, okuyucunun dilinde UTC olarak yazılıyor. Bkz. `PANTRIX_FINDINGS.md`.
     *   Durum: açık.
-*   [ ] **Tabletin metin ile ağaç arasındaki ayırıcısı sürüklenmiyor (2026-11-03).**
+*   [x] **Tabletin metin ile ağaç arasındaki ayırıcısı sürüklenmiyor (2026-11-03).**
     *   Ne: Workspace-834 panosundaki "Resize the text and the tree" tutamacı çizilmiyor; metin 480 dp, ağaç geri kalanı. Bkz. `PANTRIX_FINDINGS.md`.
-    *   Durum: açık.
+    *   Durum: kapandı (2026-11-04). Tablette metin ile ağaç ya da problemler arasında panodaki 13 dp'lik şerit ve `PantrixTwoPane`'in tutamacı var; metin 480 dp'den başlıyor, sürüklenen boyu ekran tutuyor. Tutamacın rengi ve dokunmatikteki şeridi panodan ayrılıyor: iki yeni Pantrix bulgusu.
 *   [x] **Koin'in bağlamı `App()` bitince kapanmıyor (2026-11-03).**
     *   Ne: Masaüstünün UI testlerinde bir testin açtığı belgeler bir sonraki testin `App()`'inde açık duruyor: `KoinApplication` (Koin 4.2.2) aynı süreçte bağlamını yeniden kullanıyor, `Workbench` tekil olarak yaşıyor. Uygulamada istenen bu (döndürmede sekmeler kalıyor), testlerde ise sıra bağımlılığı demek. `AppTest` bugün geçiyor, çünkü belge açan tek test sonunda yeni sekmeye dönüyor.
     *   Öneri: `App()`'e testin vereceği bir Koin yapılandırması ya da testlerde `stopKoin()`; Koin'in `KoinApplication` belgesinde bu davranışa bakmak.
