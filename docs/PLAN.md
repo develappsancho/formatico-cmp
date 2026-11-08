@@ -492,9 +492,10 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
             *   Önizleme tabanları `core:designsystem`'da, ekran görüntüsü tabanları `core:testing`'de kalır.
                 CLAUDE.md'nin "her taban tek modülde" kuralı MVI tabanları için okunur.
             *   CLAUDE.md'nin editörü hâlâ bekleyen iki cümlesi düzeltildi.
-        *   **Henüz karar yok:** Formatico'yu artık ilgilendirmeyen üç bulgu (316 JsonView, 331 yan yana
-            karşılaştırma, 275 MissingName) kapatılır mı, yalnızca kütüphanenin işi olarak açık mı kalır?
-            Bunun için bir öneri yapılmadı.
+        *   **Formatico'yu artık ilgilendirmeyen üç bulgu** (316 JsonView, 331 yan yana karşılaştırma, 275
+            MissingName): sahibinin kararıyla kütüphanede düzeltildi, üçü de kapandı. JsonView'in seçili yolu ve
+            MissingName'in beklemesi 2026-11-10'da geldi; yan yana karşılaştırma `PantrixDiffView` oldu, Compare ona
+            2026-11-11'de geçti.
     *   **Kimin işi (2026-11-10):** `PANTRIX_FINDINGS.md`'deki açık bulgular kütüphanenin, `OPEN_ITEMS.md`'deki
         maddeler ve denetimin çıkardıkları Formatico'nun. Ayrıntısı:
         *   **Kütüphanenin oturumu yapar.** 70 açık bulgu var, ikisi aynı (460 ve 478); başına sayı konanlar
@@ -548,9 +549,8 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
             *   Kütüphane her bulguyu düzelttikçe, Formatico'daki geçici çözümü sökülür.
         *   **İkisinin de elinde değil:** Compose Multiplatform'un iki maddesi: web konsolundaki `wasmExports`
             uyarısı ve Wasm'da kütüphane modüllerinin `binaries.executable()` gerektirmesi (CMP-4906).
-        *   **Sahibinin kararı:** 316, 331 ve 275 Formatico'yu artık ilgilendirmiyor. Formatico'nun ağacı
-            `PantrixLazyTreeView`, karşılaştırması iki `PantrixCodeEditor`, MissingName de artık görünmüyor.
-            Bunlar kapatılır mı, yoksa yalnızca kütüphanenin işi olarak açık mı kalır?
+        *   **Sahibinin kararı (2026-11-10):** 316, 331 ve 275 kütüphanede düzeltilir. Üçü de kapandı: 316 ve 275
+            2026-11-10'da, 331 2026-11-11'de, Compare `PantrixDiffView`'a geçince.
 *   [ ] **Faz 22: Yayın.** Pantrix'in gerçek yayını; Formatico'nun yayımlanan sürüme dönmesi (`mavenLocal` bloğu
     kalkar, `pantrix-ui@pantrix-ui` açılır, `pantrix-ui-local` kaldırılır); GitHub Packages'tan gelen paketle bütün
     hedeflerde yeniden derleme ve testler; `formatico.pantrixui.com`'un ve v2 sunucusunun yayını. Sahibinin planı
