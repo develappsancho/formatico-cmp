@@ -23,3 +23,6 @@ node_modules/
 .build/
 .swiftpm/
 /kotlin-js-store/wasm/yarn.lock
+
+# Claude Code settings for this machine only: they hold absolute paths on it.
+.claude/settings.local.json

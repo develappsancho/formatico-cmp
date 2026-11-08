@@ -13,7 +13,7 @@ kotlinx-coroutines = "1.11.0"
 kotlinx-serialization = "1.12.0"
 koin = "4.2.2"
 navigation3 = "1.2.0"
-pantrix = "0.1.1"
+pantrix = "0.1.2-SNAPSHOT"
 snakeyaml-engine-kmp = "5.0.0"
 
 [libraries]

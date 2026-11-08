@@ -42,9 +42,10 @@ Formatico is also a test of Pantrix UI: it is built the way a developer who foun
 - **No backend in v1:** a small document is shared compressed in the link's fragment. v2 brings a Spring Boot server
   for end-to-end encrypted links and a URL proxy.
 - **Navigation:** Compose's navigation3.
-- **Stack:** Compose Multiplatform 1.12.2, Kotlin 2.4.21, Pantrix UI 0.1.1 from GitHub Packages, MVI with feature
-  modules and Koin, detekt with `com.pantrixui:detekt-rules`, Kotlinter, tests in `commonTest` with Pantrix's testing
-  module, Roborazzi, Maestro and browser tests, the web in Wasm with a JavaScript fallback.
+- **Stack:** Compose Multiplatform 1.12.2, Kotlin 2.4.21, Pantrix UI 0.1.2-SNAPSHOT from `mavenLocal` until the
+  release before production (from GitHub Packages then), MVI with feature modules and Koin, detekt with
+  `com.pantrixui:detekt-rules`, Kotlinter, tests in `commonTest` with Pantrix's testing module, Roborazzi, Maestro and
+  browser tests, the web in Wasm with a JavaScript fallback.
 - **Build logic:** convention plugins are Kotlin classes (`Plugin<Project>`), never precompiled `.gradle.kts` script
   plugins.
 - **MVI:** the base view model, the base screen and every other base live in one module.

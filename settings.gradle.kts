@@ -20,6 +20,14 @@ pluginManagement {
 @Suppress("UnstableApiUsage")
 dependencyResolutionManagement {
     repositories {
+        // Pantrix UI's local build until the release before production: SNAPSHOTs only, so a released version never
+        // comes from here.
+        mavenLocal {
+            mavenContent {
+                includeGroup("com.pantrixui")
+                snapshotsOnly()
+            }
+        }
         // Pantrix UI. GitHubPackagesUsername and GitHubPackagesPassword (a token with read:packages) live in
         // ~/.gradle/gradle.properties, never in the project.
         maven {
