@@ -361,11 +361,11 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Ne: Compare panolarında gösterilen farkın satırları kendi tonunun bandında, başlarında birincil rengin çubuğuyla. `PantrixCodeEditor` imlecin satırını kendi bandıyla boyuyor ve o satırın `lineMarks`'taki işareti görünmüyor; bir `CodeMark`'ın bandı ile çubuğu da aynı tonda. Bir satırı görünür kılmanın yolu yalnızca imleci oraya koymak (`selection`); salt okunur bir editörde de öyle. Formatico gösterilen farkın satırlarını seçiyor: seçim görünüyor, satır da kayıyor, ama satırın bandı yok.
     *   Nerede: MCP `get_component_metadata CodeEditor`, `get_api CodeEditorState`, `get_api CodeMark`.
     *   Öneri: imlecin bandı bir işaretin altında kalsın; `CodeEditorState`'e bir satırı görünür kılan bir yol (`revealLine`); `CodeMark`'a bandın tonundan ayrı bir çubuğun tonu, ya da "şimdiki" diye bir hâl.
-    *   Durum: açık. Formatico çalışıyor, ama şimdiki farkın satırı panodaki gibi değil; `tıkıyor` olup olmadığı sahibinin kararı.
+    *   Durum: açık, tıkıyor (sahibinin kararı, 2026-11-05). Faz 11'in şimdiki farkı buna bağlı: Formatico onun satırlarını panodaki bant ve birincil çubukla değil seçimle gösteriyor (`ComparedText`'in yorumu bu bulguyu anıyor); Faz 11 bu bulgu kapanana kadar kapanmıyor. Önceki durum: açık, `tıkıyor` olup olmadığı sahibinin kararı.
 
 *   [ ] **Kod editörünün oluğuna bir işaret konamıyor; satırın içinde bir parça arka planla işaretlenemiyor (2026-11-05).**
     *   Ne: Compare panolarında satırın numarasının yanında değişikliğin işareti (`~`, `+`, `−`) var, değişen satırda değişen parça (`"shipped"`, `1`) koyu bir arka planla işaretli. `PantrixCodeEditor`'ın oluğunda yalnızca satır numarası ve `rangeMarks`'ın noktası var; `rangeMarks` dalgalı bir alt çizgi çiziyor, bir parçanın arka planını boyamıyor.
     *   Nerede: MCP `get_component_metadata CodeEditor` (`lineMarks`, `rangeMarks`).
     *   Öneri: `CodeMark`'a oluğun işareti (bir harf ya da simge); `CodeRangeMark`'a alt çizgi yerine arka plan (bir "vurgu" türü).
-    *   Durum: açık. Formatico'da olukta işaret yok, değişen parça işaretsiz; `tıkıyor` olup olmadığı sahibinin kararı.
+    *   Durum: açık, tıkıyor (sahibinin kararı, 2026-11-05). Faz 11'in iki metni buna bağlı: olukta değişikliğin işareti yok, değişen satırda değişen parça işaretsiz; Faz 11 bu bulgu kapanana kadar kapanmıyor. Önceki durum: açık, `tıkıyor` olup olmadığı sahibinin kararı.
 

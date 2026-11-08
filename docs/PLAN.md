@@ -104,12 +104,13 @@ eksikler Faz 4'te.
     menüsünden, kendi çubuğu ve geri hareketiyle). Hedef biçim, girinti, anahtarların sırası ve null'ın ne olacağı
     belgenin görünümünde saklanıyor; yeni belge kopyalanıyor, kaydediliyor ya da kendi sekmesinde açılıyor. Panoda
     olmayan hâller ve dönüştürmenin kuralları OPEN_ITEMS'ta.
-*   [x] **Faz 11: Compare.** Anlamsal karşılaştırma. Yapıldı (2026-11-05): `core:format`'ta iki karşılaştırma (`diff`):
-    değerlerin anlamı (anahtarların sırası ve sayının yazılışı fark değil; dizilerde en uzun ortak dizi) ve satır satır
-    metin. Workspace'te Compare açık başka bir belgeyle, biçimleri ayrı olsa da: geniş pencerede farklar ve iki metin
-    yan yana, tablette farklar iki metnin üstünde, telefonda kendi ekranında kartlar ve iki metni gösteren bir sayfa.
-    B, anlam ya da metin ve gösterilen fark belgenin görünümünde. Şimdiki farkın satırı Pantrix'in editörünü bekliyor
-    (PANTRIX_FINDINGS).
+*   [ ] **Faz 11: Compare.** Anlamsal karşılaştırma. Büyük bölümü yapıldı (2026-11-05): `core:format`'ta iki karşılaştırma
+    (`diff`): değerlerin anlamı (anahtarların sırası ve sayının yazılışı fark değil; dizilerde en uzun ortak dizi) ve
+    satır satır metin. Workspace'te Compare açık başka bir belgeyle, biçimleri ayrı olsa da: geniş pencerede farklar ve
+    iki metin yan yana, tablette farklar iki metnin üstünde, telefonda kendi ekranında kartlar ve iki metni gösteren bir
+    sayfa. B, anlam ya da metin ve gösterilen fark belgenin görünümünde. Kalanlar Pantrix'in editörünü bekliyor: şimdiki
+    farkın satırı (bant ve birincil çubuk), oluktaki `~ + −` ve değişen parçanın vurgusu; ikisinin bulgusu `tıkıyor`
+    (sahibinin kararı, 2026-11-05).
 *   [ ] **Faz 12: Komut paleti, kısayollar ve Settings.** Faz 4'ün cihazda saklamasının üstünde.
 *   [ ] **Faz 13: Paylaşım.** Küçük bir belge sıkıştırılıp bağlantının fragment'ında; sunucu yok.
 *   [ ] **Faz 14: Büyük dosyalar.** Masaüstünde 50 MB, telefonda ve web'de 10 MB, ölçülerek.
