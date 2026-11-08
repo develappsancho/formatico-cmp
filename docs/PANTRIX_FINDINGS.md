@@ -71,6 +71,11 @@ Her madde: **ne**, **nerede** (sitenin sayfası ya da aracı), **öneri**, **dur
     *   Nerede: tasarım sistemi, `project/components/index.d.ts` (`DataTableProps`); MCP `get_api PantrixDataTable`.
     *   Öneri: web karşılığına `rowTone`, `onRowClick`, `toolbar`, `footer` ve sabitlenen sütunlar; tasarım sisteminin bileşenleri Compose API'sinden üretiliyorsa ayrılığı gösteren bir denetim.
     *   Durum: açık.
+*   [ ] **Tasarım sistemindeki CodeBlock da Compose'dakinin gerisinde (2026-11-02).**
+    *   Ne: Compose'un `PantrixCodeBlock`'ı satır satır `CodeLine` alıyor; her satıra bir `CodeMark` (bir rolün tonunda bant, başında çubuk, altında bir ileti ve kaynağı) ve `CodeBlockColors` verilebiliyor. Bu, Formatico'nun salt okunur görünümlerinin çoğunu karşılıyor: dönüşümün çıktısı, karşılaştırmanın eklenen, çıkan ve değişen satırları, bir problemin satırın altındaki iletisi. Tasarım sistemindeki `CodeBlock` yalnızca `code`, `tokens`, `title`, `markedLines`, `lineNumbers` ve `copyable` alıyor; Convert ve Compare panolarındaki kod bu yüzden işaretleme.
+    *   Nerede: tasarım sistemi, `project/components/index.d.ts` (`CodeBlockProps`); MCP `get_api CodeLine`, `CodeMark`.
+    *   Öneri: web karşılığına satır başına işaret (ton, ileti, kaynak) ve renkler.
+    *   Durum: açık.
 *   [ ] **Simgeler kapalı bir liste; bir uygulamanın sık simgeleri yok (2026-11-02).**
     *   Ne: Tasarım sistemindeki bileşenlerin `icon` özelliği `IconName` türünde, PantrixIcons'ın 35 adından biri; uygulamanın kendi simgesi verilemiyor. Formatico'nun panolarında ayarlar, tema (ay), yapıştır (pano), dış bağlantı ve resim simgeleri yok; bu yüzden o düğmeler `Pantrix.IconButton` değil, elle çizilmiş SVG'li işaretleme. Compose tarafında sorun yok: `PantrixIconButton` her `ImageVector`'ü alıyor. README "uygulamanın simgeleri ızgarayı ve çizgiyi paylaşır" diyor, ama tasarım tuvalinde paylaşmanın yolu yok.
     *   Nerede: tasarım sistemi, `project/components/index.d.ts` (`IconName`), `project/assets/Icons/README.md`.
@@ -142,4 +147,14 @@ Her madde: **ne**, **nerede** (sitenin sayfası ya da aracı), **öneri**, **dur
     *   Ne: `PantrixShortcut.keysOn` bir kısayolu tuş tuş veriyor (`⌘`, `K`), ama tuşları çizen bir bileşen yok; tasarım sisteminde de yok. Formatico'nun Start ve Workspace panolarındaki `⌘K` ve `⌘V` işaretleme.
     *   Nerede: [Keyboard shortcuts](https://pantrixui.com/docs/guides/keyboard-shortcuts); tasarım sisteminin bileşen listesi.
     *   Öneri: `CommandPalette`'in kısayol yazımını kullanan küçük bir `PantrixKeys` (ya da `PantrixShortcutLabel`).
+    *   Durum: açık.
+*   [ ] **CodeBlock'un renk türlerinde anahtar yok (2026-11-02).**
+    *   Ne: `CodeTokenKind`'in türleri `Plain`, `Comment`, `Keyword`, `Type`, `StringLiteral`, `Number`, `Punctuation`, `Annotation`; belgesi "bir özellik `Plain`'dir" diyor. JSON, YAML, TOML ve properties metninin yarısı anahtar; Formatico'nun sözdizimi renkleri (sahibinin kararı) anahtarı ayrı bir renkle yazıyor. `PantrixCodeBlock` bu yüzden dönüşümün çıktısını ve karşılaştırmayı Formatico'nun renkleriyle çizemiyor: anahtarlar düz metin olur ya da `Type` gibi anlamı başka bir türe yazılır.
+    *   Nerede: [Code Block](https://pantrixui.com/components/code-block); MCP `get_api CodeTokenKind`.
+    *   Öneri: veri biçimleri için bir `Property` (anahtar) türü, `CodeBlockColors`'ta rengiyle.
+    *   Durum: açık.
+*   [ ] **İki metni yan yana karşılaştıran bir görünüm yok (2026-11-02).**
+    *   Ne: Formatico'nun Compare ekranı iki belgeyi yan yana gösteriyor: değişen, eklenen ve çıkan satırlar, aynı yerdeki satırlar hizalı, farkların listesi. `PantrixCodeBlock`'ın `CodeMark`'ı bir satırı işaretliyor, ama iki bloğu hizalamak ve bir farkı ikisinde birden göstermek uygulamaya kalıyor. Panolarda karşılaştırma işaretleme.
+    *   Nerede: kütüphanenin bileşenleri; tasarım sisteminin `Data` bölümü.
+    *   Öneri: `PantrixCodeEditor`'ın yanına iki belgeyi hizalayan bir karşılaştırma görünümü; ya da kütüphanenin rehberlerinde iki `PantrixCodeBlock`'la nasıl kurulacağı.
     *   Durum: açık.
