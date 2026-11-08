@@ -6,18 +6,18 @@ import com.pantrixui.components.data.codeeditor.CodeRangeMark
 import com.pantrixui.components.data.codeeditor.CodeRangeStyle
 
 /**
- * The marks of [side]'s lines in [compared]: each difference's lines on the band of its change's tone, with the change's
- * mark, `~`, `+` or `−`, before their numbers; the lines of the difference at [current], the one shown, with a bar in
- * the primary colour.
+ * The marks of [side]'s lines in [compared]: each difference's lines on the band of its change's tone alone, with the
+ * change's mark, `~`, `+` or `−`, before their numbers; the lines of the difference at [current], the one shown, with a
+ * bar in the primary colour as well.
  */
 internal fun sideMarks(compared: CompareOutcome.Compared, side: Side, current: Int): Map<Int, CodeMark> = buildMap {
     compared.differences.forEach { difference ->
         difference.linesOn(side).forEach { line ->
-            if (line !in this) put(line, CodeMark(difference.change.codeTone, gutter = difference.change.mark))
+            if (line !in this) put(line, CodeMark(difference.change.codeTone, gutter = difference.change.mark, showBar = false))
         }
     }
     compared.differences.getOrNull(current)?.linesOn(side)?.forEach { line ->
-        this[line]?.let { put(line, it.copy(bar = CodeTone.Primary)) }
+        this[line]?.let { put(line, it.copy(bar = CodeTone.Primary, showBar = true)) }
     }
 }
 

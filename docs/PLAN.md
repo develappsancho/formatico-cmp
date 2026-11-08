@@ -108,10 +108,10 @@ eksikler Faz 4'te.
     değerlerin anlamı (anahtarların sırası ve sayının yazılışı fark değil; dizilerde en uzun ortak dizi) ve satır satır
     metin. Workspace'te Compare açık başka bir belgeyle, biçimleri ayrı olsa da: geniş pencerede farklar ve iki metin yan
     yana, tablette farklar iki metnin üstünde, telefonda kendi ekranında kartlar ve iki metni gösteren bir sayfa. B, anlam
-    ya da metin ve gösterilen fark belgenin görünümünde. İki metinde farkların satırları kendi tonlarının bandında,
-    olukta `~ + −`, değişen değer dolgusuyla; gösterilen fark birincil çubukla ve imleç taşınmadan ekrana geliyor
-    (Pantrix'in iki `tıkıyor` bulgusu kapandı). Panodan kalan iki küçük ayrım bulgularda: öteki satırların çubuğu ve
-    ilk satırın imleç bandı.
+    ya da metin ve gösterilen fark belgenin görünümünde. İki metinde farkların satırları yalnızca kendi tonlarının
+    bandında, olukta `~ + −`, değişen değer dolgusuyla; gösterilen fark birincil çubukla ve imleç taşınmadan ekrana
+    geliyor (Pantrix'in üç `tıkıyor` bulgusu kapandı). Panodan kalan, tıkamayan bir ayrım bulgularda: işaretsiz ilk
+    satırın imleç bandı.
 *   [ ] **Faz 12: Komut paleti, kısayollar ve Settings.** Faz 4'ün cihazda saklamasının üstünde.
 *   [ ] **Faz 13: Paylaşım.** Küçük bir belge sıkıştırılıp bağlantının fragment'ında; sunucu yok.
 *   [ ] **Faz 14: Büyük dosyalar.** Masaüstünde 50 MB, telefonda ve web'de 10 MB, ölçülerek.

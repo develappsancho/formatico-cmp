@@ -19,21 +19,21 @@ class CompareMarksTest {
     )
 
     @Test
-    fun eachDifferencesLinesAreBandedInItsChangesToneWithItsMarkBeforeTheirNumbers() {
+    fun eachDifferencesLinesAreBandedInItsChangesToneWithItsMarkBeforeTheirNumbersAndTheShownOnesAlsoBarred() {
         val compared = compare()
         assertEquals(
             mapOf(
                 2 to CodeMark(CodeTone.Warning, gutter = "~", bar = CodeTone.Primary),
-                5 to CodeMark(CodeTone.Danger, gutter = "−"),
-                8 to CodeMark(CodeTone.Warning, gutter = "~")
+                5 to CodeMark(CodeTone.Danger, gutter = "−", showBar = false),
+                8 to CodeMark(CodeTone.Warning, gutter = "~", showBar = false)
             ),
             sideMarks(compared, Side.A, current = 0)
         )
         assertEquals(
             mapOf(
-                1 to CodeMark(CodeTone.Warning, gutter = "~"),
+                1 to CodeMark(CodeTone.Warning, gutter = "~", showBar = false),
                 4 to CodeMark(CodeTone.Success, gutter = "+", bar = CodeTone.Primary),
-                8 to CodeMark(CodeTone.Warning, gutter = "~")
+                8 to CodeMark(CodeTone.Warning, gutter = "~", showBar = false)
             ),
             sideMarks(compared, Side.B, current = 1)
         )
@@ -43,10 +43,12 @@ class CompareMarksTest {
     fun theShownDifferenceHasTheBarOnlyOnTheSideThatHasItsLines() {
         val compared = compare()
         // The coupon was taken out: A has its line, B none.
-        assertEquals(CodeTone.Primary, sideMarks(compared, Side.A, current = 2).getValue(5).bar)
-        assertTrue(sideMarks(compared, Side.B, current = 2).values.none { it.bar != null })
+        val coupon = sideMarks(compared, Side.A, current = 2).getValue(5)
+        assertEquals(CodeTone.Primary, coupon.bar)
+        assertTrue(coupon.showBar)
+        assertTrue(sideMarks(compared, Side.B, current = 2).values.none { it.showBar })
         // No difference there: no bar anywhere.
-        assertTrue(sideMarks(compared, Side.A, current = 9).values.none { it.bar != null })
+        assertTrue(sideMarks(compared, Side.A, current = 9).values.none { it.showBar })
     }
 
     @Test
