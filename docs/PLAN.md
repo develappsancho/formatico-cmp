@@ -662,6 +662,17 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
             beklemez, yoksa söyler); arkadaş `deploy/windows.sh`'ı istediği gün çalıştırır, MSI taslağa ya da
             yayımlanmış sürüme konur. Deponun Immutable releases ayarı kapalı kalmalı (bugün kapalı). Betikler sahte bir
             Windows'ta 15 durumda denendi.
+        *   İndirme menüsünün panoları kanvasta (2026-11-12, sürüm `1794507062-4c5b`; Start-1440'ı sahibi onayladı):
+            *   Start: notun sonunda "Get the app" (masaüstünde ve web'de); Settings: About'ta "Get the app" satırı,
+                **Download** düğmesiyle. Pantrix'in `Menu`'sü, yukarı açılır; telefonda (yalnızca tarayıcıda, Android
+                uygulamasında yok) alttan açılan sayfa.
+            *   Satırlar GitHub'ın `releases/latest`'inden: başlıkta sürüm ve günü, macOS (Apple silikon, DMG), Windows
+                (64-bit, MSI), Android (11 ve sonrası, APK), her birinin boyutu; çizgiden sonra "Every release on
+                GitHub". MSI henüz yoksa Windows satırı kapalı ("Not in this release yet").
+            *   Bir dosya seçilince tarayıcı onu GitHub'dan indirir; snackbar SHA-256'sını verir, "Copy SHA-256" ile.
+            *   Durumlar (Tweak `download`): kapalı, açık, yükleniyor, GitHub'a ulaşılamadı (sürümler sayfasına
+                bağlantı), MSI'sız, indiriliyor; telefonda ayrıca `web`.
+            *   Settings'in About satırı "Pantrix UI 0.2.1" diyor (0.1.2-SNAPSHOT'tan düzeltildi).
 
 ## Sahibinin kararını bekleyenler
 
