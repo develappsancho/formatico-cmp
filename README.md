@@ -74,6 +74,11 @@ loads it.
 - In a browser: `./gradlew :app:webTest:test` builds the web distribution, serves it on this machine and drives this
   machine's Chrome through its DevTools (`-Pformatico.chrome=<path>` for another): the loader's choice of build, the
   tab's history and address, shared links, a reload, a phone's width, Turkish
+- The types Types writes, by each language's compiler: `./gradlew :core:format:jvmTest -Pformatico.go=<go>
+  -Pformatico.tsc=<tsc> -Pformatico.swiftc=/usr/bin/swiftc` (`TypesCompileTest`). Go's decode the documents with no
+  field left over and write them back as they were, TypeScript's take them as they are (`--strict`), Swift's decode
+  and write them; a compiler not given is skipped. Kotlin's are compiled in `feature:workspace`'s tests, on every
+  target, and read their document with kotlinx.serialization
 - Previews: every screen and component has them beside it (`StartPreviews.kt`, `WorkspacePreviews.kt`,
   `AppPreviews.kt`), each case in the light theme and the dark, a screen at each board's width
 - The app icons, from the canvas's icon board: `python3 tools/icons/generate.py` (fontTools and Pillow; iconutil

@@ -210,7 +210,7 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
         günde en çok 50 (`429`, UTC gece yarısında sıfırlanıyor); Share'de iki yeni uyarı. Web'in sayfası zorlayan bir
         CSP ile sunuluyor (`deploy/web/headers.conf`), tarayıcı testleri aynı başlıklarla. Kalan: yayın (GHCR,
         Coolify'da kaynak), Faz 22'de.
-*   [ ] **Faz 17: Tip üretimi.** Kotlin, TypeScript, Swift ve Go. Panolar kanvasta (2026-11-07, sürüm 97–101):
+*   [x] **Faz 17: Tip üretimi.** Kotlin, TypeScript, Swift ve Go (c798597). Panolar kanvasta (2026-11-07, sürüm 97–101):
     Types-1440, Types-834, Types-390 ve paletin dört komutu. Önerilen kararlar, sahibinin onayını bekliyor:
     *   **Yeri:** Types, Convert'in yanında bir bölme (`DocumentPane.Types`): masaüstünde ve tablette araç çubuğunda
         Convert'ten sonra, telefonda "more" menüsünde ve kendi sayfasında; komut paletinde "Generate Kotlin, TypeScript,
@@ -240,9 +240,16 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
     *   **Durum (2026-11-07):** sahibi panoları ve kararları onayladı ("Evet, başla"). `core:format`'ta `types`
         paketi (çıkarım, adlar, dört yazıcı), Workspace'te Types bölmesi, telefon sayfası, araç çubuğu ve "more"
         menüsünde Types, paletin dört komutu, dört highlighter. Kotlin çıktısı `feature:workspace`'in testlerinde
-        her hedefte derleniyor ve belgeyi okuyor; Swift çıktısı `swiftc -typecheck`'ten geçti; TypeScript çıktısı
-        Node'un tip ayıklayıcısıyla sözdizimi olarak denendi (tsc yok); Go denenmedi. Panolar sürüm 116: Types
-        düğmesi Workspace, Invalid, Table, Query, Convert ve Summary panolarının araç çubuklarına da eklendi.
+        her hedefte derleniyor ve belgeyi okuyor. Panolar sürüm 116: Types düğmesi Workspace, Invalid, Table, Query,
+        Convert ve Summary panolarının araç çubuklarına da eklendi.
+    *   **Kapanış (2026-11-07):** Go 1.27.3 ve TypeScript 5.9.3 sahibinin onayıyla indirildi (go.dev'den 68,2 MB,
+        npm'den 23,6 MB; makineye kurulmadı, scratchpad'de). `core:format`'ın `TypesCompileTest`'i üç dilin
+        çıktısını kendi derleyicisiyle deniyor: Go'nunki `go vet` ve `go test` (belgeyi artan alan olmadan okuyor,
+        aynı yazıyor), TypeScript'inki `tsc --strict` (belgenin kendisini tipe atıyor), Swift'inki `swiftc` ile
+        derlenip çalışıyor; panoların order'ı ve zor durumları toplayan bir olay listesi (snake case, ayrılmış
+        sözcükler, boş dizi, kimi öğede olan alan, iki türlü değer, dizi dizisi, yalnızca null, rakamla başlayan ad).
+        Üçü geçti. Derleyicisi verilmeyen test atlanıyor. Açık kalan, Faz 17'yi bekletmeden: tablette menünün
+        düğmesindeki odak halkası (`OPEN_ITEMS.md`, gerçek bir tablette denenecek).
 *   [ ] **Faz 18: Grafik görünümü.**
 *   [ ] **Faz 19: JSON Schema.**
 *   [ ] **Faz 20: Uygulama içi yapay zekâ,** kullanıcının kendi anahtarıyla.
