@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
@@ -45,8 +46,8 @@ internal fun RowEndOf(end: RowEnd, layout: WorkspaceLayout, chosen: Boolean, wor
 }
 
 /**
- * What a string looks like it holds, at its row's end: a date in the reader's language, a colour's swatch, a link, a
- * picture's place. A phone, with less room, shows a date by its icon.
+ * What a string looks like it holds, at its row's end: a date in the reader's language, a colour's swatch, a link's
+ * icon, a picture's place with its icon. A phone, with less room, shows a date by its icon.
  */
 @Composable
 private fun PreviewOf(preview: ValuePreview, written: String, layout: WorkspaceLayout, quiet: Color, words: PreviewWords) {
@@ -69,13 +70,16 @@ private fun PreviewOf(preview: ValuePreview, written: String, layout: WorkspaceL
         }
 
         is ValuePreview.Link -> {
-            // Pantrix has no link icon (PANTRIX_FINDINGS, "Resmin ve bağlantının simgesi yok"): its word stands in.
-            PantrixText(text = words.of(preview), style = PantrixTheme.typography.footnote, color = quiet, maxLines = 1)
+            PantrixIcon(
+                imageVector = PantrixIcons.ExternalLink,
+                contentDescription = words.of(preview),
+                size = if (phone) 18.dp else 16.dp,
+                tint = quiet
+            )
         }
 
         is ValuePreview.Picture -> {
-            // The board's place for a picture, without its icon, which Pantrix does not have (PANTRIX_FINDINGS,
-            // "Resmin ve bağlantının simgesi yok").
+            // The board's place for a picture: its icon on the neutral container, not the picture itself.
             val description = stringResource(Res.string.workspace_picture_at)
             Box(
                 modifier = Modifier
@@ -84,8 +88,16 @@ private fun PreviewOf(preview: ValuePreview, written: String, layout: WorkspaceL
                     .semantics {
                         contentDescription = description
                         role = Role.Image
-                    }
-            )
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                PantrixIcon(
+                    imageVector = PantrixIcons.Image,
+                    contentDescription = null,
+                    size = if (phone) 16.dp else 14.dp,
+                    tint = PantrixTheme.colors.neutral.onContainer
+                )
+            }
         }
     }
 }

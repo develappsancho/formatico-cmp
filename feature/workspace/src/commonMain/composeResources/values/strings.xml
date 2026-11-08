@@ -419,4 +419,12 @@
     <string name="query_error_unknown_axis">There is no axis of this name</string>
     <string name="query_error_unsupported">Formatico’s XPath has no variables or namespace axis</string>
     <string name="query_error_too_deep">The query is nested too deep</string>
+    <string name="table_type_text">text</string>
+    <string name="table_type_date">date</string>
+    <string name="table_type_number">number</string>
+    <string name="table_type_boolean">boolean</string>
+    <string name="table_type_object">object</string>
+    <string name="table_type_array">array</string>
+    <string name="table_type_alias">alias</string>
+    <string name="table_type_null">null</string>
 </resources>

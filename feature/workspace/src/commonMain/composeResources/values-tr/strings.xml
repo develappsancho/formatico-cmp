@@ -419,4 +419,12 @@
     <string name="query_error_unknown_axis">Bu adda bir eksen yok</string>
     <string name="query_error_unsupported">Formatico'nun XPath'inde değişken ve namespace ekseni yok</string>
     <string name="query_error_too_deep">Sorgu fazla iç içe</string>
+    <string name="table_type_text">metin</string>
+    <string name="table_type_date">tarih</string>
+    <string name="table_type_number">sayı</string>
+    <string name="table_type_boolean">mantıksal</string>
+    <string name="table_type_object">nesne</string>
+    <string name="table_type_array">dizi</string>
+    <string name="table_type_alias">alias</string>
+    <string name="table_type_null">boş</string>
 </resources>

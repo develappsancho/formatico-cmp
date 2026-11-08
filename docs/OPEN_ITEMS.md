@@ -364,3 +364,7 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Ne: Workspace bir XML metnini her metin için bir kez okuyor, ama `XPath.evaluate` her sorguda belgenin dizinini (ebeveynler, sıra) yeniden kuruyor; her eşleşmenin değeri de (`XPathMatch.value`) hemen yazılıyor: `//*` büyük bir belgede metni derinlik kadar kopyalıyor. Sorgu her harfte soruluyor.
     *   Öneri: Faz 14'te 50 MB'ta ölçmek; gerekirse dizini belgeyle tutmak, değeri gösterilen satırlar için yazmak, sorguyu yazım durunca sormak.
     *   Durum: açık, Faz 14'le.
+*   [ ] **CSV panosunun `numeric` sütunu `number` diyor, kod `text` (2026-11-05).**
+    *   Ne: Table panolarının CSV hâlinde `numeric` sütununun türü `number`; değerleri ise başında sıfır olan kodlar ("004", "020"). Formatico böyle bir sütunu kod olarak, metin diye okuyor (Faz 4'ün kararı: baştaki sıfır kaybolmasın), türü de bu yüzden `text`, değerleri sola dayalı.
+    *   Öneri: panoda o sütunu `text` yapmak, ya da sayı gibi görünen kodları sayı saymak (sıfırları kaybetmeden); karar tasarımın.
+    *   Durum: açık. Kodda `text`.

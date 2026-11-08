@@ -82,7 +82,7 @@ eksikler Faz 4'te.
     Yapıldı (2026-11-04): beşinin de `core:format`'ta okuyucusu, yazıcısı (Format, Minify; XML dışında Sort keys) ve
     problemleri var. Hepsi workspace'te ağacıyla, iletileriyle ve renklendiricisiyle okunuyor. Onarımlar biçime bağlı.
     "isn’t read yet" hâli kalktı. Ağaçların biçimi panolarda yok, kodda seçildi (OPEN_ITEMS).
-*   [ ] **Faz 8: Ağaç ve tablo.** Ağaçta arama, bir düzeye kadar açma, yolu JSONPath, JSON Pointer ya da jq olarak
+*   [x] **Faz 8: Ağaç ve tablo.** Ağaçta arama, bir düzeye kadar açma, yolu JSONPath, JSON Pointer ya da jq olarak
     kopyalama; sütun türleri; tabloyu kaydetme ve kopyalama menüsü; renk ve resim önizlemesi; Summary (sahibinin
     kararıyla v1'de, 2026-11-04: düzen'den gelenlerin hepsi).
     Büyük bölümü yapıldı (2026-11-04): ağaçta arama (sayı, önceki, sonraki), 1, 2, 3 ve
@@ -90,8 +90,8 @@ eksikler Faz 4'te.
     (üç genişlikte, durum çubuğunun boyutundan; gzip boyu platformun kendi sıkıştırıcısıyla). Telefonda arama ve
     Summary "more" menüsünden açılıyor (sahibinin kararı, 2026-11-04). Ağaç `PantrixLazyTreeView`'e geçti
     (2026-11-04): satırlar sözdizimi renkleriyle, tarih, renk ve resim önizlemesi, aramanın vurgusu, seçili satıra
-    kaydırma. Kalanlar Pantrix'i bekliyor: sütun türleri (DataTable'ın başlığı), bağlantının ve resmin simgesi; ikisinin bulgusu
-    `tıkıyor` (sahibinin kararı, 2026-11-05).
+    kaydırma. Kapandı (2026-11-05): sütun türleri tablonun başlığında, bağlantının ve resmin simgesi ağaçta ve Summary'de;
+    ikisi de Pantrix'in tıkayan iki bulgusu düzelince geldi.
 *   [x] **Faz 9: Query.** JSONPath ve XPath. Yapıldı (2026-11-05): `core:format`'ta RFC 9535'in bütün JSONPath'i ve
     XPath 1.0 (ad alanı çözümü olmadan); Workspace'te Query görünümü üç genişlikte, araç çubuğundan, telefonda More
     menüsünden. JSONPath XML dışındaki her biçimin ağacında, XPath XML'in kendi düğümlerinde; eşleşmeler ağaçta ve

@@ -250,10 +250,7 @@ private fun FoundSection(summary: DocumentSummary, layout: WorkspaceLayout, onIn
     }
 }
 
-/**
- * What a row of found values leads with: a calendar for dates, and the first colour itself. Pantrix has no icon of a
- * picture or of a link (PANTRIX_FINDINGS, "Resmin ve bağlantının simgesi yok"): their rows lead with the room alone.
- */
+/** What a row of found values leads with: a calendar for dates, a picture's icon, a link's, and the first colour itself. */
 @Composable
 private fun FoundMark(found: Found) {
     Box(modifier = Modifier.size(MarkSize), contentAlignment = Alignment.Center) {
@@ -273,7 +270,17 @@ private fun FoundMark(found: Found) {
                 )
             }
 
-            FoundKind.Pictures, FoundKind.Links -> {}
+            FoundKind.Pictures -> PantrixIcon(
+                imageVector = PantrixIcons.Image,
+                contentDescription = null,
+                tint = PantrixTheme.colors.textSecondary
+            )
+
+            FoundKind.Links -> PantrixIcon(
+                imageVector = PantrixIcons.ExternalLink,
+                contentDescription = null,
+                tint = PantrixTheme.colors.textSecondary
+            )
         }
     }
 }

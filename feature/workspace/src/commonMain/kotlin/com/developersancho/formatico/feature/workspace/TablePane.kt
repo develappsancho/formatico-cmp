@@ -302,8 +302,8 @@ private fun FilterField(filter: TextFieldState, modifier: Modifier = Modifier) {
 }
 
 /**
- * The table itself: an index column pinned at its start, a column to each shown key, the chosen row tinted and the
- * chosen cell outlined, and the chosen column's values summed up under it.
+ * The table itself: an index column pinned at its start, a column to each shown key with the types of its values under
+ * its name, the chosen row tinted and the chosen cell outlined, and the chosen column's values summed up under it.
  */
 @Composable
 private fun RowsTable(
@@ -321,7 +321,8 @@ private fun RowsTable(
     val select: (String) -> Unit = { onIntent(WorkspaceIntent.Select(it)) }
     val valueName = stringResource(Res.string.workspace_value_column)
     val indexName = stringResource(Res.string.workspace_index)
-    val columns = remember(table, visible, valueName, indexName) {
+    val typeWords = columnTypeWords()
+    val columns = remember(table, visible, valueName, indexName, typeWords) {
         listOf(indexColumn(indexName, choice, select)) + visible.map { name ->
             val alignment = if (statsOf(table.rows, name) is ColumnStats.Numbers) Alignment.End else Alignment.Start
             DataTableColumn<TableRow>(
@@ -330,7 +331,9 @@ private fun RowsTable(
                 minWidth = ColumnMinWidth,
                 alignment = alignment,
                 sortable = true,
-                resizable = true
+                resizable = true,
+                // What the column holds, under its name, as the Table boards write it: a phone's records leave it out.
+                subtitle = typesLine(typesOf(table.rows, name), typeWords)
             ) { row -> TableCell(row, name, alignment, choice, select) }
         }
     }
