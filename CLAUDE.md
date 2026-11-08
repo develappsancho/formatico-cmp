@@ -74,8 +74,8 @@ Formatico is also a test of Pantrix UI: it is built the way a developer who foun
 ## Working here
 
 - **The owner commits.** Never run a git command that writes (`init`, `add`, `commit`, `restore`, `reset`, `stash`,
-  `checkout`, `mv`, `tag`, `push`); read-only git is fine. The repository is not initialised yet: that is the owner's
-  call.
+  `checkout`, `mv`, `tag`, `push`); read-only git is fine. The repository is a local git repository on `master`, with
+  no remote yet.
 - **Every hand-over ends with one commit message:** one line, `[TYPE][Summary]` (`DEV`, `FIX`, `TEST`, `DOCS`, `CI`,
   `RELEASE`), English, imperative, no body and no trailers, with the new files to add and a commit by path.
 - **Reports to the owner are in Turkish:** what was done, what was verified and on which targets, what was not, which
