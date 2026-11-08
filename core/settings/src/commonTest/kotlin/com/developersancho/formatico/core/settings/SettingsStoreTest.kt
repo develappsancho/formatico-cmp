@@ -39,11 +39,4 @@ class SettingsStoreTest {
 
         assertEquals(ThemeChoice.Dark, SettingsStore(small, backgroundScope).preferences.value.theme)
     }
-
-    @Test
-    fun aSystemIsSpokenToInItsLanguageWhereFormaticoHasIt() {
-        assertEquals(AppLanguage.Turkish, AppLanguage.forSystem("tr-TR"))
-        assertEquals(AppLanguage.English, AppLanguage.forSystem("en"))
-        assertEquals(AppLanguage.English, AppLanguage.forSystem("de-DE"))
-    }
 }

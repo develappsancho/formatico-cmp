@@ -574,10 +574,15 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Öneri: sahibinin onayı; geçmişin "Text" yazılması için kayıt sorunun cevabından sonraya alınabilir.
     *   Durum: açık.
 
-*   [ ] **Bir dil seçilince cihazın diline dönülemiyor (2026-11-06).**
-    *   Ne: Tema'da "As the system" var, Dil'de yok: seçim kutusu yalnızca English ve Türkçe sunuyor, panolar da öyle çiziyor. Seçim yapılmadıkça uygulama cihazın dilini izliyor ve kutuda o dil seçili görünüyor (cihazlarda denendi, 2026-11-06: Android'de uygulama açıkken anında; iOS'ta uygulama yeniden açılınca, çünkü iOS dil değişince uygulamaları kapatıyor). Ama bir dil seçildikten sonra cihazın dilini izlemeye dönmenin yolu yok, uygulamanın verisini silmekten başka. Android 13'ün uygulama başına dil ayarı (Ayarlar > Uygulamalar > Formatico > Dil) da yok: uygulama `localeConfig` bildirmiyor. `cmd locale set-app-locales` ile verilen dili uygulama yine de anında izliyor.
-    *   Nerede: `feature/settings` `SettingsSections.kt` (`GeneralSection`, `AppLanguage.entries`); `app/androidApp/src/main/AndroidManifest.xml`.
-    *   Öneri: Dil seçimine Tema'daki gibi "As the system" (`language = null`), panolara da; Android'e `localeConfig` (`en`, `tr`). Sahibinin kararı.
+*   [x] **Bir dil seçilince cihazın diline dönülemiyor (2026-11-06).**
+    *   Ne: Tema'da "As the system" var, Dil'de yoktu: seçim kutusu yalnızca English ve Türkçe sunuyordu, panolar da öyle çiziyordu. Seçim yapılmadıkça uygulama cihazın dilini izliyor (cihazlarda denendi, 2026-11-06: Android'de uygulama açıkken anında; iOS'ta uygulama yeniden açılınca, çünkü iOS dil değişince uygulamaları kapatıyor). Ama bir dil seçildikten sonra cihazın dilini izlemeye dönmenin yolu yoktu, uygulamanın verisini silmekten başka.
+    *   Nerede: `feature/settings` `SettingsSections.kt` (`GeneralSection`).
+    *   Durum: kapandı (2026-11-06, sahibinin onayı). Dil seçiminin ilk seçeneği "As the system" / "Sistemdeki gibi" (`language = null`), bir dil seçilmedikçe seçili olan o; panolar da öyle çiziyor (kanvas v81–82). "Sistemdeki gibi" telefonun 160'lık kutusuna sığmıyordu: Settings'in seçim kutuları her genişlikte 200, telefonun panosu da. `AppLanguage.forSystem` artık kullanılmadığı için kalktı.
+
+*   [ ] **Android'in uygulama başına dil ayarı yok (2026-11-06).**
+    *   Ne: Android 13'ün Ayarlar > Uygulamalar > Formatico > Dil satırı çıkmıyor: uygulama `localeConfig` bildirmiyor. `cmd locale set-app-locales` ile verilen dili uygulama yine de anında izliyor (denendi, 2026-11-06). iOS'ta `Info.plist`'in `CFBundleLocalizations`'ı aynı satırı Ayarlar'da açıyor olmalı; denenmedi.
+    *   Nerede: `app/androidApp/src/main/AndroidManifest.xml`.
+    *   Öneri: `res/xml/locales_config.xml` (`en`, `tr`) ve manifest'te `android:localeConfig`. Settings'in "Sistemdeki gibi"si o zaman Android'in uygulama için seçtiği dili izler. Sahibinin kararı.
     *   Durum: açık.
 
 ## Metinler

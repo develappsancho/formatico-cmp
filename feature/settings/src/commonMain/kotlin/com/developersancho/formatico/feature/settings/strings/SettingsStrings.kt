@@ -26,6 +26,7 @@ internal interface SettingsStrings {
     val themeSystem: String
     val language: String
     val languageBody: String
+    val languageSystem: String
     val indentation: String
     val indentationBody: String
     val indentTwo: String

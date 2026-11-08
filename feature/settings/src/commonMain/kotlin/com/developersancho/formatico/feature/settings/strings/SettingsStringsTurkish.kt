@@ -16,6 +16,7 @@ internal object SettingsStringsTurkish : SettingsStrings {
     override val themeSystem = "Sistemdeki gibi"
     override val language = "Dil"
     override val languageBody = "Formatico’nun konuştuğu dil. Belgelerine dokunulmaz."
+    override val languageSystem = "Sistemdeki gibi"
     override val indentation = "Girinti"
     override val indentationBody = "Biçimlendir’in her düzeyi girintilemek için kullandığı karakter."
     override val indentTwo = "2 boşluk"

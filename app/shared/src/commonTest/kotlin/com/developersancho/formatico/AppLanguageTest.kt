@@ -16,7 +16,10 @@ import org.koin.core.context.stopKoin
 import kotlin.test.AfterTest
 import kotlin.test.Test
 
-/** The language chosen in Settings: the theme's, which every feature's words follow at once, on every platform. */
+/**
+ * The language chosen in Settings, or the system's where none is: the theme's, which every feature's words follow at
+ * once, on every platform.
+ */
 @OptIn(ExperimentalTestApi::class)
 class AppLanguageTest {
     @AfterTest
@@ -42,6 +45,27 @@ class AppLanguageTest {
         awaitText("Dil")
         awaitText("Belgelerin geçmişini tut")
         onPantrixNode("Tab", "settings", scope = "Tabs_documents").assertExists()
+    }
+
+    @Test
+    fun aLanguageChosenCanBeLeftForTheSystemsAgain() = runComposeUiTest {
+        setContent {
+            PantrixTestTheme(platform = PlatformType.Desktop, window = PantrixWindow(DpSize(1440.dp, 900.dp))) {
+                App(systemDark = false, storage = memoryStorageModule)
+            }
+        }
+        awaitText("Paste anything")
+        onPantrixNode("IconButton", "settings").performClick()
+        onPantrixNode("Select", "language").performClick()
+        onPantrixNode("SelectOption", "tr", scope = "Select_language").performClick()
+        awaitText("Dil")
+
+        onPantrixNode("Select", "language").performClick()
+        onPantrixNode("SelectOption", "system", scope = "Select_language").performClick()
+
+        // The test's system speaks English.
+        awaitText("Language")
+        awaitText("Keep a history of documents")
     }
 
     @Test

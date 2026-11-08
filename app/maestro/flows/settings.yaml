@@ -1,4 +1,5 @@
-# Settings, from Start: Turkish is chosen and the app speaks it at once; the dark theme is chosen too.
+# Settings, from Start: Turkish is chosen and the app speaks it at once; the dark theme is chosen too. Then the
+# system's language is chosen again, and the app speaks the device's, English.
 appId: ${APP_ID}
 name: Settings changes the language and the theme
 ---
@@ -23,3 +24,15 @@ name: Settings changes the language and the theme
 - tapOn:
     id: ".*IconButton_back"
 - assertVisible: "Ne varsa yapıştır"
+- tapOn:
+    id: "IconButton_settings"
+- tapOn:
+    id: "Select_language"
+- tapOn:
+    id: ".*SelectOption_system"
+- extendedWaitUntil:
+    visible: "Language"
+    timeout: 10000
+- tapOn:
+    id: ".*IconButton_back"
+- assertVisible: "Paste anything"

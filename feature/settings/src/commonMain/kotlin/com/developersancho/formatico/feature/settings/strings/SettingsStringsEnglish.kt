@@ -16,6 +16,7 @@ internal object SettingsStringsEnglish : SettingsStrings {
     override val themeSystem = "As the system"
     override val language = "Language"
     override val languageBody = "What Formatico says. Your documents are left as they are."
+    override val languageSystem = "As the system"
     override val indentation = "Indentation"
     override val indentationBody = "What Format writes a level in with."
     override val indentTwo = "2 spaces"

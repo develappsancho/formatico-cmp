@@ -11,6 +11,7 @@ import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -134,15 +135,23 @@ class SettingsScreenTest {
     }
 
     @Test
-    fun theLanguageIsTheSystemsWhereNoneIsChosen() = runComposeUiTest {
+    fun theLanguageIsTheSystemsUntilOneIsChosenAndCanBeTheSystemsAgain() = runComposeUiTest {
         val intents = mutableListOf<SettingsIntent>()
-        setContent { PantrixTestTheme(window = desktop) { SettingsScreen(state = state, onIntent = { intents += it }) } }
+        var shown by mutableStateOf(state)
+        setContent { PantrixTestTheme(window = desktop) { SettingsScreen(state = shown, onIntent = { intents += it }) } }
 
-        awaitText("English")
+        awaitText("Language")
+        onPantrixNode("Select", "language").assert(hasText("As the system"))
         onPantrixNode("Select", "language").performClick()
         onPantrixNode("SelectOption", "tr", scope = "Select_language").performClick()
-
         assertEquals(listOf<SettingsIntent>(SettingsIntent.SetLanguage(AppLanguage.Turkish)), intents)
+
+        shown = state.copy(preferences = state.preferences.copy(language = AppLanguage.Turkish))
+        waitForIdle()
+        onPantrixNode("Select", "language").assert(hasText("Türkçe"))
+        onPantrixNode("Select", "language").performClick()
+        onPantrixNode("SelectOption", "system", scope = "Select_language").performClick()
+        assertEquals(SettingsIntent.SetLanguage(null), intents.last())
     }
 
     @Test

@@ -38,13 +38,7 @@ enum class ThemeChoice {
 /** A language Formatico speaks, by its [tag], as BCP 47 writes it. */
 enum class AppLanguage(val tag: String) {
     English("en"),
-    Turkish("tr");
-
-    companion object {
-        /** The language a system whose language is [tag] is spoken to in: Turkish for Turkish, English for the rest. */
-        fun forSystem(tag: String): AppLanguage =
-            entries.firstOrNull { tag.substringBefore('-').equals(it.tag, ignoreCase = true) } ?: English
-    }
+    Turkish("tr")
 }
 
 /** What Format writes a level of a document in with. */

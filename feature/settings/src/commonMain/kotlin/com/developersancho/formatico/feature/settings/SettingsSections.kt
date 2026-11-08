@@ -20,15 +20,15 @@ import com.pantrixui.components.overlay.select.PantrixSelect
 import com.pantrixui.components.overlay.select.SelectOption
 import com.pantrixui.foundation.theme.PantrixTheme
 
-/** How wide a select of Settings is: the boards' 200, and 160 on a phone. */
-private fun SettingsLayout.selectWidth() = if (this == SettingsLayout.Phone) 160.dp else 200.dp
+/** How wide a select of Settings is, the boards' 200 at every width: "Sistemdeki gibi" does not fit a phone's 160. */
+private val SelectWidth = 200.dp
 
 /**
- * General: the theme and the language. A phone has the room for the theme's three choices under its name alone, each
- * as wide as its words: "As the system" does not fit a third of a phone's row.
+ * General: the theme and the language, each the system's until one is chosen. A phone has the room for the theme's three
+ * choices under its name alone, each as wide as its words: "As the system" does not fit a third of a phone's row.
  */
 @Composable
-internal fun GeneralSection(state: SettingsState, language: AppLanguage, layout: SettingsLayout, onIntent: (SettingsIntent) -> Unit) {
+internal fun GeneralSection(state: SettingsState, layout: SettingsLayout, onIntent: (SettingsIntent) -> Unit) {
     val phone = layout == SettingsLayout.Phone
     SettingsSection(title = settingsStrings.general, layout = layout) {
         SettingRow(settingsStrings.theme, layout, settingsStrings.themeBody, stacked = phone) {
@@ -51,11 +51,13 @@ internal fun GeneralSection(state: SettingsState, language: AppLanguage, layout:
             settingsStrings.languageBody.takeUnless { phone }
         ) {
             PantrixSelect(
-                // A language is named as it names itself, in every language.
-                options = AppLanguage.entries.map { SelectOption(it, it.ownName, tagKey = it.tag) },
-                selected = language,
+                // The system's is null, as the preferences keep it; a language is named as it names itself, in every
+                // language.
+                options = listOf(SelectOption<AppLanguage?>(null, settingsStrings.languageSystem, tagKey = "system")) +
+                    AppLanguage.entries.map { SelectOption<AppLanguage?>(it, it.ownName, tagKey = it.tag) },
+                selected = state.preferences.language,
                 onSelect = { onIntent(SettingsIntent.SetLanguage(it)) },
-                modifier = Modifier.width(layout.selectWidth()),
+                modifier = Modifier.width(SelectWidth),
                 contentDescription = settingsStrings.language,
                 tagKey = "language"
             )
@@ -127,7 +129,7 @@ internal fun FormatsSection(state: SettingsState, layout: SettingsLayout, onInte
                 ),
                 selected = state.preferences.unknownFormat,
                 onSelect = { onIntent(SettingsIntent.SetUnknownFormat(it)) },
-                modifier = Modifier.width(layout.selectWidth()),
+                modifier = Modifier.width(SelectWidth),
                 contentDescription = settingsStrings.unknown,
                 tagKey = "unknown_format"
             )
@@ -155,7 +157,7 @@ internal fun HistorySection(state: SettingsState, layout: SettingsLayout, onInte
                     ),
                     selected = state.preferences.keepFor,
                     onSelect = { onIntent(SettingsIntent.SetKeepFor(it)) },
-                    modifier = Modifier.width(layout.selectWidth()),
+                    modifier = Modifier.width(SelectWidth),
                     enabled = state.preferences.keepHistory,
                     contentDescription = settingsStrings.keepFor,
                     tagKey = "keep_for"

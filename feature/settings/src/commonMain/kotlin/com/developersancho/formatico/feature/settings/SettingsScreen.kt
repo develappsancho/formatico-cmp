@@ -28,7 +28,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.base.MviScreen
 import com.developersancho.formatico.core.navigation.SystemBack
-import com.developersancho.formatico.core.settings.AppLanguage
 import com.developersancho.formatico.feature.settings.strings.SettingsStrings
 import com.developersancho.formatico.feature.settings.strings.settingsStrings
 import com.pantrixui.components.container.topbar.PantrixBackButton
@@ -187,8 +186,6 @@ private fun Sections(
     placed: MutableMap<SettingsSection, Int>
 ) {
     val phone = layout == SettingsLayout.Phone
-    // Where the reader has chosen none, the system's language, or English where Formatico does not speak it.
-    val language = state.preferences.language ?: AppLanguage.forSystem(PantrixTheme.locale.languageTag)
     Column(verticalArrangement = Arrangement.spacedBy(if (phone) 18.dp else 24.dp)) {
         if (!phone) {
             PantrixText(
@@ -200,7 +197,7 @@ private fun Sections(
         sections.forEach { section ->
             Box(Modifier.onPlaced { placed[section] = it.positionInParent().y.toInt() }) {
                 when (section) {
-                    SettingsSection.General -> GeneralSection(state, language, layout, onIntent)
+                    SettingsSection.General -> GeneralSection(state, layout, onIntent)
                     SettingsSection.Editor -> EditorSection(state, layout, onIntent)
                     SettingsSection.Formats -> FormatsSection(state, layout, onIntent)
                     SettingsSection.History -> HistorySection(state, layout, onIntent)

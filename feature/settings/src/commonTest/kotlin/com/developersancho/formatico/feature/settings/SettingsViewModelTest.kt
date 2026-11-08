@@ -76,6 +76,17 @@ class SettingsViewModelTest {
     }
 
     @Test
+    fun aLanguageChosenIsLeftForTheSystemsAgain() = runTest(dispatcher) {
+        val (viewModel, settings) = viewModel()
+        viewModel.dispatch(SettingsIntent.SetLanguage(AppLanguage.Turkish))
+
+        viewModel.dispatch(SettingsIntent.SetLanguage(null))
+
+        assertEquals(null, settings.preferences.value.language)
+        assertEquals(null, viewModel.state.value.preferences.language)
+    }
+
+    @Test
     fun keepingNoHistoryForgetsWhatItHeldAndClearingDoesToo() = runTest(dispatcher) {
         val history = FakeHistory(3, 100)
         val (viewModel, settings) = viewModel(history)

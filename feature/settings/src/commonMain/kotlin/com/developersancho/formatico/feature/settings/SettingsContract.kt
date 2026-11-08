@@ -49,7 +49,8 @@ data class SettingsState(
 sealed interface SettingsIntent {
     data class SetTheme(val theme: ThemeChoice) : SettingsIntent
 
-    data class SetLanguage(val language: AppLanguage) : SettingsIntent
+    /** Chooses [language], or the system's where it is null. */
+    data class SetLanguage(val language: AppLanguage?) : SettingsIntent
 
     data class SetIndentation(val indentation: IndentChoice) : SettingsIntent
 
