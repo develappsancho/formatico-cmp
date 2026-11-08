@@ -54,6 +54,21 @@ fun captureOpenMenu(name: String, case: PreviewCase<*>, board: Board, opener: St
         }
     }
 
+/**
+ * Draws [content], the preview of [case], as [capturePreview] does, and writes the last window it draws: a dialog shown
+ * over the preview, over its scrim, which is a window of its own.
+ */
+@OptIn(ExperimentalTestApi::class)
+fun captureOverlay(name: String, case: PreviewCase<*>, board: Board, content: @Composable () -> Unit) = inEnglish {
+    runDesktopComposeUiTest(width = board.width, height = board.height) {
+        setContent {
+            PantrixTestTheme(platform = board.platform, dark = case.dark, window = board.window) { content() }
+        }
+        waitForIdle()
+        onAllNodes(isRoot()).onLast().captureRoboImage("screenshots/$name/${case.fileName}-${board.width}.png")
+    }
+}
+
 /** A control whose automation key is [key], in whatever component and scope: `Button_more`, `Bar.IconButton_more`. */
 private fun hasKey(key: String) = SemanticsMatcher("has the automation key $key") { node ->
     node.config.getOrNull(SemanticsProperties.TestTag)?.endsWith("_$key") == true

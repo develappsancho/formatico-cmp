@@ -21,7 +21,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "Formatico"
-            packageVersion = "1.0.0"
+            packageVersion = providers.gradleProperty("formatico.version").get()
             // The icons are drawn by tools/icons/generate.py from the canvas's icon board.
             macOS {
                 bundleID = "com.developersancho.formatico"

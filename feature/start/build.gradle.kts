@@ -10,6 +10,8 @@ kotlin {
             api(projects.core.format)
             // The history is kept on this device, in core:storage's stores.
             implementation(projects.core.storage)
+            // Whether a history is kept, and what a text of no format told becomes, are Settings'.
+            implementation(projects.core.settings)
         }
     }
 }

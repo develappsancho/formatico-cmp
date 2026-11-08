@@ -1,5 +1,6 @@
 package com.developersancho.formatico
 
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.hasText
@@ -7,6 +8,7 @@ import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.v2.runDesktopComposeUiTest
@@ -17,6 +19,7 @@ import com.developersancho.formatico.core.designsystem.Board
 import com.developersancho.formatico.core.storage.memoryStorageModule
 import com.developersancho.formatico.core.testing.inEnglish
 import com.pantrixui.testing.PantrixTestTheme
+import com.pantrixui.testing.TestClipboard
 import com.pantrixui.testing.onPantrixNode
 import io.github.takahirom.roborazzi.captureRoboImage
 import org.koin.core.context.stopKoin
@@ -49,10 +52,19 @@ class BoardScreenshotTest {
     fun table() = boards { board, dark -> capture("Table", board, dark, sample = "countries", shows = "Afghanistan") }
 
     @Test
-    fun convert() = boards { board, dark -> capture("Convert", board, dark, sample = "order", shows = "customer", convert = true) }
+    fun convert() = boards { board, dark -> capture("Convert", board, dark, sample = "order", shows = "customer", then = Then.Convert) }
 
     @Test
-    fun palette() = boards { board, dark -> capture("Palette", board, dark, sample = "order", shows = "customer", palette = true) }
+    fun palette() = boards { board, dark -> capture("Palette", board, dark, sample = "order", shows = "customer", then = Then.Palette) }
+
+    @Test
+    fun settings() = boards { board, dark -> capture("Settings", board, dark, sample = "order", shows = "customer", then = Then.Settings) }
+
+    @Test
+    fun unknownFormat() = boards { board, dark -> capture("Ask", board, dark, then = Then.Ask) }
+
+    /** What a board shows once its sample is open: nothing more, or what is opened over it. */
+    private enum class Then { Nothing, Convert, Palette, Settings, Ask }
 
     /** Every board, in the light theme and the dark. */
     private fun boards(capture: (Board, Boolean) -> Unit) = Board.entries.forEach { board ->
@@ -61,8 +73,8 @@ class BoardScreenshotTest {
 
     /**
      * Draws the app on [board], as dark as the system is where [dark] says so, opens [sample] where one is named and
-     * waits for what it [shows], converts it where [convert] says so or opens the command palette where [palette] does,
-     * and writes the picture as `[name]-width.png`, or `[name]-width-dark.png`.
+     * waits for what it [shows], does what [then] says, and writes the picture as `[name]-width.png`, or
+     * `[name]-width-dark.png`.
      */
     private fun capture(
         name: String,
@@ -70,18 +82,19 @@ class BoardScreenshotTest {
         dark: Boolean,
         sample: String? = null,
         shows: String? = null,
-        convert: Boolean = false,
-        palette: Boolean = false
+        then: Then = Then.Nothing
     ) {
-        inEnglish { draw(name, board, dark, sample, shows, convert, palette) }
+        inEnglish { draw("screenshots/$name-${board.width}${if (dark) "-dark" else ""}.png", board, dark, sample, shows, then) }
         stopKoin()
     }
 
     @Suppress("LongParameterList") // What a board shows, as capture is given it.
-    private fun draw(name: String, board: Board, dark: Boolean, sample: String?, shows: String?, convert: Boolean, palette: Boolean) =
+    private fun draw(file: String, board: Board, dark: Boolean, sample: String?, shows: String?, then: Then) =
         runDesktopComposeUiTest(width = board.width, height = board.height) {
+            // The board's text of no format told is what the clipboard holds.
+            val clipboard = TestClipboard().apply { putText(UNTOLD) }
             setContent {
-                PantrixTestTheme(platform = board.platform, dark = dark, window = board.window) {
+                PantrixTestTheme(platform = board.platform, dark = dark, window = board.window, clipboard = clipboard) {
                     App(systemDark = dark, storage = memoryStorageModule)
                 }
             }
@@ -94,26 +107,56 @@ class BoardScreenshotTest {
                 // which on a busy machine is later.
                 waitUntilDoesNotExist(hasText("Reading…"), timeoutMillis = 10_000)
             }
-            if (convert) {
-                // A phone converts from its bar's "more" menu, a wider window from its toolbar. The menu is opened as
-                // a screen reader opens it: a pointer left where "more" was would hover over the copy that stands there.
-                if (board == Board.Phone) {
-                    onPantrixNode("IconButton", "more").performSemanticsAction(SemanticsActions.OnClick)
-                    onPantrixNode("MenuItem", "convert", scope = "Menu_document").performSemanticsAction(SemanticsActions.OnClick)
-                } else {
-                    onPantrixNode("Button", "convert").performClick()
+            // A control is pressed as a screen reader presses it: a pointer left where it was would hover over what
+            // stands there once the screen has changed.
+            when (then) {
+                Then.Nothing -> onRoot().captureRoboImage(file)
+
+                Then.Convert -> {
+                    // A phone converts from its bar's "more" menu, a wider window from its toolbar.
+                    if (board == Board.Phone) {
+                        onPantrixNode("IconButton", "more").performSemanticsAction(SemanticsActions.OnClick)
+                        onPantrixNode("MenuItem", "convert", scope = "Menu_document").performSemanticsAction(SemanticsActions.OnClick)
+                    } else {
+                        onPantrixNode("Button", "convert").performClick()
+                    }
+                    waitUntilAtLeastOneExists(hasText("Nothing is lost"), timeoutMillis = 10_000)
+                    onRoot().captureRoboImage(file)
                 }
-                waitUntilAtLeastOneExists(hasText("Nothing is lost"), timeoutMillis = 10_000)
-            }
-            val file = "screenshots/$name-${board.width}${if (dark) "-dark" else ""}.png"
-            if (palette) {
-                // The palette is a window of its own, over the app: the last root drawn.
-                onPantrixNode(if (board == Board.Desktop) "Button" else "IconButton", "launcher")
-                    .performSemanticsAction(SemanticsActions.OnClick)
-                waitUntilAtLeastOneExists(hasText("Copy the document"), timeoutMillis = 10_000)
-                onAllNodes(isRoot()).onLast().captureRoboImage(file)
-            } else {
-                onRoot().captureRoboImage(file)
+
+                Then.Palette -> {
+                    // The palette is a window of its own, over the app: the last root drawn.
+                    onPantrixNode(if (board == Board.Desktop) "Button" else "IconButton", "launcher")
+                        .performSemanticsAction(SemanticsActions.OnClick)
+                    waitUntilAtLeastOneExists(hasText("Copy the document"), timeoutMillis = 10_000)
+                    onAllNodes(isRoot()).onLast().captureRoboImage(file)
+                }
+
+                Then.Settings -> {
+                    // A phone's bar over a document has no settings: its Start has.
+                    if (board == Board.Phone) {
+                        onPantrixNode("Button", "switch_documents").performSemanticsAction(SemanticsActions.OnClick)
+                        onPantrixNode("MenuItem", "new", scope = "Menu_documents").performSemanticsAction(SemanticsActions.OnClick)
+                        waitUntilExactlyOneExists(hasText("Paste anything"), timeoutMillis = 10_000)
+                    }
+                    onPantrixNode("IconButton", "settings").performSemanticsAction(SemanticsActions.OnClick)
+                    waitUntilAtLeastOneExists(hasText("Indentation"), timeoutMillis = 10_000)
+                    // The pointer that opened the sample would rest over a row of Settings.
+                    onRoot().performMouseInput { moveTo(Offset(1f, 1f)) }
+                    onRoot().captureRoboImage(file)
+                }
+
+                Then.Ask -> {
+                    onPantrixNode("Button", "paste").performSemanticsAction(SemanticsActions.OnClick)
+                    waitUntilAtLeastOneExists(hasText("What format is this?"), timeoutMillis = 10_000)
+                    onAllNodes(isRoot()).onLast().captureRoboImage(file)
+                }
             }
         }
+
+    private companion object {
+        /** A text Formatico cannot tell the format of, as the Start boards' question shows it. */
+        const val UNTOLD = "2026-11-05 21:04:11 INFO  Server started on port 8080\n" +
+            "2026-11-05 21:04:12 WARN  Slow query took 812 ms\n2026-11-05 21:04:15 INFO  Shutting down"
+    }
 }

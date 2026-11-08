@@ -86,10 +86,33 @@ class AppPaletteTest {
         // Over a new tab there is no document to run a command on, and no new tab to open.
         command("format").assertDoesNotExist()
         command("new").assertIsNotEnabled()
-        command("settings").assertIsNotEnabled()
+        command("settings").assertIsEnabled()
         command("theme").performClick()
         val light = "Use the light theme"
         awaitNode(hasPantrixTag("IconButton", "theme") and hasContentDescription(light), light)
+    }
+
+    @Test
+    fun theSettingsCommandOpensSettingsAndListsNoDocumentsCommandsOverIt() = runComposeUiTest {
+        setContent {
+            PantrixTestTheme(platform = PlatformType.Desktop, system = mac, window = desktop) {
+                App(systemDark = false, storage = memoryStorageModule)
+            }
+        }
+        awaitText("Paste anything")
+        onPantrixNode("ListItem", "sample_order").performClick()
+        awaitText("Valid JSON")
+
+        onPantrixNode("Button", "launcher").performClick()
+        find("settings")
+        command("settings").performClick()
+
+        awaitText("Keep a history of documents")
+        onPantrixNode("Button", "launcher").performClick()
+        awaitText("Open a file")
+        command("format").assertDoesNotExist()
+        command("settings").assertIsNotEnabled()
+        command("new").assertIsEnabled()
     }
 
     @Test

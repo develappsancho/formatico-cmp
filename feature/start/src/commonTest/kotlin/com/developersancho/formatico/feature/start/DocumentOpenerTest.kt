@@ -67,6 +67,17 @@ class DocumentOpenerTest {
         assertEquals(emptyList(), history.documents.value)
     }
 
+    @Test
+    fun whereNoHistoryIsKeptNothingGoesToIt() = runTest(dispatcher) {
+        val history = StoredDocumentHistory(small = MemorySmallStore(), texts = MemoryTextStore(), scope = backgroundScope)
+        val opener = DocumentOpener(history, clock, maxFileSize = MAX_SIZE, reader = dispatcher, keeps = { false })
+
+        val opening = opener.paste("a: 1\n")
+
+        assertNull((opening as Opening.Opened).document.historyId)
+        assertEquals(emptyList(), history.documents.value)
+    }
+
     private companion object {
         const val MAX_SIZE = 100L
     }

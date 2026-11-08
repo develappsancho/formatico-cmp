@@ -3,6 +3,7 @@ package com.developersancho.formatico.feature.workspace
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextRange
@@ -15,6 +16,7 @@ import com.developersancho.formatico.core.designsystem.FormaticoPreview
 import com.developersancho.formatico.core.designsystem.PreviewCase
 import com.developersancho.formatico.core.designsystem.PreviewCases
 import com.developersancho.formatico.core.format.Format
+import com.developersancho.formatico.feature.workspace.editor.LocalWrapLines
 import com.pantrixui.components.data.codeeditor.CodeEditorState
 
 /** An order: a date, a colour, links, a picture, a null and an array of items, which makes a table. */
@@ -284,16 +286,28 @@ private val CountriesSummary = previewState("countries.csv", PreviewCountries, F
     .let { it.copy(sizes = it.sizes?.copy(compressed = COUNTRIES_GZIPPED)) }
 private val PlainText = previewState("notes.txt", "Things to check before the release.\n", null)
 
-/** A case of the screen: [state], with its editor's caret at [caret]. */
-internal class ScreenCase(val state: WorkspaceState, val caret: Int = 0)
+/** A note with lines longer than a pane: what Settings' "Wrap long lines" wraps. */
+private val PreviewLongLines =
+    """
+    {
+      "title": "Release checklist",
+      "summary": "Before the release, check that every document opens on every platform, that the large files stay within their limits, and that the history keeps only what Settings says it keeps.",
+      "owner": "elif@example.com"
+    }
+    """.trimIndent() + "\n"
+
+private val LongLines = previewState("checklist.json", PreviewLongLines, Format.Json)
+
+/** A case of the screen: [state], with its editor's caret at [caret], its long lines wrapped where [wrapLines] says. */
+internal class ScreenCase(val state: WorkspaceState, val caret: Int = 0, val wrapLines: Boolean = false)
 
 /**
  * The workspace's cases: a JSON document with its value previews, a YAML one with anchors, a CSV and a JSON array as
  * tables, a document with mistakes and its problems, a YAML one with a flow left open, an XML feed, a TOML manifest,
  * newline-delimited JSON, a properties file and an INI one, the order's Summary measured and being measured and a CSV's,
  * the order and the feed queried, as the Query boards draw them, the order converted to YAML and to TOML, as the
- * Convert boards draw it, the boards' two orders compared by meaning and by text, one being read, and a new, empty
- * one.
+ * Convert boards draw it, the boards' two orders compared by meaning and by text, a note with long lines left long and
+ * wrapped, one being read, and a new, empty one.
  */
 internal class WorkspaceScreenCases :
     PreviewCases<ScreenCase>(
@@ -319,6 +333,8 @@ internal class WorkspaceScreenCases :
         "convert toml" to ScreenCase(OrderToToml),
         "compare" to ScreenCase(OrdersCompared),
         "compare text" to ScreenCase(OrdersComparedAsText),
+        "long lines" to ScreenCase(LongLines),
+        "long lines wrapped" to ScreenCase(LongLines, wrapLines = true),
         "reading" to ScreenCase(BeingRead),
         "empty" to ScreenCase(Empty)
     )
@@ -330,7 +346,14 @@ internal fun WorkspaceScreenPreview(@PreviewParameter(WorkspaceScreenCases::clas
         val editor = remember(screen) {
             screen.state.document?.let { CodeEditorState(it.text, initialSelection = TextRange(screen.caret)) }
         }
-        WorkspaceScreen(state = screen.state, onIntent = {}, commands = rememberDocumentCommands(remember { Workbench() }), editor = editor)
+        CompositionLocalProvider(LocalWrapLines provides screen.wrapLines) {
+            WorkspaceScreen(
+                state = screen.state,
+                onIntent = {},
+                commands = rememberDocumentCommands(remember { Workbench() }),
+                editor = editor
+            )
+        }
     }
 }
 

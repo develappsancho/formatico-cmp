@@ -59,12 +59,30 @@ internal sealed interface Edited {
     data object AliasBeforeAnchor : Edited
 }
 
-/** What [edit] makes of [document]: nothing where it is plain text, or not valid. */
-internal fun edited(document: OpenDocument, edit: DocumentEdit): Edited {
-    val text = document.text
-    val indentation = TextLayout.of(text).indentation ?: Indentation.Spaces(2)
+/**
+ * How Format writes a document, as Settings chose: a level in [indentation], or in the document's own where it is
+ * null; and its keys sorted where [sortKeys] says so and the format has keys to sort.
+ */
+data class FormatOptions(val indentation: Indentation? = null, val sortKeys: Boolean = false)
+
+/**
+ * What [edit] makes of [document], as [options] write it: nothing where it is plain text, or not valid. Format sorts the
+ * keys where [options] say so, and writes them as they are where sorting them cannot be done.
+ */
+internal fun edited(document: OpenDocument, edit: DocumentEdit, options: FormatOptions = FormatOptions()): Edited {
     val format = document.format ?: return Edited.NotPossible
     if (edit !in format.edits) return Edited.NotPossible
+    val sorting = edit == DocumentEdit.Format && options.sortKeys && DocumentEdit.SortKeys in format.edits
+    if (sorting) {
+        val sorted = editedAs(document, format, DocumentEdit.SortKeys, options)
+        if (sorted is Edited.Text) return sorted
+    }
+    return editedAs(document, format, edit, options)
+}
+
+private fun editedAs(document: OpenDocument, format: Format, edit: DocumentEdit, options: FormatOptions): Edited {
+    val text = document.text
+    val indentation = options.indentation ?: TextLayout.of(text).indentation ?: Indentation.Spaces(2)
     return when (format) {
         Format.Json, Format.Jsonc, Format.Json5 -> editedJson(text, requireNotNull(format.jsonDialect), edit, indentation)
         Format.Ndjson -> editedNdjson(text, edit)

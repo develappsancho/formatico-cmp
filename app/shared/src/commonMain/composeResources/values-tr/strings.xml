@@ -16,7 +16,7 @@
         <item quantity="one">%1$d açık belge</item>
         <item quantity="other">%1$d açık belge</item>
     </plurals>
-    <string name="palette_placeholder">Bir komut ya da biçim yazın</string>
+    <string name="palette_placeholder">Bir komut ya da biçim yaz</string>
     <string name="palette_empty">Bu sözcüklerle bir komut yok</string>
     <string name="palette_new_document">Yeni belge</string>
     <string name="palette_open_file">Dosya aç</string>

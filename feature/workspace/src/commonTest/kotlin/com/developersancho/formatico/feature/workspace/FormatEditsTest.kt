@@ -1,6 +1,9 @@
 package com.developersancho.formatico.feature.workspace
 
 import com.developersancho.formatico.core.format.Format
+import com.developersancho.formatico.core.format.text.Indentation
+import com.developersancho.formatico.core.settings.IndentChoice
+import com.developersancho.formatico.core.settings.Preferences
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -59,5 +62,37 @@ class FormatEditsTest {
         assertEquals(Edited.NotPossible, edit("hello", format = null, DocumentEdit.Format))
         assertEquals(Edited.NotPossible, edit("<a><b></a>", Format.Xml, DocumentEdit.Format))
         assertEquals(Edited.NotPossible, edit("[editor\nx=1\n", Format.Ini, DocumentEdit.Format))
+    }
+
+    @Test
+    fun formatWritesWithTheIndentationSettingsChoseAndSortsTheKeysWhereThatIsChosen() {
+        val json = OpenDocument(id = 1, name = null, text = """{"b": 1, "a": {"c": 2}}""", format = Format.Json)
+
+        val four = assertIs<Edited.Text>(edited(json, DocumentEdit.Format, FormatOptions(indentation = Indentation.Spaces(4))))
+        assertEquals("{\n    \"b\": 1,\n    \"a\": {\n        \"c\": 2\n    }\n}", four.text.trimEnd())
+        val tabs = assertIs<Edited.Text>(edited(json, DocumentEdit.Format, FormatOptions(indentation = Indentation.Tabs)))
+        assertEquals("{\n\t\"b\": 1,", tabs.text.lines().take(2).joinToString("\n"))
+        val sorted = assertIs<Edited.Text>(edited(json, DocumentEdit.Format, FormatOptions(sortKeys = true)))
+        assertEquals(listOf("\"a\"", "\"b\""), Regex("\"[ab]\"").findAll(sorted.text).map { it.value }.toList())
+    }
+
+    @Test
+    fun formatLeavesTheKeysWhereTheyAreWhereSortingThemCannotBeDone() {
+        // Sorting would put the alias before its anchor: Format writes the document as it is.
+        val yaml = OpenDocument(id = 1, name = null, text = "b: &x 1\na: *x\n", format = Format.Yaml)
+        val csv = OpenDocument(id = 2, name = null, text = "b,a\n1,2\n", format = Format.Csv)
+
+        assertEquals("b: &x 1\na: *x\n", assertIs<Edited.Text>(edited(yaml, DocumentEdit.Format, FormatOptions(sortKeys = true))).text)
+        assertIs<Edited.Text>(edited(csv, DocumentEdit.Format, FormatOptions(sortKeys = true)))
+    }
+
+    @Test
+    fun aChoiceOfSettingsIsTheIndentationItSaysAndPreferencesGiveTheirOptions() {
+        assertEquals(Indentation.Spaces(2), IndentChoice.TwoSpaces.indentation)
+        assertEquals(Indentation.Tabs, IndentChoice.Tabs.indentation)
+        assertEquals(
+            FormatOptions(indentation = Indentation.Spaces(4), sortKeys = true),
+            Preferences(indentation = IndentChoice.FourSpaces, sortKeys = true).formatOptions
+        )
     }
 }

@@ -19,7 +19,9 @@ kotlin {
             implementation(projects.core.base)
             implementation(projects.core.designsystem)
             implementation(projects.core.navigation)
+            implementation(projects.core.settings)
             implementation(projects.core.storage)
+            implementation(projects.feature.settings)
             implementation(projects.feature.start)
             implementation(projects.feature.workspace)
 

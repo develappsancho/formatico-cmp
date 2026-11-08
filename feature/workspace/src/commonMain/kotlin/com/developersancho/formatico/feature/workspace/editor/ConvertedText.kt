@@ -31,6 +31,7 @@ internal fun ConvertedText(text: String, format: Format, name: String, modifier:
         style = PaneEditorStyle,
         colors = editorColors(),
         contentDescription = stringResource(Res.string.workspace_text_of, name),
+        softWrap = LocalWrapLines.current,
         tagKey = "converted"
     )
 }

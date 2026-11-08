@@ -27,12 +27,14 @@ sealed interface Opening {
  * @param clock what a document is recorded as opened by.
  * @param maxFileSize the most bytes a file may have, by the platform.
  * @param reader where files are read and their formats told.
+ * @param keeps whether the history is kept, as Settings has it: where it is not, nothing goes to it.
  */
 class DocumentOpener(
     private val history: DocumentHistory,
     private val clock: Clock,
     private val maxFileSize: Long,
-    private val reader: CoroutineDispatcher = Dispatchers.Default
+    private val reader: CoroutineDispatcher = Dispatchers.Default,
+    private val keeps: () -> Boolean = { true }
 ) {
     /** [text], pasted, as a document; nothing to open where it is null or blank. */
     suspend fun paste(text: String?): Opening {
@@ -63,9 +65,12 @@ class DocumentOpener(
         }
     }
 
-    /** [document] at the top of the history where it holds text, with its place there; an empty one as it is. */
+    /**
+     * [document] at the top of the history where it holds text and a history is kept, with its place there; an empty
+     * one, or any where none is kept, as it is.
+     */
     suspend fun record(document: OpenedDocument): OpenedDocument {
-        val historyId = if (document.text.isNotEmpty()) history.record(document, clock.now()) else null
+        val historyId = if (document.text.isNotEmpty() && keeps()) history.record(document, clock.now()) else null
         return document.copy(historyId = historyId)
     }
 }

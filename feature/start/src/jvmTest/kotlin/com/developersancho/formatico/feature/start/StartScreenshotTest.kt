@@ -1,6 +1,7 @@
 package com.developersancho.formatico.feature.start
 
 import com.developersancho.formatico.core.designsystem.Board
+import com.developersancho.formatico.core.testing.captureOverlay
 import com.developersancho.formatico.core.testing.capturePreview
 import kotlin.test.Test
 
@@ -12,5 +13,10 @@ class StartScreenshotTest {
     @Test
     fun startScreen() = StartScreenCases().values.forEach { case ->
         Board.entries.forEach { board -> capturePreview("StartScreen", case, board) { StartScreenPreview(case) } }
+    }
+
+    @Test
+    fun unknownFormat() = UnknownFormatCases().values.forEach { case ->
+        Board.entries.forEach { board -> captureOverlay("UnknownFormat", case, board) { UnknownFormatPreview(case) } }
     }
 }

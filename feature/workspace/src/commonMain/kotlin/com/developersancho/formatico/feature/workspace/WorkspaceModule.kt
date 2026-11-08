@@ -1,5 +1,6 @@
 package com.developersancho.formatico.feature.workspace
 
+import com.developersancho.formatico.core.settings.SettingsStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -12,7 +13,8 @@ import org.koin.dsl.module
  * app opens, and a view model for each document's workspace.
  */
 val workspaceModule: Module = module {
-    single { Workbench() }
+    // Format writes as Settings has it.
+    single { Workbench(formatting = { get<SettingsStore>().preferences.value.formatOptions }) }
     single(createdAtStart = true) {
         WorkbenchKeeper(
             workbench = get(),

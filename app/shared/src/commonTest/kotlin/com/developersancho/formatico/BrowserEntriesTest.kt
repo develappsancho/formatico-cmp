@@ -45,4 +45,23 @@ class BrowserEntriesTest {
             assertEquals(order, workbench.state.value.selectedId, "$entries")
         }
     }
+
+    @Test
+    fun settingsIsAnAddressOverTheScreenItWasOpenedFrom() {
+        assertEquals(listOf("#start", "#document?id=3", "#settings"), browserEntries(selectedId = 3, settings = true))
+        val order = workbench.open("order.json", "{}", Format.Json)
+        var settings: Boolean? = null
+
+        workbench.showBrowserEntries(listOf("#start", "#document?id=$order", "#settings")) { settings = it }
+        assertEquals(true, settings)
+        assertEquals(order, workbench.state.value.selectedId)
+
+        workbench.showBrowserEntries(listOf("#start")) { settings = it }
+        assertEquals(false, settings)
+        assertNull(workbench.state.value.selectedId)
+
+        settings = null
+        workbench.showBrowserEntries(listOf("#elsewhere")) { settings = it }
+        assertNull(settings)
+    }
 }

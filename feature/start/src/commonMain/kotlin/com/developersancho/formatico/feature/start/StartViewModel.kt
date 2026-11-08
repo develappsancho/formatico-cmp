@@ -17,15 +17,17 @@ import kotlin.time.Clock
  * @param clock what a document is recorded as opened by.
  * @param maxFileSize the most bytes a file may have, by the platform.
  * @param reader where files are read and their formats told: off the screen's thread.
+ * @param keeps whether the history is kept, as Settings has it.
  */
 class StartViewModel(
     private val history: DocumentHistory,
     private val samples: SampleSource,
     clock: Clock,
     maxFileSize: Long,
-    reader: CoroutineDispatcher = Dispatchers.Default
+    reader: CoroutineDispatcher = Dispatchers.Default,
+    keeps: () -> Boolean = { true }
 ) : MviViewModel<StartState, StartIntent, StartEffect>(StartState()) {
-    private val opener = DocumentOpener(history, clock, maxFileSize, reader)
+    private val opener = DocumentOpener(history, clock, maxFileSize, reader, keeps)
 
     init {
         viewModelScope.launch {

@@ -117,8 +117,12 @@ eksikler Faz 4'te.
     Start'ta biçimi anlaşılmayan metnin sorusu ("Ask me"). Komut paleti ve kısayollar yapıldı (2026-11-05): palet
     başlatıcıdan ve Command ya da Control ve K ile açılıyor; belgenin komutları (Document, View, Convert) ve
     Formatico'nunkiler; her komut kendi kısayoluyla paletsiz de çalışıyor; dosya açma ve yapıştırma Start'ın
-    kurallarıyla her ekrandan (`DocumentOpener`). Settings kaldı; iki bulgusu `tıkıyor` (sahibinin kararı, 2026-11-05):
-    "Wrap long lines" Pantrix'in editörünü, Keyboard shortcuts bölümü Pantrix'in tuş kapağını bekliyor.
+    kurallarıyla her ekrandan (`DocumentOpener`). Settings yapıldı (2026-11-05): `core:settings` (tercihler, KSafe'te)
+    ve `feature:settings`; geniş pencerede kenar çubuğuyla bir sekme, tablette sekme, telefonda kendi ekranı. Tema,
+    dil (uygulamanın ve Pantrix'in sözcükleri, anında), Format'ın girintisi ve anahtar sıralaması, biçimi anlaşılmayan
+    metnin sorusu, geçmişin tutulması, süresi ve temizlenmesi, About (sürüm derlemeden) ve açık kaynak lisansları.
+    "Wrap long lines" Pantrix'in satır kaydırmasıyla bağlandı (2026-11-05). Kalan, Keyboard shortcuts bölümü: Pantrix'in
+    tuş kapağını bekliyor, bulgusu `tıkıyor` (sahibinin kararı, 2026-11-05).
 *   [ ] **Faz 13: Paylaşım.** Küçük bir belge sıkıştırılıp bağlantının fragment'ında; sunucu yok.
 *   [ ] **Faz 14: Büyük dosyalar.** Masaüstünde 50 MB, telefonda ve web'de 10 MB, ölçülerek.
 *   [ ] **Faz 15: v1'in testi.** Roborazzi her panoyla, Maestro akışları Android ve iOS'ta, tarayıcı testleri;

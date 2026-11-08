@@ -59,10 +59,12 @@ internal fun AppTopBarPreview(@PreviewParameter(AppTopBarCases::class) case: Pre
             AppTopBar(
                 insets = PaddingValues(),
                 workbench = it.workbench,
+                settingsShown = false,
                 onSelectTab = {},
                 darkTheme = case.dark,
                 onToggleTheme = {},
                 onOpenPalette = {},
+                onOpenSettings = {},
                 documentMenu = { id -> DocumentMoreMenu(documentId = id, workbench = workbench) }
             )
         }

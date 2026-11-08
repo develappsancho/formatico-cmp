@@ -86,24 +86,29 @@ private val BarHeight = 56.dp
  * new tab, and over a document the document's name, which switches documents, how many are open, the launcher's
  * button and the document's "more" menu; over a document being converted or compared, none: those screens have bars of their own.
  *
- * The settings come with their screen; until then its button is drawn and not pressed.
+ * Over Settings, a wide window and a tablet keep the tabs, Settings' own the chosen one, and the launcher alone: the
+ * theme's switch and the settings are in Settings itself. A phone's Settings has a bar of its own, in this one's place.
  *
  * @param insets the window's insets at the bar's edges: the bar's fill runs behind them.
  * @param workbench the open documents, and the chosen tab.
+ * @param settingsShown whether Settings is shown, over the chosen tab.
  * @param onSelectTab chooses the tab of a document, by its id, or a new tab for null.
  * @param darkTheme whether the dark theme is in effect.
  * @param onToggleTheme asks for the other theme.
  * @param onOpenPalette opens the command palette.
+ * @param onOpenSettings opens Settings.
  * @param documentMenu the "more" menu of the document a phone's bar is over, by its id.
  */
 @Composable
 internal fun AppTopBar(
     insets: PaddingValues,
     workbench: WorkbenchState,
+    settingsShown: Boolean,
     onSelectTab: (Long?) -> Unit,
     darkTheme: Boolean,
     onToggleTheme: () -> Unit,
     onOpenPalette: () -> Unit,
+    onOpenSettings: () -> Unit,
     documentMenu: @Composable (documentId: Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -113,10 +118,7 @@ internal fun AppTopBar(
     val wide = window.widthClass >= WindowWidthClass.Expanded
     val shown = workbench.selected
     Column(modifier = modifier.fillMaxWidth().background(PantrixTheme.colors.surface).padding(insets)) {
-        // A phone's conversion and its comparison are screens with bars of their own, Convert-390's and Compare-390's,
-        // in this one's place.
-        val ownBar = shown?.view?.pane == DocumentPane.Convert || shown?.view?.pane == DocumentPane.Compare
-        if (phone && ownBar) return@Column
+        if (phone && hasOwnBar(shown, settingsShown)) return@Column
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -133,17 +135,19 @@ internal fun AppTopBar(
                         darkTheme = darkTheme,
                         onToggleTheme = onToggleTheme,
                         onOpenPalette = onOpenPalette,
+                        onOpenSettings = onOpenSettings,
                         documentMenu = documentMenu,
                         modifier = Modifier.weight(1f)
                     )
                 }
 
                 else -> {
-                    // A tablet over a document keeps the mark, the tabs and two buttons, as its boards draw it.
-                    val roomy = wide || shown == null
+                    // A tablet over a document or Settings keeps the mark, the tabs and its buttons, as its boards draw it.
+                    val roomy = wide || (shown == null && !settingsShown)
                     Brand(phone = false, withName = roomy)
                     DocumentTabs(
                         workbench = workbench,
+                        settingsShown = settingsShown,
                         onSelectTab = onSelectTab,
                         size = if (wide) ButtonSize.Small else ButtonSize.Medium,
                         modifier = Modifier.weight(1f).padding(start = if (wide) spacing.lg else spacing.md)
@@ -151,10 +155,11 @@ internal fun AppTopBar(
                     BarActions(
                         phone = false,
                         wide = wide,
-                        withTheme = roomy,
+                        withTheme = roomy && !settingsShown,
                         darkTheme = darkTheme,
                         onToggleTheme = onToggleTheme,
-                        onOpenPalette = onOpenPalette
+                        onOpenPalette = onOpenPalette,
+                        onOpenSettings = onOpenSettings.takeUnless { settingsShown }
                     )
                 }
             }
@@ -162,6 +167,13 @@ internal fun AppTopBar(
         PantrixHorizontalDivider()
     }
 }
+
+/**
+ * Whether a phone's screen has a bar of its own in this one's place: Settings, and a document [shown] being converted or
+ * compared, as Convert-390 and Compare-390 draw them.
+ */
+private fun hasOwnBar(shown: OpenDocument?, settingsShown: Boolean): Boolean =
+    settingsShown || shown?.view?.pane == DocumentPane.Convert || shown?.view?.pane == DocumentPane.Compare
 
 /**
  * A phone's bar, changing as its screen does and over the same time: on iOS the screen slides in, and a bar that
@@ -174,6 +186,7 @@ private fun AnimatedPhoneBar(
     darkTheme: Boolean,
     onToggleTheme: () -> Unit,
     onOpenPalette: () -> Unit,
+    onOpenSettings: () -> Unit,
     documentMenu: @Composable (documentId: Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -199,6 +212,7 @@ private fun AnimatedPhoneBar(
                 darkTheme = darkTheme,
                 onToggleTheme = onToggleTheme,
                 onOpenPalette = onOpenPalette,
+                onOpenSettings = onOpenSettings,
                 documentMenu = documentMenu
             )
         }
@@ -216,6 +230,7 @@ private fun RowScope.PhoneBar(
     darkTheme: Boolean,
     onToggleTheme: () -> Unit,
     onOpenPalette: () -> Unit,
+    onOpenSettings: () -> Unit,
     documentMenu: @Composable (documentId: Long) -> Unit
 ) {
     val shown = workbench.selected
@@ -242,7 +257,8 @@ private fun RowScope.PhoneBar(
                 withTheme = false,
                 darkTheme = darkTheme,
                 onToggleTheme = onToggleTheme,
-                onOpenPalette = onOpenPalette
+                onOpenPalette = onOpenPalette,
+                onOpenSettings = onOpenSettings
             )
         }
 
@@ -254,7 +270,8 @@ private fun RowScope.PhoneBar(
                 withTheme = false,
                 darkTheme = darkTheme,
                 onToggleTheme = onToggleTheme,
-                onOpenPalette = onOpenPalette
+                onOpenPalette = onOpenPalette,
+                onOpenSettings = onOpenSettings
             )
         }
     }
@@ -271,24 +288,33 @@ private fun OpenDocument.label(): String = name ?: stringResource(Res.string.unt
 @Composable
 private fun DocumentTabs(
     workbench: WorkbenchState,
+    settingsShown: Boolean,
     onSelectTab: (Long?) -> Unit,
     size: ButtonSize,
     modifier: Modifier = Modifier
 ) {
     val notSaved = stringResource(Res.string.changes_not_saved)
     val documents = workbench.documents
+    // Settings has a tab of its own while it is shown, as a new tab has while it is chosen: neither can be closed
+    // (PANTRIX_FINDINGS, "Belge sekmeleri için kapatılabilen bir sekme yok"), and each goes once another tab is chosen.
+    val own = when {
+        settingsShown -> TabItem(label = stringResource(Res.string.settings), tagKey = "settings")
+        workbench.selected == null -> TabItem(label = stringResource(Res.string.new_tab), tagKey = "new")
+        else -> null
+    }
     val tabs = documents.map { document ->
         TabItem(
             label = document.label(),
             tagKey = "document_${document.id}",
             badge = if (document.edited) TabBadge(contentDescription = notSaved, tone = BadgeTone.Neutral) else null
         )
-    } + listOfNotNull(TabItem(label = stringResource(Res.string.new_tab), tagKey = "new").takeIf { workbench.selected == null })
+    } + listOfNotNull(own)
+    val chosen = documents.indexOfFirst { it.id == workbench.selectedId }.takeIf { it >= 0 && !settingsShown }
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
         PantrixTabs(
             tabs = tabs,
-            selectedIndex = documents.indexOfFirst { it.id == workbench.selectedId }.takeIf { it >= 0 } ?: documents.size,
-            onSelect = { index -> onSelectTab(documents.getOrNull(index)?.id) },
+            selectedIndex = chosen ?: documents.size,
+            onSelect = { index -> if (index < documents.size || own?.tagKey == "new") onSelectTab(documents.getOrNull(index)?.id) },
             modifier = Modifier.weight(1f, fill = false),
             scrollable = true,
             // The bar draws its own edge: the row's hairline would be a second one (PANTRIX_FINDINGS: "PantrixTabs'ın
@@ -301,7 +327,7 @@ private fun DocumentTabs(
             contentDescription = stringResource(Res.string.new_tab),
             onClick = { onSelectTab(null) },
             size = size,
-            enabled = workbench.selected != null,
+            enabled = workbench.selected != null || settingsShown,
             tagKey = "new_tab"
         )
     }
@@ -367,7 +393,10 @@ private fun DocumentSwitcher(workbench: WorkbenchState, shown: OpenDocument?, on
     )
 }
 
-/** The launcher, the theme's switch where there is room for it ([withTheme]), and the settings. */
+/**
+ * The launcher, the theme's switch where there is room for it ([withTheme]), and the settings, which [onOpenSettings]
+ * opens: none over Settings, where a wide window keeps their room, as its board does.
+ */
 @Composable
 private fun BarActions(
     phone: Boolean,
@@ -375,7 +404,8 @@ private fun BarActions(
     withTheme: Boolean,
     darkTheme: Boolean,
     onToggleTheme: () -> Unit,
-    onOpenPalette: () -> Unit
+    onOpenPalette: () -> Unit,
+    onOpenSettings: (() -> Unit)?
 ) {
     val size = when {
         wide -> ButtonSize.Small
@@ -404,15 +434,21 @@ private fun BarActions(
             tagKey = "theme"
         )
     }
+    if (onOpenSettings == null) {
+        if (wide) Spacer(modifier = Modifier.width(SettingsRoom))
+        return
+    }
     PantrixIconButton(
         imageVector = FormaticoIcons.Settings,
         contentDescription = stringResource(Res.string.settings),
-        onClick = {},
+        onClick = onOpenSettings,
         size = size,
-        enabled = false,
         tagKey = "settings"
     )
 }
+
+/** The room a wide window's theme switch and settings take, which the bar keeps over Settings: the board's 72. */
+private val SettingsRoom = 72.dp
 
 /** Formatico's mark, `{ }` on the brand's colour, and its name where there is room for it ([withName]). */
 @Composable

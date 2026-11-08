@@ -3,6 +3,7 @@ package com.developersancho.formatico.feature.start
 import com.developersancho.formatico.core.format.Format
 import com.developersancho.formatico.core.storage.MemorySmallStore
 import com.developersancho.formatico.core.storage.MemoryTextStore
+import com.developersancho.formatico.core.storage.historyTextName
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
@@ -12,6 +13,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
 
@@ -92,5 +94,20 @@ class StoredDocumentHistoryTest {
         assertTrue(history.documents.value.isEmpty())
         assertTrue(texts.names().isEmpty())
         assertTrue(history().also { runCurrent() }.documents.value.isEmpty())
+    }
+
+    @Test
+    fun documentsOpenedLongerAgoThanTheyAreKeptForAreForgottenWithTheirTexts() = runTest {
+        val history = history()
+        val old = history.record(order, moment - 31.days)
+        val new = history.record(order.copy(name = "new.json"), moment)
+        runCurrent()
+
+        history.forgetBefore(moment - 30.days)
+        runCurrent()
+
+        assertEquals(listOf(new), history.documents.value.map { it.id })
+        assertEquals(null, texts.read(historyTextName(old)))
+        assertEquals(listOf(new), history().also { runCurrent() }.documents.value.map { it.id })
     }
 }

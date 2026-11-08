@@ -381,8 +381,15 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Öneri: `CodeMark`'a görünmeyen, yalnızca ekran okuyucunun okuduğu bir açıklama (`description: String?`); ya da `gutter`'a bir ad.
     *   Durum: açık. Formatico'yu tıkamıyor.
 
-*   [ ] **Kod editöründe uzun satır alttan devam ettirilemiyor (2026-11-05).**
+*   [x] **Kod editöründe uzun satır alttan devam ettirilemiyor (2026-11-05).**
     *   Ne: Settings panolarının Editor bölümünde "Wrap long lines" ("A line too long for the window goes on under itself"), açık olarak çizili. `PantrixCodeEditor`'ın parametrelerinde satırı kaydırmanın yolu yok (`indent`, `closesPairs`, `keyRow`, `lineNumbers`, `readOnly`, `textStyle`, `style`); uzun satır yana kayıyor. Formatico'nun Settings'i bu satırı bağlayamıyor.
     *   Nerede: MCP `get_component_metadata CodeEditor`; 0.1.2-SNAPSHOT'un kaynak jar'ında `PantrixCodeEditor`'ın imzası.
     *   Öneri: `PantrixCodeEditor`'a `softWrap: Boolean` (varsayılanı bugünkü gibi `false`): satır, editörün genişliğinde alttan devam eder; devam eden parçanın numarası yok (oluk boş), girintisi satırın girintisi kadar; imleç, seçim, bul ve işaretler (`lineMarks`, `rangeMarks`) kaydırılmış satırda da doğru yerde. `PantrixCodeBlock`'ta da aynı seçenek.
-    *   Durum: açık, tıkıyor (sahibinin kararı, 2026-11-05). Faz 12'nin Settings'i buna bağlı: "Wrap long lines" düzeltme gelince bağlanır.
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-05). Geldi: `PantrixCodeEditor`'ın `softWrap`'ı (varsayılanı `false`); devam eden sıra kodun başladığı yerden başlıyor (asılı girinti yok: Compose 1.12'de satır başına `ParagraphStyle` her satıra boş bir sıra ekliyor), numara ve oluk işareti ilk sıranın yanında, `lineMarks`'ın bandı bütün sıraları kaplıyor, `revealLines` kaydırılmış satırı bütün olarak getiriyor. Settings'in "Wrap long lines"ı (ilk değeri açık, panodaki gibi) Workspace'in metnine, Convert'in çıktısına ve Compare'in iki metnine `LocalWrapLines` ile veriliyor. Denendi: JVM, iOS simülatörü ve Wasm testleri; ekran görüntüleri ("long lines" ve "long lines wrapped"). Önceki durum: açık, tıkıyor (sahibinin kararı, 2026-11-05).
+
+*   [ ] **Uygulamanın kendi sözcüklerinin dili için yol gösterilmiyor (2026-11-05).**
+    *   Ne: Settings'te dil seçiliyor (English, Türkçe). `PantrixTheme(locale = …)` Pantrix'in bileşenlerinin sözcüklerini ve yönünü veriyor; ama uygulamanın kendi sözcükleri Compose'un kaynaklarından (`stringResource`) geliyor ve onlar platformun dilini okuyor. Sitede, bir uygulamanın kendi sözcüklerini seçilen dile nasıl geçireceği yazmıyor; Formatico bunu JetBrains'in belgelediği yolla, her platformda ayrı (`LocalAppLocale`: JVM'de ve Android'de `Locale`, iOS'ta `AppleLanguages`, web'de `navigator.languages`'ı değiştiren bir betik) ve bileşimi `key` ile baştan kurarak yaptı.
+    *   Nerede: MCP `get_documentation_page language` ("Language and words"); MCP `search_documentation "app chooses its own language"`.
+    *   Öneri: sayfaya "uygulamanın kendi dili" bölümü; ya da Pantrix'te bir yardımcı (`PantrixTheme`'in dili Compose'un kaynaklarına da geçirmesi, ya da `rememberAppLanguage`), testteki karşılığıyla.
+    *   Durum: açık. Formatico'yu tıkamıyor.
+

@@ -1,0 +1,100 @@
+package com.developersancho.formatico.feature.settings
+
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.v2.runComposeUiTest
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
+import com.developersancho.formatico.core.settings.AppLanguage
+import com.developersancho.formatico.core.settings.ThemeChoice
+import com.developersancho.formatico.core.testing.awaitText
+import com.pantrixui.foundation.adaptive.PantrixWindow
+import com.pantrixui.foundation.diagnostics.PantrixFindings
+import com.pantrixui.testing.PantrixTestTheme
+import com.pantrixui.testing.assertNoFindings
+import com.pantrixui.testing.onPantrixNode
+import kotlin.test.Test
+import kotlin.test.assertEquals
+
+@OptIn(ExperimentalTestApi::class)
+class SettingsScreenTest {
+    private val desktop = PantrixWindow(DpSize(1440.dp, 900.dp))
+    private val phone = PantrixWindow(DpSize(390.dp, 844.dp))
+    private val state = SettingsState(history = PreviewHistory)
+
+    @Test
+    fun aWideWindowSetsOutTheSectionsBesideTheirSidebar() = runComposeUiTest {
+        val findings = PantrixFindings()
+        val intents = mutableListOf<SettingsIntent>()
+        setContent {
+            PantrixTestTheme(window = desktop, findings = findings) { SettingsScreen(state = state, onIntent = { intents += it }) }
+        }
+
+        awaitText("Settings", forgetting = findings)
+        awaitText("On this device only: 23 documents, 6.1 MB.")
+        onPantrixNode("Item", "general", scope = "Sidebar_settings").assertExists()
+        onPantrixNode("Item", "about", scope = "Sidebar_settings").assertExists()
+        awaitText("When the format cannot be told")
+        onPantrixNode("SwitchButton", "keep_history").assertIsOn()
+        onPantrixNode("SwitchButton", "wrap_lines").assertIsOn()
+
+        onPantrixNode("Segment", "dark", scope = "SegmentButton_theme").performClick()
+        onPantrixNode("SwitchButton", "sort_keys").performClick()
+        // The test draws in less than the board, and the sections below scroll.
+        onPantrixNode("Button", "clear_history").performScrollTo().performClick()
+        assertEquals(
+            listOf(SettingsIntent.SetTheme(ThemeChoice.Dark), SettingsIntent.SetSortKeys(true), SettingsIntent.ClearHistory),
+            intents
+        )
+        assertNoFindings(findings)
+    }
+
+    @Test
+    fun theLanguageIsTheSystemsWhereNoneIsChosen() = runComposeUiTest {
+        val intents = mutableListOf<SettingsIntent>()
+        setContent { PantrixTestTheme(window = desktop) { SettingsScreen(state = state, onIntent = { intents += it }) } }
+
+        awaitText("English")
+        onPantrixNode("Select", "language").performClick()
+        onPantrixNode("SelectOption", "tr", scope = "Select_language").performClick()
+
+        assertEquals(listOf<SettingsIntent>(SettingsIntent.SetLanguage(AppLanguage.Turkish)), intents)
+    }
+
+    @Test
+    fun theLicencesAreListedAndOneIsWrittenOut() = runComposeUiTest {
+        val intents = mutableListOf<SettingsIntent>()
+        var shown by mutableStateOf(state.copy(page = SettingsPage.Licences))
+        setContent { PantrixTestTheme(window = desktop) { SettingsScreen(state = shown, onIntent = { intents += it }) } }
+
+        awaitText("Open-source licences")
+        awaitText("navigation3-browser")
+        onPantrixNode("ListItem", "library_geist").performScrollTo().performClick()
+        assertEquals(listOf<SettingsIntent>(SettingsIntent.ShowLicence(OpenSourceLibrary.Geist)), intents)
+
+        shown = state.copy(page = SettingsPage.Licence(OpenSourceLibrary.Geist))
+        awaitText("SIL OPEN FONT LICENSE", substring = true)
+        onPantrixNode("Button", "back").performClick()
+        assertEquals(SettingsIntent.Back, intents.last())
+    }
+
+    @Test
+    fun aPhoneHasABarOfItsOwnAndFewerSettings() = runComposeUiTest {
+        val intents = mutableListOf<SettingsIntent>()
+        setContent { PantrixTestTheme(window = phone) { SettingsScreen(state = state, onIntent = { intents += it }) } }
+
+        awaitText("On this phone only: 23 documents, 6.1 MB.")
+        awaitText("Keep a history")
+        onPantrixNode("Select", "unknown_format").assertDoesNotExist()
+        onPantrixNode("Select", "keep_for").assertDoesNotExist()
+        onPantrixNode("Sidebar", "settings").assertDoesNotExist()
+
+        onPantrixNode("IconButton", "back").performClick()
+        assertEquals(listOf<SettingsIntent>(SettingsIntent.Back), intents)
+    }
+}

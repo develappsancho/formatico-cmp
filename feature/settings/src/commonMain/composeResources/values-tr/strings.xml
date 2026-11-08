@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">Ayarlar</string>
+    <string name="settings_general">Genel</string>
+    <string name="settings_editor">Editör</string>
+    <string name="settings_formats">Biçimler</string>
+    <string name="settings_history">Geçmiş</string>
+    <string name="settings_about">Formatico hakkında</string>
+    <string name="settings_theme">Tema</string>
+    <string name="settings_theme_body">Açık ya da koyu, ya da sistem nasılsa.</string>
+    <string name="settings_theme_light">Açık</string>
+    <string name="settings_theme_dark">Koyu</string>
+    <string name="settings_theme_system">Sistemdeki gibi</string>
+    <string name="settings_language">Dil</string>
+    <string name="settings_language_body">Formatico'nun konuştuğu dil. Belgelerine dokunulmaz.</string>
+    <string name="settings_indentation">Girinti</string>
+    <string name="settings_indentation_body">Biçimlendir'in bir düzeyi neyle içeri aldığı.</string>
+    <string name="settings_indent_two">2 boşluk</string>
+    <string name="settings_indent_four">4 boşluk</string>
+    <string name="settings_indent_tabs">Sekme</string>
+    <string name="settings_wrap_lines">Uzun satırları kaydır</string>
+    <string name="settings_wrap_lines_body">Pencereye sığmayan satır kendi altında sürer.</string>
+    <string name="settings_sort_keys">Biçimlendirirken anahtarları sırala</string>
+    <string name="settings_sort_keys_body">Kapalıyken Biçimlendir anahtarları yazıldıkları sırada bırakır.</string>
+    <string name="settings_unknown">Biçim anlaşılamayınca</string>
+    <string name="settings_unknown_body">Süslü ayracı, etiketi, anahtarı ya da sütunu olmayan düz metin.</string>
+    <string name="settings_unknown_ask">Bana sor</string>
+    <string name="settings_unknown_json">JSON olarak oku</string>
+    <string name="settings_unknown_text">Metin olarak bırak</string>
+    <string name="settings_keep_history">Belgelerin geçmişini tut</string>
+    <string name="settings_keep_history_short">Geçmişi tut</string>
+    <plurals name="settings_history_kept">
+        <item quantity="one">Yalnızca bu cihazda: %1$d belge, %2$s.</item>
+        <item quantity="other">Yalnızca bu cihazda: %1$d belge, %2$s.</item>
+    </plurals>
+    <plurals name="settings_history_kept_phone">
+        <item quantity="one">Yalnızca bu telefonda: %1$d belge, %2$s.</item>
+        <item quantity="other">Yalnızca bu telefonda: %1$d belge, %2$s.</item>
+    </plurals>
+    <string name="settings_history_empty">Yalnızca bu cihazda: henüz bir şey yok.</string>
+    <string name="settings_history_empty_phone">Yalnızca bu telefonda: henüz bir şey yok.</string>
+    <string name="settings_history_off">Hiçbir şey tutulmuyor.</string>
+    <string name="settings_keep_for">Her belgeyi tutma süresi</string>
+    <string name="settings_keep_for_body">Daha eskiler geçmişten kendiliğinden çıkar.</string>
+    <string name="settings_keep_7">7 gün</string>
+    <string name="settings_keep_30">30 gün</string>
+    <string name="settings_keep_always">Ben temizleyene kadar</string>
+    <string name="settings_clear">Geçmişi temizle</string>
+    <string name="settings_clear_body">Her belgeyi geçmişten çıkarır. Açık sekmeler kalır.</string>
+    <string name="settings_clear_body_phone">Açık belgeler kalır.</string>
+    <string name="settings_clear_short">Temizle</string>
+    <string name="settings_version">Formatico %1$s</string>
+    <string name="settings_built_with">Pantrix UI %1$s ile yapıldı. Geist ve Geist Mono ile dizildi.</string>
+    <string name="settings_licences">Açık kaynak lisansları</string>
+    <string name="settings_licences_body">Formatico bunların üstüne kurulu; her biri kendi lisansıyla kullanılıyor. Okumak için birine bas.</string>
+    <string name="settings_licences_body_phone">Formatico bunların üstüne kurulu; her biri kendi lisansıyla kullanılıyor. Okumak için birine dokun.</string>
+    <string name="settings_in_the_web_app">%1$s · web uygulamasında</string>
+</resources>

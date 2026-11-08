@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">Settings</string>
+    <string name="settings_general">General</string>
+    <string name="settings_editor">Editor</string>
+    <string name="settings_formats">Formats</string>
+    <string name="settings_history">History</string>
+    <string name="settings_about">About Formatico</string>
+    <string name="settings_theme">Theme</string>
+    <string name="settings_theme_body">Light or dark, or as the system is.</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_theme_system">As the system</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_language_body">What Formatico says. Your documents are left as they are.</string>
+    <string name="settings_indentation">Indentation</string>
+    <string name="settings_indentation_body">What Format writes a level in with.</string>
+    <string name="settings_indent_two">2 spaces</string>
+    <string name="settings_indent_four">4 spaces</string>
+    <string name="settings_indent_tabs">Tabs</string>
+    <string name="settings_wrap_lines">Wrap long lines</string>
+    <string name="settings_wrap_lines_body">A line too long for the window goes on under itself.</string>
+    <string name="settings_sort_keys">Sort keys when formatting</string>
+    <string name="settings_sort_keys_body">Off, Format keeps the order the keys are written in.</string>
+    <string name="settings_unknown">When the format cannot be told</string>
+    <string name="settings_unknown_body">Plain text with no braces, tags, keys or columns.</string>
+    <string name="settings_unknown_ask">Ask me</string>
+    <string name="settings_unknown_json">Read it as JSON</string>
+    <string name="settings_unknown_text">Leave it as text</string>
+    <string name="settings_keep_history">Keep a history of documents</string>
+    <string name="settings_keep_history_short">Keep a history</string>
+    <plurals name="settings_history_kept">
+        <item quantity="one">On this device only: %1$d document, %2$s.</item>
+        <item quantity="other">On this device only: %1$d documents, %2$s.</item>
+    </plurals>
+    <plurals name="settings_history_kept_phone">
+        <item quantity="one">On this phone only: %1$d document, %2$s.</item>
+        <item quantity="other">On this phone only: %1$d documents, %2$s.</item>
+    </plurals>
+    <string name="settings_history_empty">On this device only: nothing yet.</string>
+    <string name="settings_history_empty_phone">On this phone only: nothing yet.</string>
+    <string name="settings_history_off">Nothing is kept.</string>
+    <string name="settings_keep_for">Keep each document for</string>
+    <string name="settings_keep_for_body">Older ones are taken out of the history by themselves.</string>
+    <string name="settings_keep_7">7 days</string>
+    <string name="settings_keep_30">30 days</string>
+    <string name="settings_keep_always">Until I clear it</string>
+    <string name="settings_clear">Clear history</string>
+    <string name="settings_clear_body">Takes every document out of the history. Open tabs stay.</string>
+    <string name="settings_clear_body_phone">Open documents stay.</string>
+    <string name="settings_clear_short">Clear</string>
+    <string name="settings_version">Formatico %1$s</string>
+    <string name="settings_built_with">Built with Pantrix UI %1$s. Set in Geist and Geist Mono.</string>
+    <string name="settings_licences">Open-source licences</string>
+    <string name="settings_licences_body">Formatico is built on these, each used under its licence. Press one to read it.</string>
+    <string name="settings_licences_body_phone">Formatico is built on these, each used under its licence. Tap one to read it.</string>
+    <string name="settings_in_the_web_app">%1$s · in the web app</string>
+</resources>

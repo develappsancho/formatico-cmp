@@ -39,6 +39,9 @@ interface DocumentHistory {
 
     /** Forgets every document. */
     suspend fun clear()
+
+    /** Forgets every document last opened or changed before [moment], as Settings keeps a document for a time. */
+    suspend fun forgetBefore(moment: Instant)
 }
 
 /**
@@ -130,6 +133,22 @@ class StoredDocumentHistory(
             writes.send {
                 forgotten.forEach { texts.delete(it.textName) }
                 small.delete(KEY)
+            }
+        }
+    }
+
+    override suspend fun forgetBefore(moment: Instant) {
+        lock.withLock {
+            val entries = loaded()
+            val forgotten = entries.filter { it.at < moment.toEpochMilliseconds() }
+            if (forgotten.isEmpty()) return
+            val left = entries - forgotten.toSet()
+            forgotten.forEach { recorded.remove(it.id) }
+            kept = left
+            listed.value = left.map(KeptRecent::recent)
+            writes.send {
+                forgotten.forEach { texts.delete(it.textName) }
+                small.put(KEY, left, ListSerializer(KeptRecent.serializer()))
             }
         }
     }

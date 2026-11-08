@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
+import com.developersancho.formatico.feature.start.OpenedDocument
 import com.developersancho.formatico.feature.start.rememberDocumentOpening
 import com.developersancho.formatico.feature.workspace.DocumentPalette
 import com.developersancho.formatico.feature.workspace.Workbench
@@ -60,14 +61,14 @@ internal object AppShortcuts {
 /**
  * The palette's commands of the app itself, under Formatico's name, as the Palette boards list them: a new tab, a file,
  * the clipboard, the theme and the settings. A phone, which has no tabs, makes a new document in a new tab's place,
- * lists no theme, and writes no shortcuts. A new tab cannot be opened while one is shown; the settings come with their
- * screen.
+ * lists no theme, and writes no shortcuts. A new tab cannot be opened while one is shown, nor Settings while it is.
  *
  * @param workbench the open documents, and the chosen tab.
  * @param darkTheme whether the dark theme is in effect: the theme's command chooses the other.
+ * @param settingsShown whether Settings is shown.
  */
 @Composable
-internal fun appPaletteCommands(workbench: WorkbenchState, darkTheme: Boolean): List<PantrixCommand> {
+internal fun appPaletteCommands(workbench: WorkbenchState, darkTheme: Boolean, settingsShown: Boolean): List<PantrixCommand> {
     val phone = PantrixTheme.window.isNarrow
     val browser = PantrixTheme.platform.type == PlatformType.Web
     val keys: (PantrixShortcut) -> PantrixShortcut? = { if (phone) null else it }
@@ -87,7 +88,7 @@ internal fun appPaletteCommands(workbench: WorkbenchState, darkTheme: Boolean): 
                 group = group,
                 icon = PantrixIcons.Plus,
                 shortcut = keys(AppShortcuts.NewTab).takeUnless { browser },
-                enabled = workbench.selected != null
+                enabled = workbench.selected != null || settingsShown
             )
         },
         PantrixCommand(
@@ -113,7 +114,7 @@ internal fun appPaletteCommands(workbench: WorkbenchState, darkTheme: Boolean): 
             label = stringResource(Res.string.settings),
             group = group,
             shortcut = keys(AppShortcuts.Settings),
-            enabled = false
+            enabled = !settingsShown
         )
     )
 }
@@ -145,31 +146,50 @@ internal class AppPaletteState(
     fun run(command: PantrixCommand) = runCommand(command)
 }
 
+/** Where the app is beside the tab chosen: whether [settingsShown], and [onShowSettings] to show or leave it. */
+internal class AppPlace(val settingsShown: Boolean, val onShowSettings: (Boolean) -> Unit)
+
 /**
- * The app's palette over [workbench], whose state is [open]: its commands for the document shown and the app's own,
- * and what they do. [onToggleTheme] chooses the other theme than [darkTheme].
+ * The app's palette over [workbench], whose state is [open], at [place]: its commands for the document shown, none
+ * over Settings, and the app's own, and what they do. [onToggleTheme] chooses the other theme than [darkTheme]; what is
+ * pasted or opened goes to [onOpen], over whatever is shown.
  */
 @Composable
 internal fun rememberAppPalette(
     workbench: Workbench,
     open: WorkbenchState,
+    place: AppPlace,
     darkTheme: Boolean,
-    onToggleTheme: () -> Unit
+    onToggleTheme: () -> Unit,
+    onOpen: (OpenedDocument) -> Unit
 ): AppPaletteState {
     val shown = rememberSaveable { mutableStateOf(false) }
     val documents = rememberDocumentPalette(workbench)
-    val opening = rememberDocumentOpening(onOpen = { workbench.open(it.name, it.text, it.format, it.historyId) })
-    val document = open.selected
-    val commands = document?.let { documentPaletteCommands(it) }.orEmpty() + appPaletteCommands(open, darkTheme)
+    val opening = rememberDocumentOpening(
+        onOpen = { document ->
+            place.onShowSettings(false)
+            onOpen(document)
+        }
+    )
+    val document = open.selected.takeUnless { place.settingsShown }
+    val commands = document?.let { documentPaletteCommands(it) }.orEmpty() + appPaletteCommands(open, darkTheme, place.settingsShown)
     val phone = PantrixTheme.window.isNarrow
     return AppPaletteState(shown, commands) { command ->
         val ran = document != null && documents.run(command.key, document.id)
         if (!ran) {
             when (command.key) {
-                AppCommandKeys.NEW -> if (phone) workbench.open(name = null, text = "", format = null) else workbench.select(null)
+                AppCommandKeys.NEW -> {
+                    place.onShowSettings(false)
+                    if (phone) workbench.open(name = null, text = "", format = null) else workbench.select(null)
+                }
+
                 AppCommandKeys.OPEN -> opening.pickFile()
+
                 AppCommandKeys.PASTE -> opening.paste()
+
                 AppCommandKeys.THEME -> onToggleTheme()
+
+                AppCommandKeys.SETTINGS -> place.onShowSettings(true)
             }
         }
     }

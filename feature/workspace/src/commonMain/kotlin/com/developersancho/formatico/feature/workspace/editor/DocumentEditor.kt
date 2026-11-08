@@ -103,6 +103,7 @@ internal fun DocumentEditor(
         style = PaneEditorStyle,
         colors = editorColors(),
         contentDescription = stringResource(Res.string.workspace_text_of, name),
+        softWrap = LocalWrapLines.current,
         tagKey = "text"
     )
 }

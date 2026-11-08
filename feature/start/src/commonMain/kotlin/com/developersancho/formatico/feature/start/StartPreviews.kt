@@ -43,3 +43,23 @@ internal fun StartScreenPreview(@PreviewParameter(StartScreenCases::class) case:
         StartScreen(state = it, onIntent = {})
     }
 }
+
+/** A text whose format cannot be told, as the Start boards' question shows it. */
+internal const val PREVIEW_UNTOLD = "2026-11-05 21:04:11 INFO  Server started on port 8080\n" +
+    "2026-11-05 21:04:12 WARN  Slow query took 812 ms\n2026-11-05 21:04:15 INFO  Shutting down"
+
+/** The question's cases: a text pasted, and a file. */
+internal class UnknownFormatCases :
+    PreviewCases<OpenedDocument>(
+        "pasted" to OpenedDocument(name = null, text = PREVIEW_UNTOLD, format = null),
+        "file" to OpenedDocument(name = "notes.txt", text = PREVIEW_UNTOLD, format = null)
+    )
+
+@BoardPreviews
+@Composable
+internal fun UnknownFormatPreview(@PreviewParameter(UnknownFormatCases::class) case: PreviewCase<OpenedDocument>) {
+    FormaticoPreview(case) {
+        StartScreen(state = StartState(), onIntent = {})
+        UnknownFormatDialog(document = it, onOpen = {}, onDismiss = {})
+    }
+}

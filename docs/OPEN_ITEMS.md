@@ -86,14 +86,14 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Ne: `SessionDocumentHistory` bellekte; uygulama kapanınca geçmiş gidiyor. Her açılışta Recent'in boş hâli görünüyor. Tasarım "History stays on this device" diyor.
     *   Öneri: cihazda bir depo: üst bilgiler için küçük bir anahtar-değer deposu, içerik için dosyalar (web'de tarayıcının deposu). 50 MB'lık bir belgenin içeriği bir ayar deposuna sığmaz; ayrı bir tasarım kararı.
     *   Durum: kapandı (2026-11-04). Yeni `core:storage`: Recent'in listesi KSafe'te (sahibinin kararı, 2026-11-04), her belgenin metni kendi deposunda (`history-<id>`): Android, iOS ve masaüstünde uygulamanın klasöründe dosya, web'de IndexedDB. Android'de ikisi de `noBackupFilesDir`'de, iOS'ta metinlerin klasörü yedeğin dışında: belge bu cihazda kalıyor. Metin, belge Recent'ten yeniden açılınca okunuyor; yazmalar arka planda, sırayla.
-*   [ ] **Üst çubuğun bazı düğmeleri basılmıyor (2026-11-03).**
+*   [x] **Üst çubuğun bazı düğmeleri basılmıyor (2026-11-03).**
     *   Ne: Başlatıcı (komut paleti) ve Ayarlar kendi ekranları gelene kadar `enabled = false`; tek sekme var ve yeni sekme düğmesi çizilmiyor.
     *   Öneri: Palette, Settings ve sekmeler yazıldıkça bağlamak.
-    *   Durum: açık. Sekmeler ve yeni sekme düğmesi Workspace'le bağlandı (2026-11-03); başlatıcı ve Ayarlar hâlâ basılmıyor. Workspace'in Query, Convert, Compare, ağaçta arama ve Table görünümü de kendi ekranlarını bekliyor. Query, Convert ve Compare bağlandı (2026-11-05). Başlatıcı bağlandı (2026-11-05, Faz 12): komut paletini açıyor; Command ya da Control ve K her yerde açıyor. Ayarlar Settings'i bekliyor.
+    *   Durum: açık. Sekmeler ve yeni sekme düğmesi Workspace'le bağlandı (2026-11-03); başlatıcı ve Ayarlar hâlâ basılmıyor. Workspace'in Query, Convert, Compare, ağaçta arama ve Table görünümü de kendi ekranlarını bekliyor. Query, Convert ve Compare bağlandı (2026-11-05). Başlatıcı bağlandı (2026-11-05, Faz 12): komut paletini açıyor; Command ya da Control ve K her yerde açıyor. Kapandı (2026-11-05): Ayarlar Settings'i açıyor (geniş pencerede ve tablette bir sekme, telefonda kendi ekranı), Command ya da Control ve virgül de.
 *   [x] **Temanın seçimi saklanmıyor (2026-11-03).**
     *   Ne: Çubuğun tema düğmesi seçimi `rememberSaveable` ile tutuyor; uygulama yeniden açılınca sistemin teması geri geliyor.
     *   Öneri: Settings ekranıyla birlikte cihazda saklamak.
-    *   Durum: kapandı (2026-11-04). Çubuğun düğmesiyle seçilen tema KSafe'te (`theme`); uygulama açılınca okunuyor. Settings gelince aynı değeri yazacak.
+    *   Durum: kapandı (2026-11-04). Çubuğun düğmesiyle seçilen tema KSafe'te (`theme`); uygulama açılınca okunuyor. Settings geldi (2026-11-05): tema `core:settings`'in tercihlerinde (açık, koyu, sistemdeki gibi); eski `theme` anahtarı bir kez okunup açık ya da koyu sayılıyor.
 *   [x] **Recent "edited" diyor, belge yalnızca açılmış (2026-11-03).**
     *   Ne: Tasarımın metni "edited 2 minutes ago". Workspace olmadığı için bir belge düzenlenemiyor; Recent'teki zaman açıldığı an.
     *   Öneri: Workspace düzenlemeleri geçmişe yazınca zaman kendiliğinden doğru olur; o zamana kadar bilinçli bir sapma.
@@ -398,7 +398,7 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
 *   [ ] **Null'ın yorumu sistemin dilinde yazılıyor (2026-11-05).**
     *   Ne: Dışarıda bırakılan bir null'ın yeni belgedeki yorumu (`# coupon = null in the JSON: TOML has no null`) view model'de `getString` ile okunuyor; o da sistemin dilini kullanıyor, uygulamanınkini değil.
     *   Öneri: Settings uygulamanın kendi dilini getirince (Faz 12) yorumun dili de ondan.
-    *   Durum: açık, Faz 12'yle.
+    *   Durum: açık. Settings'in dili geldi (2026-11-05): seçilen dil platformun dili yapılıyor (`LocalAppLocale`: JVM'in ve Android'in `Locale`'i, iOS'un `AppleLanguages`'ı, web'de `navigator.languages`), `getString` de onu okumalı. Masaüstünde ekranın sözcükleri sınandı; yorumun dili hiçbir platformda sınanmadı.
 *   [ ] **Sorgu sonuçlarının JSON'ı ayrı bir yazıcıyla yazılıyor (2026-11-05).**
     *   Ne: `QueryResults.kt`'nin kendi `JsonWriter`'ı var; `core:format`'ın dönüştürücüsü aynı işi (değerleri JSON olarak yazmak, YAML'ın takma adlarını açmak, JSON'ın yazamadığı sayıları dizgi yapmak) yapıyor.
     *   Öneri: sorgunun sonuçlarını dönüştürücüyle yazmak; ayrı bir temizlik değişikliği.
@@ -444,5 +444,20 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
         *   Web'de Command ya da Control ile T, 1 ve 2 tarayıcının (yeni sekme, sekmeler arası geçiş): sayfa bunları duymuyor. Yeni sekmenin, ağacın ve tablonun komutları web'de kısayolsuz.
         *   Start'ta palet yalnızca Formatico'nun komutlarını listeliyor; bu hâl panoda çizilmemiş.
     *   Öneri: sahibinin kararı: Palette-834 ve Palette-390'ı koda göre düzeltmek, ya da kodu panolara göre ayırmak.
+    *   Durum: açık.
+
+## Settings
+
+*   [ ] **Settings'in panolardan ve önceki davranıştan ayrıldığı yerler (2026-11-05).**
+    *   Ne:
+        *   Telefonda tema ve girinti seçimleri satırı doldurmuyor, her seçenek sözcüğü kadar: üç eşit parçada "As the system" sığmıyordu.
+        *   Pantrix'in seçim kutusu (40 dp) ve anahtarlı satırı (etiket birkaç piksel içeride) panodakinden biraz farklı.
+        *   Tablette Settings'in üstünde "+" (yeni sekme) duruyor; Settings-834'te yok.
+        *   "Keep each document for"un ilk değeri panodaki gibi 30 gün: 30 günden eski belgeler artık uygulama açılınca geçmişten çıkıyor. Önceden yalnızca 20 belge sınırı vardı.
+        *   "Keep a history" kapatılınca geçmiş temizleniyor ve yeni belge kaydedilmiyor (bir karar: kapatmak "tutma" demek).
+        *   Biçimi anlaşılmayan metin, soru sorulmadan önce geçmişe "Text" olarak yazılıyor; sonra JSON olarak açılsa da Recent'te "Text".
+        *   Dil değişince uygulamanın bileşimi baştan kuruluyor (`key`): geri yığını ve Settings'in açıklığı korunuyor; ekranların kaydırma yeri gibi kalıcı olmayan hâller gidiyor.
+        *   Lisans listesi elle tutuluyor (`OpenSourceLibrary`): bir bağımlılık eklenince ya da çıkınca güncellenmeli.
+    *   Öneri: sahibinin onayı; geçmişin "Text" yazılması için kayıt sorunun cevabından sonraya alınabilir.
     *   Durum: açık.
 

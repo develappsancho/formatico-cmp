@@ -64,4 +64,11 @@
     <string name="start_sample_countries_detail">249 rows, 6 columns</string>
 
     <string name="start_privacy">History stays on this device. Formatico has no account and no server.</string>
+    <string name="start_unknown_title">What format is this?</string>
+    <string name="start_unknown_pasted">Formatico could not tell the format of the text you pasted. Choose how to read it.</string>
+    <string name="start_unknown_file">Formatico could not tell the format of %1$s. Choose how to read it.</string>
+    <string name="start_unknown_read_as">Read it as</string>
+    <string name="start_unknown_rule">Settings, under Formats, can make one of these the rule.</string>
+    <string name="start_unknown_leave">Leave it as text</string>
+    <string name="start_unknown_open">Open</string>
 </resources>

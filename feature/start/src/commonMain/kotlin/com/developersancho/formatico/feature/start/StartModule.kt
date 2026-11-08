@@ -1,5 +1,6 @@
 package com.developersancho.formatico.feature.start
 
+import com.developersancho.formatico.core.settings.SettingsStore
 import com.pantrixui.foundation.platform.currentPlatformType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -23,13 +24,21 @@ val startModule: Module = module {
         )
     }
     single<SampleSource> { ResourceSampleSource() }
-    single { DocumentOpener(history = get(), clock = Clock.System, maxFileSize = maxFileSize(currentPlatformType())) }
+    single {
+        DocumentOpener(
+            history = get(),
+            clock = Clock.System,
+            maxFileSize = maxFileSize(currentPlatformType()),
+            keeps = { get<SettingsStore>().preferences.value.keepHistory }
+        )
+    }
     viewModel {
         StartViewModel(
             history = get(),
             samples = get(),
             clock = Clock.System,
-            maxFileSize = maxFileSize(currentPlatformType())
+            maxFileSize = maxFileSize(currentPlatformType()),
+            keeps = { get<SettingsStore>().preferences.value.keepHistory }
         )
     }
 }

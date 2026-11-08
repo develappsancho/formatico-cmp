@@ -64,4 +64,11 @@
     <string name="start_sample_countries_detail">249 satır, 6 sütun</string>
 
     <string name="start_privacy">Geçmiş bu cihazda kalır. Formatico'nun hesabı da sunucusu da yok.</string>
+    <string name="start_unknown_title">Bu hangi biçim?</string>
+    <string name="start_unknown_pasted">Formatico yapıştırdığın metnin biçimini anlayamadı. Nasıl okunacağını seç.</string>
+    <string name="start_unknown_file">Formatico %1$s dosyasının biçimini anlayamadı. Nasıl okunacağını seç.</string>
+    <string name="start_unknown_read_as">Şöyle oku</string>
+    <string name="start_unknown_rule">Ayarlar'da Biçimler altında bunlardan biri kural yapılabilir.</string>
+    <string name="start_unknown_leave">Metin olarak bırak</string>
+    <string name="start_unknown_open">Aç</string>
 </resources>

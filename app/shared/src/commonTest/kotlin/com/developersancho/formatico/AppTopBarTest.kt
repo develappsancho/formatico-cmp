@@ -39,10 +39,12 @@ class AppTopBarTest {
                 AppTopBar(
                     insets = PaddingValues(),
                     workbench = workbench,
+                    settingsShown = false,
                     onSelectTab = onSelectTab,
                     darkTheme = false,
                     onToggleTheme = {},
                     onOpenPalette = {},
+                    onOpenSettings = {},
                     documentMenu = { DocumentMoreMenu(documentId = it, workbench = documents) }
                 )
             }

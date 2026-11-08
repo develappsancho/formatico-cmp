@@ -119,8 +119,12 @@ sealed interface EditResult {
  * show. It lives as long as the app does.
  *
  * @param worker where a document is read and written out again, off the main thread.
+ * @param formatting how Format writes a document, as Settings has it when Format is pressed.
  */
-class Workbench(private val worker: CoroutineDispatcher = Dispatchers.Default) {
+class Workbench(
+    private val worker: CoroutineDispatcher = Dispatchers.Default,
+    private val formatting: () -> FormatOptions = { FormatOptions() }
+) {
     private val mutableState = MutableStateFlow(WorkbenchState())
     private var nextId = 1L
 
@@ -211,7 +215,8 @@ class Workbench(private val worker: CoroutineDispatcher = Dispatchers.Default) {
     /** Makes [edit] to the document whose id is [id], reading it and writing it out off the main thread. */
     suspend fun edit(id: Long, edit: DocumentEdit): EditResult {
         val document = mutableState.value.documents.firstOrNull { it.id == id } ?: return EditResult.NotPossible
-        return when (val outcome = withContext(worker) { edited(document, edit) }) {
+        val options = formatting()
+        return when (val outcome = withContext(worker) { edited(document, edit, options) }) {
             is Edited.Text -> keep(document, outcome.text, outcome.commentsRemoved)
             Edited.NotPossible -> EditResult.NotPossible
             Edited.AliasBeforeAnchor -> EditResult.AliasBeforeAnchor
