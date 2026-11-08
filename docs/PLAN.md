@@ -353,6 +353,87 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
 
 *   [ ] **Faz 21: Tam denetim.** Faz 0'dan 19'a her şey yeniden denetlenir: CLAUDE.md, bütün panolar,
     `OPEN_ITEMS.md` ve `PANTRIX_FINDINGS.md`. Eksik kalan her şey bu fazda kapanır.
+    *   **Döküm (2026-11-09):** derleme ve test koşturulmadan, dosyalar ve kod okunarak çıkarıldı.
+        *   **Açık maddeler:** `OPEN_ITEMS.md`'de 56, `PANTRIX_FINDINGS.md`'de 70. Hiçbiri Formatico'yu tıkamıyor.
+        *   **Kodda düzelmiş görünenler:** üç Formatico maddesi (değer önizlemeleri, ağacın seçilen satıra
+            kayması, lisanslar).
+        *   **Pantrix'te düzelmiş olan:** yok; yerel pakette tamamen düzelmiş bulgu bulunmadı.
+        *   **Bulguların yeri:** yaklaşık 37'si kütüphanede, 8'i tasarım sisteminde, 23'ü sitede ve
+            belgelerde, 3'ü MCP'de ya da eklentide düzeltilmeli.
+    *   **Sıra:**
+        1.  **Ev işleri:**
+            *   Düzelmiş üç maddeyi kapatmak ve eskimiş durum yazılarını düzeltmek.
+            *   İki kez yazılmış bulguyu ("SegmentButton'a grubun adı verilemiyor") birleştirmek.
+            *   iOS'un ilk karesine ve üst çubuğun geçişine simülatörde bakıp kapatmak.
+            *   Bulgusunu anmayan yaklaşık 25 geçici çözümün yorumuna bulgunun adını yazmak.
+            *   Kullanılmayan `EditorComing`'i sözcükleri, ekran görüntüsü testi ve görüntüleriyle silmek.
+        2.  **Sahibinin kararları** (aşağıda): sonraki adımların kapsamını belirler.
+        3.  **Küçük hatalar:**
+            *   Ağacın arama çubuğu dar bölmede sıkışıyor.
+            *   Telefonda Query'den ve Summary'den geri hareketi Start'a gidiyor.
+            *   Enter önceki sorguyu kullanıyor.
+            *   Problem satırının etiketi yok.
+            *   Web'de açılamayan bağlantı adreste kalıyor.
+            *   Sorgu sonuçları ayrı bir `JsonWriter`'la yazılıyor.
+            *   Query öteki eşleşmeleri işaretlemiyor: Pantrix'in `CodeRangeStyle.Highlight`'ı artık var.
+            *   `build-logic`'e lint ve detekt bakmıyor.
+            *   Settings'in lisanslarında Ktor, OkHttp, kotlinx-browser ve navigationevent eksik.
+            *   Paylaşım sınırı MiB ile, öteki sınırlar MB ile.
+            *   Yapıştırılan metnin boyut sınırı yok.
+        4.  **Önizleme ve test kuralı:**
+            *   Komut paletinin önizlemesi yok.
+            *   Summary, Problems, Table, editör ve telefonun kartlarının kendi önizlemeleri yok.
+            *   Eksik hâller: Start'ın WrongType ve Unreadable reddi; tablonun süzülmüş, boş ve sütunu gizli
+                hâli; JSONC, JSON5 ve TSV.
+            *   UI testleri her önizleme hâlini gezmiyor.
+            *   Yardımcı işlevlerin birim testleri eksik: problem ve onarım sözcükleri, dönüştürmenin kayıpları,
+                Summary'nin notları, imlecin yeri ve öteki sözcük işlevleri.
+            *   Testler her hedefte koşmuyor: feature ve core modüllerinin `commonTest`'i Android'de (host
+                test) ve JavaScript yedeğinde koşmuyor.
+        5.  **Tuval ile kodun eşlenmesi:**
+            *   Kararlara göre ya panolar ya kod değişir.
+            *   Ardından her pano, kodun ekran görüntüsüyle bire bir karşılaştırılır.
+        6.  **Özellikler ve performans:**
+            *   XML, TOML ve INI onarımları.
+            *   Alias'ı anchor'ının önüne düşüren sıralamada anchor'ı taşımak.
+            *   Kararlarla gelen seçenekler.
+            *   Ağacın aramanın her harfinde yeniden kurulması; XPath dizininin her sorguda yeniden kurulması.
+            *   Büyük belgelerde kararla seçilenler: masaüstü penceresinde 50 MB ölçümü ve JavaScript yedeğinin
+                ölçümü bunlardan.
+        7.  **Ekran görüntüleri ve cihazlar:**
+            *   Önizlemelerin siparişi panolardakiyle eşlenir ve bütün görüntüler bir kez yeniden kaydedilir.
+            *   Invalid-834'ün Android görüntüsü arada bir değişiyor; düzeltilir.
+            *   Gerçek cihazda ekran okuyucu, tablette odak halkası denenir.
+        8.  **Son denetim:**
+            *   Bütün hedeflerde testler; `verifyRoborazzi`, web testleri, lint ve detekt.
+            *   Pantrix'e kalan bulgular kütüphanenin oturumuna toplu olarak iletilir (sahibinin onayıyla).
+    *   **Sahibinin kararları:**
+        *   **Kodda seçilip panolarda olmayanlar:**
+            *   Query'nin, Convert'in ve Compare'in hâlleri ve kuralları.
+            *   Sorgu sonuçlarının biçimi ve dosya adı; son sorguların saklanması.
+            *   Share, komut paleti ve Settings'in panolardan ayrıldığı yerler.
+            *   Yeni biçimlerin ağaçları.
+            *   Tuvaldeki "unread" hâli.
+        *   **Ölçeğe uymayan ölçüler:** Summary'nin yazı ve aralıkları, ağaç satırının 13/20 ile 14/20 farkı,
+            CSV'nin `numeric` sütununun türü.
+        *   **Seçenekler:**
+            *   YAML yazıcısının kuralları.
+            *   YAML 1.1 (merge anahtarı, yes ve no).
+            *   CSV'de ayırıcı, hizalama ve "ilk satır başlık".
+            *   Android'in uygulama başına dili (`localeConfig`).
+        *   **Telefon:**
+            *   Invalid'de dört görünüm mü, üç mü.
+            *   Biçim nereden seçilecek.
+            *   Bul ve değiştir nereden açılacak.
+        *   **Öteki kararlar:**
+            *   Kökün `${4}` diye yazılması.
+            *   Büyük dizinin grafiğinde kökün gösterilmesi.
+            *   Web'de paylaşım bağlantısının sayfanın kendi adresiyle kurulması.
+            *   Büyük belgelerin takiplerinden hangilerinin v1'de olacağı.
+            *   Resim değerlerinin simge yerine küçük resimle gösterilmesi.
+            *   Belge açıkken sürükle bırak.
+            *   Önizleme ve ekran görüntüsü tabanlarının `core:base` dışında kalması.
+            *   CLAUDE.md'de editörün hâlâ beklendiğini söyleyen cümleler.
 *   [ ] **Faz 22: Yayın.** Pantrix'in gerçek yayını; Formatico'nun yayımlanan sürüme dönmesi (`mavenLocal` bloğu
     kalkar, `pantrix-ui@pantrix-ui` açılır, `pantrix-ui-local` kaldırılır); GitHub Packages'tan gelen paketle bütün
     hedeflerde yeniden derleme ve testler; `formatico.pantrixui.com`'un ve v2 sunucusunun yayını. Sahibinin planı
