@@ -266,8 +266,9 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
         kartın okuyla ya da Open to ile açılır.
     *   **Pantrix:** düğümleri ve bağları çizen, kaydırılıp yakınlaştırılan bir grafik bileşeni yoktu; bulgu
         `tıkıyor`du (`PANTRIX_FINDINGS.md`). Kütüphanenin oturumu `PantrixGraph`'ı yerel pakete koydu (2026-11-09),
-        bulgu kapandı. Tasarım sisteminde Graph ve `FitScreen` hâlâ yok: panolarda işaretleme, ayrı ve tıkamayan bir
-        bulgu.
+        bulgu kapandı. Tasarım sistemine de Graph ve `FitScreen` geldi (`1794244829-b310`, 2026-11-09). Panolar artık
+        `Pantrix.Graph`, `Pantrix.GraphZoom` ve `Pantrix.GraphFoldButton` ile çiziliyor; o bulgu da kapandı. Tuvalde
+        görülen eksikler ayrı ve tıkamayan bir bulguda.
     *   **Durum (2026-11-09):** Workspace'te Graph görünümü (`DocumentPane.Graph`, `GraphPane.kt`,
         `DocumentGraph.kt`): masaüstünde metnin yanında soldan sağa (%85), tablette metnin altında (%100), telefonda
         yukarıdan aşağıya (%70), seçili değerin kartı altta, ağacınkiyle aynı. Kartın başı adı ve sayısı, seçili

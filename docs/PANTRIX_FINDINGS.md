@@ -67,15 +67,54 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Ne: Formatico'nun ana yüzeyi satır numaralı, renklendirilmiş, hata işaretli bir editör. Tasarım sisteminde ve kütüphanede salt okunur `CodeBlock` ile `JsonView` var; editör yok. Panolarda editör, bileşen değil işaretleme olarak çiziliyor.
     *   Nerede: kütüphanenin bileşenleri; tasarım sisteminin `Data` bölümü.
     *   Öneri: kütüphaneye `PantrixCodeEditor`, kendi tasarım önerisiyle (sahibinin kararı, 2026-11-02); tasarım sistemine web karşılığı.
-    *   Durum: Compose'da kapandı (0.1.2-SNAPSHOT, `PantrixCodeEditor`, 2026-11-03); tasarım sisteminde (`1793640513-8bb4`, 2026-11-04'te bakıldı) hâlâ `CodeEditor` yok, panolarda editör işaretleme kalıyor. açık, öneri bekliyor. Workspace panolarında (1440, 834) editör yine işaretleme; tasarım sisteminin 2026-11-02'deki sürümünde (`1793640513-8bb4`) de `CodeEditor` yok. Invalid, Table ve Query panoları (2026-11-02) editörden beklenenleri gösteriyor: imlecin satırı ve seçim, bir problemin dalgalı alt çizgisi ve oluktaki işareti, imlecin altında düğmeli bir problem kartı, bir aramanın bütün eşleşmeleri ve şimdiki eşleşme, XML'in kendi renkleri (öğe, öznitelik, değer). Table · 1440 (yeniden çizildi, 2026-11-02) bir şey daha istiyor: tabloda seçili kaydın satırlarını oluktaki bir bantla işaretlemek. Kodda (2026-11-03) Workspace'in metin bölmesi, sahibinin kararıyla, editörü bekleyen boş bir hâl: tuvalde Workspace panolarının "state" ayarında `waiting`.
-*   [ ] **Tasarım sisteminde Graph ve `FitScreen` yok (2026-11-09).**
+    *   Durum: Compose'da kapandı (0.1.2-SNAPSHOT, `PantrixCodeEditor`, 2026-11-03); tasarım sisteminde (`1793640513-8bb4`, 2026-11-04'te bakıldı) hâlâ `CodeEditor` yok, panolarda editör işaretleme kalıyor. açık, öneri bekliyor. Workspace panolarında (1440, 834) editör yine işaretleme; tasarım sisteminin 2026-11-02'deki sürümünde (`1793640513-8bb4`) de `CodeEditor` yok. Invalid, Table ve Query panoları (2026-11-02) editörden beklenenleri gösteriyor: imlecin satırı ve seçim, bir problemin dalgalı alt çizgisi ve oluktaki işareti, imlecin altında düğmeli bir problem kartı, bir aramanın bütün eşleşmeleri ve şimdiki eşleşme, XML'in kendi renkleri (öğe, öznitelik, değer). Table · 1440 (yeniden çizildi, 2026-11-02) bir şey daha istiyor: tabloda seçili kaydın satırlarını oluktaki bir bantla işaretlemek. Kodda (2026-11-03) Workspace'in metin bölmesi, sahibinin kararıyla, editörü bekleyen boş bir hâl: tuvalde Workspace panolarının "state" ayarında `waiting`. Tasarım sistemine `CodeEditor` geldi (`1794244829-b310`, 2026-11-09), tuvalin kopyası da o sürümde; ama panolar henüz ona geçirilmedi, editör onlarda hâlâ işaretleme.
+*   [x] **Tasarım sisteminde Graph ve `FitScreen` yok (2026-11-09).**
     *   Ne: Compose'a `PantrixGraph`, `PantrixGraphZoom` ve `PantrixIcons.FitScreen` geldi (bölüm 3, "Düğümleri ve
         bağları çizen bir grafik bileşeni yok"). Tuvalin tasarım sistemi kopyasında (2026-11-02) ikisi de yok:
         Graph panolarında kartlar, bağlar, noktalı zemin ve Fit'in simgesi işaretleme.
     *   Nerede: kanvasın `project/ds/pantrix/components`'i; Graph-1440, Graph-834 ve Graph-390 panoları.
     *   Öneri: tasarım sistemine `Graph` (düğümler, bağlar, yön, seçili düğüm, zemin) ve `FitScreen` simgesi; panolar
         işaretleme yerine onları kullansın. Kütüphanenin oturumu tasarım sisteminin de bir Graph alacağını söyledi.
-    *   Durum: açık. Formatico'yu tıkamıyor.
+    *   Durum: kapandı (tasarım sistemi `1794244829-b310`, 2026-11-09). Önerildiği gibi geldi:
+        *   `Pantrix.Graph`: `nodes`, `links`, `direction`, seçim, açma kapama ve kartın içi için `renderNode`.
+            Boyu verilmeyen kart ölçülüyor. Zemin ve bağın biçimi ile boşluklar da ayarlanabiliyor.
+        *   Başlık için `Pantrix.GraphZoom` ve `Pantrix.useGraphState`; kartın oku için `Pantrix.GraphFoldButton`.
+        *   Simgelere `FitScreen`, `Image` ve `ExternalLink`.
+
+        Tuvalin kopyası bu sürüme taşındı (`bundle.js`, `bundle.css`, `index.d.ts`; `canvas.json`'daki kaydı).
+        Graph-1440, Graph-834 ve Graph-390 artık işaretleme değil, bu bileşenlerle çiziliyor. Kartların içini,
+        koddaki gibi, `renderNode` çiziyor: baş, satırlar, önizlemeler. Masaüstünde ve tablette başlıkta `GraphZoom`
+        var, telefonda grafiğin kendi köşesindeki yakınlaştırma. Üçü de kodun ekran görüntüleriyle karşılaştırıldı:
+        kartların yerleşimi, seçili kart, bağ etiketleri ve yakınlaştırma yüzdeleri aynı.
+
+        Start'tan Graph'a kadar öteki panolar yeni kopyayla %25'te gözden geçirildi, hiçbiri kırılmadı; Schema
+        satırına bakılamadı. Bu yolda görülen eksikler ayrı bir maddede: "Tasarım sisteminin Graph'ı tuvalde ve
+        telefon panosunda Compose'un gerisinde". Önceki durum: açık, tıkamıyor.
+*   [ ] **Tasarım sisteminin Graph'ı tuvalde ve telefon panosunda Compose'un gerisinde (2026-11-09).**
+    *   Ne: Graph panoları `Pantrix.Graph`'a geçirilirken dört şey görüldü:
+        *   **Başlıktaki yakınlaştırma grafiği yürütmüyor.** `GraphZoom`'un grafikle paylaşacağı durum yalnızca
+            `useGraphState` ile, yani bir hook ile alınıyor. Tuvalin panosundaki betik bir sınıf (`DCLogic`), hook
+            çağıramıyor. Graph-1440 ve Graph-834'te başlıktaki `GraphZoom` bu yüzden elle verilmiş bir durumla
+            yalnızca yüzdeyi gösteriyor; düğmelerine basmak grafiği değiştirmiyor.
+        *   **Kartın içi işaretlemeyle verilemiyor.** Kartın içi yalnızca `renderNode` ile, betikte
+            `React.createElement` ile kuruluyor. Tuvalde düzenleyen biri kartın başını ya da satırlarını seçip
+            değiştiremiyor. Bu, `DataTable`'ın `render`'ındaki ve `Menu`'nün `anchor`'undaki sorunla aynı.
+        *   **Telefonda köşedeki düğmeler küçük.** Compose telefon genişliğinde grafiğin köşesindeki düğmeleri
+            dokunma boyunda çiziyor: Graph-390'ın kod görüntüsünde 48 piksel civarı. Tasarım sistemindekiler web
+            boyunda, 32 piksel civarı. `Graph`'ta da `GraphZoom`'da da `Pagination`'daki ve `CodeEditor`'daki gibi
+            bir `touch` yok.
+        *   **Tür dosyasında eksik var.** `index.d.ts`'in `window.Pantrix` bildiriminde `Graph`, `GraphZoom`,
+            `GraphFoldButton`, `useGraphState` ve `Keycaps` yok. Bileşenler kendi başlarına bildirilmiş, ama
+            `Pantrix.` ile yazanın düzenleyicisi onları tanımıyor.
+    *   Nerede: tasarım sistemi `1794244829-b310`, `project/components/index.d.ts` (`GraphProps`, `GraphState`,
+        `declare global`) ve `components/Graph/README.md`; tuvalin Graph-1440, Graph-834 ve Graph-390 panoları.
+    *   Öneri:
+        *   Hook olmadan alınabilen bir durum. Örneğin `createGraphState()` ya da `Graph`'ın `zoom` ile
+            `onZoomChange` çifti; `GraphZoom` da bir grafiğe adıyla bağlanabilsin.
+        *   Kartın içi için tuvalin işaretlemeyle doldurabileceği bir yol, örneğin düğüm başına bir yuva adı.
+        *   `Graph`'a ve `GraphZoom`'a dokunma boyu için bir `touch`.
+        *   Dört Graph parçası ve `Keycaps` `window.Pantrix` bildirimine eklensin.
+    *   Durum: açık. Formatico'yu tıkamıyor; kodun Graph görünümü Compose'la yazıldı ve bunlardan etkilenmiyor.
 *   [ ] **Tasarım sistemindeki DataTable, Compose'dakinin gerisinde (2026-11-02).**
     *   Ne: Compose'un `PantrixDataTable`'ı `onRowClick`, `rowTone` (bir satırı bir rolün yumuşak dolgusuna yatırır), tek seçim, sabitlenen sütunlar, `toolbar` ve `footer` yuvaları ve yükseklik verilince yalnızca görünen satırları kuran bir kaydırma sunuyor. Tasarım sistemindeki `DataTable`'da bunların hiçbiri yok: `columns`, `rows`, `sort`, onay kutulu seçim, `striped`, `bordered`, `renderDetail`. Formatico'nun Table panolarında metindeki imlecin satırı (`$[2]`) `rowTone` ile işaretlenebilirdi; tuvalde işaretlenemedi, filtre ve sayfalama tablonun dışına kondu.
     *   Ne (ek, 2026-11-02): Table panoları yeniden çizilince eksik büyüdü. Compose'da bir sütunun `cell`'i bir `@Composable`: bir değer türüne göre yazılır (sayı, `true`/`false`, `null`, olmayan anahtar), iç içe bir dizi açılan bir düğme olur. Tasarım sistemindeki sütunun `render`'ı ise bir JavaScript işlevi; tuvaldeki bir pano işaretlemeden ibaret olduğu için ona öğe veremiyor. Bunlar da yok: `DataTableVariant.Grid` (sütunların arasında çizgi), genişliği sürüklenen sütunlar, `headerTextStyle` ve `DataTableColors.headerContainer`, yükseklik verilen tabloda yerinde kalan başlık, dar ekranda kayıtların listesi (`DataTableLayout.Auto`), listenin üstünde sıralama şeridi ve `listContent`. Table panoları (1440, 834, 390) bu yüzden tabloyu bileşenle değil işaretlemeyle çiziyor; kodda karşılığı `PantrixDataTable`.
@@ -310,7 +349,7 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Ne: `PantrixIcons` 37 simge taşıyor; bir resmin ya da bir bağlantının (dışarıya açılan) simgesi yok. Panolarda ağacın değer önizlemesi ve Summary'nin "Found in the values" satırları ikisini de çiziyor; tasarım sistemi de onları kendi `<svg>`'siyle çiziyor.
     *   Nerede: MCP `search_icons "image picture photo link external"`; kaynak jar'da `PantrixIcons.kt`.
     *   Öneri: `PantrixIcons.Image` ve `PantrixIcons.ExternalLink` (sağdan sola dillerde aynalanmayan); tasarım sisteminde karşılıkları.
-    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-05). Önerildiği gibi geldi: `PantrixIcons.Image` (çerçeveli resim) ve `PantrixIcons.ExternalLink` (sağdan sola düzende aynalanmıyor); tasarım sisteminin simgelerinde de var, o henüz yayımlanmadı. Ağaçta bağlantı satırın sonunda kendi simgesiyle (16, telefonda 18; ekran okuyucuya "Link"), resim panodaki kutunun içinde kendi simgesiyle (14, telefonda 16); Summary'de resmin ve bağlantının satırları kendi simgeleriyle açılıyor. Denendi: JVM, iOS simülatörü ve Wasm testleri; ekran görüntüleri. Önceki durum: açık, tıkıyor (sahibinin kararı, 2026-11-05).
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-05). Önerildiği gibi geldi: `PantrixIcons.Image` (çerçeveli resim) ve `PantrixIcons.ExternalLink` (sağdan sola düzende aynalanmıyor); tasarım sisteminin simgelerinde de var, o henüz yayımlanmadı. Ağaçta bağlantı satırın sonunda kendi simgesiyle (16, telefonda 18; ekran okuyucuya "Link"), resim panodaki kutunun içinde kendi simgesiyle (14, telefonda 16); Summary'de resmin ve bağlantının satırları kendi simgeleriyle açılıyor. Denendi: JVM, iOS simülatörü ve Wasm testleri; ekran görüntüleri. Önceki durum: açık, tıkıyor (sahibinin kararı, 2026-11-05). Tasarım sisteminin simgeleri `1794244829-b310`'da yayımlandı (2026-11-09). Graph panoları `Image`'ı ve `ExternalLink`'i kullanıyor. Workspace, Start ve Summary panolarındaki elle çizilmiş simgeler henüz değiştirilmedi.
 *   [x] **Bir adresten resim yükleyen bir şey yok (2026-11-04).**
     *   Ne: Ağacın değer önizlemesi bir resmin adresini tanıyor ("https://images.example.com/u/elif.png"). CLAUDE.md değerlerin önizlenmesini istiyor, resimler de içinde. `PantrixImage` yalnızca bir `Painter`, bir `ImageVector` ya da bir `ImageBitmap` alıyor: ağdan indirmiyor, önbelleğe almıyor, yüklenirken ya da yüklenemeyince ne göstereceğini bilmiyor. Panolar şimdilik gerçek bir küçük resim değil, 24×24'lük bir yer tutucu çiziyor: `neutral-container` zeminli, 4 piksel köşeli bir kutu ve içinde bir resim simgesi ("Picture at this address").
     *   Nerede: MCP `get_api PantrixImage`; Pantrix ekibinin yanıtı (2026-11-04).
@@ -528,7 +567,8 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
         metinle ve ağaçla, açılan kartlar ağaçla birlikte yürüyor. Bilinmesi gereken: kartın otomasyon etiketi
         `GraphNode.tagKey ?: key`'den, 32 karakterde kesiliyor; JSON yolları çakışacağı için Formatico her karta
         ağaçtaki yerini (`9_0`) veriyor. Denendi: JVM, iOS simülatörü ve Wasm testleri; ekran görüntüleri. Tasarım
-        sisteminin Graph'ı ve `FitScreen`'i ayrı bir maddede (bölüm 2). Önceki durum: açık, tıkıyor (2026-11-09).
+        sisteminin Graph'ı ve `FitScreen`'i ayrı bir maddede (bölüm 2); o da kapandı (2026-11-09). Önceki durum:
+        açık, tıkıyor (2026-11-09).
 *   [ ] **Sığmayan eylemleri menüsüne alan bir araç çubuğu yok (2026-11-09).**
     *   Ne: Faz 19'da Workspace'in araç çubuğuna Schema eklenince tablette (834) iki yerde sığmadı: Türkçede
         ("Biçimlendir", "Sorgu", "Dönüştür", "Tipler", "Şema") sondaki "more" düğmesi 46 dp kaldı, onarılacak bir
