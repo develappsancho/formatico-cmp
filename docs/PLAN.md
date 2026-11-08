@@ -696,6 +696,9 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
             açık. `Formatico-macOS.dmg` (94,8 MB, Developer ID ile imzalı, Apple onaylı) ve `Formatico-Android.apk`
             (42,0 MB, yayın anahtarıyla imzalı); GitHub'ın verdiği SHA-256'lar dosyalarınkiyle aynı. Kalan: arkadaşın
             MSI'ı (`deploy/windows.sh`), sahibinin yayımlaması (`deploy/deploy.sh publish`) ve web (`deploy.sh web`).
+        *   **Formatico 1.0.0 yayımlandı** (2026-11-12, sahibinin kararıyla MSI'ı beklemeden): GitHub'ın son sürümü,
+            etiketi `v1.0.0` (`872ba25`). `releases/latest/download/` bağlantıları DMG'yi ve APK'yı veriyor; MSI'ı
+            arkadaş `deploy/windows.sh` ile yayımlanmış sürüme ekleyecek. Kalan: MSI ve web (`deploy.sh web`).
 
 ## Sahibinin kararını bekleyenler
 
