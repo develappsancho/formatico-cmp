@@ -250,7 +250,23 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
         sözcükler, boş dizi, kimi öğede olan alan, iki türlü değer, dizi dizisi, yalnızca null, rakamla başlayan ad).
         Üçü geçti. Derleyicisi verilmeyen test atlanıyor. Açık kalan, Faz 17'yi bekletmeden: tablette menünün
         düğmesindeki odak halkası (`OPEN_ITEMS.md`, gerçek bir tablette denenecek).
-*   [ ] **Faz 18: Grafik görünümü.**
+*   [ ] **Faz 18: Grafik görünümü.** Panolar kanvasta (2026-11-09, sürüm 117–118): Graph-1440, Graph-834,
+    Graph-390. Önerilen kararlar, sahibinin onayını bekliyor:
+    *   **Yeri:** Graph, Tree ve Table'ın yanında üçüncü görünüm (`DocumentPane.Graph`): masaüstünde metnin yanında,
+        tablette metnin altında, telefonda Text, Tree, Table, Graph seçiminde.
+    *   **Kartlar:** belgenin her nesnesi ve dizisi bir kart; başında adı ve sayısı (`{4}`, `[2]`), satırlarında bir
+        satırlık değerleri, ağacın renkleri ve önizlemeleriyle (tarih, renk, bağlantı, resim); içindeki nesne ve dizi
+        kendi kartı, ona anahtarıyla ya da sırasıyla bağlı. Kök kartın başında belgenin adı.
+    *   **Yerleşim ve gezinme:** masaüstünde ve tablette soldan sağa, telefonda yukarıdan aşağıya; sürükleyince
+        kayma, tekerlek ve iki parmakla yakınlaşma, Zoom out, yüzde, Zoom in ve Fit; ağaçtaki gibi Open to 1, 2, 3,
+        All; kartın oku çocuklarını kapatıyor. Telefon %70'te açılıyor, seçili kart ve komşuları görünür.
+    *   **Seçim:** seçilen kart metinle ve ağaçla birlikte yürüyor; yolu kırıntıda ve durum çubuğunda, Copy path;
+        telefonda alttaki kart, Show in text ve Copy the value ile.
+    *   **Büyük belgeler:** açılan düzey kartların sayısına göre; öneri, 200'den çok kartta 2. düzeye kadar, gerisi
+        kartın okuyla ya da Open to ile açılır.
+    *   **Pantrix:** düğümleri ve bağları çizen, kaydırılıp yakınlaştırılan bir grafik bileşeni yok; bulgu,
+        `tıkıyor` (`PANTRIX_FINDINGS.md`, önerilen bir `PantrixGraph` ile). Kod, bileşen yerel pakete girince
+        yazılır; öteki panoların görünüm seçimine Graph o zaman eklenir.
 *   [ ] **Faz 19: JSON Schema.**
 *   [ ] **Faz 20: Uygulama içi yapay zekâ,** kullanıcının kendi anahtarıyla.
 

@@ -482,3 +482,31 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Öneri: `PantrixStrings`'e dile göre liste birleştirme (`list(items)`, `listOf(first, more)`), Unicode CLDR'ın
         "list patterns"i gibi.
     *   Durum: açık.
+*   [ ] **Düğümleri ve bağları çizen bir grafik bileşeni yok (2026-11-09).** `tıkıyor`
+    *   Ne: Faz 18'in Graph görünümü belgenin yapısını kartlar ve bağlar olarak gösteriyor: her nesne ve dizi bir
+        düğüm, içindeki nesne ve dizi bir çocuk düğüm, bağ anahtarıyla ya da sırasıyla etiketli; masaüstünde ve
+        tablette soldan sağa, telefonda yukarıdan aşağıya; sürükleyerek kaydırma, yakınlaşma, sığdırma, düzeye kadar
+        açma, kartı kapama, seçimin metinle ve ağaçla birlikte yürümesi. Pantrix'te bunu çizen bir bileşen yok:
+        Chart, Sankey ve Treemap veri grafikleri, TreeView ve LazyTreeView satır listeleri; kaydırılıp yakınlaştırılan
+        bir alan da yok, yalnızca `ZoomIn` ve `ZoomOut` simgeleri var. Tasarım sisteminde de yok: Graph panolarında
+        kartlar ve bağlar işaretleme. CLAUDE.md'ye göre eksik bileşen Formatico'da yapılmıyor: Faz 18'in kodu bunu
+        bekliyor.
+    *   Nerede: MCP `search_components` ("graph diagram nodes edges zoom pan canvas", "tree diagram mind map node
+        graph flowchart"), `search_api` ("zoom pan transform gesture scale canvas viewport"), `search_icons` ("fit",
+        "zoom"); tasarım sisteminin bileşenleri; kanvasın Graph-1440, Graph-834 ve Graph-390 panoları.
+    *   Öneri: bir `PantrixGraph`:
+        *   Düğümler bir ağaç ya da DAG olarak: her düğümün anahtarı ve içeriği (uygulamanın composable'ı, kartın
+            içi), bağlar `from → to` ve etiketleriyle.
+        *   Katmanlı, kendiliğinden yerleşim: yön `LeftToRight` ya da `TopToBottom`; katmanlar ve kardeşler arası
+            boşluklar stilden.
+        *   Kaydırma ve yakınlaşma: sürükleme, tekerlek (Ctrl ya da ⌘ ile yakınlaşma), iki parmak; bir durumdan
+            `zoomIn()`, `zoomOut()`, `fit()`, `bringIntoView(key)` ve yüzdesi yazılsın diye `zoom`; en az ve en çok.
+        *   Seçim (`selectedKey`, `onSelect`) ve açma kapama (`expanded`, `onToggle`), bir düzeye kadar açma.
+        *   Büyük bir grafik: yalnızca görünen düğümler oluşturulsun (binlerce düğüm), yerleşim arka planda
+            hesaplanabilsin.
+        *   Klavye: oklar düğümden düğüme, Enter seçer, + ve − yakınlaşır; ekran okuyucu bir ağaç olarak okusun
+            (düzey, konum, açık ya da kapalı); `tagKey` ve teşhisler.
+        *   Tema: düğüm, seçili düğüm, bağ ve etiketin renkleri; noktalı zemin isteğe bağlı.
+        *   Tasarım sisteminin web karşılığı (`Graph`), panolar işaretleme yerine onu kullansın; PantrixIcons'a bir
+            sığdırma simgesi (`FitScreen`): Fit düğmesi şimdilik sözcükle.
+    *   Durum: açık. Faz 18'in kodu bu bileşen yerel pakete girene kadar bekliyor.
