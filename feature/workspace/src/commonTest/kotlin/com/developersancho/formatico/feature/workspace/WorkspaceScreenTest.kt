@@ -156,7 +156,7 @@ class WorkspaceScreenTest {
         awaitText("Valid JSON")
         awaitText("$.customer.name")
         onPantrixNode("Button", "sort_keys").assertDoesNotExist()
-        onPantrixNode("Item", "customer", scope = "Breadcrumb_path").performClick()
+        onPantrixNode("Item", "1_customer", scope = "Breadcrumb_path").performClick()
 
         assertEquals(listOf<WorkspaceIntent>(WorkspaceIntent.Select("$.customer")), intents)
         assertNoFindings(findings)

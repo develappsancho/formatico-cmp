@@ -219,6 +219,40 @@ internal val PreviewSettings =
     max size = 50 MB
     """.trimIndent() + "\n"
 
+/** VS Code's settings for Formatico, as JSONC keeps them: comments among the keys. */
+internal val PreviewJsonc =
+    """
+    // The editor's settings for Formatico's sources.
+    {
+      "editor.fontFamily": "Geist Mono",
+      "editor.tabSize": 2,
+      /* Long lines wrap at the window's edge. */
+      "editor.wordWrap": "on",
+      "files.exclude": {
+        "**/build": true
+      }
+    }
+    """.trimIndent() + "\n"
+
+/** A release written as JSON5: keys in no quotes, single quotes, a hexadecimal number and trailing commas. */
+internal val PreviewJson5 =
+    """
+    // The release, as JSON5 writes it.
+    {
+      name: 'formatico',
+      version: '1.4.2',
+      port: 0x1F90,
+      ratio: .5,
+      targets: ['android', 'ios', 'desktop', 'web',],
+    }
+    """.trimIndent() + "\n"
+
+/** The countries' first rows with tabs between their values. */
+internal val PreviewTsv = PreviewCountries.lines().take(TSV_ROWS).joinToString("\n", postfix = "\n") { it.replace(',', '\t') }
+
+/** How many lines of the countries the TSV case has: the header and four countries. */
+private const val TSV_ROWS = 5
+
 /** The workspace of a document named [name], with [text] read as [format] and its tree left as [view] says. */
 internal fun previewState(
     name: String?,
@@ -251,8 +285,8 @@ private val Deployment = previewState(
     Format.Yaml,
     DocumentView(selected = "$.spec.template.spec.containers[0].env[0].name")
 )
-private val Countries = previewState("countries.csv", PreviewCountries, Format.Csv, DocumentView(pane = DocumentPane.Table))
-private val OrderItems = previewState(
+internal val Countries = previewState("countries.csv", PreviewCountries, Format.Csv, DocumentView(pane = DocumentPane.Table))
+internal val OrderItems = previewState(
     "order.json",
     PreviewOrder,
     Format.Json,
@@ -260,12 +294,12 @@ private val OrderItems = previewState(
 )
 
 // The text is the phone's view, as Invalid-390 draws it; a wider window shows the tree beside it.
-private val Invalid = previewState("settings.json", PreviewInvalid, Format.Json, DocumentView(pane = DocumentPane.Text))
-private val InvalidProblems = previewState("settings.json", PreviewInvalid, Format.Json, DocumentView(pane = DocumentPane.Problems))
-private val InvalidYaml = previewState("service.yaml", PreviewInvalidYaml, Format.Yaml, DocumentView(pane = DocumentPane.Text))
+internal val Invalid = previewState("settings.json", PreviewInvalid, Format.Json, DocumentView(pane = DocumentPane.Text))
+internal val InvalidProblems = previewState("settings.json", PreviewInvalid, Format.Json, DocumentView(pane = DocumentPane.Problems))
+internal val InvalidYaml = previewState("service.yaml", PreviewInvalidYaml, Format.Yaml, DocumentView(pane = DocumentPane.Text))
 
 /** Where the Invalid boards' caret stands: at the second problem, the missing comma on line 10. */
-private val InvalidCaret = PreviewInvalid.indexOf("\"127.0.0.1\"")
+internal val InvalidCaret = PreviewInvalid.indexOf("\"127.0.0.1\"")
 private val Feed = previewState("feed.xml", PreviewFeed, Format.Xml, DocumentView(selected = "$.rss.channel.title"))
 private val Cargo = previewState("Cargo.toml", PreviewCargo, Format.Toml, DocumentView(selected = "$.dependencies.serde.version"))
 private val Events = previewState("events.ndjson", PreviewEvents, Format.Ndjson)
@@ -275,16 +309,16 @@ private val BeingRead = WorkspaceState(document = OpenDocument(id = 1, name = "o
 private val Empty = previewState(null, "", null)
 
 /** The order's Summary while the platform is still gzipping it. */
-private val OrderSummaryMeasuring = previewState("order.json", PreviewOrder, Format.Json, DocumentView(pane = DocumentPane.Summary))
+internal val OrderSummaryMeasuring = previewState("order.json", PreviewOrder, Format.Json, DocumentView(pane = DocumentPane.Summary))
 
 /** How many bytes the minified order and the countries' text come to, gzipped by the JVM, as the desktop measures them. */
 private const val ORDER_GZIPPED = 342L
 private const val COUNTRIES_GZIPPED = 269L
 
-private val OrderSummary = OrderSummaryMeasuring.copy(sizes = OrderSummaryMeasuring.sizes?.copy(compressed = ORDER_GZIPPED))
-private val CountriesSummary = previewState("countries.csv", PreviewCountries, Format.Csv, DocumentView(pane = DocumentPane.Summary))
+internal val OrderSummary = OrderSummaryMeasuring.copy(sizes = OrderSummaryMeasuring.sizes?.copy(compressed = ORDER_GZIPPED))
+internal val CountriesSummary = previewState("countries.csv", PreviewCountries, Format.Csv, DocumentView(pane = DocumentPane.Summary))
     .let { it.copy(sizes = it.sizes?.copy(compressed = COUNTRIES_GZIPPED)) }
-private val PlainText = previewState("notes.txt", "Things to check before the release.\n", null)
+internal val PlainText = previewState("notes.txt", "Things to check before the release.\n", null)
 
 /** A note with lines longer than a pane: what Settings' "Wrap long lines" wraps. */
 private val PreviewLongLines =
@@ -304,11 +338,11 @@ internal class ScreenCase(val state: WorkspaceState, val caret: Int = 0, val wra
 /**
  * The workspace's cases: a JSON document with its value previews, a YAML one with anchors, a CSV and a JSON array as
  * tables, a document with mistakes and its problems, a YAML one with a flow left open, an XML feed, a TOML manifest,
- * newline-delimited JSON, a properties file and an INI one, the order's Summary measured and being measured and a CSV's,
- * the order and the feed queried, as the Query boards draw them, the order converted to YAML and to TOML, as the
- * Convert boards draw it, the order validated against its schema, its caret in its first problem, as the Schema boards
- * draw it, the boards' two orders compared by meaning and by text, a note with long lines left long and
- * wrapped, one being read, and a new, empty one.
+ * newline-delimited JSON, a properties file and an INI one, JSONC with comments, JSON5 and a TSV as a table, the
+ * order's Summary measured and being measured and a CSV's, the order and the feed queried, as the Query boards draw
+ * them, the order converted to YAML and to TOML, as the Convert boards draw it, the order validated against its schema,
+ * its caret in its first problem, as the Schema boards draw it, the boards' two orders compared by meaning and by
+ * text, a note with long lines left long and wrapped, one being read, and a new, empty one.
  */
 internal class WorkspaceScreenCases :
     PreviewCases<ScreenCase>(
@@ -324,6 +358,9 @@ internal class WorkspaceScreenCases :
         "ndjson" to ScreenCase(Events),
         "properties" to ScreenCase(Application),
         "ini" to ScreenCase(Settings),
+        "jsonc" to ScreenCase(previewState("settings.jsonc", PreviewJsonc, Format.Jsonc)),
+        "json5" to ScreenCase(previewState("release.json5", PreviewJson5, Format.Json5, DocumentView(selected = "$.port"))),
+        "tsv table" to ScreenCase(previewState("countries.tsv", PreviewTsv, Format.Tsv, DocumentView(pane = DocumentPane.Table))),
         "summary" to ScreenCase(OrderSummary),
         "summary measuring" to ScreenCase(OrderSummaryMeasuring),
         "csv summary" to ScreenCase(CountriesSummary),

@@ -1,5 +1,7 @@
 package com.developersancho.formatico.core.format.convert
 
+import com.developersancho.formatico.core.format.text.wholeRegex
+
 /**
  * Writes values as a TOML document: a table's own keys first, then its tables, `[a.b]`, and its arrays of tables,
  * `[[items]]`; an array of other values, and an object inside one, on its key's line. TOML has no null: one is left
@@ -146,10 +148,10 @@ internal class TomlWriter(private val options: ConvertOptions, private val log: 
     }
 }
 
-private val BareKey = Regex("[A-Za-z0-9_-]+")
+private val BareKey = wholeRegex("[A-Za-z0-9_-]+")
 
 /** [name] as a TOML key: bare where it can be, quoted otherwise. */
-internal fun tomlKey(name: String): String = if (BareKey.matches(name)) name else tomlString(name)
+internal fun tomlKey(name: String): String = if (BareKey.containsMatchIn(name)) name else tomlString(name)
 
 /** [names] as the dotted key of a header. */
 private fun tomlKeys(names: List<String>): String = names.joinToString(".") { tomlKey(it) }

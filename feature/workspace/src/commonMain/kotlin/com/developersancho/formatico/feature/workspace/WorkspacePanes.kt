@@ -197,10 +197,18 @@ private fun TreeHeader(
             )
             val chosen = state.selected ?: state.root
             if (!wide && read && chosen != null) {
-                PathTrail(state = state, onIntent = onIntent, modifier = Modifier.padding(start = spacing.sm))
-                CopyPathMenu(node = chosen, layout = layout, onCopy = { commands.copyText(Copied.Path, it) })
+                // The trail takes what the levels and the search leave, and no more: a deep path is cut, not them.
+                Row(
+                    modifier = Modifier.weight(1f).padding(start = spacing.sm),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(spacing.sm)
+                ) {
+                    PathTrail(state = state, onIntent = onIntent, modifier = Modifier.weight(1f, fill = false))
+                    CopyPathMenu(node = chosen, layout = layout, onCopy = { commands.copyText(Copied.Path, it) })
+                }
+            } else {
+                Spacer(modifier = Modifier.weight(1f))
             }
-            Spacer(modifier = Modifier.weight(1f))
             val root = state.root
             if (read && root != null) TreeLevels(root = root, layout = layout, onIntent = onIntent, withLabel = roomy)
             PantrixIconButton(

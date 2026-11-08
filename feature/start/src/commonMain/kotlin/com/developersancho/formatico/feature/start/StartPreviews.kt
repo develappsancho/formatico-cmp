@@ -27,7 +27,10 @@ private val PreviewRecent = listOf(
     RecentDocument(id = 5, name = "notes.txt", format = null, size = 2048, at = Instant.parse("2025-03-02T08:05:00Z"))
 )
 
-/** The Start screen's cases: a first start, documents opened before, and a file it did not take. */
+/**
+ * The Start screen's cases: a first start, documents opened before, and a file it did not take for each reason: too
+ * large, of a kind it does not read, and one the platform could not read.
+ */
 internal class StartScreenCases :
     PreviewCases<StartState>(
         "first start" to StartState(),
@@ -35,7 +38,9 @@ internal class StartScreenCases :
         "refused file" to StartState(
             recent = PreviewRecent.take(2),
             refusal = FileRefusal.TooLarge("logs.json", maxSize = 10_000_000)
-        )
+        ),
+        "wrong type" to StartState(recent = PreviewRecent.take(2), refusal = FileRefusal.WrongType("invoice.pdf")),
+        "unreadable" to StartState(recent = PreviewRecent.take(2), refusal = FileRefusal.Unreadable("orders.json"))
     )
 
 @BoardPreviews

@@ -158,7 +158,13 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Ne: Workspace ve Table panolarına iki menü çizildi. Biri seçili değerin yolunu JSONPath, JSON Pointer ya da jq olarak kopyalıyor, öteki tabloyu kaydediyor ya da kopyalıyor. İkisi de açık gösterilmek istendi. Tasarım sistemindeki `Menu`'nün ve `Popover`'ın `anchor`'u bir React düğümü ya da düğüm döndüren bir işlev. Panodaki `x-import` bir bileşene yalnızca `renderVals()`'tan değer verebiliyor, düğüm veremiyor; öğenin içeriği de `anchor`'a değil `children`'a gidiyor. Masaüstündeki menüler bu yüzden işaretleme: yüzey, ayraç ve gölge belirteçleri, satırlar `role="menuitem"`. Telefonda aynı seçimler `Sheet` ile (`visible`, `contained`) gerçek bileşenle çizildi.
     *   Nerede: tasarım sistemi, `project/components/index.d.ts` (`MenuProps`, `PopoverProps`); tasarım türünün `design-system-components.md`'si ("An overlay shown open").
     *   Öneri: `Menu`'ye ve `Popover`'a çapasız açık çizilebilen bir biçim. Örneğin tetikleyiciyi `children` olarak almak ya da `visible` ile yerinde çizilen bir hâl. README'de bir panoda açık menünün nasıl gösterileceğini söyleyen bir cümle.
-    *   Durum: açık.
+    *   Durum: açık, yarısı geldi.
+        *   **Gelen (`1794246052-74f6`'da bakıldı, 2026-11-10):** `Menu` ve `Popover` `visible` ile açık, `contained` ile panonun içinde çiziliyor. `anchor`, panonun betiğinde `React.createElement` ile kurulan bir düğüm olarak veriliyor; Graph'ın kartları da böyle kuruluyor.
+        *   **Workspace-390'da gerçek `Pantrix.Menu`'ler (2026-11-10):** `more` hâlinde More menüsü, `format` hâlinde durum etiketinden açılan biçim menüsü.
+        *   **Kalan iki ayrılık:**
+            *   Menü çapasının içine konuyor ve kendi genişliği yok. Küçük bir düğmenin yanında 160 piksele daralıyor, satırlarını ikiye bölüyor ("Close the document"). `Popover`'da `width: max-content` var, `Menu`'de yok. Tuval bunu `formatico-options.css`'te `.ptx-menu { width: max-content }` ile düzeltti.
+            *   Seçili öğenin işareti satırın başında. Uygulamanın `FormatMenu`'sünde (Compose) satırın sonunda.
+        *   Masaüstündeki yol ve tablo menüleri hâlâ işaretleme; bileşene geçirilebilirler.
 *   [ ] **Tasarım sisteminin `Button`'ında Compose'daki `loading` yok (2026-11-06).**
     *   Ne: Faz 16'nın panolarında "Create the link" ve "Open" düğmeleri iş sürerken bekliyor. Compose'un `PantrixButton`'ı bunu kendisi çiziyor (`loading`: simgenin yerinde bir spinner, basılmaz, ekran okuyucuya yükleniyor der); tasarım sisteminin web karşılığında `ButtonProps`'ta böyle bir özellik yok, README'si ve önizlemesi de anmıyor. Panolarda düğme `disabled` çizilip içine `Spinner` kondu; kodda bu, `loading = true`.
     *   Nerede: tasarım sistemi, `project/components/index.d.ts` (`ButtonProps`), `components/Button/README.md`; MCP `get_component_metadata Button` (`loading`).
@@ -179,6 +185,16 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Nerede: tuvalin kopyası (`1794246052-74f6`), `project/ds/pantrix/components/index.d.ts` (`DialogProps.inline`) ve `components/bundle.css` (`.ptx-dialog-stage`).
     *   Öneri: `inline` sahne, verilen yerin boyunu doldursun (`min-height: 100%`, diyalog ortada); ya da `DialogProps`'a `className`/`style`.
     *   Durum: açık. Formatico'yu tıkamıyor. Tuval bileşenin sınıfını ezerek düzeltti (2026-11-09; `formatico-options.css`: `.ptx-dialog-stage { min-height: 100% }`). Share 1440 ile 834'te ve Start'ın `ask` durumunda karartma artık bütün panoyu kaplıyor, diyalog ortada. Chrome'da açık temada, Share-834'te koyu temada da bakıldı.
+*   [ ] **Tasarım sisteminde Compose'un birkaç seçeneğinin karşılığı yok (2026-11-10).**
+    *   Ne: Faz 21'de panolar koda göre yeniden çizilirken (2026-11-10) beş yerde uygulamanın Pantrix'e verdiği seçenek tasarım sisteminde bulunamadı. Hepsi işaretleme ya da yaklaşık kaldı:
+        *   **`SwitchButton`:** destekleyen metin almıyor, anahtarı satırın sonuna koyamıyor. Settings'in anahtarlı satırları ("Wrap long lines", "Keep a history") bu yüzden işaretleme; uygulama Pantrix'in anahtar satırını çiziyor (en az 68 piksel, etiket 4 piksel içeride).
+        *   **`Select` ve `SegmentButton`:** dokunmatik boyları yok. Uygulamada seçim kutusu tablette ve telefonda 48, telefonun seçenekleri 40 civarı; tuval 40 ve 34 çiziyor.
+        *   **`ListItem`:** destekleyen metnin biçimi verilemiyor (Compose'da `supportingTextStyle`); başlığın biçimi, renkleri ve satırın boyu da verilemiyor. Web'deki satır 56 piksel, uygulamanın masaüstündeki 52. Summary'nin bulunanları `ListItem`; Query'nin eşleşme satırları bu yüzden işaretleme.
+        *   **`Sheet`:** `fullScreen` yok. Uygulama Compare'in telefondaki "Show" sayfasını `fullScreen = true` ile açıyor; panoda içerik 690 piksele çekilerek yaklaşıldı.
+        *   **`Menu`:** seçili öğenin işareti satırın başında; uygulamanın `FormatMenu`'sünde sonunda. Menünün kendi genişliği de yok ("Menu ve Popover tuvalde açık çizilemiyor").
+    *   Nerede: tuvalin kopyası (`1794246052-74f6`), `project/ds/pantrix/components/index.d.ts` (`SwitchButtonProps`, `SelectProps`, `SegmentButtonProps`, `ListItemProps`, `SheetProps`, `MenuProps`); panolar Settings ×3, Summary ×3, Query ×3, Compare-390, Workspace-390.
+    *   Öneri: web karşılıklarına Compose'daki seçenekler: `SwitchButton`'a `supportingText` ve anahtarın yeri; `Select` ile `SegmentButton`'a boy (ya da dokunmatik ön ayar); `ListItem`'a başlığın ve destekleyen metnin biçimi, renkler, satırın boyu; `Sheet`'e `fullScreen`; `Menu`'de işaretin yeri Compose'daki gibi.
+    *   Durum: açık. Formatico'yu tıkamıyor.
 
 ## 3. Detekt
 
@@ -219,7 +235,14 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Ne: Rehber "The common tests run on every target: jvmTest, iosSimulatorArm64Test, jsBrowserTest, wasmJsBrowserTest" diyor. Formatico'da `runComposeUiTest`'li ortak testler tarayıcıda iki yerde takıldı: Compose, Wasm hedefi `binaries.executable()` demedikçe UI testini hiç çalıştırmıyor (`checkComposeUiTestConfigurationForWasmJs`, CMP-4906); çalıştırınca da uygulamanın kendi kaynaklarından gelen metinler (`stringResource`) test boyunca hiç görünmüyor. `PantrixTestTheme` ve Pantrix'in kendi metinleri bunu yaşamıyor, çünkü onlar kaynaktan okunmuyor. Bu Compose'un davranışı, ama rehber bir uygulamanın ekranlarının tarayıcıda öyle sınanacağını söylüyor.
     *   Nerede: `skill/testing` ("Running"); MCP `search_documentation testing`.
     *   Öneri: rehberde `binaries.executable()` şartı ve uygulama kaynaklı metinlerin tarayıcıda nasıl beklenip yükleneceği; olmuyorsa tarayıcı testlerinin etiketle sınanması gerektiği.
-    *   Durum: açık. Formatico'da çözüldü (2026-11-03), rehbere girecek olan bu: metin `waitUntil` ile değil, askıya alınan bir beklemeyle beklenmeli (`withContext(Dispatchers.Default) { delay(…) }` ve `awaitIdle()`), çünkü `waitUntil` tarayıcının olay döngüsünü tutuyor ve kaynakların `fetch`'i bitmiyor; Karma test paketinin `kotlin/composeResources/`'unu sunmalı ve `/composeResources/`'u oraya yönlendirmeli; Mocha'nın 2 saniyesi yetmiyor. Formatico'nun 161 testi böyle Wasm'da koşuyor.
+    *   Durum: açık. Formatico'da çözüldü (2026-11-03), rehbere girecek olan bu: metin `waitUntil` ile değil, askıya alınan bir beklemeyle beklenmeli (`withContext(Dispatchers.Default) { delay(…) }` ve `awaitIdle()`), çünkü `waitUntil` tarayıcının olay döngüsünü tutuyor ve kaynakların `fetch`'i bitmiyor; Karma test paketinin `kotlin/composeResources/`'unu sunmalı ve `/composeResources/`'u oraya yönlendirmeli; Mocha'nın 2 saniyesi yetmiyor. Formatico'nun 161 testi böyle Wasm'da koşuyor. JavaScript'te üçüncü bir şart (2026-11-10): Formatico'nun JS testleri o güne kadar kapalıydı; açılınca UI dışı
+        testler geçti, `runComposeUiTest`'li her test `ReferenceError: org_jetbrains_skia_Surface__1nMakeRasterN32Premul
+        is not defined` ile düştü. JS'de Compose Skiko'nun işlevlerini sayfanın genel adları olarak arıyor; onları
+        test paketindeki `js-reexport-symbols.mjs` `skiko.mjs`'ten oraya koyuyor ve `skiko.wasm` sonra yükleniyor.
+        Uygulamanın sayfası bunu Compose'un Gradle eklentisiyle yapıyor, Karma'nın sayfası yapmıyor. Formatico'nun
+        çözümü (`config/karma/skiko-on-js.js`, `config/karma/browser/`): Karma o modülü bir `type: "module"` dosyası
+        olarak yüklüyor, `awaitSkiko`'yu bekliyor ve testleri ancak ondan sonra başlatıyor; JS hedefi de Wasm gibi
+        `binaries.executable()` (CMP-4906). Rehber "jsBrowserTest" diyor, bunların hiçbirini söylemiyor.
 *   [ ] **Test temasına verilen pencere, testin çizdiği boy değil (2026-11-03).**
     *   Ne: `PantrixTestTheme(window = PantrixWindow(DpSize(1440.dp, 900.dp)))` ekrana 1440'lık bir pencerede olduğunu söylüyor, ama masaüstünde `runComposeUiTest` ekranı kendi 1024×768 piksellik yüzeyinde çiziyor. Formatico'nun geniş Table testi bu yüzden 1024'te koştu: araç çubuğu sığmadı, sondaki "Save as CSV" düğmesi sıfır genişlikte kaldı ve tıklama hiçbir şey yapmadı. Test ekranın kendisi değil, düzenin pencereden küçük olduğu bir hâli sınıyordu; hata bulunana kadar "düğme çalışmıyor" gibi göründü. `window`'un belgesi "the window the screen is told it is in" diyor, yani söylenen bu; ama test rehberi, ekranı o boyda çizmek için `PantrixWindowFrame`'in boyutlu bir kutuyla kullanılacağını söylemiyor (yalnızca uyarlanabilir rehberde, katlanan pencere örneğinde geçiyor).
     *   Nerede: MCP `get_api PantrixTestTheme` (`window`); `guide/testing`; `guide/adaptive` ("A folding window in a preview and a test").
@@ -617,4 +640,17 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Öneri: bir `PantrixToolbar` (ya da `PantrixTopBar`'ın eylemlerine bir seçenek): eylemler öncelikleriyle
         verilir, sığmayanlar sondaki "more" menüsüne düşer, menüdeki satırları eylemin sözcüğü ve simgesiyle; ekran
         okuyucu ve otomasyon etiketleri iki yerde de aynı.
-    *   Durum: açık. Formatico'nun işini tıkamıyor.
+    *   Durum: açık. Formatico'nun işini tıkamıyor. Önizlemelerin her hâlini gezen testler (2026-11-10) tablette
+        sondaki "more" düğmesini İngilizcede de 36–45 dp buldu: biçimin adı uzunsa (NDJSON, Properties, Plain text)
+        ve paylaşma penceresinin arkasındaki araç çubuğunda. Formatico'nun `PreviewCasesTest`'i bu bulguyu adıyla
+        anarak geçiriyor; kütüphanenin araç çubuğu gelince o istisna kalkacak.
+*   [ ] **Ağacın satır yüksekliği dokunma hedefinin altında verilince sessizce büyüyor (2026-11-10).**
+    *   Ne: Formatico tablette ağaca `TreeViewStyle(rowHeight = 36.dp)` veriyor (`DocumentTree.kt`); kaydedilen
+        ekran görüntülerinde (Workspace-834, `DocumentTree/json-on-a-tablet-light-834.png`) satırlar 48 piksel
+        aralıklı. Telefonda 44 dp isteniyor, Android'in görüntülerinde satırlar 48. Kütüphane satırı platformun
+        dokunma hedefine çıkarıyor gibi; bunu ne `rowHeight`'ın belgesi ne bir uyarı söylüyor. Faz 21'de panolar
+        koda göre çizilirken görüldü: Workspace-834'ün ağacı uygulamadaki gibi 48 piksele çekildi.
+    *   Nerede: MCP `get_api TreeViewStyle` (`rowHeight`); Formatico'da `DocumentTree.kt`.
+    *   Öneri: `rowHeight`'ın belgesinde dokunma hedefine çıkarıldığını söylemek (ve hangi platformda kaç), ya da
+        istenen boyu çizip basılan alanı ayrıca büyütmek; uygulama gerçekten aldığı boyu isteyebilsin.
+    *   Durum: açık. Formatico'yu tıkamıyor.

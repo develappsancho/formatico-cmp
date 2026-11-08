@@ -98,6 +98,31 @@ class WorkspaceScreenshotTest {
     }
 
     @Test
+    fun summaryPane() = SummaryPaneCases().values.forEach { case ->
+        capturePreview("SummaryPane", case, case.value.board) { SummaryPanePreview(case) }
+    }
+
+    @Test
+    fun problemsPane() = ProblemsPaneCases().values.forEach { case ->
+        capturePreview("ProblemsPane", case, case.value.board) { ProblemsPanePreview(case) }
+    }
+
+    @Test
+    fun tablePane() = TablePaneCases().values.forEach { case ->
+        capturePreview("TablePane", case, case.value.board) { TablePanePreview(case) }
+    }
+
+    @Test
+    fun textPane() = TextPaneCases().values.forEach { case ->
+        capturePreview("TextPane", case, case.value.board) { TextPanePreview(case) }
+    }
+
+    @Test
+    fun problemCard() = ProblemCardCases().values.forEach { case ->
+        capturePreview("ProblemCard", case, case.value.board) { ProblemCardPreview(case) }
+    }
+
+    @Test
     fun openMenus() = WorkspaceScreenCases().values.forEach { case ->
         when (case.name) {
             "json" -> {

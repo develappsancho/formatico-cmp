@@ -1,5 +1,7 @@
 package com.developersancho.formatico.core.format.convert
 
+import com.developersancho.formatico.core.format.text.wholeRegex
+
 /** A number's spelling read into what any format needs to write it again its own way. */
 internal sealed class NumberParts {
     /** Whether a `-` stands before it. */
@@ -23,7 +25,7 @@ internal sealed class NumberParts {
     }
 }
 
-private val DecimalParts = Regex("([0-9]*)(\\.([0-9]*))?([eE]([+-]?[0-9]+))?")
+private val DecimalParts = wholeRegex("([0-9]*)(\\.([0-9]*))?([eE]([+-]?[0-9]+))?")
 
 /** The parts of [written], a number as JSON, JSON5, YAML, TOML or CSV writes one; null where it is none of them. */
 internal fun numberParts(written: String): NumberParts? {
@@ -42,7 +44,7 @@ internal fun numberParts(written: String): NumberParts? {
 
         lower.startsWith("0b") -> radix(negative, TWO, lower.drop(PREFIX))
 
-        else -> DecimalParts.matchEntire(unsigned)?.let { match ->
+        else -> DecimalParts.find(unsigned)?.let { match ->
             val groups = match.groupValues
             val (whole, point, fraction) = Triple(groups[WHOLE], groups[POINT], groups[FRACTION])
             NumberParts.Decimal(negative, whole, fraction.takeIf { point.isNotEmpty() }, groups[EXPONENT].takeIf { it.isNotEmpty() })

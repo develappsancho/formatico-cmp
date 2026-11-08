@@ -6,15 +6,16 @@ import com.developersancho.formatico.core.format.csv.CsvField
 import com.developersancho.formatico.core.format.csv.CsvRecord
 import com.developersancho.formatico.core.format.json.PathStep
 import com.developersancho.formatico.core.format.text.TextRange
+import com.developersancho.formatico.core.format.text.wholeRegex
 
 /** A number as a CSV field writes it: what the table lines up at its end and orders as a number. */
-private val CsvNumber = Regex("""[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?""")
+private val CsvNumber = wholeRegex("""[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?""")
 
 /**
  * A field that starts with a zero before another digit (`004`, `020`): a code, as a country's number or a postcode
  * is. A column that has one is a column of codes, and every field of it stays text, `248` beside `004`.
  */
-private val LeadingZero = Regex("""[-+]?0\d.*""")
+private val LeadingZero = wholeRegex("""[-+]?0\d.*""")
 
 /**
  * Reads [text] as CSV, or as TSV, for its tree: an array of its records after the header, each an object whose keys
@@ -26,7 +27,7 @@ internal fun readCsv(text: String, format: Format): Reading {
     val header = document.header?.fields?.map { it.value }.orEmpty()
     val rows = document.rows
     val codes = rows.flatMap { record ->
-        record.fields.mapIndexedNotNull { column, field -> column.takeIf { LeadingZero.matches(field.value) } }
+        record.fields.mapIndexedNotNull { column, field -> column.takeIf { LeadingZero.containsMatchIn(field.value) } }
     }.toSet()
     val root = if (document.records.isEmpty()) {
         null
@@ -80,7 +81,7 @@ private class CsvColumns(private val header: List<String>, private val codes: Se
     }
 
     private fun field(field: CsvField, text: String, place: FieldPlace): ValueNode {
-        val number = !place.inCodes && CsvNumber.matches(field.value)
+        val number = !place.inCodes && CsvNumber.containsMatchIn(field.value)
         // A field in no quotes is written as it is read: its text and its value are one.
         val asRead = !field.quoted && field.range.length == field.value.length &&
             text.regionMatches(field.range.start, field.value, 0, field.value.length)

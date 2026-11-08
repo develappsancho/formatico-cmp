@@ -10,6 +10,7 @@ import com.developersancho.formatico.core.format.convert.DataString
 import com.developersancho.formatico.core.format.convert.DataValue
 import com.developersancho.formatico.core.format.convert.jsonSpelled
 import com.developersancho.formatico.core.format.json.PathStep
+import com.developersancho.formatico.core.format.text.wholeRegex
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
@@ -34,7 +35,7 @@ internal fun jsonOf(value: DataValue): JsonElement = when (value) {
     is DataDate -> JsonPrimitive(value.written)
 }
 
-private val WholeNumber = Regex("-?[0-9]+")
+private val WholeNumber = wholeRegex("-?[0-9]+")
 
 /** The kind of [element], as a schema's `type` names it: a number with no fraction an integer. */
 internal fun typeOf(element: JsonElement): JsonType = when (element) {
@@ -47,7 +48,7 @@ internal fun typeOf(element: JsonElement): JsonType = when (element) {
     is JsonPrimitive -> when {
         element.isString -> JsonType.String
         element.booleanOrNull != null -> JsonType.Boolean
-        WholeNumber.matches(element.content) -> JsonType.Integer
+        WholeNumber.containsMatchIn(element.content) -> JsonType.Integer
         else -> JsonType.Number
     }
 }

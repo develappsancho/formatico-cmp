@@ -1,5 +1,6 @@
 package com.developersancho.formatico.feature.workspace.editor
 
+import com.developersancho.formatico.core.format.text.wholeRegex
 import com.pantrixui.components.data.codeblock.CodeTokenKind
 import com.pantrixui.components.data.codeeditor.CodeHighlight
 import com.pantrixui.components.data.codeeditor.CodeHighlighter
@@ -8,7 +9,7 @@ import com.pantrixui.components.data.codeeditor.CodeHighlighter
 internal data class TableLine(val header: Boolean = true, val inQuotes: Boolean = false)
 
 /** A number as a field writes it. */
-private val TableNumber = Regex("""[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?""")
+private val TableNumber = wholeRegex("""[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?""")
 
 /**
  * CSV or TSV, a line at a time, its fields split by [delimiter]: the header's names in the key's colour, numbers as
@@ -55,7 +56,7 @@ internal class TableHighlighter(private val delimiter: Char) : CodeHighlighter<T
         val text = scan.line.substring(scan.at, end).trim()
         val kind = when {
             header -> CodeTokenKind.Property
-            TableNumber.matches(text) -> CodeTokenKind.Number
+            TableNumber.containsMatchIn(text) -> CodeTokenKind.Number
             else -> CodeTokenKind.Plain
         }
         scan.take(end, kind)

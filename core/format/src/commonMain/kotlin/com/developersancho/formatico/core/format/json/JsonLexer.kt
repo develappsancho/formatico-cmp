@@ -1,12 +1,13 @@
 package com.developersancho.formatico.core.format.json
 
 import com.developersancho.formatico.core.format.ProblemCode
+import com.developersancho.formatico.core.format.text.wholeRegex
 
 private const val UNICODE_ESCAPE_DIGITS = 4
 private const val HEX_ESCAPE_DIGITS = 2
 
-private val JsonNumberPattern = Regex("-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:[eE][+-]?[0-9]+)?")
-private val Json5NumberPattern = Regex(
+private val JsonNumberPattern = wholeRegex("-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:[eE][+-]?[0-9]+)?")
+private val Json5NumberPattern = wholeRegex(
     "[+-]?(?:Infinity|NaN|0[xX][0-9a-fA-F]+|(?:(?:0|[1-9][0-9]*)(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?)"
 )
 
@@ -229,8 +230,8 @@ internal class JsonLexer(
     private fun checkNumber(start: Int) {
         val spelling = text.substring(start, position)
         when {
-            JsonNumberPattern.matches(spelling) -> Unit
-            Json5NumberPattern.matches(spelling) -> json5Number(start)
+            JsonNumberPattern.containsMatchIn(spelling) -> Unit
+            Json5NumberPattern.containsMatchIn(spelling) -> json5Number(start)
             else -> report(ProblemCode.InvalidNumber, start, position)
         }
     }

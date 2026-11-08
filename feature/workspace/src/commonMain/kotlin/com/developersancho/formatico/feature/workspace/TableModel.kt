@@ -1,6 +1,7 @@
 package com.developersancho.formatico.feature.workspace
 
 import com.developersancho.formatico.core.format.json.PathStep
+import com.developersancho.formatico.core.format.text.toDecimalOrNull
 
 /** The column of an array's values that are no objects: the values themselves. */
 internal const val VALUE_COLUMN = "#value"
@@ -121,8 +122,8 @@ private val ValueKind.order: Int
 
 private fun compareValues(first: ValueNode, second: ValueNode): Int {
     if (first.kind == ValueKind.Number && second.kind == ValueKind.Number) {
-        val a = first.text.toDoubleOrNull()
-        val b = second.text.toDoubleOrNull()
+        val a = first.text.toDecimalOrNull()
+        val b = second.text.toDecimalOrNull()
         if (a != null && b != null) return a.compareTo(b)
     }
     return first.shownText.compareTo(second.shownText)
@@ -143,7 +144,7 @@ internal fun statsOf(rows: List<TableRow>, column: String): ColumnStats {
     val present = cells.filterNotNull().filter { it.kind != ValueKind.Null && it.shownText.isNotEmpty() }
     // Only a column of numbers alone is read as numbers: reading a cell that is no number fails, which is slow on iOS,
     // where a column of 200 000 names took most of a minute to line up.
-    val numbers = if (present.all { it.kind == ValueKind.Number }) present.mapNotNull { it.text.toDoubleOrNull() } else emptyList()
+    val numbers = if (present.all { it.kind == ValueKind.Number }) present.mapNotNull { it.text.toDecimalOrNull() } else emptyList()
     return if (present.isNotEmpty() && numbers.size == present.size) {
         ColumnStats.Numbers(numbers.size, numbers.min(), numbers.max(), numbers.average())
     } else {

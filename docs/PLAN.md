@@ -407,6 +407,15 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
         8.  **Son denetim:**
             *   Bütün hedeflerde testler; `verifyRoborazzi`, web testleri, lint ve detekt.
             *   Pantrix'e kalan bulgular kütüphanenin oturumuna toplu olarak iletilir (sahibinin onayıyla).
+    *   **İlerleme (2026-11-10):**
+        *   1–3 bitti (`c1f1dec`).
+        *   4 bitti, Android hariç. Her önizleme hâli her hedefte bir UI testinde geziliyor (`checkPreviewCases`). JS'nin
+            testleri açıldı ve JavaScript yedeğinin kendi hataları düzeldi. Ortak testler Android'in ana makine
+            ağacında koşmuyor; Pantrix'in rehberi de öyle diyor.
+        *   5 tuval oturumunda (tuvalin bağlamı onda); liste paylaşılan notlarda,
+            `2026-11-10-faz21-canvas-redraws.md`. Telefonun iki panosu çizildi: durum çubuğundan biçim menüsü, More'da
+            "Find in the text" (tuval sürümü 1794291668-7e49).
+        *   6, 7 ve 8 sırada.
     *   **Sahibinin kararları (2026-11-10):** sahibi önerileri kabul etti ("önerilerin olsun"):
         *   **Kodda seçilip panolarda olmayanlar: kod onaylandı, panolar koda göre çizilir.**
             *   Query'nin, Convert'in ve Compare'in hâlleri ve kuralları.

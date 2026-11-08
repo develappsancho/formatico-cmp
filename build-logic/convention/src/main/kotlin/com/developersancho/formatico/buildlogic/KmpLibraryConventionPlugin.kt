@@ -35,9 +35,14 @@ class KmpLibraryConventionPlugin : Plugin<Project> {
                 iosSimulatorArm64()
                 jvm()
                 js {
-                    // The JS build is the Wasm build's code: its tests compile, and run in the browser on Wasm.
+                    // The JavaScript build is what a browser without Wasm GC runs: its tests run there too, in Chrome.
                     browser {
-                        testTask { enabled = false }
+                        testTask {
+                            useKarma {
+                                useChromeHeadless()
+                                useConfigDirectory(rootDir.resolve("config/karma"))
+                            }
+                        }
                     }
                 }
                 @OptIn(ExperimentalWasmDsl::class)

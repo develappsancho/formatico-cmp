@@ -1,5 +1,7 @@
 package com.developersancho.formatico.core.format.json
 
+import com.developersancho.formatico.core.format.text.wholeRegex
+
 /** A step from a value to one inside it: a member, by its key, or an item, by its place. */
 sealed interface PathStep {
     /** The member whose key is [name]. */
@@ -9,7 +11,7 @@ sealed interface PathStep {
     data class Index(val index: Int) : PathStep
 }
 
-private val PlainKey = Regex("[A-Za-z_][A-Za-z0-9_]*")
+private val PlainKey = wholeRegex("[A-Za-z_][A-Za-z0-9_]*")
 
 private const val HEX_RADIX = 16
 private const val UNICODE_ESCAPE_DIGITS = 4
@@ -24,7 +26,7 @@ fun jsonPath(steps: List<PathStep>): String = buildString {
         when (step) {
             is PathStep.Index -> append('[').append(step.index).append(']')
 
-            is PathStep.Key -> if (PlainKey.matches(step.name)) {
+            is PathStep.Key -> if (PlainKey.containsMatchIn(step.name)) {
                 append('.').append(step.name)
             } else {
                 append('[').appendQuoted(step.name, '\'').append(']')
@@ -56,7 +58,7 @@ fun jqPath(steps: List<PathStep>): String {
                 // An item of the document itself is `.[0]`; of a value inside it, `.items[0]`.
                 is PathStep.Index -> append(if (isEmpty()) ".[" else "[").append(step.index).append(']')
 
-                is PathStep.Key -> if (PlainKey.matches(step.name)) {
+                is PathStep.Key -> if (PlainKey.containsMatchIn(step.name)) {
                     append('.').append(step.name)
                 } else {
                     append('.').appendQuoted(step.name, '"')

@@ -24,6 +24,57 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
 *   [x] **Web: yükleme ekranının zemini temanınkinden farklıydı (2026-11-02).**
     *   Ne: `styles.css` koyu zemini `#0f172a` diye yazıyordu; Pantrix'in koyu `background`'ı `#020617` (Android ekran görüntüsünden okundu; açık zemin `#f8fafc`, aynı). İlk karede bir renk sıçraması olurdu.
     *   Durum: kapandı (2026-11-02). `styles.css` koyu zemini `#020617`. Değerler elle yazılı: Pantrix'in renkleri değişirse burası da değişmeli.
+*   [x] **Önizleme ve test kuralının eksikleri (2026-11-09, Faz 21'in denetimi).**
+    *   Ne: CLAUDE.md'nin kuralı her ekranın ve bileşenin her hâlini bir önizlemede, bir ekran görüntüsünde, bir UI
+        testinde ve birim testlerinde istiyor. Denetim şunları buldu: komut paletinin önizlemesi yok; Summary,
+        Problems, Table, metin bölmesi ve telefonun problem kartının kendi önizlemeleri yok; Start'ın WrongType ve
+        Unreadable reddi, tablonun süzülmüş, boş ve sütunu gizli hâli, JSONC, JSON5 ve TSV hiçbir önizlemede yok; UI
+        testleri önizlemelerin hâllerini gezmiyor; sözcük işlevlerinin çoğunun birim testi yok; ortak testler
+        JavaScript'te ve Android'de koşmuyor.
+    *   Durum: kapandı (2026-11-10), Android'inki dışında.
+        *   `core:testing`'in `checkPreviewCases`'i bir sağlayıcının her hâlini, ekran görüntüsünün çizdiği panoların
+            her birinde, panonun boyunda çiziyor. Her hâlin gösterdiğini sınıyor, Pantrix'in tanılamasının bir şey
+            bulmadığını da. Bilinen bir Pantrix bulgusu yalnızca adıyla anılarak geçiriliyor. Her modülün
+            `PreviewCasesTest`'i bütün sağlayıcıları geziyor.
+        *   Yeni önizlemeler, ekran görüntüleri ve hâl testleri:
+            *   Palet (`PaletteCases`, `app:shared`): belge, YAML, düz metin, Start ve Settings.
+            *   `PanePreviews.kt`: Summary, Problems, Table, metin bölmesi ve telefonun kartı.
+            *   Start'ın iki reddi; ekranın JSONC, JSON5 ve TSV hâli.
+        *   `WordsTest` sözcük işlevlerini sınıyor: problemler ve onarımları, kayıplar, farklar, şemanın kuralları,
+            sorgu hataları, Summary'nin boyları, sütun türleri.
+        *   Hâlleri gezen testler ilk koşuda üç hata buldu. Üçü de düzeltildi:
+            *   Breadcrumb'ın etiketleri yolun tamamından yapılıyordu. Pantrix etiketi 32 karakterde kestiği için
+                derin bir YAML yolunda dört adım aynı etiketi alıyordu. Artık derinlik ve son adım: `1_customer`.
+            *   Tablette ağacın başlığında uzun bir yol düzey düğmelerini ve aramayı 0 dp'ye sıkıştırıyordu.
+            *   Tablette araç çubuğunun "more"u 36–45 dp kalıyordu. Bu PANTRIX_FINDINGS'in "Sığmayan eylemleri
+                menüsüne alan bir araç çubuğu yok" bulgusu; test onu adıyla anarak geçiriyor.
+        *   JavaScript'in testleri açıldı (`jsBrowserTest`). Compose UI testleri için JS hedefi de Wasm gibi
+            `binaries.executable()`. Karma Skiko'nun işlevlerini sayfaya koyup wasm'ı yüklenene kadar testleri
+            bekletiyor (`config/karma/skiko-on-js.js`). JS kilit dosyasına Karma'nın paketleri eklendi.
+        *   Açılınca JavaScript yedeğinin kendi hataları çıktı: "JavaScript yedeğinde düzenli ifadeler ve sayılar
+            başka okunuyordu".
+        *   Android: Pantrix'in test rehberi "On Android the common tests do not run in the host tree" diyor;
+            Android'e özgü davranış `androidHostTest`'te ayrıca sınanıyor. Ortak testleri Android'de koşturmanın yolu
+            emülatörde cihaz testleri olurdu. Sahibinin kararı.
+*   [x] **JavaScript yedeğinde düzenli ifadeler ve sayılar başka okunuyordu (2026-11-10).**
+    *   Ne: Kotlin/JS'de `Regex.matches` ve `matchEntire`, motorun metnin başından bulduğu ilk eşleşmeye bakıyor,
+        ötekileri denemiyor. Sonuç: `y|yes` "yes"e uymuyor, `a|h.*` ise "aa"ya bütün olarak uyuyor. JVM, iOS ve Wasm
+        öteki seçenekleri de deniyor. `"0x1F".toDoubleOrNull()` de JS'de 31, öteki platformlarda null. Kotlin/JS
+        JavaScript'in `Number`'ı gibi okuyor. JS'nin testleri açılınca sekiz test düştü. Wasm'ı olmayan tarayıcının
+        gördüğü hatalar:
+        *   YAML'a dönüştürmede `yes`, `no`, `on` tırnaksız yazılıyordu: YAML 1.1 bunları doğru-yanlış diye okur.
+        *   Bir sayının yazılışı `5.` yerine `5.0` oluyordu.
+        *   JSONPath'in `match()`'i fazlasını buluyordu.
+        *   `#0F766E` gibi bir renk önizlenmiyordu. Summary renkleri saymıyor, `0x1F`'i bir sayı gibi okuyordu.
+    *   Nerede: `core:format`, `core:schema` ve Workspace'te bir metnin bütününe bakan 37 düzenli ifade,
+        `DocumentSummary.readAsNumber`, `TableModel`.
+    *   Durum: kapandı (2026-11-10).
+        *   `core:format`'ın `wholeRegex`'i deseni başa ve "ardından karakter gelmiyor" bakışına bağlıyor
+            (`^(?:…)(?![\s\S])`); her platformun motoru bunu aynı okuyor. Bütün bu ifadeler onunla tanımlanıyor,
+            `containsMatchIn` ya da `find` ile sınanıyor.
+        *   `toDecimalOrNull` yalnızca ondalık bir sayıyı okuyor.
+        *   `core:share`'in iki ifadesi zaten `^…$` ile bağlı ve seçenek listesi yok: dokunulmadı.
+        *   Bir yeni `matches` yine aynı hatayı getirir; onu yakalayan bir detekt kuralı yok (tür çözümlemesi ister).
 *   [ ] **Web: konsolda Compose'un kaynak okuyucusundan bir hata satırı (2026-11-02).**
     *   Ne: Wasm derlemesi açılınca konsola "Accessing `memory` via `wasmExports` is deprecated" yazılıyor. Kaynağı Compose Multiplatform 1.12.2'nin `org.jetbrains.compose.resources.copyArrayBufferToWasmMemory`'si (Kotlin'in ürettiği `import-object.mjs`); Formatico'nun ya da Pantrix'in kodu değil. Uygulama çalışıyor.
     *   Öneri: Compose Multiplatform'un sonraki sürümünde yeniden bakmak.

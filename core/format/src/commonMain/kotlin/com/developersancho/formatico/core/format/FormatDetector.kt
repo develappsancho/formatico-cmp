@@ -3,6 +3,7 @@ package com.developersancho.formatico.core.format
 import com.developersancho.formatico.core.format.json.JsonDialect
 import com.developersancho.formatico.core.format.json.JsonDocument
 import com.developersancho.formatico.core.format.json.JsonFeature
+import com.developersancho.formatico.core.format.text.wholeRegex
 
 /**
  * Tells which [Format] a text is written in: by its file's extension when it has one Formatico knows, and otherwise by
@@ -15,11 +16,11 @@ object FormatDetector {
     /** How many lines of a newline-delimited JSON are read, each as a JSON value of its own. */
     private const val NDJSON_LINES_READ = 50
 
-    private val SectionHeader = Regex("""^\[\[?[^\[\]]+\]\]?$""")
+    private val SectionHeader = wholeRegex("""^\[\[?[^\[\]]+\]\]?$""")
     private val KeyEqualsValue = Regex("""^[\w.\-"' ]+?\s*=\s*(.*)$""")
-    private val KeyColonValue = Regex("""^\s*[^\s:#\-][^:]*:(\s.*)?$""")
-    private val ListItem = Regex("""^\s*-(\s.*)?$""")
-    private val TomlValue = Regex(
+    private val KeyColonValue = wholeRegex("""^\s*[^\s:#\-][^:]*:(\s.*)?$""")
+    private val ListItem = wholeRegex("""^\s*-(\s.*)?$""")
+    private val TomlValue = wholeRegex(
         """^(".*"|'.*'|-?[0-9][0-9_]*(\.[0-9_]+)?([eE][+-]?[0-9]+)?|true|false|\[.*|\{.*|""" +
             """\d{4}-\d{2}-\d{2}.*|[+-]?(inf|nan))\s*(#.*)?$"""
     )
@@ -47,7 +48,7 @@ object FormatDetector {
         if (!document.isValid) {
             // `[server]` alone on the first line opens a TOML table or an INI section, not a JSON array.
             val firstLine = text.lineSequence().first { it.isNotBlank() }.trim().removePrefix("\uFEFF")
-            return if (SectionHeader.matches(firstLine)) detectByLines(text) else Format.Json
+            return if (SectionHeader.containsMatchIn(firstLine)) detectByLines(text) else Format.Json
         }
         return when {
             JsonFeature.Json5Syntax in document.features -> Format.Json5
@@ -79,13 +80,13 @@ object FormatDetector {
     private fun detectByContent(lines: List<String>): Format? {
         val content = lines.filterNot { isComment(it.trimStart()) }
         if (content.isEmpty()) return null
-        val sections = content.count { SectionHeader.matches(it.trim()) }
+        val sections = content.count { SectionHeader.containsMatchIn(it.trim()) }
         val assignments = content.mapNotNull { KeyEqualsValue.find(it.trim())?.groupValues?.get(1)?.trim() }
-        val keyColons = content.count { KeyColonValue.matches(it) || ListItem.matches(it) }
+        val keyColons = content.count { KeyColonValue.containsMatchIn(it) || ListItem.containsMatchIn(it) }
 
         return when {
             assignments.isNotEmpty() && keyColons <= assignments.size -> when {
-                assignments.all { TomlValue.matches(it) } -> Format.Toml
+                assignments.all { TomlValue.containsMatchIn(it) } -> Format.Toml
                 sections > 0 -> Format.Ini
                 else -> Format.Properties
             }

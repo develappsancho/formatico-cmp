@@ -1,5 +1,7 @@
 package com.developersancho.formatico.core.format.convert
 
+import com.developersancho.formatico.core.format.text.wholeRegex
+
 /**
  * Writes values as a YAML document in block style, each level indented by [indent], an array's items under its key
  * indented as well. A string YAML would read as another value is quoted; what it cannot write as it is goes to [log].
@@ -131,8 +133,8 @@ internal enum class YamlReading {
 /** Why [text] cannot be a plain scalar in YAML, its 1.1 readers' as well, or null where it can be. */
 internal fun yamlReading(text: String): YamlReading? = when {
     text.isEmpty() -> YamlReading.Unsafe
-    YamlDate.matches(text) -> YamlReading.Date
-    YamlValue.matches(text) -> YamlReading.Value
+    YamlDate.containsMatchIn(text) -> YamlReading.Date
+    YamlValue.containsMatchIn(text) -> YamlReading.Value
     isUnsafeYaml(text) -> YamlReading.Unsafe
     else -> null
 }
@@ -150,13 +152,13 @@ private fun isUnsafeYaml(text: String): Boolean =
 private const val YAML_INDICATORS = "-?:,[]{}#&*!|>'\"%@`"
 
 /** A date or a time stamp, as YAML 1.1 reads one: a date, and a time after it with its zone. */
-private val YamlDate = Regex(
+private val YamlDate = wholeRegex(
     "[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}" +
         "([Tt ]+[0-9]{1,2}:[0-9]{2}(:[0-9]{2}(\\.[0-9]*)?)?\\s*(Z|[-+][0-9]{1,2}(:[0-9]{2})?)?)?"
 )
 
 /** What YAML 1.2's core schema or 1.1 reads as a null, a truth or a number, and the keys 1.1 gives a meaning. */
-private val YamlValue = Regex(
+private val YamlValue = wholeRegex(
     listOf(
         "~|null|Null|NULL",
         "true|True|TRUE|false|False|FALSE|y|Y|yes|Yes|YES|n|N|no|No|NO|on|On|ON|off|Off|OFF",

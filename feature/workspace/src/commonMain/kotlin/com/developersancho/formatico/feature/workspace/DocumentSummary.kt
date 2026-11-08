@@ -1,5 +1,7 @@
 package com.developersancho.formatico.feature.workspace
 
+import com.developersancho.formatico.core.format.text.toDecimalOrNull
+
 /** The most of something a document holds, and the first value that holds it: "3 levels", at `$.items[0].sku`. */
 internal data class Extreme(val amount: Int, val node: ValueNode)
 
@@ -112,7 +114,7 @@ private fun tableNoteOf(array: ValueNode): TableNote? {
  * as `1000`; or null where it writes it as [written] does, or does not read it as a number at all.
  */
 internal fun readAsNumber(written: String): String? {
-    val number = written.toDoubleOrNull()?.takeIf { it.isFinite() } ?: return null
+    val number = written.toDecimalOrNull()?.takeIf { it.isFinite() } ?: return null
     val read = if (number == kotlin.math.floor(number) && kotlin.math.abs(number) < EXACT_INTEGER) {
         number.toLong().toString()
     } else {

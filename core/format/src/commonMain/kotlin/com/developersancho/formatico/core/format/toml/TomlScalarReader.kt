@@ -2,6 +2,7 @@ package com.developersancho.formatico.core.format.toml
 
 import com.developersancho.formatico.core.format.ProblemCode
 import com.developersancho.formatico.core.format.text.TextRange
+import com.developersancho.formatico.core.format.text.wholeRegex
 
 private const val DECIMAL_RADIX = 10
 private const val HEX_RADIX = 16
@@ -15,10 +16,10 @@ private const val PREFIX_LENGTH = 2
  * that matches, `0` of `0x1F`, where the JVM's looks for one that matches the whole.
  */
 private val IntegerPattern =
-    Regex("^(?:[+-]?(?:0|[1-9](?:_?[0-9])*)|0x[0-9A-Fa-f](?:_?[0-9A-Fa-f])*|0o[0-7](?:_?[0-7])*|0b[01](?:_?[01])*)$")
+    wholeRegex("[+-]?(?:0|[1-9](?:_?[0-9])*)|0x[0-9A-Fa-f](?:_?[0-9A-Fa-f])*|0o[0-7](?:_?[0-7])*|0b[01](?:_?[01])*")
 
 /** A float as TOML spells it: a fraction, an exponent or both, `inf` or `nan`, with a sign or none. */
-private val FloatPattern = Regex(
+private val FloatPattern = wholeRegex(
     "^[+-]?(?:(?:0|[1-9](?:_?[0-9])*)(?:\\.[0-9](?:_?[0-9])*(?:[eE][+-]?[0-9](?:_?[0-9])*)?|[eE][+-]?[0-9](?:_?[0-9])*)|inf|nan)$"
 )
 
@@ -26,7 +27,7 @@ private val FloatPattern = Regex(
 private val DateTimeStart = Regex("^[0-9]{4}-|^[0-9]{2}:")
 
 /** A date alone, which a space and a time may follow as one value. */
-private val DatePattern = Regex("^[0-9]{4}-[0-9]{2}-[0-9]{2}$")
+private val DatePattern = wholeRegex("^[0-9]{4}-[0-9]{2}-[0-9]{2}$")
 
 /**
  * Reads what stands bare as a value: a boolean, an integer, a float, or a date or a time. Each is kept as it is written,
@@ -51,7 +52,7 @@ internal class TomlScalarReader(private val scanner: TomlScanner) {
         val start = scanner.position
         skipWordCharacters()
         val timeFollows = scanner.current == ' ' && isTimeAt(scanner.position + 1)
-        if (timeFollows && DatePattern.matches(text.substring(start, scanner.position))) {
+        if (timeFollows && DatePattern.containsMatchIn(text.substring(start, scanner.position))) {
             scanner.position++
             skipWordCharacters()
         }
@@ -73,9 +74,9 @@ internal class TomlScalarReader(private val scanner: TomlScanner) {
 
         raw == "false" -> TomlBoolean(range, value = false)
 
-        IntegerPattern.matches(raw) -> if (fitsInLong(raw)) TomlInteger(range, raw) else invalid(ProblemCode.InvalidNumber, range)
+        IntegerPattern.containsMatchIn(raw) -> if (fitsInLong(raw)) TomlInteger(range, raw) else invalid(ProblemCode.InvalidNumber, range)
 
-        FloatPattern.matches(raw) -> TomlFloat(range, raw)
+        FloatPattern.containsMatchIn(raw) -> TomlFloat(range, raw)
 
         DateTimeStart.containsMatchIn(raw) -> {
             tomlDateTimeKind(raw)?.let { TomlDateTime(range, raw, it) } ?: invalid(ProblemCode.TomlInvalidDateTime, range)

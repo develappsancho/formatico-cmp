@@ -1,5 +1,6 @@
 package com.developersancho.formatico.feature.workspace
 
+import com.developersancho.formatico.core.format.text.wholeRegex
 import com.pantrixui.foundation.date.PantrixDate
 import kotlin.time.Instant
 
@@ -21,10 +22,10 @@ internal sealed interface ValuePreview {
     data class Picture(val url: String) : ValuePreview
 }
 
-private val MomentPattern = Regex("""\d{4}-\d{2}-\d{2}[Tt ]\d{2}:\d{2}(:\d{2}(\.\d+)?)?([Zz]|[+-]\d{2}:\d{2})""")
-private val DayPattern = Regex("""\d{4}-\d{2}-\d{2}""")
-private val ColourPattern = Regex("""#([0-9A-Fa-f]{3,4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})""")
-private val LinkPattern = Regex("""https?://[^\s/$.?#][^\s]*""", RegexOption.IGNORE_CASE)
+private val MomentPattern = wholeRegex("""\d{4}-\d{2}-\d{2}[Tt ]\d{2}:\d{2}(:\d{2}(\.\d+)?)?([Zz]|[+-]\d{2}:\d{2})""")
+private val DayPattern = wholeRegex("""\d{4}-\d{2}-\d{2}""")
+private val ColourPattern = wholeRegex("""#([0-9A-Fa-f]{3,4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})""")
+private val LinkPattern = wholeRegex("""https?://[^\s/$.?#][^\s]*""", RegexOption.IGNORE_CASE)
 private val PicturePath = Regex("""\.(png|jpe?g|gif|webp|avif|svg)$""", RegexOption.IGNORE_CASE)
 
 private const val HEX_RADIX = 16
@@ -35,19 +36,19 @@ private const val ALPHA_SHIFT = 24
 
 /** What [value] looks like it holds, or null for a string that is only a string. */
 internal fun previewOf(value: String): ValuePreview? = when {
-    MomentPattern.matches(value) -> {
+    MomentPattern.containsMatchIn(value) -> {
         momentOf(value)
     }
 
-    DayPattern.matches(value) -> {
+    DayPattern.containsMatchIn(value) -> {
         runCatching { ValuePreview.Day(PantrixDate.parse(value)) }.getOrNull()
     }
 
-    ColourPattern.matches(value) -> {
+    ColourPattern.containsMatchIn(value) -> {
         ValuePreview.Colour(argbOf(value.drop(1)))
     }
 
-    LinkPattern.matches(value) -> {
+    LinkPattern.containsMatchIn(value) -> {
         val path = value.substringBefore('?').substringBefore('#')
         if (PicturePath.containsMatchIn(path)) ValuePreview.Picture(value) else ValuePreview.Link(value)
     }

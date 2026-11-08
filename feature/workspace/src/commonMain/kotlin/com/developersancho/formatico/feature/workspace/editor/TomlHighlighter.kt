@@ -1,5 +1,6 @@
 package com.developersancho.formatico.feature.workspace.editor
 
+import com.developersancho.formatico.core.format.text.wholeRegex
 import com.pantrixui.components.data.codeblock.CodeTokenKind
 import com.pantrixui.components.data.codeeditor.CodeHighlight
 import com.pantrixui.components.data.codeeditor.CodeHighlighter
@@ -11,11 +12,13 @@ import com.pantrixui.components.data.codeeditor.CodeHighlighter
 internal data class TomlLine(val openString: String? = null, val arrays: Int = 0)
 
 /** A number as TOML writes it: with `_`, in hexadecimal, octal or binary, `inf` and `nan`. */
-private val TomlNumber = Regex("""[-+]?(\d[\d_]*(\.[\d_]+)?([eE][-+]?\d+)?|0x[0-9a-fA-F_]+|0o[0-7_]+|0b[01_]+|inf|nan)""")
+private val TomlNumber = wholeRegex("""[-+]?(\d[\d_]*(\.[\d_]+)?([eE][-+]?\d+)?|0x[0-9a-fA-F_]+|0o[0-7_]+|0b[01_]+|inf|nan)""")
 
 /** A date, a time, or both, as TOML writes them. */
 private val TomlDate =
-    Regex("""\d{4}-\d{2}-\d{2}([Tt]\d{2}:\d{2}:\d{2}(\.\d+)?)?([Zz]|[-+]\d{2}:\d{2})?|\d{2}:\d{2}:\d{2}(\.\d+)?([Zz]|[-+]\d{2}:\d{2})?""")
+    wholeRegex(
+        """\d{4}-\d{2}-\d{2}([Tt]\d{2}:\d{2}:\d{2}(\.\d+)?)?([Zz]|[-+]\d{2}:\d{2})?|\d{2}:\d{2}:\d{2}(\.\d+)?([Zz]|[-+]\d{2}:\d{2})?"""
+    )
 
 private const val BASIC_QUOTES = "\"\"\""
 private const val LITERAL_QUOTES = "'''"
@@ -132,7 +135,7 @@ internal object TomlHighlighter : CodeHighlighter<TomlLine> {
         }
         val kind = when {
             word == "true" || word == "false" -> CodeTokenKind.Keyword
-            TomlNumber.matches(word) || TomlDate.matches(word) -> CodeTokenKind.Number
+            TomlNumber.containsMatchIn(word) || TomlDate.containsMatchIn(word) -> CodeTokenKind.Number
             else -> CodeTokenKind.Plain
         }
         scan.take(end, kind)

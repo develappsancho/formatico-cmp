@@ -1,5 +1,7 @@
 package com.developersancho.formatico.core.format.toml
 
+import com.developersancho.formatico.core.format.text.wholeRegex
+
 private const val LAST_MONTH = 12
 private const val LAST_HOUR = 23
 private const val LAST_MINUTE = 59
@@ -28,25 +30,25 @@ private const val OFFSET_MINUTE = 10
 private val DaysInMonth = intArrayOf(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
 
 /** A date, and a time after a `T`, a `t` or a space, with an offset or none: its year, month, day, hour, … offset. */
-private val DateTimePattern = Regex(
+private val DateTimePattern = wholeRegex(
     "^([0-9]{4})-([0-9]{2})-([0-9]{2})" +
         "(?:[Tt ]([0-9]{2}):([0-9]{2}):([0-9]{2})(?:\\.[0-9]+)?(?:([Zz])|([+-])([0-9]{2}):([0-9]{2}))?)?$"
 )
 
 /** A time alone: its hour, minute and second, and a fraction of the second or none. */
-private val TimePattern = Regex("^([0-9]{2}):([0-9]{2}):([0-9]{2})(?:\\.[0-9]+)?$")
+private val TimePattern = wholeRegex("^([0-9]{2}):([0-9]{2}):([0-9]{2})(?:\\.[0-9]+)?$")
 
 /**
  * Which of TOML's dates and times [raw] is, or null where it is none of them: a day its month does not have,
  * `2026-02-30`, an hour past 23, a time with no seconds, `07:32`, which TOML 1.0 does not allow.
  */
 internal fun tomlDateTimeKind(raw: String): TomlDateTimeKind? {
-    val time = TimePattern.matchEntire(raw)
+    val time = TimePattern.find(raw)
     if (time != null) {
         val (hour, minute, second) = time.destructured
         return if (isTime(hour, minute, second)) TomlDateTimeKind.LocalTime else null
     }
-    val groups = DateTimePattern.matchEntire(raw)?.groupValues ?: return null
+    val groups = DateTimePattern.find(raw)?.groupValues ?: return null
     val hour = groups[HOUR]
     val valid = isDate(groups[YEAR].toInt(), groups[MONTH].toInt(), groups[DAY].toInt()) &&
         (hour.isEmpty() || isTime(hour, groups[MINUTE], groups[SECOND])) &&

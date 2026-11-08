@@ -1,11 +1,14 @@
 package com.developersancho.formatico.core.format.query
 
+import com.developersancho.formatico.core.format.text.wholeRegex
+
 /**
  * The functions of RFC 9535: `length()`, `count()` and `value()`, which give a value, and `match()` and `search()`,
  * which test a string against an I-Regexp. A pattern is compiled once for each run of a query.
  */
 internal class JsonPathFunctions<N>(private val values: JsonValues<N>, private val evaluator: JsonPathEvaluator<N>) {
     private val patterns = HashMap<String, Regex?>()
+    private val wholes = HashMap<String, Regex?>()
 
     /** The value [call] gives where the filter tests [current]. */
     fun value(call: FunctionCall, current: N): FilterValue<N> = when (call.function) {
@@ -49,17 +52,15 @@ internal class JsonPathFunctions<N>(private val values: JsonValues<N>, private v
     private fun matches(call: FunctionCall, current: N, whole: Boolean): Boolean {
         val text = string(single(call.arguments[0], current))
         val pattern = string(single(call.arguments[1], current))
-        val regex = if (text == null || pattern == null) null else regex(pattern)
-        return when {
-            text == null || regex == null -> false
-            whole -> regex.matchEntire(text) != null
-            else -> regex.containsMatchIn(text)
-        }
+        val regex = if (text == null || pattern == null) null else regexOf(pattern, whole)
+        return text != null && regex != null && regex.containsMatchIn(text)
     }
 
-    private fun regex(pattern: String): Regex? {
-        if (!patterns.containsKey(pattern)) patterns[pattern] = iRegexp(pattern)
-        return patterns[pattern]
+    /** [pattern]'s regular expression; where [whole], one that matches only a whole text, as `match()` asks ([wholeRegex]). */
+    private fun regexOf(pattern: String, whole: Boolean): Regex? {
+        val made = if (whole) wholes else patterns
+        if (!made.containsKey(pattern)) made[pattern] = iRegexp(pattern)?.let { if (whole) wholeRegex(it.pattern) else it }
+        return made[pattern]
     }
 
     /** [value]'s string, where it is one. */

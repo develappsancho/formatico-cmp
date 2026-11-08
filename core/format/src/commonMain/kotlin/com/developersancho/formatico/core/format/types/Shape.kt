@@ -12,6 +12,7 @@ import com.developersancho.formatico.core.format.convert.NumberParts
 import com.developersancho.formatico.core.format.convert.inTens
 import com.developersancho.formatico.core.format.convert.isInteger
 import com.developersancho.formatico.core.format.convert.numberParts
+import com.developersancho.formatico.core.format.text.wholeRegex
 
 /**
  * What the values met at one place of a document are, merged: how many of each kind, and for objects and arrays, the
@@ -138,7 +139,7 @@ private const val ZONE = "([Zz]|[+-]([01][0-9]|2[0-3])(:?[0-5][0-9])?)"
  * A date, a time or a date and a time, as ISO 8601 writes them in its extended form: `2026-11-04`, `14:32`,
  * `14:32:00Z`, `2026-10-28T14:32:00.5+03:00`; the `T` may be a space or in lower case, as RFC 3339 allows.
  */
-private val IsoDate = Regex("$DATE([Tt ]$TIME$ZONE?)?|$TIME$ZONE?")
+private val IsoDate = wholeRegex("$DATE([Tt ]$TIME$ZONE?)?|$TIME$ZONE?")
 
 /** Whether [text] is an ISO 8601 date, time or date-time. */
-internal fun isIsoDate(text: String): Boolean = IsoDate.matches(text)
+internal fun isIsoDate(text: String): Boolean = IsoDate.containsMatchIn(text)

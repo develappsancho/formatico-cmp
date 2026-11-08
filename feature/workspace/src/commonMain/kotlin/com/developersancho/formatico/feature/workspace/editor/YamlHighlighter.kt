@@ -1,5 +1,6 @@
 package com.developersancho.formatico.feature.workspace.editor
 
+import com.developersancho.formatico.core.format.text.wholeRegex
 import com.pantrixui.components.data.codeblock.CodeTokenKind
 import com.pantrixui.components.data.codeeditor.CodeHighlight
 import com.pantrixui.components.data.codeeditor.CodeHighlighter
@@ -11,10 +12,10 @@ import com.pantrixui.components.data.codeeditor.CodeHighlighter
 internal data class YamlLine(val blockUnder: Int? = null)
 
 /** A number as YAML writes it, in its other bases and its infinity among them. */
-private val YamlNumber = Regex("""[-+]?(\d[\d_]*(\.\d*)?([eE][-+]?\d+)?|\.\d+|0x[0-9a-fA-F]+|0o[0-7]+|\.inf|\.nan)""")
+private val YamlNumber = wholeRegex("""[-+]?(\d[\d_]*(\.\d*)?([eE][-+]?\d+)?|\.\d+|0x[0-9a-fA-F]+|0o[0-7]+|\.inf|\.nan)""")
 
 /** A block scalar's head after its `|` or `>`: a chomping sign and an indent, then at most a comment. */
-private val BlockHead = Regex("""[|>][+-]?\d?[+-]?\s*(#.*)?""")
+private val BlockHead = wholeRegex("""[|>][+-]?\d?[+-]?\s*(#.*)?""")
 
 private val YamlWords = setOf("true", "false", "null", "~", "True", "False", "Null", "TRUE", "FALSE", "NULL")
 
@@ -86,7 +87,7 @@ internal object YamlHighlighter : CodeHighlighter<YamlLine> {
 
             char in "[]{},:?" -> scan.take(scan.at + 1, CodeTokenKind.Punctuation)
 
-            BlockHead.matches(scan.line.substring(scan.at)) -> {
+            BlockHead.containsMatchIn(scan.line.substring(scan.at)) -> {
                 scan.takeWhile(CodeTokenKind.Punctuation) { it != ' ' && it != '#' }
                 return true
             }
@@ -103,7 +104,7 @@ internal object YamlHighlighter : CodeHighlighter<YamlLine> {
         val text = scan.line.substring(scan.at, end).trimEnd()
         val kind = when {
             text in YamlWords -> CodeTokenKind.Keyword
-            YamlNumber.matches(text) -> CodeTokenKind.Number
+            YamlNumber.containsMatchIn(text) -> CodeTokenKind.Number
             else -> CodeTokenKind.StringLiteral
         }
         scan.take(scan.at + text.length.coerceAtLeast(1), kind)
