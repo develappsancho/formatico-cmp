@@ -1,5 +1,7 @@
 package com.developersancho.formatico.core.format
 
+import com.developersancho.formatico.core.format.text.TextRange
+
 /** A hexadecimal number's base. */
 private const val HEX = 16
 
@@ -43,4 +45,20 @@ internal fun fixedNumber(number: String): String? {
         fraction.isEmpty() || !fraction.first().isDigit() -> ".0$fraction"
         else -> ".$fraction"
     }
+}
+
+/**
+ * The value of the YAML line [offset] is on, after its key's colon and before a comment: what a colon inside it would
+ * start a mapping in. Null where the line has no key before [offset], or its value is quoted already.
+ */
+internal fun yamlValue(text: String, offset: Int): TextRange? {
+    val lineStart = text.lastIndexOf('\n', (offset - 1).coerceAtLeast(0)) + 1
+    val lineEnd = text.indexOf('\n', offset).let { if (it < 0) text.length else it }
+    val line = text.substring(lineStart, lineEnd)
+    val colon = line.indexOf(": ").takeIf { it >= 0 && lineStart + it < offset } ?: return null
+    val comment = line.indexOf(" #", colon).let { if (it < 0) line.length else it }
+    val value = line.substring(colon + 2, comment)
+    val start = lineStart + colon + 2 + (value.length - value.trimStart().length)
+    val end = lineStart + colon + 2 + value.trimEnd().length
+    return TextRange(start, end).takeIf { end > start && text[start] != '"' && text[start] != '\'' }
 }

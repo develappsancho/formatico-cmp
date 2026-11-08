@@ -116,11 +116,11 @@ class YamlDocumentTest {
 
     @Test
     fun aSyntaxErrorSaysWhereItIsAndKeepsWhatWasReadBefore() {
-        val document = YamlDocument.parse("first: 1\nsecond: [1, 2\nthird: 3\n")
+        val document = YamlDocument.parse("first: 1\nsecond: @x\nthird: 3\n")
 
         assertFalse(document.isValid)
         assertEquals(listOf(ProblemCode.YamlSyntax), document.codes())
-        assertEquals(3, document.problems.single().start.line)
+        assertEquals(2, document.problems.single().start.line)
         assertEquals("first", (document.documents.single().asMapping().entries.first().key as YamlScalar).value)
     }
 

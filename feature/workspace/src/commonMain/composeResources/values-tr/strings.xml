@@ -222,4 +222,12 @@
         <item quantity="one">Problem %1$d / %2$d · satır %3$d, sütun %4$d</item>
         <item quantity="other">Problem %1$d / %2$d · satır %3$d, sütun %4$d</item>
     </plurals>
+    <string name="problem_yaml_colon_in_value">Bu değeri tırnağa al: içindeki iki nokta ve boşluk bir eşleme başlatıyor.</string>
+    <string name="problem_yaml_tab">YAML boşlukla girintilenir: bu sekmeyi boşluk olarak yaz.</string>
+    <string name="problem_yaml_indentation">Bunu üstündeki anahtarlarla hizala: girintisi onlarınki değil.</string>
+    <string name="repair_quote_value">Değeri tırnağa al</string>
+    <string name="repair_use_spaces">Boşluk kullan</string>
+    <string name="problem_yaml_unclosed_flow">Bu parantezler hiç kapanmıyor.</string>
+    <string name="workspace_problem_error">Hata</string>
+    <string name="workspace_problem_warning">Uyarı</string>
 </resources>

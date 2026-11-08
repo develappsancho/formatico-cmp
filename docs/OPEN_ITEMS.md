@@ -169,10 +169,10 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Ne: YAML'da alias'ın anchor'ından sonra gelmesi gerekiyor. Sort keys sonucu okuyup bunu bulursa belgeyi değiştirmiyor ve "sıralamak bir alias'ı anchor'ının önüne koyardı" diyor.
     *   Öneri: sıralamadan sonra anchor'ı ilk geçtiği yere, alias'ı sonrakine taşımak (değer aynı kalır).
     *   Durum: açık.
-*   [ ] **YAML'da yalnızca ilk sözdizimi hatası bulunuyor (2026-11-03).**
+*   [x] **YAML'da yalnızca ilk sözdizimi hatası bulunuyor (2026-11-03).**
     *   Ne: `snakeyaml-engine-kmp` ilk sözdizimi hatasında duruyor; Formatico o hatayı, ondan önce okunanı ve yinelenen anahtarlar ile anchor'ı olmayan alias'ları gösteriyor. Hatanın kütüphanedeki İngilizce açıklaması saklanmıyor (`ProblemCode.YamlSyntax`): problem listesi yazılınca neyin yanlış olduğunu söyleyecek bir yol gerekecek.
     *   Öneri: Invalid ekranıyla birlikte kütüphanenin sorun türlerini (`ScannerException`, `ParserException`) kendi kodlarımıza eşlemek.
-    *   Durum: açık. `snakeyaml-engine-kmp` ilk hatada duruyor; YAML'ı onun okuması sahibinin kararı. Hatanın türünü kendi kodlarımıza eşlemek, problem listesiyle birlikte Faz 6'da (Invalid).
+    *   Durum: kapandı (2026-11-04). Kütüphanenin hatası kendi kodlarımıza eşleniyor, her birinin iletisi ve yapılabildiği yerde onarımı var: değerdeki iki nokta (`YamlColonInValue`, "Quote the value"), girintideki sekme (`YamlTab`, "Use spaces"), kapanmayan akış (`YamlUnclosedFlow`, parantez satırın sonunda kapanıyor), kapanmayan dizgi, eksik iki nokta, geçersiz kaçış, girinti, anchor'ı olmayan alias; kalanı yine `YamlSyntax`. Okuyucu ilk hatada durmaya devam ediyor (sahibinin kararı); Repair all metni her onarımdan sonra yeniden okuduğu için sıradaki hataya da geçiyor.
 *   [ ] **YAML'ın birleştirme anahtarı ve YAML 1.1 değerleri (2026-11-03).**
     *   Ne: YAML 1.2'nin çekirdek şemasıyla okunuyor: `<<: *defaults` birleştirilmiyor, ağaçta `<<` adlı bir anahtar ve bir alias olarak duruyor; `yes`, `no`, `on`, `off` mantıksal değil metin. Kubernetes gibi YAML 1.1 alışkanlığıyla yazılmış belgelerde bu şaşırtabilir.
     *   Öneri: Settings'e "YAML 1.1" seçeneği ya da ağaçta birleştirilmiş anahtarları gösteren bir görünüm.
@@ -267,8 +267,12 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Ne: Bu biçimler henüz okunmuyor (Faz 7). Editör onları bir satırda gördüğü kadarıyla renklendiriyor: bölüm adı, anahtar, değer, yorum, etiket ve öznitelik. TOML'un birkaç satıra yayılan dizgisi ve dizisi, XML'in CDATA'sı satır satır renkleniyor.
     *   Öneri: Faz 7'de her biçimin okuyucusuyla birlikte renklendiricisini de tamamlamak.
     *   Durum: açık, Faz 7'yle.
-*   [ ] **Telefonun Invalid panosundaki şerit ve problem kartı yok (2026-11-04).**
+*   [x] **Telefonun Invalid panosundaki şerit ve problem kartı yok (2026-11-04).**
     *   Ne: Invalid-390 metnin üstünde "Not valid JSON: 4 problems" şeridini ve "Repair all"u, altında da bir problem kartını çiziyor ("Problem 2 of 4 · line 10, column 5", önceki ve sonraki, onarım). Kodda telefonun Problems görünümü problemlerin listesi; metinde problemler işaretli, imleç üstündeyken iletisi görünüyor; Repair alttaki araç çubuğunda.
     *   Öneri: şeridi ve kartı Text görünümüne eklemek; kart Pantrix'te bir bileşen değil, Formatico'nun Pantrix'in parçalarıyla kurduğu bir kart olur.
-    *   Durum: açık.
+    *   Durum: kapandı (2026-11-04). Telefonun Text görünümünde şerit (`PantrixTag` ve "Repair all") ve kart (`PantrixCard`: "Problem i of n · line, column", önceki ve sonraki, ileti, onarım); kartın problemi imlecin içinde olduğu ya da ondan sonraki problem. Alttaki çubukta Repair varken Format ikinci planda, Minify yok, panodaki gibi. Telefonun Problems listesinde bir probleme basmak metne geçiyor. İmlecin satırındaki işaret çizilmiyor; o Pantrix'in bulgusu.
 
+*   [ ] **Telefonun Invalid görünümünde dört görünüm var, panoda üç (2026-11-04).**
+    *   Ne: Invalid-390'ın görünüm seçimi Text, Tree ve Problems. Kodda Problems, belgenin tablosu olmadığında Table'ın yerini alıyor; panonun settings.json'ının bir tablosu çıktığı için telefonda dört görünüm var (Text, Tree, Table, Problems). 390'a sığıyorlar, ama pano bire bir değil.
+    *   Öneri: sahibinin kararı: geçersiz belgede Table'ı telefonda hep Problems'a bırakmak (tablo Tree'den ya da düzeltilince açılır) ya da panoyu dört görünümle çizmek.
+    *   Durum: açık.

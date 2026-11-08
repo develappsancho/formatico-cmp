@@ -104,8 +104,7 @@ private class YamlReader(private val text: String) {
         try {
             Parse(Settings).parse(text).forEach(::accept)
         } catch (error: MarkedYamlEngineException) {
-            val mark = error.problemMark ?: error.contextMark
-            report(ProblemCode.YamlSyntax, mark?.let { offsets.of(it) } ?: text.length)
+            found += SyntaxProblems(text, offsets).of(error)
             closeAll()
         } catch (error: ReaderException) {
             report(ProblemCode.YamlSyntax, offsets.of(error.position))
@@ -245,8 +244,7 @@ private class YamlReader(private val text: String) {
     }
 
     private fun report(code: ProblemCode, at: Int) {
-        val start = at.coerceIn(0, text.length)
-        found += FoundProblem(code, start, minOf(text.length, start + 1))
+        found += SyntaxProblems.one(text, code, at)
     }
 
     companion object {
@@ -255,6 +253,76 @@ private class YamlReader(private val text: String) {
 
         /** Formatico reads documents larger than snakeyaml's own limit of 3 MB, and shows aliases as they are. */
         private val Settings = LoadSettings(codePointLimit = Int.MAX_VALUE)
+    }
+}
+
+/** The problem a syntax error of the reader of YAML is in [text], whose places [offsets] turns into offsets. */
+private class SyntaxProblems(private val text: String, private val offsets: CodePointOffsets) {
+    /**
+     * What [error] is, by what the reader of YAML says of it, and the text it is about: a string never closed from its
+     * quote to its line's end, a missing colon at the end of the key's line, a flow never closed from its bracket to
+     * where its closer belongs, the rest at the place it was found.
+     */
+    fun of(error: MarkedYamlEngineException): FoundProblem {
+        val at = (error.problemMark ?: error.contextMark)?.let(offsets::of) ?: text.length
+        val context = error.contextMark?.let(offsets::of)
+        val problem = error.problem.orEmpty()
+        return when {
+            "mapping values are not allowed" in problem -> one(ProblemCode.YamlColonInValue, at)
+
+            isTab(problem) -> one(ProblemCode.YamlTab, text.indexOf('\t', lineStart(at)).takeIf { it >= 0 } ?: at)
+
+            "end of stream" in problem && error.context.orEmpty().contains("quoted scalar") && context != null -> {
+                FoundProblem(ProblemCode.UnterminatedString, context, lineEnd(context))
+            }
+
+            "could not find expected ':'" in problem && context != null -> lineEnd(context).let {
+                FoundProblem(ProblemCode.ExpectedColon, it, it)
+            }
+
+            "unknown escape character" in problem -> one(ProblemCode.InvalidEscape, text.lastIndexOf('\\', at).takeIf { it >= 0 } ?: at)
+
+            "expected <block end>" in problem -> one(ProblemCode.YamlIndentation, at)
+
+            "expected ',' or" in problem && context != null -> flowEnd(context, at)?.let {
+                FoundProblem(ProblemCode.YamlUnclosedFlow, context, it)
+            } ?: one(ProblemCode.YamlSyntax, at)
+
+            "undefined alias" in problem -> one(ProblemCode.UndefinedAlias, at)
+
+            else -> one(ProblemCode.YamlSyntax, at)
+        }
+    }
+
+    /**
+     * Where the closer of a flow opened at [bracket] belongs, the reader having stopped at [at]: at the end of the
+     * last line written before [at]'s, its comment left after it, or at the end of the text where the flow runs to
+     * it. Null where [at] is on the bracket's own line and the text goes on: what is wrong there is not a closer.
+     */
+    private fun flowEnd(bracket: Int, at: Int): Int? {
+        val line = lineStart(at)
+        if (line <= bracket) return text.trimEnd().length.takeIf { at >= it }
+        var end = line
+        while (end > bracket + 1 && text[end - 1].isWhitespace()) end--
+        val comment = text.lastIndexOf(" #", end).takeIf { it > maxOf(bracket, lineStart(end)) }
+        return comment?.let { text.substring(lineStart(end), it).trimEnd().length + lineStart(end) } ?: end
+    }
+
+    /** Whether the reader of YAML speaks of a tab: as the character, as `\t` written out, or by its name. */
+    private fun isTab(problem: String) = '\t' in problem || "\\t" in problem || "TAB" in problem
+
+    private fun one(code: ProblemCode, at: Int) = one(text, code, at)
+
+    private fun lineStart(at: Int) = text.lastIndexOf('\n', (at - 1).coerceAtLeast(0)) + 1
+
+    private fun lineEnd(at: Int) = text.indexOf('\n', at).let { if (it < 0) text.length else it }
+
+    companion object {
+        /** A problem of one character at [at], or of none where [at] is the end of [text]. */
+        fun one(text: String, code: ProblemCode, at: Int): FoundProblem {
+            val start = at.coerceIn(0, text.length)
+            return FoundProblem(code, start, minOf(text.length, start + 1))
+        }
     }
 }
 

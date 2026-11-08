@@ -31,7 +31,11 @@ import formatico.feature.workspace.generated.resources.problem_unexpected_token
 import formatico.feature.workspace.generated.resources.problem_unquoted_property_name
 import formatico.feature.workspace.generated.resources.problem_unterminated_comment
 import formatico.feature.workspace.generated.resources.problem_unterminated_string
+import formatico.feature.workspace.generated.resources.problem_yaml_colon_in_value
+import formatico.feature.workspace.generated.resources.problem_yaml_indentation
 import formatico.feature.workspace.generated.resources.problem_yaml_syntax
+import formatico.feature.workspace.generated.resources.problem_yaml_tab
+import formatico.feature.workspace.generated.resources.problem_yaml_unclosed_flow
 import formatico.feature.workspace.generated.resources.repair_add_colon
 import formatico.feature.workspace.generated.resources.repair_add_comma
 import formatico.feature.workspace.generated.resources.repair_close
@@ -39,10 +43,12 @@ import formatico.feature.workspace.generated.resources.repair_double_the_quote
 import formatico.feature.workspace.generated.resources.repair_escape
 import formatico.feature.workspace.generated.resources.repair_fix_number
 import formatico.feature.workspace.generated.resources.repair_quote_key
+import formatico.feature.workspace.generated.resources.repair_quote_value
 import formatico.feature.workspace.generated.resources.repair_remove
 import formatico.feature.workspace.generated.resources.repair_remove_comma
 import formatico.feature.workspace.generated.resources.repair_remove_comment
 import formatico.feature.workspace.generated.resources.repair_use_double_quotes
+import formatico.feature.workspace.generated.resources.repair_use_spaces
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -90,7 +96,11 @@ private val plainMessages: Map<ProblemCode, StringResource> = mapOf(
     ProblemCode.UnclosedQuote to Res.string.problem_unclosed_quote,
     ProblemCode.TextAfterQuote to Res.string.problem_text_after_quote,
     ProblemCode.StrayQuote to Res.string.problem_stray_quote,
-    ProblemCode.FieldCount to Res.string.problem_field_count
+    ProblemCode.FieldCount to Res.string.problem_field_count,
+    ProblemCode.YamlColonInValue to Res.string.problem_yaml_colon_in_value,
+    ProblemCode.YamlTab to Res.string.problem_yaml_tab,
+    ProblemCode.YamlIndentation to Res.string.problem_yaml_indentation,
+    ProblemCode.YamlUnclosedFlow to Res.string.problem_yaml_unclosed_flow
 )
 
 /** The line, from 1, the repair of [problem] writes on: where the comma goes, after the value before. */
@@ -114,5 +124,7 @@ internal fun repairLabel(kind: RepairKind): String = stringResource(
         RepairKind.Escape -> Res.string.repair_escape
         RepairKind.FixNumber -> Res.string.repair_fix_number
         RepairKind.DoubleTheQuote -> Res.string.repair_double_the_quote
+        RepairKind.QuoteValue -> Res.string.repair_quote_value
+        RepairKind.UseSpaces -> Res.string.repair_use_spaces
     }
 )

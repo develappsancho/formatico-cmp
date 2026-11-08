@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
@@ -14,6 +15,7 @@ import com.developersancho.formatico.core.designsystem.FormaticoPreview
 import com.developersancho.formatico.core.designsystem.PreviewCase
 import com.developersancho.formatico.core.designsystem.PreviewCases
 import com.developersancho.formatico.core.format.Format
+import com.pantrixui.components.data.codeeditor.CodeEditorState
 
 /** An order: a date, a colour, links, a picture, a null and an array of items, which makes a table. */
 private val PreviewOrder =
@@ -106,6 +108,20 @@ private val PreviewInvalid =
     }
     """.trimIndent() + "\n"
 
+/** A service whose list of ports is never closed: a YAML flow left open, which its line's end closes. */
+private val PreviewInvalidYaml =
+    """
+    # The web service and its ports.
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: formatico-web
+    spec:
+      ports: [80, 443
+      selector:
+        app: formatico
+    """.trimIndent() + "\n"
+
 /** A feed in XML, a format Formatico does not read yet. */
 private const val PREVIEW_FEED = "<feed>\n  <entry id=\"1\">Formatico</entry>\n</feed>\n"
 
@@ -128,35 +144,49 @@ private val OrderItems = previewState(
     Format.Json,
     DocumentView(selected = "$.items[1].price", pane = DocumentPane.Table, tableSort = TableSort("price", descending = true))
 )
-private val Invalid = previewState("settings.json", PreviewInvalid, Format.Json)
+
+// The text is the phone's view, as Invalid-390 draws it; a wider window shows the tree beside it.
+private val Invalid = previewState("settings.json", PreviewInvalid, Format.Json, DocumentView(pane = DocumentPane.Text))
 private val InvalidProblems = previewState("settings.json", PreviewInvalid, Format.Json, DocumentView(pane = DocumentPane.Problems))
+private val InvalidYaml = previewState("service.yaml", PreviewInvalidYaml, Format.Yaml, DocumentView(pane = DocumentPane.Text))
+
+/** Where the Invalid boards' caret stands: at the second problem, the missing comma on line 10. */
+private val InvalidCaret = PreviewInvalid.indexOf("\"127.0.0.1\"")
 private val Feed = previewState("feed.xml", PREVIEW_FEED, Format.Xml)
 private val BeingRead = WorkspaceState(document = OpenDocument(id = 1, name = "order.json", text = PreviewOrder, format = Format.Json))
 private val Empty = previewState(null, "", null)
 private val PlainText = previewState("notes.txt", "Things to check before the release.\n", null)
 
+/** A case of the screen: [state], with its editor's caret at [caret]. */
+internal class ScreenCase(val state: WorkspaceState, val caret: Int = 0)
+
 /**
  * The workspace's cases: a JSON document with its value previews, a YAML one with anchors, a CSV and a JSON array as
- * tables, a document with mistakes and its problems, one in a format not read yet, one being read, and a new, empty one.
+ * tables, a document with mistakes and its problems, a YAML one with a flow left open, one in a format not read yet,
+ * one being read, and a new, empty one.
  */
 internal class WorkspaceScreenCases :
-    PreviewCases<WorkspaceState>(
-        "json" to Order,
-        "yaml" to Deployment,
-        "csv table" to Countries,
-        "json table" to OrderItems,
-        "invalid" to Invalid,
-        "problems" to InvalidProblems,
-        "not read yet" to Feed,
-        "reading" to BeingRead,
-        "empty" to Empty
+    PreviewCases<ScreenCase>(
+        "json" to ScreenCase(Order),
+        "yaml" to ScreenCase(Deployment),
+        "csv table" to ScreenCase(Countries),
+        "json table" to ScreenCase(OrderItems),
+        "invalid" to ScreenCase(Invalid, caret = InvalidCaret),
+        "problems" to ScreenCase(InvalidProblems, caret = InvalidCaret),
+        "invalid yaml" to ScreenCase(InvalidYaml),
+        "not read yet" to ScreenCase(Feed),
+        "reading" to ScreenCase(BeingRead),
+        "empty" to ScreenCase(Empty)
     )
 
 @BoardPreviews
 @Composable
-internal fun WorkspaceScreenPreview(@PreviewParameter(WorkspaceScreenCases::class) case: PreviewCase<WorkspaceState>) {
-    FormaticoPreview(case) { state ->
-        WorkspaceScreen(state = state, onIntent = {}, commands = rememberDocumentCommands(remember { Workbench() }))
+internal fun WorkspaceScreenPreview(@PreviewParameter(WorkspaceScreenCases::class) case: PreviewCase<ScreenCase>) {
+    FormaticoPreview(case) { screen ->
+        val editor = remember(screen) {
+            screen.state.document?.let { CodeEditorState(it.text, initialSelection = TextRange(screen.caret)) }
+        }
+        WorkspaceScreen(state = screen.state, onIntent = {}, commands = rememberDocumentCommands(remember { Workbench() }), editor = editor)
     }
 }
 

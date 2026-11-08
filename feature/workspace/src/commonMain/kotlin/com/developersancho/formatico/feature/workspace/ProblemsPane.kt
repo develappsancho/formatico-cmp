@@ -97,7 +97,11 @@ internal fun ProblemsList(
                 format = format,
                 current = caret in problem.range.start..problem.range.end,
                 layout = layout,
-                onGoTo = { editor.selection = TextRange(problem.range.start, problem.range.end) },
+                onGoTo = {
+                    editor.selection = TextRange(problem.range.start, problem.range.end)
+                    // A phone shows the list in the text's place: going to a problem shows the text.
+                    if (layout == WorkspaceLayout.Phone) onIntent(WorkspaceIntent.ShowPane(DocumentPane.Text))
+                },
                 onRepair = { onIntent(WorkspaceIntent.Repair(problem)) },
                 tagKey = "problem_$index"
             )

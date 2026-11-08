@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.developersancho.formatico.core.format.Severity
 import com.developersancho.formatico.core.format.json.jsonPath
 import com.developersancho.formatico.feature.workspace.editor.DocumentEditor
 import com.pantrixui.components.container.card.CardVariant
@@ -77,17 +78,26 @@ internal fun PhoneWorkspace(
             TablePane(state, WorkspaceLayout.Phone, onIntent, commands, Modifier.weight(1f).fillMaxWidth())
             return@Column
         }
-        Row(
-            modifier = Modifier.fillMaxWidth().height(44.dp).padding(horizontal = spacing.lg),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(spacing.sm)
-        ) {
-            PathTrail(state = state, onIntent = onIntent, modifier = Modifier.weight(1f))
-            StatusTag(state)
+        // An invalid document's text has the strip of the Invalid board in the trail's place, and its problem under it.
+        val problemsInText = pane == DocumentPane.Text && state.problems.any { it.severity == Severity.Error }
+        if (problemsInText) {
+            InvalidStrip(state, onIntent, Modifier.fillMaxWidth().height(44.dp).padding(start = spacing.lg, end = spacing.sm))
+        } else {
+            Row(
+                modifier = Modifier.fillMaxWidth().height(44.dp).padding(horizontal = spacing.lg),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(spacing.sm)
+            ) {
+                PathTrail(state = state, onIntent = onIntent, modifier = Modifier.weight(1f))
+                StatusTag(state)
+            }
         }
         PantrixHorizontalDivider()
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
             PhonePane(state = state, editor = editor, pane = pane, onIntent = onIntent)
+        }
+        if (problemsInText) {
+            ProblemCard(state, editor, onIntent, Modifier.fillMaxWidth().padding(start = spacing.sm, end = spacing.sm, top = spacing.sm))
         }
         val selected = state.selected
         if (pane == DocumentPane.Tree && selected != null) {
@@ -148,7 +158,7 @@ private fun PhonePane(
     )
 }
 
-/** Format, Minify, Copy and Save as a file, along the bottom. */
+/** Repair where there is something to repair, Format, Minify, Copy and Save as a file, along the bottom. */
 @Composable
 private fun PhoneToolbar(
     state: WorkspaceState,
@@ -174,21 +184,26 @@ private fun PhoneToolbar(
                 tagKey = "repair"
             )
         }
+        // Where Repair leads, Format stands back beside it and Minify leaves the row, as the Invalid board draws it.
+        val repairing = state.repairable > 0
         PantrixButton(
             text = stringResource(Res.string.workspace_format),
             onClick = { onIntent(WorkspaceIntent.Edit(DocumentEdit.Format)) },
+            variant = if (repairing) ButtonVariant.Outline else ButtonVariant.Solid,
             size = ButtonSize.Large,
             enabled = DocumentEdit.Format in state.edits,
             tagKey = "format"
         )
-        PantrixButton(
-            text = stringResource(Res.string.workspace_minify),
-            onClick = { onIntent(WorkspaceIntent.Edit(DocumentEdit.Minify)) },
-            variant = ButtonVariant.Outline,
-            size = ButtonSize.Large,
-            enabled = DocumentEdit.Minify in state.edits,
-            tagKey = "minify"
-        )
+        if (!repairing) {
+            PantrixButton(
+                text = stringResource(Res.string.workspace_minify),
+                onClick = { onIntent(WorkspaceIntent.Edit(DocumentEdit.Minify)) },
+                variant = ButtonVariant.Outline,
+                size = ButtonSize.Large,
+                enabled = DocumentEdit.Minify in state.edits,
+                tagKey = "minify"
+            )
+        }
         Spacer(modifier = Modifier.weight(1f))
         PantrixIconButton(
             imageVector = PantrixIcons.Copy,

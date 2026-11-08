@@ -254,3 +254,8 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Öneri: `CodeMark`'a bir ya da iki eylem (`actions: List<CodeMarkAction>`: etiket ve `onClick`), iletinin altında küçük düğmeler olarak; klavyeyle de ulaşılan (bir kısayolla, ör. ⌘.).
     *   Durum: açık.
 
+*   [ ] **CodeEditor, imlecin satırındaki işareti çizmiyor (2026-11-04).**
+    *   Ne: Bir `CodeRangeMark`, imleç onun satırına gelince görünmez oluyor: altındaki dalgalı çizgi de satır numarasının yanındaki nokta da gidiyor; satır yalnızca imlecin satırının dolgusuyla çiziliyor. İmleç başka satıra geçince işaret geri geliyor. Belge tersini söylüyor: işaret çizilir, iletisi de "while the caret is in it" gösterilir. Invalid panolarının üçü de imleci ikinci problemin üstünde (10. satır) ve o satırı işaretli çiziyor; Formatico'nun önizlemelerinde 10. satır bu yüzden işaretsiz. Masaüstünde (JVM, `PantrixTestTheme`) üç satırlık bir JSON'da görüldü: imleç başta iken 3. satır işaretli, imleç 3. satırdayken işaretsiz. Odak editörde değilken iletinin `CodeEditor_<tagKey>.Note_<number>` düğümü de yok; odakla gösterilip gösterilmediği doğrulanacak.
+    *   Nerede: MCP `get_component PantrixCodeEditor` ("Marks", `rangeMarks`: "a wavy line under each in the colour of its tone, a dot before its line, and its message while the caret is in it"); `get_api CodeRangeMark`.
+    *   Öneri: imlecin satırında da işaretin çizgisi ve noktası; imlecin satırının dolgusu işaretin altında kalsın. Bir ekran resmi testi: imleç işaretin içindeyken çizgi ve nokta çiziliyor.
+    *   Durum: açık. Formatico'da geçici bir çözüm yok; telefonun problem kartı imlecin problemini ayrıca söylüyor.

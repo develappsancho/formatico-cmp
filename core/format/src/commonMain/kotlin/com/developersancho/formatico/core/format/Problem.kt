@@ -93,6 +93,18 @@ enum class ProblemCode {
     /** YAML that cannot be read: what is wrong, the reader of YAML says in English, and it is not kept. */
     YamlSyntax,
 
+    /** A YAML value with a colon and a space in it, which start a mapping where the value stands. */
+    YamlColonInValue,
+
+    /** A tab where YAML indents, which only spaces do. */
+    YamlTab,
+
+    /** A YAML line indented as none of the lines around it. */
+    YamlIndentation,
+
+    /** A YAML flow, `[` or `{`, never closed: the range runs from its bracket to where its closer belongs. */
+    YamlUnclosedFlow,
+
     /** A YAML alias whose anchor is not given before it. */
     UndefinedAlias,
 

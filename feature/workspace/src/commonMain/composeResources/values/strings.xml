@@ -222,4 +222,12 @@
         <item quantity="one">Problem %1$d of %2$d · line %3$d, column %4$d</item>
         <item quantity="other">Problem %1$d of %2$d · line %3$d, column %4$d</item>
     </plurals>
+    <string name="problem_yaml_colon_in_value">Put this value in quotes: a colon and a space in it start a mapping.</string>
+    <string name="problem_yaml_tab">YAML indents with spaces: write this tab as spaces.</string>
+    <string name="problem_yaml_indentation">Line this up with the keys above it: its indent is not theirs.</string>
+    <string name="repair_quote_value">Quote the value</string>
+    <string name="repair_use_spaces">Use spaces</string>
+    <string name="problem_yaml_unclosed_flow">These brackets are never closed.</string>
+    <string name="workspace_problem_error">Error</string>
+    <string name="workspace_problem_warning">Warning</string>
 </resources>

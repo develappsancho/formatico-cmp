@@ -35,7 +35,13 @@ enum class RepairKind {
     FixNumber,
 
     /** Writes a quote inside a CSV field as two. */
-    DoubleTheQuote
+    DoubleTheQuote,
+
+    /** Puts a YAML value in double quotes. */
+    QuoteValue,
+
+    /** Writes a tab as spaces. */
+    UseSpaces
 }
 
 /** One change to a text: what stands in [range] replaced by [text]. */
@@ -55,20 +61,43 @@ object Repairs {
         val at = text.substring(range.start, range.end)
         return when (problem.code) {
             ProblemCode.CommentNotAllowed -> Repair(RepairKind.RemoveComment, listOf(removeWithBlankLine(text, range)))
+
             ProblemCode.ExpectedCommaOrEnd -> Repair(RepairKind.AddComma, listOf(insert(afterValue(text, range.start), ",")))
+
             ProblemCode.UnquotedPropertyName -> Repair(RepairKind.QuoteKey, listOf(TextEdit(range, quoted(at))))
+
             ProblemCode.TrailingComma -> Repair(RepairKind.RemoveComma, listOf(TextEdit(range, "")))
+
             ProblemCode.SingleQuotedString -> Repair(RepairKind.UseDoubleQuotes, listOf(TextEdit(range, doubleQuoted(at))))
+
             ProblemCode.UnterminatedString -> Repair(RepairKind.Close, listOf(insert(range.end, "\"")))
+
             ProblemCode.UnterminatedComment -> Repair(RepairKind.Close, listOf(insert(text.length, " */")))
+
             ProblemCode.Unclosed -> closer(at)?.let { Repair(RepairKind.Close, listOf(insert(text.trimEnd().length, it))) }
+
             ProblemCode.ExpectedColon -> Repair(RepairKind.AddColon, listOf(insert(afterValue(text, range.start), ":")))
+
             ProblemCode.TrailingContent, ProblemCode.UnexpectedCharacter -> Repair(RepairKind.Remove, listOf(TextEdit(range, "")))
+
             ProblemCode.ControlCharacterInString -> Repair(RepairKind.Escape, listOf(TextEdit(range, escaped(at))))
+
             ProblemCode.InvalidEscape -> Repair(RepairKind.Escape, listOf(TextEdit(TextRange(range.start, range.start + 1), "\\\\")))
+
             ProblemCode.InvalidNumber -> fixedNumber(at)?.let { Repair(RepairKind.FixNumber, listOf(TextEdit(range, it))) }
+
             ProblemCode.UnclosedQuote -> Repair(RepairKind.Close, listOf(insert(range.end, "\"")))
+
             ProblemCode.StrayQuote -> Repair(RepairKind.DoubleTheQuote, listOf(insert(range.start, "\"")))
+
+            ProblemCode.YamlColonInValue -> yamlValue(text, range.start)?.let {
+                Repair(RepairKind.QuoteValue, listOf(TextEdit(it, quoted(text.substring(it.start, it.end)))))
+            }
+
+            ProblemCode.YamlUnclosedFlow -> closer(at)?.let { Repair(RepairKind.Close, listOf(insert(range.end, it))) }
+
+            ProblemCode.YamlTab -> Repair(RepairKind.UseSpaces, listOf(TextEdit(range, "  ")))
+
             else -> null
         }
     }
