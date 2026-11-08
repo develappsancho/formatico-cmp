@@ -76,10 +76,10 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
         *   `toDecimalOrNull` yalnızca ondalık bir sayıyı okuyor.
         *   `core:share`'in iki ifadesi zaten `^…$` ile bağlı ve seçenek listesi yok: dokunulmadı.
         *   Bir yeni `matches` yine aynı hatayı getirir; onu yakalayan bir detekt kuralı yok (tür çözümlemesi ister).
-*   [ ] **Web: konsolda Compose'un kaynak okuyucusundan bir hata satırı (2026-11-02).**
+*   [x] **Web: konsolda Compose'un kaynak okuyucusundan bir hata satırı (2026-11-02).**
     *   Ne: Wasm derlemesi açılınca konsola "Accessing `memory` via `wasmExports` is deprecated" yazılıyor. Kaynağı Compose Multiplatform 1.12.2'nin `org.jetbrains.compose.resources.copyArrayBufferToWasmMemory`'si (Kotlin'in ürettiği `import-object.mjs`); Formatico'nun ya da Pantrix'in kodu değil. Uygulama çalışıyor.
     *   Öneri: Compose Multiplatform'un sonraki sürümünde yeniden bakmak.
-    *   Durum: açık.
+    *   Durum: kapandı (2026-11-12). Compose düzeltmeyi 1.13.0'da yaptı (JetBrains/compose-multiplatform#5724, 1.13.0-alpha02'den beri); 1.12'de yok, 1.13.0 henüz beta. Pantrix UI'ın sitesi aynı hatayı küçük bir kodla gideriyor; sahibinin izniyle ona bakıldı ve Formatico'da aynısı yazıldı: `main`, ilk kaynak okunmadan, Compose'un okuyucusunun ulaştığı `wasmExports`'u Kotlin'in desteklediği `kotlin.wasm.unsafe.wasmMemory`'yi tutan düz bir nesneyle değiştiriyor (`app/webApp/src/wasmJsMain/.../WasmMemory.wasmJs.kt`; JavaScript derlemesinde boş). Tarayıcı testi artık bu satıra göz yummuyor. Compose 1.13.0'a geçilince kod ve çağrısı kalkar. Rehberde kodun olmaması bir Pantrix bulgusu.
 *   [x] **iOS: ilk kare beyaz (2026-11-02).**
     *   Ne: Simülatörde uygulama açılırken Compose çizene kadar ekran bir an beyazdı; koyu temada bu bir parlama olur. `Info.plist`'in açılış ekranı boştu.
     *   Öneri: açılış ekranına temanın zemini (`#f8fafc` / `#020617`) için bir renk varlığı.

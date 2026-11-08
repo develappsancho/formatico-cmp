@@ -381,6 +381,23 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Öneri: snackbar'ın web'de ne yansıttığına bakılsın (iletinin düğümü, canlı bölge); Compose'un yansısıysa onun için bir not ve geçici bir yol (iletiyi `contentDescription` olarak, `role="status"`).
     *   Durum: açık. Kütüphanede çözülemedi (2026-11-10): neden Compose 1.12.2'nin web yansısı (`#cmp_a11y_root`); yansı tek bir katmanı izliyor ve bir menü, sheet ya da dialog kapandıktan sonra o katmanda donuyor. Kütüphanenin demosunda görüldü: menü açılmadan snackbar iletisiyle yansıda (kökü `aria-live="polite"`), menü açılıp kapanınca yansıda yalnızca menünün öğeleri kaldı. Compose 1.13.0 düzeltiyor; kütüphane 1.13 kararlı olunca yükselecek. Web uyumluluğu rehberinin tuzaklar tablosunda satırı var. Formatico'nun tarayıcı testi uyarının etiketine bakmaya devam ediyor. Önceki durum: açık. Formatico'yu tıkamıyor; erişilebilirliğin bir eksiği. Tarayıcı testi uyarının etiketine bakıyor.
 
+*   [ ] **Rehber Wasm belleğini kaynak okuyucuya vermeyi anıyor, kodunu ve giderdiği hatayı vermiyor (2026-11-12).**
+    *   Ne: Compose Multiplatform 1.12.2'nin kaynak okuyucusu bir yazı tipini ya da dosyayı Wasm belleğine
+        `wasmExports.memory` ile kopyalıyor. Kotlin 2.4.20 bu yolu eskimiş sayıyor; Wasm derlemesi her açılışta konsola
+        bir hata yazıyor: "Accessing `memory` via `wasmExports` is deprecated". Rehber, belleği
+        `kotlin.wasm.unsafe.wasmMemory` ile veren bir `expect`/`actual`'dan söz ediyor, ama ne yaptığını, hangi hatayı
+        giderdiğini ve kodunu vermiyor. Dışarıdan bir uygulama hatayı görüyor, rehberden çözümüne ulaşamıyor; Formatico
+        bunu bir açık madde olarak tuttu ve Compose'un sonraki sürümünü bekledi. Compose düzeltmeyi 1.13.0'da yaptı
+        (JetBrains/compose-multiplatform#5724); 1.12'de yok.
+    *   Nerede: [Old Browsers and a Wasm That Will Not Start](https://pantrixui.com/docs/guides/web-compatibility),
+        bölüm 4 ("Something only Wasm has") ve 9 (`WasmMemory*.kt`).
+    *   Öneri: Rehberin 4. bölümünde kodun kendisi: `webMain`'de `expect fun`, `jsMain`'de boş `actual`, `wasmJsMain`'de
+        `wasmExports`'u `{ memory: wasmMemory }` ile değiştiren `js(...)` gövdesi ve `main`'in başında çağrısı. Tuzaklar
+        tablosunda bir satır: konsoldaki hata, nedeni, çözümü ve Compose 1.13.0 ile kalkacağı.
+    *   Durum: açık. Formatico'da yapıldı (2026-11-12): sahibinin izniyle bu konu için sitenin deposuna bakıldı
+        (`app/webApp/src/wasmJsMain/.../WasmMemory.wasmJs.kt`), aynısı `app/webApp`'te yazıldı. Tarayıcı testi artık
+        konsolda hiçbir hataya göz yummuyor. Formatico Compose 1.13.0'a geçince kalkar.
+
 ## 6. Bileşenler
 
 *   [x] **Metni başka bir uygulamaya göndermenin bir hizmeti yok (2026-11-06).**

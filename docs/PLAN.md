@@ -357,9 +357,9 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
         sonraya alındı (aşağıda, "Yayına kadar kalan"). 5 iptal; 6'nın üç kararı kodda; 8'in son denetimi bütün
         hedeflerde geçti. `e9a41af`, `9e3f83e`, `c477e62`, `7321aa0`, `bf51b6c`, `c07a5ce`, `fadaaf7`, `4016a94`,
         `02d4f12`, `be3dbd5`, `7fb9db5`, `f1b9aad`, `4f8c932`, `4de981b`, `d00ccd6`, `3899c50`.
-    *   **Yayından sonraya kalanlar:** `OPEN_ITEMS.md`'deki 34 açık madde, 4'ün Android kısmı, 7 (gerçek cihazda
+    *   **Yayından sonraya kalanlar:** `OPEN_ITEMS.md`'deki 33 açık madde, 4'ün Android kısmı, 7 (gerçek cihazda
         ekran okuyucu, tablette odak halkası, görüntülerin topluca yeniden kaydı) ve açık Pantrix bulgularının
-        kütüphaneye iletilmesi: Compose kütüphanesinde 1, sitede 0, tasarım sisteminde 14 (2'si Compose'da kapalı),
+        kütüphaneye iletilmesi: Compose kütüphanesinde 1, sitede 1, tasarım sisteminde 14 (2'si Compose'da kapalı),
         Compose'un kendi web sınırı 1.
     *   **Döküm (2026-11-09):** derleme ve test koşturulmadan, dosyalar ve kod okunarak çıkarıldı.
         *   **Açık maddeler:** `OPEN_ITEMS.md`'de 56, `PANTRIX_FINDINGS.md`'de 70. Hiçbiri Formatico'yu tıkamıyor.

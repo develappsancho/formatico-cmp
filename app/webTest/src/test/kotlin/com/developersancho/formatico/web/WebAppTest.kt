@@ -40,7 +40,8 @@ class WebAppTest {
         page.awaitText("Paste anything")
         assertTrue(page.ranWasm)
         assertEquals("#start", page.fragment)
-        assertEquals(emptyList(), chrome.errors.filterNot(::isComposes))
+        // Compose's resource reader too, handed the Wasm memory the supported way (WasmMemory.wasmJs.kt).
+        assertEquals(emptyList(), chrome.errors)
     }
 
     @Test
@@ -176,12 +177,6 @@ class WebAppTest {
     }
 
     private companion object {
-        /**
-         * Compose's own line as the Wasm build starts, from its resources' reader, not Formatico's or Pantrix's
-         * (OPEN_ITEMS: "Web: konsolda Compose'un kaynak okuyucusundan bir hata satırı").
-         */
-        fun isComposes(error: String): Boolean = "Accessing `memory` via `wasmExports` is deprecated" in error
-
         /** What a test's errors say of what the policy refused. */
         const val POLICY = "Content-Security-Policy refused"
 

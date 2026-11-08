@@ -9,6 +9,8 @@ import kotlinx.browser.document
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {
+    // Before the first resource, the typefaces, is read (WasmMemory.wasmJs.kt).
+    shareWasmMemoryWithResources()
     ComposeViewport(viewportContainerId = "app") {
         // The app is drawn once Geist and Geist Mono have come; the page's loading mark goes with its first frame.
         PantrixTypefaceGate(
