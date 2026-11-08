@@ -35,7 +35,7 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
 *   [ ] **Uygulama simgeleri sihirbazınki (2026-11-02).**
     *   Ne: Android'in açılış ekranında ve başlatıcıda sihirbazın Android simgesi, iOS'ta sihirbazın simgesi, web'de favicon yok.
     *   Öneri: tuvalin kimlik panosundaki `{ }` işaretinden bir simge seti; tuvale bir "simge" panosu.
-    *   Durum: açık.
+    *   Durum: açık. Simge panosu tuvalde (2026-11-04, sürüm 71, "Icons · app icons"): kimlik A'nın işareti; Android'in uyarlanabilir simgesi (arka plan, ön plan, tek renk), iOS'un açık, koyu ve renklendirilmiş simgesi, macOS, Windows ve Linux boyları, web'in favicon'u, dokunma simgesi ve maskelenebilir PWA simgesi, dosyaların listesi. Dosyalar sahibinin onayından sonra bu panodan çıkarılacak.
 
 *   [ ] **Ekran görüntüleri yalnızca masaüstünde (2026-11-03).**
     *   Ne: Roborazzi 1.77.0 `app/shared`'in masaüstü testlerinde: `BoardScreenshotTest` uygulamayı panoların üç genişliğinde (1440×900, 834×1194, 390×844) açık temada çiziyor, Start, Workspace, YAML ve Table olarak 12 resim `app/shared/screenshots/`'ta. `recordRoborazziJvm` yazıyor, `verifyRoborazziJvm` karşılaştırıyor. Android (Robolectric) ve iOS'un kendi resimleri, koyu tema ve panolarla gözle karşılaştırma yok.
