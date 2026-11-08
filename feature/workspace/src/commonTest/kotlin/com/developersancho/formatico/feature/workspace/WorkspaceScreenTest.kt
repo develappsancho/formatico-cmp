@@ -1,6 +1,9 @@
 package com.developersancho.formatico.feature.workspace
 
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assert
@@ -8,10 +11,12 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.getBoundsInRoot
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performKeyInput
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.pressKey
@@ -23,11 +28,13 @@ import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.format.Format
 import com.developersancho.formatico.core.testing.awaitNode
 import com.developersancho.formatico.core.testing.awaitText
+import com.developersancho.formatico.core.testing.awaitUntil
 import com.pantrixui.foundation.adaptive.PantrixWindow
 import com.pantrixui.foundation.diagnostics.PantrixFindings
 import com.pantrixui.foundation.files.LocalFileSaver
 import com.pantrixui.foundation.platform.PlatformType
 import com.pantrixui.testing.PantrixTestTheme
+import com.pantrixui.testing.TestClipboard
 import com.pantrixui.testing.TestClock
 import com.pantrixui.testing.TestFileSaver
 import com.pantrixui.testing.assertNoFindings
@@ -91,7 +98,8 @@ class WorkspaceScreenTest {
         onPantrixNode("CodeEditor", "text").assert(hasText("\"id\": \"ord_8842\"", substring = true))
         awaitText("Valid JSON")
         awaitText("Ln 1, Col 1")
-        awaitText("5 lines · ", substring = true)
+        // How long the document is, which shows its Summary.
+        awaitNode(hasPantrixTag("Button", "size") and hasContentDescription("5 lines · ", substring = true), "The size")
         awaitText("UTF-8 · LF · 2 spaces")
         onPantrixNode("Node", "id", scope = "TreeView_document").assertExists()
         // The text and the tree stand as the board splits them: there is no handle between them.
@@ -146,6 +154,166 @@ class WorkspaceScreenTest {
         onPantrixNode("Item", "customer", scope = "Breadcrumb_path").performClick()
 
         assertEquals(listOf<WorkspaceIntent>(WorkspaceIntent.Select("$.customer")), intents)
+        assertNoFindings(findings)
+    }
+
+    @Test
+    fun theChosenValuesPathIsCopiedInTheFormPicked() = runComposeUiTest {
+        val findings = PantrixFindings()
+        val clipboard = TestClipboard()
+        setContent {
+            PantrixTestTheme(window = desktop, findings = findings, clock = clock, clipboard = clipboard) {
+                WorkspaceScreen(
+                    state = stateOf(order, Format.Json, view = DocumentView(selected = "$.customer.name")),
+                    onIntent = {},
+                    commands = rememberDocumentCommands(Workbench())
+                )
+            }
+        }
+        awaitText("Valid JSON", forgetting = findings)
+
+        onPantrixNode("Button", "copy_path").assert(hasContentDescription("Copy the path of name as JSONPath, JSON Pointer or jq"))
+        onPantrixNode("Button", "copy_path").performClick()
+        awaitText("Copy the path of name as", forgetting = findings)
+        // Each form shows the path it gives.
+        onPantrixNode("MenuItem", "jsonpath", scope = "Menu_path_forms").assert(hasText("$.customer.name"))
+        onPantrixNode("MenuItem", "jq", scope = "Menu_path_forms").assert(hasText(".customer.name"))
+        onPantrixNode("MenuItem", "json_pointer", scope = "Menu_path_forms").performClick()
+
+        awaitUntil("The path is copied") { clipboard.entries.isNotEmpty() }
+        assertEquals("/customer/name", clipboard.text())
+        assertNoFindings(findings)
+    }
+
+    @Test
+    fun aPhoneCopiesThePathFromTheChosenValuesCard() = runComposeUiTest {
+        val clipboard = TestClipboard()
+        setContent {
+            PantrixTestTheme(window = phone, clock = clock, clipboard = clipboard) {
+                WorkspaceScreen(
+                    state = stateOf(order, Format.Json, view = DocumentView(pane = DocumentPane.Tree, selected = "$.createdAt")),
+                    onIntent = {},
+                    commands = rememberDocumentCommands(Workbench())
+                )
+            }
+        }
+        awaitText("Valid JSON")
+
+        onPantrixNode("IconButton", "copy_path").performClick()
+        onPantrixNode("MenuItem", "jsonpath", scope = "Menu_path_forms").performClick()
+
+        awaitUntil("The path is copied") { clipboard.entries.isNotEmpty() }
+        assertEquals("$.createdAt", clipboard.text())
+    }
+
+    @Test
+    fun theTreeOpensToALevelAndIsSearched() = runComposeUiTest {
+        val findings = PantrixFindings()
+        val intents = mutableListOf<WorkspaceIntent>()
+        val customer = "{\"customer\": {\"name\": \"Elif Yılmaz\", \"email\": \"elif@example.com\"}, \"site\": \"elif.dev\"}"
+        setContent {
+            PantrixTestTheme(window = desktop, findings = findings, clock = clock) {
+                WorkspaceScreen(state = stateOf(customer, Format.Json), onIntent = {
+                    intents += it
+                }, commands = rememberDocumentCommands(Workbench()))
+            }
+        }
+        awaitText("Valid JSON", forgetting = findings)
+
+        onPantrixNode("Button", "level_1", scope = "ButtonGroup_levels").performClick()
+        onPantrixNode("Button", "level_all", scope = "ButtonGroup_levels").performClick()
+        assertEquals(
+            listOf<WorkspaceIntent>(WorkspaceIntent.Expand(setOf("$")), WorkspaceIntent.Expand(setOf("$", "$.customer"))),
+            intents
+        )
+        intents.clear()
+
+        // A search goes to its first match, and on from it, round from the last to the first.
+        onPantrixNode("IconButton", "find").performClick()
+        // In a browser the bar's words are read as it first shows.
+        awaitNode(
+            hasPantrixTag("IconButton", "close_search") and hasContentDescription("Close the search"),
+            "The bar",
+            forgetting = findings
+        )
+        onPantrixNode("TextField", "find").performTextInput("elif")
+        awaitText("1 of 3")
+        onPantrixNode("IconButton", "next_match").performClick()
+        onPantrixNode("IconButton", "next_match").performClick()
+        onPantrixNode("IconButton", "next_match").performClick()
+        awaitText("1 of 3")
+        onPantrixNode("IconButton", "previous_match").performClick()
+        assertEquals(
+            listOf("$.customer.name", "$.customer.email", "$.site", "$.customer.name", "$.site"),
+            intents.filterIsInstance<WorkspaceIntent.Select>().map { it.key }
+        )
+
+        onPantrixNode("IconButton", "close_search").performClick()
+        onPantrixNode("TextField", "find").assertDoesNotExist()
+        assertNoFindings(findings)
+    }
+
+    @Test
+    fun theSizeOpensTheSummaryWhoseRowsAndNotesLeadToTheTreeAndTheTable() = runComposeUiTest {
+        val findings = PantrixFindings()
+        val clipboard = TestClipboard()
+        val intents = mutableListOf<WorkspaceIntent>()
+        val text = "{\"createdAt\": \"2026-10-28T14:32:00Z\", \"total\": 129.90, \"items\": [{\"sku\": \"a\"}, {\"sku\": \"b\"}]}"
+        var view by mutableStateOf(DocumentView())
+        setContent {
+            PantrixTestTheme(window = desktop, findings = findings, clock = clock, clipboard = clipboard) {
+                WorkspaceScreen(
+                    state = stateOf(text, Format.Json, view = view),
+                    onIntent = { intent ->
+                        intents += intent
+                        if (intent is WorkspaceIntent.ShowPane) view = view.copy(pane = intent.pane)
+                    },
+                    commands = rememberDocumentCommands(Workbench())
+                )
+            }
+        }
+        awaitText("Valid JSON", forgetting = findings)
+
+        onPantrixNode("Button", "size").performClick()
+        // In a browser the Summary's words are read as it first shows.
+        awaitNode(
+            hasPantrixTag("IconButton", "copy_summary") and hasContentDescription("Copy the summary as text"),
+            "Copy",
+            forgetting = findings
+        )
+        awaitNode(hasPantrixTag("ListItem", "dates") and hasText("1 date"), "The dates", forgetting = findings)
+        awaitNode(
+            hasPantrixTag("Button", "size") and hasContentDescription("The summary is shown", substring = true),
+            "The size",
+            forgetting = findings
+        )
+        awaitText("Found in the values")
+        onPantrixNode("Segment", "summary", scope = "SegmentButton_view").assertExists()
+        awaitText("129.90 keeps its spelling here. A tool that reads it as a number writes 129.9.")
+        awaitText("$.items holds 2 objects with the same 1 key, so it reads as a table.")
+
+        onPantrixNode("IconButton", "copy_summary").performClick()
+        awaitUntil("The summary is copied") { clipboard.entries.isNotEmpty() }
+        val copied = clipboard.text().orEmpty()
+        assertTrue("Values: 8 (In 3 objects and 1 array)" in copied, copied)
+        assertTrue("1 date: $.createdAt" in copied, copied)
+
+        intents.clear()
+        onPantrixNode("ListItem", "dates").performScrollTo().performClick()
+        assertEquals(listOf(WorkspaceIntent.Select("$.createdAt"), WorkspaceIntent.ShowPane(DocumentPane.Tree)), intents)
+
+        intents.clear()
+        view = view.copy(pane = DocumentPane.Summary)
+        awaitNode(hasPantrixTag("Button", "show_table"), "Show as a table")
+        onPantrixNode("Button", "show_table").performScrollTo().performClick()
+        assertEquals(listOf(WorkspaceIntent.Select("$.items"), WorkspaceIntent.ShowPane(DocumentPane.Table)), intents)
+
+        // The size, pressed while the Summary is shown, gives the tree back.
+        view = view.copy(pane = DocumentPane.Summary)
+        awaitText("Found in the values")
+        intents.clear()
+        onPantrixNode("Button", "size").performClick()
+        assertEquals(listOf<WorkspaceIntent>(WorkspaceIntent.ShowPane(DocumentPane.Tree)), intents)
         assertNoFindings(findings)
     }
 
@@ -308,7 +476,10 @@ class WorkspaceScreenTest {
         onNodeWithText("AUTUMN").performClick()
         onPantrixNode("TextField", "filter").performTextInput("autumn")
         awaitText("1 of 3 rows · 3 columns")
-        onPantrixNode("IconButton", "save_csv").performClick()
+        onPantrixNode("IconButton", "table_out").performClick()
+        // In a browser the menu's words are read as it first shows.
+        awaitNode(hasText("Copy as a Markdown table"), "The menu", forgetting = findings)
+        onPantrixNode("MenuItem", "save_csv", scope = "Menu_table_out").performClick()
 
         assertEquals(
             listOf(
@@ -322,6 +493,32 @@ class WorkspaceScreenTest {
         assertEquals("orders.csv", file.name)
         assertEquals("id,total,coupon\na,129.90,AUTUMN\n", file.readBytes().decodeToString())
         assertNoFindings(findings)
+    }
+
+    @Test
+    fun theTableIsCopiedAsCsvOrAsMarkdown() = runComposeUiTest {
+        val clipboard = TestClipboard()
+        val orders = "{\"orders\": [{\"id\": \"a\", \"note\": \"x | y\"}, {\"id\": \"b\", \"note\": null}]}"
+        setContent {
+            PantrixTestTheme(window = desktop, clock = clock, clipboard = clipboard) {
+                WorkspaceScreen(
+                    state = stateOf(orders, Format.Json, view = DocumentView(pane = DocumentPane.Table)),
+                    onIntent = {},
+                    commands = rememberDocumentCommands(Workbench())
+                )
+            }
+        }
+        awaitText("2 rows · 2 columns")
+
+        onPantrixNode("IconButton", "table_out").performClick()
+        onPantrixNode("MenuItem", "copy_markdown", scope = "Menu_table_out").performClick()
+        awaitUntil("The table is copied") { clipboard.entries.isNotEmpty() }
+        assertEquals("| id | note |\n| --- | --- |\n| a | x \\| y |\n| b |  |\n", clipboard.text())
+
+        onPantrixNode("IconButton", "table_out").performClick()
+        onPantrixNode("MenuItem", "copy_csv", scope = "Menu_table_out").performClick()
+        awaitUntil("The table is copied again") { clipboard.entries.size == 2 }
+        assertEquals("id,note\na,x | y\nb,\n", clipboard.text())
     }
 
     @Test
@@ -369,7 +566,7 @@ class WorkspaceScreenTest {
         awaitText("3 rows")
         onPantrixNode("Breadcrumb", "path").assertExists()
         onPantrixNode("TextField", "filter").assertWidthIsAtLeast(120.dp)
-        onPantrixNode("IconButton", "save_csv").assertWidthIsAtLeast(32.dp)
+        onPantrixNode("IconButton", "table_out").assertWidthIsAtLeast(32.dp)
     }
 
     @Test

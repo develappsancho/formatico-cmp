@@ -19,6 +19,11 @@
     <string name="workspace_view_tree">Ağaç</string>
     <string name="workspace_view_table">Tablo</string>
     <string name="workspace_find">Bir anahtar ya da değer bul</string>
+    <string name="workspace_open_to">Düzey</string>
+    <string name="workspace_open_to_level">Ağacı %1$d. düzeye kadar aç</string>
+    <string name="workspace_open_all">Tümü</string>
+    <string name="workspace_open_all_levels">Ağacın tamamını aç</string>
+    <string name="workspace_close_search">Aramayı kapat</string>
 
     <string name="workspace_editor_title">Metin düzenleme yolda</string>
     <string name="workspace_editor_body">Sonraki bir sürümle geliyor. O zamana kadar belge ağaçta görünüyor; Biçimlendir, Küçült ve Kopyala belgenin tamamında çalışıyor.</string>
@@ -74,6 +79,19 @@
 
     <string name="workspace_show_in_text">Metinde göster</string>
     <string name="workspace_copy_value">Değeri kopyala</string>
+    <string name="workspace_save_csv">CSV olarak kaydet…</string>
+    <string name="workspace_table_out">Tabloyu kaydet ya da kopyala</string>
+    <string name="workspace_copy_csv">CSV olarak kopyala</string>
+    <string name="workspace_copy_markdown">Markdown tablosu olarak kopyala</string>
+    <string name="workspace_table_label">Tablo</string>
+    <string name="workspace_table_copied">Tablo kopyalandı</string>
+    <string name="workspace_table_copy_failed">Tablo kopyalanamadı</string>
+    <string name="workspace_copy_path">Yolu kopyala</string>
+    <string name="workspace_copy_path_of">%1$s değerinin yolunu JSONPath, JSON Pointer ya da jq olarak kopyala</string>
+    <string name="workspace_copy_path_as">%1$s değerinin yolunu şöyle kopyala</string>
+    <string name="workspace_path_label">Yol</string>
+    <string name="workspace_path_copied">Yol kopyalandı</string>
+    <string name="workspace_path_copy_failed">Yol kopyalanamadı</string>
     <string name="workspace_kind_date">Tarih</string>
     <string name="workspace_kind_colour">Renk</string>
     <string name="workspace_kind_link">Bağlantı</string>
@@ -130,7 +148,6 @@
     <string name="workspace_columns">Sütunlar</string>
     <string name="workspace_columns_all">Sütunlar: %1$d sütunun hepsi görünüyor. Sütunları seç</string>
     <string name="workspace_columns_some">Sütunlar: %2$d sütunun %1$d tanesi görünüyor. Sütunları seç</string>
-    <string name="workspace_save_csv">CSV olarak kaydet</string>
     <string name="workspace_value_column">değer</string>
     <string name="workspace_index">Dizideki yeri</string>
     <string name="workspace_missing_key">Bu nesnede %1$s anahtarı yok</string>
@@ -254,4 +271,108 @@
     <string name="problem_toml_inline_table_line_break">Satır içi tabloyu tek satırda yaz ya da bir [tablo] yap.</string>
     <string name="problem_toml_duplicate_key">Bu anahtar iki kez verilmiş: TOML bir anahtara tek değer verir.</string>
     <string name="problem_toml_trailing_content">Bu satırda değerden sonra geleni çıkar ya da yorum yap.</string>
+    <string name="summary_title_size">Boyut</string>
+    <string name="summary_title_values">Değerler</string>
+    <string name="summary_title_found">Değerlerde bulunanlar</string>
+    <string name="summary_title_notes">Notlar</string>
+    <string name="summary_copy">Özeti metin olarak kopyala</string>
+    <string name="summary_label">Özet</string>
+    <string name="summary_copied">Özet kopyalandı</string>
+    <string name="summary_copy_failed">Özet kopyalanamadı</string>
+    <string name="summary_text">Metin</string>
+    <string name="summary_text_detail">%1$s</string>
+    <string name="summary_minified">Küçültülmüş</string>
+    <string name="summary_minified_share">Metnin %1$s kadarı</string>
+    <string name="summary_not_minified">Küçültülmüş biçimi yok</string>
+    <string name="summary_compressed">Sıkıştırılmış</string>
+    <string name="summary_compressed_minified">Küçültülmüş metin, gzip</string>
+    <string name="summary_compressed_text">Metin, gzip</string>
+    <string name="summary_measuring">Ölçülüyor</string>
+    <string name="summary_values">Değerler</string>
+    <string name="summary_values_in">%1$s ve %2$s içinde</string>
+    <string name="summary_keys">Anahtarlar</string>
+    <string name="summary_keys_none">Bir nesnede yinelenen yok</string>
+    <string name="summary_keys_none_short">Yinelenen yok</string>
+    <string name="summary_deepest">En derin</string>
+    <string name="summary_levels_word">Düzey</string>
+    <string name="summary_longest_array">En uzun dizi</string>
+    <string name="summary_no_array">Dizi yok</string>
+    <string name="summary_longest_text">En uzun metin</string>
+    <string name="summary_no_text">Metin yok</string>
+    <string name="summary_none">Yok</string>
+    <string name="summary_numbers">Sayılar</string>
+    <string name="summary_numbers_kept">Hepsi yazıldığı gibi</string>
+    <string name="summary_kind_text">Metin</string>
+    <string name="summary_kind_object">Nesne</string>
+    <string name="summary_kind_number">Sayı</string>
+    <string name="summary_kind_array">Dizi</string>
+    <string name="summary_kind_boolean">Mantıksal</string>
+    <string name="summary_kind_null">Null</string>
+    <string name="summary_kind_alias">Takma ad</string>
+    <string name="summary_and"> ve </string>
+    <string name="summary_table_note">%1$s, aynı %3$s olan %2$s tutuyor; tablo olarak okunuyor.</string>
+    <string name="summary_show_table">Tablo olarak göster</string>
+    <string name="workspace_view_summary">Özet</string>
+    <string name="workspace_show_summary">%1$s. Belgenin özetini göster</string>
+    <string name="workspace_summary_shown">%1$s. Özet gösteriliyor</string>
+    <plurals name="summary_objects">
+        <item quantity="one">%1$d nesne</item>
+        <item quantity="other">%1$d nesne</item>
+    </plurals>
+    <plurals name="summary_arrays">
+        <item quantity="one">%1$d dizi</item>
+        <item quantity="other">%1$d dizi</item>
+    </plurals>
+    <plurals name="summary_keys_repeated">
+        <item quantity="one">Bir nesnede %1$d yinelenen</item>
+        <item quantity="other">Bir nesnede %1$d yinelenen</item>
+    </plurals>
+    <plurals name="summary_keys_repeated_short">
+        <item quantity="one">%1$d yinelenen</item>
+        <item quantity="other">%1$d yinelenen</item>
+    </plurals>
+    <plurals name="summary_levels">
+        <item quantity="one">%1$d düzey</item>
+        <item quantity="other">%1$d düzey</item>
+    </plurals>
+    <plurals name="summary_items">
+        <item quantity="one">%1$d öğe</item>
+        <item quantity="other">%1$d öğe</item>
+    </plurals>
+    <plurals name="summary_characters">
+        <item quantity="one">%1$d karakter</item>
+        <item quantity="other">%1$d karakter</item>
+    </plurals>
+    <plurals name="summary_kinds">
+        <item quantity="one">Türüne göre %1$d değer</item>
+        <item quantity="other">Türüne göre %1$d değer</item>
+    </plurals>
+    <plurals name="summary_dates">
+        <item quantity="one">%1$d tarih</item>
+        <item quantity="other">%1$d tarih</item>
+    </plurals>
+    <plurals name="summary_pictures">
+        <item quantity="one">%1$d resim</item>
+        <item quantity="other">%1$d resim</item>
+    </plurals>
+    <plurals name="summary_links">
+        <item quantity="one">%1$d bağlantı</item>
+        <item quantity="other">%1$d bağlantı</item>
+    </plurals>
+    <plurals name="summary_colours">
+        <item quantity="one">%1$d renk</item>
+        <item quantity="other">%1$d renk</item>
+    </plurals>
+    <plurals name="summary_more">
+        <item quantity="one">%1$d tane daha</item>
+        <item quantity="other">%1$d tane daha</item>
+    </plurals>
+    <plurals name="summary_keys_count">
+        <item quantity="one">%1$d anahtar</item>
+        <item quantity="other">%1$d anahtar</item>
+    </plurals>
+    <plurals name="summary_respelled">
+        <item quantity="one">%1$s burada yazıldığı gibi kalıyor. Onu sayı olarak okuyan bir araç %2$s yazar.</item>
+        <item quantity="other">%1$s burada yazıldığı gibi kalıyor. Onları sayı olarak okuyan bir araç %2$s yazar.</item>
+    </plurals>
 </resources>

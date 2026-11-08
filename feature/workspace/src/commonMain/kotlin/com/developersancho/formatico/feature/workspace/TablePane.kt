@@ -19,9 +19,11 @@ import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,7 +37,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.designsystem.LocalSyntaxColors
 import com.developersancho.formatico.core.format.Format
-import com.developersancho.formatico.core.format.csv.csvText
 import com.pantrixui.components.data.datatable.DataTableColumn
 import com.pantrixui.components.data.datatable.DataTableLayout
 import com.pantrixui.components.data.datatable.DataTablePin
@@ -46,7 +47,6 @@ import com.pantrixui.components.elements.button.ButtonSize
 import com.pantrixui.components.elements.button.ButtonVariant
 import com.pantrixui.components.elements.button.PantrixButton
 import com.pantrixui.components.elements.icon.PantrixIcon
-import com.pantrixui.components.elements.iconbutton.PantrixIconButton
 import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.components.inputs.textfield.PantrixTextField
 import com.pantrixui.foundation.icons.PantrixIcons
@@ -61,7 +61,6 @@ import formatico.feature.workspace.generated.resources.workspace_no_table_title
 import formatico.feature.workspace.generated.resources.workspace_open_value
 import formatico.feature.workspace.generated.resources.workspace_rows
 import formatico.feature.workspace.generated.resources.workspace_rows_of
-import formatico.feature.workspace.generated.resources.workspace_save_csv
 import formatico.feature.workspace.generated.resources.workspace_separated
 import formatico.feature.workspace.generated.resources.workspace_table_columns
 import formatico.feature.workspace.generated.resources.workspace_value_column
@@ -115,9 +114,7 @@ internal fun TablePane(
             filter = filter,
             shown = shown.size,
             hidden = view.hiddenColumns,
-            onSave = {
-                table?.let { commands.saveCsv(document, csvText(csvRows(shown, visible, document.text, valueName))) }
-            }
+            onOut = { out -> commands.out(out, document, csvRows(shown, visible, document.text, valueName)) }
         )
         Column(modifier = modifier.fillMaxSize().background(PantrixTheme.colors.background)) {
             TableToolbar(toolbar, layout, onIntent)
@@ -163,7 +160,7 @@ private class TableToolbarState(
     val filter: TextFieldState,
     val shown: Int,
     val hidden: Set<String>,
-    val onSave: () -> Unit
+    val onOut: (TableOut) -> Unit
 )
 
 /**
@@ -181,13 +178,7 @@ private fun TableToolbar(toolbar: TableToolbarState, layout: WorkspaceLayout, on
             ColumnsChooser(table, toolbar.hidden, wide = layout == WorkspaceLayout.Wide, size = size, onHide = {
                 onIntent(WorkspaceIntent.HideColumns(it))
             })
-            PantrixIconButton(
-                imageVector = PantrixIcons.Download,
-                contentDescription = stringResource(Res.string.workspace_save_csv),
-                onClick = toolbar.onSave,
-                size = size,
-                tagKey = "save_csv"
-            )
+            TableOutMenu(size = size, onOut = toolbar.onOut)
         }
     }
     if (layout == WorkspaceLayout.Phone) {

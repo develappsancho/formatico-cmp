@@ -19,6 +19,11 @@
     <string name="workspace_view_tree">Tree</string>
     <string name="workspace_view_table">Table</string>
     <string name="workspace_find">Find a key or a value</string>
+    <string name="workspace_open_to">Open to</string>
+    <string name="workspace_open_to_level">Open the tree to level %1$d</string>
+    <string name="workspace_open_all">All</string>
+    <string name="workspace_open_all_levels">Open the whole tree</string>
+    <string name="workspace_close_search">Close the search</string>
 
     <string name="workspace_editor_title">Text editing is on its way</string>
     <string name="workspace_editor_body">It comes in a later version. Until then, the tree shows the document, and Format, Minify and Copy work on all of it.</string>
@@ -74,6 +79,19 @@
 
     <string name="workspace_show_in_text">Show in text</string>
     <string name="workspace_copy_value">Copy the value</string>
+    <string name="workspace_save_csv">Save as CSV…</string>
+    <string name="workspace_table_out">Save or copy the table</string>
+    <string name="workspace_copy_csv">Copy as CSV</string>
+    <string name="workspace_copy_markdown">Copy as a Markdown table</string>
+    <string name="workspace_table_label">Table</string>
+    <string name="workspace_table_copied">Table copied</string>
+    <string name="workspace_table_copy_failed">The table couldn’t be copied</string>
+    <string name="workspace_copy_path">Copy path</string>
+    <string name="workspace_copy_path_of">Copy the path of %1$s as JSONPath, JSON Pointer or jq</string>
+    <string name="workspace_copy_path_as">Copy the path of %1$s as</string>
+    <string name="workspace_path_label">Path</string>
+    <string name="workspace_path_copied">Path copied</string>
+    <string name="workspace_path_copy_failed">The path couldn’t be copied</string>
     <string name="workspace_kind_date">Date</string>
     <string name="workspace_kind_colour">Colour</string>
     <string name="workspace_kind_link">Link</string>
@@ -130,7 +148,6 @@
     <string name="workspace_columns">Columns</string>
     <string name="workspace_columns_all">Columns: all %1$d shown. Choose columns</string>
     <string name="workspace_columns_some">Columns: %1$d of %2$d shown. Choose columns</string>
-    <string name="workspace_save_csv">Save as CSV</string>
     <string name="workspace_value_column">value</string>
     <string name="workspace_index">Index in the array</string>
     <string name="workspace_missing_key">No %1$s key in this object</string>
@@ -254,4 +271,108 @@
     <string name="problem_toml_inline_table_line_break">Write the inline table on one line, or make it a [table].</string>
     <string name="problem_toml_duplicate_key">This key is given twice: TOML gives a key one value.</string>
     <string name="problem_toml_trailing_content">Take out what follows the value on this line, or make it a comment.</string>
+    <string name="summary_title_size">Size</string>
+    <string name="summary_title_values">Values</string>
+    <string name="summary_title_found">Found in the values</string>
+    <string name="summary_title_notes">Notes</string>
+    <string name="summary_copy">Copy the summary as text</string>
+    <string name="summary_label">Summary</string>
+    <string name="summary_copied">Summary copied</string>
+    <string name="summary_copy_failed">The summary couldn’t be copied</string>
+    <string name="summary_text">Text</string>
+    <string name="summary_text_detail">%1$s</string>
+    <string name="summary_minified">Minified</string>
+    <string name="summary_minified_share">%1$s of the text</string>
+    <string name="summary_not_minified">No minified form</string>
+    <string name="summary_compressed">Compressed</string>
+    <string name="summary_compressed_minified">The minified text, gzip</string>
+    <string name="summary_compressed_text">The text, gzip</string>
+    <string name="summary_measuring">Being measured</string>
+    <string name="summary_values">Values</string>
+    <string name="summary_values_in">In %1$s and %2$s</string>
+    <string name="summary_keys">Keys</string>
+    <string name="summary_keys_none">None repeated in an object</string>
+    <string name="summary_keys_none_short">None repeated</string>
+    <string name="summary_deepest">Deepest</string>
+    <string name="summary_levels_word">Levels</string>
+    <string name="summary_longest_array">Longest array</string>
+    <string name="summary_no_array">No arrays</string>
+    <string name="summary_longest_text">Longest text</string>
+    <string name="summary_no_text">No text</string>
+    <string name="summary_none">None</string>
+    <string name="summary_numbers">Numbers</string>
+    <string name="summary_numbers_kept">All kept as written</string>
+    <string name="summary_kind_text">Text</string>
+    <string name="summary_kind_object">Objects</string>
+    <string name="summary_kind_number">Numbers</string>
+    <string name="summary_kind_array">Arrays</string>
+    <string name="summary_kind_boolean">Booleans</string>
+    <string name="summary_kind_null">Null</string>
+    <string name="summary_kind_alias">Aliases</string>
+    <string name="summary_and"> and </string>
+    <string name="summary_table_note">%1$s holds %2$s with the same %3$s, so it reads as a table.</string>
+    <string name="summary_show_table">Show as a table</string>
+    <string name="workspace_view_summary">Summary</string>
+    <string name="workspace_show_summary">%1$s. Show the summary of the document</string>
+    <string name="workspace_summary_shown">%1$s. The summary is shown</string>
+    <plurals name="summary_objects">
+        <item quantity="one">%1$d object</item>
+        <item quantity="other">%1$d objects</item>
+    </plurals>
+    <plurals name="summary_arrays">
+        <item quantity="one">%1$d array</item>
+        <item quantity="other">%1$d arrays</item>
+    </plurals>
+    <plurals name="summary_keys_repeated">
+        <item quantity="one">%1$d repeated in an object</item>
+        <item quantity="other">%1$d repeated in an object</item>
+    </plurals>
+    <plurals name="summary_keys_repeated_short">
+        <item quantity="one">%1$d repeated</item>
+        <item quantity="other">%1$d repeated</item>
+    </plurals>
+    <plurals name="summary_levels">
+        <item quantity="one">%1$d level</item>
+        <item quantity="other">%1$d levels</item>
+    </plurals>
+    <plurals name="summary_items">
+        <item quantity="one">%1$d item</item>
+        <item quantity="other">%1$d items</item>
+    </plurals>
+    <plurals name="summary_characters">
+        <item quantity="one">%1$d character</item>
+        <item quantity="other">%1$d characters</item>
+    </plurals>
+    <plurals name="summary_kinds">
+        <item quantity="one">The %1$d value by kind</item>
+        <item quantity="other">The %1$d values by kind</item>
+    </plurals>
+    <plurals name="summary_dates">
+        <item quantity="one">%1$d date</item>
+        <item quantity="other">%1$d dates</item>
+    </plurals>
+    <plurals name="summary_pictures">
+        <item quantity="one">%1$d picture</item>
+        <item quantity="other">%1$d pictures</item>
+    </plurals>
+    <plurals name="summary_links">
+        <item quantity="one">%1$d link</item>
+        <item quantity="other">%1$d links</item>
+    </plurals>
+    <plurals name="summary_colours">
+        <item quantity="one">%1$d colour</item>
+        <item quantity="other">%1$d colours</item>
+    </plurals>
+    <plurals name="summary_more">
+        <item quantity="one">%1$d more</item>
+        <item quantity="other">%1$d more</item>
+    </plurals>
+    <plurals name="summary_keys_count">
+        <item quantity="one">%1$d key</item>
+        <item quantity="other">%1$d keys</item>
+    </plurals>
+    <plurals name="summary_respelled">
+        <item quantity="one">%1$s keeps its spelling here. A tool that reads it as a number writes %2$s.</item>
+        <item quantity="other">%1$s keep their spelling here. A tool that reads them as numbers writes %2$s.</item>
+    </plurals>
 </resources>

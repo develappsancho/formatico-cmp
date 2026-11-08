@@ -251,6 +251,17 @@ private val Application = previewState("application.properties", PreviewApplicat
 private val Settings = previewState("settings.ini", PreviewSettings, Format.Ini)
 private val BeingRead = WorkspaceState(document = OpenDocument(id = 1, name = "order.json", text = PreviewOrder, format = Format.Json))
 private val Empty = previewState(null, "", null)
+
+/** The order's Summary while the platform is still gzipping it. */
+private val OrderSummaryMeasuring = previewState("order.json", PreviewOrder, Format.Json, DocumentView(pane = DocumentPane.Summary))
+
+/** How many bytes the minified order and the countries' text come to, gzipped by the JVM, as the desktop measures them. */
+private const val ORDER_GZIPPED = 342L
+private const val COUNTRIES_GZIPPED = 269L
+
+private val OrderSummary = OrderSummaryMeasuring.copy(sizes = OrderSummaryMeasuring.sizes?.copy(compressed = ORDER_GZIPPED))
+private val CountriesSummary = previewState("countries.csv", PreviewCountries, Format.Csv, DocumentView(pane = DocumentPane.Summary))
+    .let { it.copy(sizes = it.sizes?.copy(compressed = COUNTRIES_GZIPPED)) }
 private val PlainText = previewState("notes.txt", "Things to check before the release.\n", null)
 
 /** A case of the screen: [state], with its editor's caret at [caret]. */
@@ -259,7 +270,8 @@ internal class ScreenCase(val state: WorkspaceState, val caret: Int = 0)
 /**
  * The workspace's cases: a JSON document with its value previews, a YAML one with anchors, a CSV and a JSON array as
  * tables, a document with mistakes and its problems, a YAML one with a flow left open, an XML feed, a TOML manifest,
- * newline-delimited JSON, a properties file and an INI one, one being read, and a new, empty one.
+ * newline-delimited JSON, a properties file and an INI one, the order's Summary measured and being measured and a CSV's,
+ * one being read, and a new, empty one.
  */
 internal class WorkspaceScreenCases :
     PreviewCases<ScreenCase>(
@@ -275,6 +287,9 @@ internal class WorkspaceScreenCases :
         "ndjson" to ScreenCase(Events),
         "properties" to ScreenCase(Application),
         "ini" to ScreenCase(Settings),
+        "summary" to ScreenCase(OrderSummary),
+        "summary measuring" to ScreenCase(OrderSummaryMeasuring),
+        "csv summary" to ScreenCase(CountriesSummary),
         "reading" to ScreenCase(BeingRead),
         "empty" to ScreenCase(Empty)
     )

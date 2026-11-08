@@ -84,6 +84,11 @@ eksikler Faz 4'te.
 *   [ ] **Faz 8: Ağaç ve tablo.** Ağaçta arama, bir düzeye kadar açma, yolu JSONPath, JSON Pointer ya da jq olarak
     kopyalama; sütun türleri; tabloyu kaydetme ve kopyalama menüsü; renk ve resim önizlemesi; Summary (sahibinin
     kararıyla v1'de, 2026-11-04: düzen'den gelenlerin hepsi).
+    Büyük bölümü yapıldı (2026-11-04): ağaçta arama (sayı, önceki, sonraki; geniş pencere ve tablet), 1, 2, 3 ve
+    tümüne açma, yolu üç biçimde kopyalama, tabloyu CSV olarak kaydetme, CSV ya da Markdown olarak kopyalama, Summary
+    (üç genişlikte, durum çubuğunun boyutundan; gzip boyu platformun kendi sıkıştırıcısıyla). Kalanlar Pantrix'i
+    bekliyor: sütun türleri (DataTable'ın başlığı), renk ve resim önizlemesi ile aramanın vurgusu (TreeView satırı,
+    `tıkıyor`). Telefonda arama ve Summary'yi neyin açacağı sahibinin kararında (OPEN_ITEMS).
 *   [ ] **Faz 9: Query.** JSONPath ve XPath.
 *   [ ] **Faz 10: Convert.** Biçimler arasında; kaybolacak olan önceden söylenir.
 *   [ ] **Faz 11: Compare.** Anlamsal karşılaştırma.

@@ -119,11 +119,11 @@ internal fun WorkspaceScreen(
         if (document.view.pane == DocumentPane.Table && !wide) {
             // A tablet gives the table the whole room, as its board draws it.
             TablePane(state, layout, onIntent, commands, Modifier.weight(1f).fillMaxWidth())
-            StatusBar(state = state, layout = layout)
+            StatusBar(state = state, layout = layout, onIntent = onIntent)
             return@Column
         }
         DocumentPanes(state, text, layout, onIntent, commands, Modifier.weight(1f).fillMaxWidth())
-        StatusBar(state = state, layout = layout, editor = text)
+        StatusBar(state = state, layout = layout, editor = text, onIntent = onIntent)
     }
 }
 
@@ -144,13 +144,15 @@ private fun DocumentPanes(
     val pane = state.document?.view?.pane
     val table = pane == DocumentPane.Table
     val problems = pane == DocumentPane.Problems && state.problems.isNotEmpty()
+    val summary = pane == DocumentPane.Summary
     // How tall the text stands on a tablet, as its handle leaves it.
     var textHeight by rememberSaveable { mutableFloatStateOf(TextHeight.value) }
     val second: @Composable () -> Unit = {
         when {
             table -> TablePane(state, layout, onIntent, commands)
             problems -> ProblemsPane(state = state, editor = editor, layout = layout, onIntent = onIntent)
-            else -> TreePane(state = state, layout = layout, onIntent = onIntent)
+            summary -> SummaryPane(state = state, layout = layout, onIntent = onIntent, commands = commands)
+            else -> TreePane(state = state, layout = layout, onIntent = onIntent, commands = commands)
         }
     }
     if (wide) {

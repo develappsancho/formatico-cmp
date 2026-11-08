@@ -130,4 +130,15 @@ class TableModelTest {
             csvRows(table.rows, listOf("id", "items", "coupon"), orders, valueName = "value")
         )
     }
+
+    @Test
+    fun aMarkdownTableKeepsEachCellWholeAndEachRowOnOneLine() {
+        val rows = listOf(listOf("id", "note"), listOf("a", "x | y"), listOf("b", "two\nlines \\ here"))
+
+        assertEquals(
+            "| id | note |\n| --- | --- |\n| a | x \\| y |\n| b | two<br>lines \\\\ here |\n",
+            markdownTable(rows)
+        )
+        assertEquals("", markdownTable(emptyList()))
+    }
 }

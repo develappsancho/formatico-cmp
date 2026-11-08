@@ -48,6 +48,28 @@ internal class WorkspaceViewModel(
         }
     }
 
+    init {
+        // The summary is worked out while it is shown, off the main thread, and its gzipped size after the rest.
+        viewModelScope.launch {
+            workbench.state
+                .map { state -> state.documents.firstOrNull { it.id == documentId }?.takeIf { it.view.pane == DocumentPane.Summary } }
+                .map { shown -> shown?.let { it.copy(view = DocumentView(pane = DocumentPane.Summary)) } }
+                .distinctUntilChanged()
+                .collectLatest { shown ->
+                    if (shown == null) return@collectLatest setState { copy(summary = null, sizes = null) }
+                    val reading = readings.of(documentId, shown.text, shown.format)?.first
+                        ?: withContext(reader) { readDocument(shown.text, shown.format) }
+                    val (summary, minified) = withContext(reader) {
+                        (reading as? Reading.Read)?.root?.let(::summaryOf) to minifiedOf(shown)
+                    }
+                    val sizes = sizesOf(shown, minified)
+                    setState { copy(summary = summary, sizes = sizes) }
+                    val compressed = withContext(reader) { gzippedSize(minified ?: shown.text) }
+                    setState { copy(sizes = sizes.copy(compressed = compressed)) }
+                }
+        }
+    }
+
     override fun handle(intent: WorkspaceIntent) {
         when (intent) {
             is WorkspaceIntent.Expand -> workbench.changeView(documentId) { it.copy(expanded = intent.keys) }
@@ -114,10 +136,14 @@ internal fun WorkspaceState.arranged(): WorkspaceState {
 /** The workspace of [document] once it is read: what its view model comes to, at once, for a preview or a test. */
 internal fun readState(document: OpenDocument): WorkspaceState {
     val reading = readDocument(document.text, document.format)
+    // Its summary is worked out where it is shown, all but its gzipped size, which the platform measures in its time.
+    val shown = document.view.pane == DocumentPane.Summary
     return WorkspaceState(
         document = document,
         reading = reading,
         stats = TextStats.of(document.text),
-        json5Allows = json5Allows(document.text, document.format, reading)
+        json5Allows = json5Allows(document.text, document.format, reading),
+        summary = if (shown) (reading as? Reading.Read)?.root?.let(::summaryOf) else null,
+        sizes = if (shown) sizesOf(document, minifiedOf(document)) else null
     ).arranged()
 }

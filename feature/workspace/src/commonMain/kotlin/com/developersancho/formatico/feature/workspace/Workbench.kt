@@ -54,7 +54,7 @@ data class DocumentView(
 /**
  * What is shown of a document: on a phone one at a time, elsewhere the tree, the table or its problems beside the text.
  */
-enum class DocumentPane { Text, Tree, Table, Problems }
+enum class DocumentPane { Text, Tree, Table, Problems, Summary }
 
 /** The column a table's rows are ordered by, [column], the largest first where [descending] says so. */
 data class TableSort(val column: String, val descending: Boolean)

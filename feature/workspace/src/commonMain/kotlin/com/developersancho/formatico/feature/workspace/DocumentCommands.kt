@@ -23,6 +23,9 @@ import com.pantrixui.foundation.files.rememberFileSaver
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.platform.rememberPantrixClipboard
 import formatico.feature.workspace.generated.resources.Res
+import formatico.feature.workspace.generated.resources.summary_copied
+import formatico.feature.workspace.generated.resources.summary_copy_failed
+import formatico.feature.workspace.generated.resources.summary_label
 import formatico.feature.workspace.generated.resources.workspace_alias_before_anchor
 import formatico.feature.workspace.generated.resources.workspace_already_formatted
 import formatico.feature.workspace.generated.resources.workspace_already_minified
@@ -39,9 +42,15 @@ import formatico.feature.workspace.generated.resources.workspace_minified
 import formatico.feature.workspace.generated.resources.workspace_minified_comments
 import formatico.feature.workspace.generated.resources.workspace_more_actions
 import formatico.feature.workspace.generated.resources.workspace_more_actions_sort_compare_save
+import formatico.feature.workspace.generated.resources.workspace_path_copied
+import formatico.feature.workspace.generated.resources.workspace_path_copy_failed
+import formatico.feature.workspace.generated.resources.workspace_path_label
 import formatico.feature.workspace.generated.resources.workspace_save_failed
 import formatico.feature.workspace.generated.resources.workspace_save_file
 import formatico.feature.workspace.generated.resources.workspace_sort_keys
+import formatico.feature.workspace.generated.resources.workspace_table_copied
+import formatico.feature.workspace.generated.resources.workspace_table_copy_failed
+import formatico.feature.workspace.generated.resources.workspace_table_label
 import formatico.feature.workspace.generated.resources.workspace_undo
 import formatico.feature.workspace.generated.resources.workspace_untitled
 import formatico.feature.workspace.generated.resources.workspace_value_copied
@@ -51,13 +60,16 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.getPluralString
 import org.jetbrains.compose.resources.stringResource
 
+/** What is copied from a document besides the whole of it, each said in words of its own. */
+internal enum class Copied { Value, Path, Table, Summary }
+
 /**
- * What a document's buttons do that is not the workspace's state: copying, saving as a file, and saying what an edit
- * did, with its undo.
+ * What a document's buttons do that is not the workspace's state: copying it, or a part of it ([copyText]), saving as
+ * a file, and saying what an edit did, with its undo.
  */
 internal class DocumentCommands(
     val copy: (OpenDocument) -> Unit,
-    val copyValue: (String) -> Unit,
+    val copyText: (Copied, String) -> Unit,
     val save: (OpenDocument) -> Unit,
     val saveCsv: (OpenDocument, String) -> Unit,
     val report: (DocumentEdit, EditResult) -> Unit
@@ -78,7 +90,7 @@ private data class EditWords(
 /** The words [DocumentCommands] say, read once from the resources. */
 private data class CommandWords(
     val document: CopyWords,
-    val value: CopyWords,
+    val parts: Map<Copied, CopyWords>,
     val edits: EditWords,
     val saveFailed: String,
     val untitled: String
@@ -92,11 +104,31 @@ private fun commandWords() = CommandWords(
         failed = stringResource(Res.string.workspace_copy_failed),
         tag = "copied"
     ),
-    value = CopyWords(
-        label = stringResource(Res.string.workspace_value_label),
-        done = stringResource(Res.string.workspace_value_copied),
-        failed = stringResource(Res.string.workspace_value_copy_failed),
-        tag = "value_copied"
+    parts = mapOf(
+        Copied.Value to CopyWords(
+            label = stringResource(Res.string.workspace_value_label),
+            done = stringResource(Res.string.workspace_value_copied),
+            failed = stringResource(Res.string.workspace_value_copy_failed),
+            tag = "value_copied"
+        ),
+        Copied.Path to CopyWords(
+            label = stringResource(Res.string.workspace_path_label),
+            done = stringResource(Res.string.workspace_path_copied),
+            failed = stringResource(Res.string.workspace_path_copy_failed),
+            tag = "path_copied"
+        ),
+        Copied.Table to CopyWords(
+            label = stringResource(Res.string.workspace_table_label),
+            done = stringResource(Res.string.workspace_table_copied),
+            failed = stringResource(Res.string.workspace_table_copy_failed),
+            tag = "table_copied"
+        ),
+        Copied.Summary to CopyWords(
+            label = stringResource(Res.string.summary_label),
+            done = stringResource(Res.string.summary_copied),
+            failed = stringResource(Res.string.summary_copy_failed),
+            tag = "summary_copied"
+        )
     ),
     edits = EditWords(
         done = mapOf(
@@ -157,7 +189,7 @@ internal fun rememberDocumentCommands(workbench: Workbench): DocumentCommands {
     return remember(clipboard, saver, snackbars, scope, words, workbench) {
         DocumentCommands(
             copy = { copy(it.text, words.document) },
-            copyValue = { copy(it, words.value) },
+            copyText = { part, text -> copy(text, words.parts.getValue(part)) },
             save = { document ->
                 save(PantrixFile(fileNameOf(document, words.untitled), document.text.encodeToByteArray()))
             },

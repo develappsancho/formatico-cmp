@@ -22,7 +22,9 @@ internal data class WorkspaceState(
     val expanded: Set<String> = emptySet(),
     val trail: List<ValueNode> = emptyList(),
     val table: TableModel? = null,
-    val json5Allows: Int = 0
+    val json5Allows: Int = 0,
+    val summary: DocumentSummary? = null,
+    val sizes: SizeSummary? = null
 ) {
     /** What is wrong in the document, where it was read: its errors, and the warnings it is valid with. */
     val problems: List<Problem> get() = (reading as? Reading.Read)?.problems.orEmpty()

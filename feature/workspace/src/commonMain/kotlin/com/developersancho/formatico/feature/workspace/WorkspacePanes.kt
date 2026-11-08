@@ -7,13 +7,16 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -23,6 +26,7 @@ import com.pantrixui.components.data.treeview.PantrixTreeView
 import com.pantrixui.components.data.treeview.TreeNode
 import com.pantrixui.components.data.treeview.TreeSelection
 import com.pantrixui.components.data.treeview.TreeViewStyle
+import com.pantrixui.components.elements.button.ButtonVariant
 import com.pantrixui.components.elements.divider.PantrixHorizontalDivider
 import com.pantrixui.components.elements.icon.PantrixIcon
 import com.pantrixui.components.elements.iconbutton.PantrixIconButton
@@ -47,6 +51,7 @@ import formatico.feature.workspace.generated.resources.workspace_plain_body
 import formatico.feature.workspace.generated.resources.workspace_plain_title
 import formatico.feature.workspace.generated.resources.workspace_view_problems
 import formatico.feature.workspace.generated.resources.workspace_view_problems_short
+import formatico.feature.workspace.generated.resources.workspace_view_summary
 import formatico.feature.workspace.generated.resources.workspace_view_table
 import formatico.feature.workspace.generated.resources.workspace_view_text
 import formatico.feature.workspace.generated.resources.workspace_view_tree
@@ -135,48 +140,54 @@ internal fun TreePaneMessage(state: WorkspaceState, modifier: Modifier = Modifie
     PaneMessage(icon = PantrixIcons.Info, title = message.first, body = message.second, modifier = modifier)
 }
 
-/** The tree's pane in a wide window or on a tablet: the view's choice, the trail to the chosen value, the tree. */
+/**
+ * The tree's pane in a wide window or on a tablet: the view's choice, the trail to the chosen value and the copying of
+ * its path, the levels the tree is opened to, the search in it, and the tree.
+ */
 @Composable
-internal fun TreePane(state: WorkspaceState, layout: WorkspaceLayout, onIntent: (WorkspaceIntent) -> Unit) {
+internal fun TreePane(
+    state: WorkspaceState,
+    layout: WorkspaceLayout,
+    onIntent: (WorkspaceIntent) -> Unit,
+    commands: DocumentCommands
+) {
     val spacing = PantrixTheme.spacing
     val wide = layout == WorkspaceLayout.Wide
     val message = treeMessage(state)
+    val search = rememberTreeSearch(state, onIntent)
     Column(modifier = Modifier.fillMaxSize()) {
-        Row(
-            modifier = Modifier.fillMaxWidth().height(if (wide) 48.dp else 52.dp).padding(horizontal = spacing.md),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(spacing.sm)
-        ) {
-            ViewChoice(
-                selected = DocumentPane.Tree,
-                withText = false,
-                onSelect = { onIntent(WorkspaceIntent.ShowPane(it)) },
-                problems = state.problems.size
-            )
-            if (!wide && message == null) {
-                PathTrail(state = state, onIntent = onIntent, modifier = Modifier.padding(start = spacing.sm))
-            }
-            Spacer(modifier = Modifier.weight(1f))
-            PantrixIconButton(
-                imageVector = PantrixIcons.Search,
-                contentDescription = stringResource(Res.string.workspace_find),
-                onClick = {},
-                size = layout.buttons,
-                enabled = false,
-                tagKey = "find"
-            )
-        }
+        TreeHeader(state = state, layout = layout, read = message == null, search = search, onIntent = onIntent, commands = commands)
         if (wide) PantrixHorizontalDivider()
+        if (search.open && message == null) {
+            if (!wide) PantrixHorizontalDivider()
+            val focus = remember { FocusRequester() }
+            TreeSearchBar(
+                query = search.query,
+                position = search.position(),
+                layout = layout,
+                onStep = search::step,
+                onClose = search::close,
+                focus = focus
+            )
+            // The caret goes to the field as the bar is opened.
+            LaunchedEffect(focus) { focus.requestFocus() }
+            PantrixHorizontalDivider()
+        }
         if (message != null) {
             TreePaneMessage(state = state, modifier = Modifier.fillMaxSize())
             return@Column
         }
         if (wide) {
             Row(
-                modifier = Modifier.fillMaxWidth().height(36.dp).padding(horizontal = spacing.md),
-                verticalAlignment = Alignment.CenterVertically
+                // As tall as the board's 36 where a pointer is used; a touch target's height where a finger is.
+                modifier = Modifier.fillMaxWidth().heightIn(min = 36.dp).padding(start = spacing.md, end = spacing.sm),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(spacing.sm)
             ) {
-                PathTrail(state = state, onIntent = onIntent)
+                PathTrail(state = state, onIntent = onIntent, modifier = Modifier.weight(1f))
+                (state.selected ?: state.root)?.let { node ->
+                    CopyPathMenu(node = node, layout = layout, onCopy = { commands.copyText(Copied.Path, it) })
+                }
             }
         }
         DocumentTree(
@@ -188,6 +199,52 @@ internal fun TreePane(state: WorkspaceState, layout: WorkspaceLayout, onIntent: 
                 .fillMaxWidth()
                 .pantrixVerticalScroll(rememberScrollState())
                 .padding(start = spacing.sm, end = spacing.sm, bottom = spacing.sm)
+        )
+    }
+}
+
+/**
+ * The row over the tree: the views' choice; on a tablet the trail to the chosen value and the copying of its path; where
+ * the document is [read], the levels the tree is opened to; and the search, which [search] holds.
+ */
+@Composable
+private fun TreeHeader(
+    state: WorkspaceState,
+    layout: WorkspaceLayout,
+    read: Boolean,
+    search: TreeSearch,
+    onIntent: (WorkspaceIntent) -> Unit,
+    commands: DocumentCommands
+) {
+    val spacing = PantrixTheme.spacing
+    val wide = layout == WorkspaceLayout.Wide
+    Row(
+        modifier = Modifier.fillMaxWidth().height(if (wide) 48.dp else 52.dp).padding(horizontal = spacing.md),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(spacing.sm)
+    ) {
+        ViewChoice(
+            selected = DocumentPane.Tree,
+            withText = false,
+            onSelect = { onIntent(WorkspaceIntent.ShowPane(it)) },
+            problems = state.problems.size
+        )
+        val chosen = state.selected ?: state.root
+        if (!wide && read && chosen != null) {
+            PathTrail(state = state, onIntent = onIntent, modifier = Modifier.padding(start = spacing.sm))
+            CopyPathMenu(node = chosen, layout = layout, onCopy = { commands.copyText(Copied.Path, it) })
+        }
+        Spacer(modifier = Modifier.weight(1f))
+        val root = state.root
+        if (read && root != null) TreeLevels(root = root, layout = layout, onIntent = onIntent)
+        PantrixIconButton(
+            imageVector = PantrixIcons.Search,
+            contentDescription = stringResource(Res.string.workspace_find),
+            onClick = search::toggle,
+            variant = if (search.open) ButtonVariant.Soft else ButtonVariant.Text,
+            size = layout.buttons,
+            enabled = read,
+            tagKey = "find"
         )
     }
 }
@@ -220,8 +277,21 @@ internal fun ViewChoice(
         stringResource(Res.string.workspace_view_problems, problems)
     }
     val problemList = SegmentOption<DocumentPane?>(value = DocumentPane.Problems, label = problemsLabel, tagKey = "problems")
+    // The Summary is a view while it is shown, as the status bar's size opens it; a phone shows it in the table's place.
+    val summaryShown = selected == DocumentPane.Summary
+    val summary = SegmentOption<DocumentPane?>(
+        value = DocumentPane.Summary,
+        label = stringResource(Res.string.workspace_view_summary),
+        tagKey = "summary"
+    )
     PantrixSegmentButton(
-        options = listOfNotNull(text.takeIf { withText }, tree, table.takeIf { withTable }, problemList.takeIf { problems > 0 }),
+        options = listOfNotNull(
+            text.takeIf { withText },
+            tree,
+            table.takeIf { withTable && !(withText && summaryShown) },
+            problemList.takeIf { problems > 0 },
+            summary.takeIf { summaryShown }
+        ),
         selected = selected,
         onSelect = { pane -> pane?.let(onSelect) },
         modifier = modifier,

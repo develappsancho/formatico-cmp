@@ -16,7 +16,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.format.Severity
 import com.developersancho.formatico.core.format.json.jsonPath
@@ -73,9 +75,14 @@ internal fun PhoneWorkspace(
                 .fillMaxWidth()
                 .padding(start = spacing.lg, end = spacing.lg, top = spacing.md, bottom = spacing.sm)
         )
-        if (pane == DocumentPane.Table) {
-            // The table's board gives it the room the tree's card and the actions take, under its own toolbar.
-            TablePane(state, WorkspaceLayout.Phone, onIntent, commands, Modifier.weight(1f).fillMaxWidth())
+        // The table's board and the Summary's give them the room the tree's card and the actions take.
+        if (pane == DocumentPane.Table || pane == DocumentPane.Summary) {
+            val room = Modifier.weight(1f).fillMaxWidth()
+            if (pane == DocumentPane.Table) {
+                TablePane(state, WorkspaceLayout.Phone, onIntent, commands, room)
+            } else {
+                SummaryContent(state, WorkspaceLayout.Phone, onIntent, room.background(PantrixTheme.colors.background))
+            }
             return@Column
         }
         // An invalid document's text has the strip of the Invalid board in the trail's place, and its problem under it.
@@ -105,7 +112,8 @@ internal fun PhoneWorkspace(
                 node = selected,
                 document = document,
                 onShowInText = { onIntent(WorkspaceIntent.ShowPane(DocumentPane.Text)) },
-                onCopy = commands.copyValue,
+                onCopy = { commands.copyText(Copied.Value, it) },
+                onCopyPath = { commands.copyText(Copied.Path, it) },
                 onGoTo = { onIntent(WorkspaceIntent.Select(it)) },
                 modifier = Modifier.fillMaxWidth().padding(start = spacing.sm, end = spacing.sm, top = spacing.sm)
             )
@@ -224,7 +232,8 @@ private fun PhoneToolbar(
 
 /**
  * The chosen value, read out: its path and its kind, the value itself, what more there is to say of it, and its
- * actions: showing it in the text ([onShowInText]), copying it, going to an alias's anchor.
+ * actions: copying its path ([onCopyPath]), showing it in the text ([onShowInText]), copying it, going to an alias's
+ * anchor.
  */
 @Composable
 private fun SelectedValueCard(
@@ -232,6 +241,7 @@ private fun SelectedValueCard(
     document: OpenDocument,
     onShowInText: () -> Unit,
     onCopy: (String) -> Unit,
+    onCopyPath: (String) -> Unit,
     onGoTo: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -244,20 +254,32 @@ private fun SelectedValueCard(
         tagKey = "selected_value"
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(spacing.xs)) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(spacing.sm)
-            ) {
-                PantrixText(
-                    text = jsonPath(node.path),
-                    style = PantrixTheme.typography.code.copy(
-                        fontSize = PantrixTheme.typography.footnote.fontSize,
-                        lineHeight = PantrixTheme.typography.footnote.lineHeight
-                    ),
-                    color = PantrixTheme.colors.textSecondary,
-                    maxLines = 1
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                // A long path is cut short, so that its kind and the copying of it keep their places.
+                Row(
+                    modifier = Modifier.weight(1f),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(spacing.sm)
+                ) {
+                    PantrixText(
+                        text = jsonPath(node.path),
+                        modifier = Modifier.weight(1f, fill = false),
+                        style = PantrixTheme.typography.code.copy(
+                            fontSize = PantrixTheme.typography.footnote.fontSize,
+                            lineHeight = PantrixTheme.typography.footnote.lineHeight
+                        ),
+                        color = PantrixTheme.colors.textSecondary,
+                        maxLines = 1
+                    )
+                    PantrixTag(text = reading.kind, icon = reading.icon, tagKey = "kind")
+                }
+                // The button stands into the card's padding, as the board draws it, and the row keeps its words' height.
+                CopyPathMenu(
+                    node = node,
+                    layout = WorkspaceLayout.Phone,
+                    onCopy = onCopyPath,
+                    modifier = Modifier.outset(end = spacing.sm, vertical = spacing.sm)
                 )
-                PantrixTag(text = reading.kind, icon = reading.icon, tagKey = "kind")
             }
             PantrixText(
                 text = reading.headline,
@@ -322,5 +344,15 @@ private fun ValueActions(
                 tagKey = "copy_value"
             )
         }
+    }
+}
+
+/** Lays this out [end] and [vertical] past the room it is given, as a negative margin does: what is around it keeps its size. */
+private fun Modifier.outset(end: Dp, vertical: Dp): Modifier = layout { measurable, constraints ->
+    val endPx = end.roundToPx()
+    val verticalPx = vertical.roundToPx()
+    val placeable = measurable.measure(constraints)
+    layout((placeable.width - endPx).coerceAtLeast(0), (placeable.height - 2 * verticalPx).coerceAtLeast(0)) {
+        placeable.place(0, -verticalPx)
     }
 }

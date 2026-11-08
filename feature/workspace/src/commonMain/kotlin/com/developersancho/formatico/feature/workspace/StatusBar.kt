@@ -6,14 +6,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.developersancho.formatico.core.format.Format
 import com.developersancho.formatico.core.format.json.jsonPath
 import com.developersancho.formatico.core.format.text.Indentation
 import com.developersancho.formatico.core.format.text.LineEnding
@@ -21,6 +23,11 @@ import com.developersancho.formatico.core.format.text.LineMap
 import com.pantrixui.components.data.codeeditor.CodeEditorState
 import com.pantrixui.components.data.tag.PantrixTag
 import com.pantrixui.components.data.tag.TagTone
+import com.pantrixui.components.elements.button.ButtonColors
+import com.pantrixui.components.elements.button.ButtonSize
+import com.pantrixui.components.elements.button.ButtonVariant
+import com.pantrixui.components.elements.button.PantrixButton
+import com.pantrixui.components.elements.button.colors
 import com.pantrixui.components.elements.divider.PantrixHorizontalDivider
 import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.foundation.theme.PantrixTheme
@@ -32,18 +39,25 @@ import formatico.feature.workspace.generated.resources.workspace_line_column
 import formatico.feature.workspace.generated.resources.workspace_lines
 import formatico.feature.workspace.generated.resources.workspace_plain_text
 import formatico.feature.workspace.generated.resources.workspace_separated
+import formatico.feature.workspace.generated.resources.workspace_show_summary
 import formatico.feature.workspace.generated.resources.workspace_status_problems
 import formatico.feature.workspace.generated.resources.workspace_status_reading
 import formatico.feature.workspace.generated.resources.workspace_status_valid
+import formatico.feature.workspace.generated.resources.workspace_summary_shown
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
 /**
  * The bar under the panes: whether the document is valid, how long it is, the line and column of [editor]'s caret or
- * of the chosen value, the chosen value's path and the text's layout.
+ * of the chosen value, the chosen value's path and the text's layout. How long it is shows its Summary, or hides it.
  */
 @Composable
-internal fun StatusBar(state: WorkspaceState, layout: WorkspaceLayout, editor: CodeEditorState? = null) {
+internal fun StatusBar(
+    state: WorkspaceState,
+    layout: WorkspaceLayout,
+    editor: CodeEditorState? = null,
+    onIntent: (WorkspaceIntent) -> Unit = {}
+) {
     val spacing = PantrixTheme.spacing
     val style = PantrixTheme.typography.footnote.copy(fontWeight = FontWeight.Medium)
     val quiet = PantrixTheme.colors.textSecondary
@@ -52,23 +66,14 @@ internal fun StatusBar(state: WorkspaceState, layout: WorkspaceLayout, editor: C
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(if (layout == WorkspaceLayout.Wide) 28.dp else 32.dp)
+                // As tall as the board's bar, or as a touch target where a button needs more: the size is pressed.
+                .heightIn(min = if (layout == WorkspaceLayout.Wide) 28.dp else 32.dp)
                 .padding(horizontal = spacing.md),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(spacing.lg)
         ) {
             StatusTag(state)
-            state.stats?.let { stats ->
-                PantrixText(
-                    text = stringResource(
-                        Res.string.workspace_separated,
-                        pluralStringResource(Res.plurals.workspace_lines, stats.lines, stats.lines),
-                        PantrixTheme.strings.fileSize(stats.bytes)
-                    ),
-                    style = style,
-                    color = quiet
-                )
-            }
+            state.stats?.let { stats -> SizeButton(state, stats, onIntent) }
             Spacer(modifier = Modifier.weight(1f))
             caretOf(state, editor)?.let { (line, column) ->
                 PantrixText(
@@ -158,4 +163,33 @@ internal fun StatusTag(state: WorkspaceState) {
         }
     }
     PantrixTag(text = text, tone = tone, dot = true, tagKey = "status")
+}
+
+/**
+ * How long the document is, as a button that shows its Summary in the tree's place, and while it is shown, in the
+ * primary colour, gives the tree back: the table's, for a table's file.
+ */
+@Composable
+private fun SizeButton(state: WorkspaceState, stats: TextStats, onIntent: (WorkspaceIntent) -> Unit) {
+    val document = state.document ?: return
+    val shown = document.view.pane == DocumentPane.Summary
+    val size = stringResource(
+        Res.string.workspace_separated,
+        pluralStringResource(Res.plurals.workspace_lines, stats.lines, stats.lines),
+        PantrixTheme.strings.fileSize(stats.bytes)
+    )
+    val back = if (document.format == Format.Csv || document.format == Format.Tsv) DocumentPane.Table else DocumentPane.Tree
+    PantrixButton(
+        text = size,
+        onClick = { onIntent(WorkspaceIntent.ShowPane(if (shown) back else DocumentPane.Summary)) },
+        variant = ButtonVariant.Text,
+        size = ButtonSize.ExtraSmall,
+        colors = if (shown) {
+            ButtonVariant.Text.colors()
+        } else {
+            ButtonColors(container = Color.Transparent, content = PantrixTheme.colors.textSecondary, border = Color.Transparent)
+        },
+        contentDescription = stringResource(if (shown) Res.string.workspace_summary_shown else Res.string.workspace_show_summary, size),
+        tagKey = "size"
+    )
 }

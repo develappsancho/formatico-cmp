@@ -4,7 +4,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.getBoundsInRoot
@@ -13,10 +12,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performKeyInput
-import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.v2.runComposeUiTest
-import androidx.compose.ui.test.withKeyDown
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.format.Format
@@ -27,13 +23,14 @@ import com.pantrixui.components.overlay.snackbar.PantrixSnackbarState
 import com.pantrixui.foundation.adaptive.PantrixWindow
 import com.pantrixui.foundation.diagnostics.PantrixFindings
 import com.pantrixui.foundation.platform.ClipboardTraits
+import com.pantrixui.foundation.platform.OperatingSystem
 import com.pantrixui.foundation.platform.PlatformType
-import com.pantrixui.foundation.platform.currentPlatformType
 import com.pantrixui.testing.PantrixTestTheme
 import com.pantrixui.testing.TestClipboard
 import com.pantrixui.testing.TestClock
 import com.pantrixui.testing.assertNoFindings
 import com.pantrixui.testing.onPantrixNode
+import com.pantrixui.testing.performPaste
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.time.Duration.Companion.minutes
@@ -160,9 +157,7 @@ class StartScreenTest {
 
     @Test
     fun theKeyboardsPasteIsHeardAnywhereOnTheScreen() = runComposeUiTest {
-        // In a browser the key is the browser's, which pastes from the machine's clipboard: there the button pastes.
-        if (currentPlatformType() == PlatformType.Web) return@runComposeUiTest
-        val clipboard = TestClipboard().apply { putText("a: 1\n") }
+        val clipboard = TestClipboard()
         val intents = mutableListOf<StartIntent>()
         setContent {
             PantrixTestTheme(window = desktop, clipboard = clipboard) {
@@ -172,7 +167,8 @@ class StartScreenTest {
 
         awaitText("Paste from clipboard")
         onAllNodes(hasText("anywhere on this screen", substring = true)).assertCountEquals(1)
-        onRoot().performKeyInput { withKeyDown(Key.CtrlLeft) { pressKey(Key.V) } }
+        // On the web the browser's own paste follows the key, as a reader's does.
+        onRoot().performPaste("a: 1\n", clipboard, OperatingSystem.Android)
 
         awaitUntil("The paste") { intents.isNotEmpty() }
         assertEquals(listOf<StartIntent>(StartIntent.Paste("a: 1\n")), intents)

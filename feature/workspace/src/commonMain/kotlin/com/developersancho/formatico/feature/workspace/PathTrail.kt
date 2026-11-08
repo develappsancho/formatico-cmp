@@ -18,14 +18,7 @@ internal fun PathTrail(nodes: List<ValueNode>, onIntent: (WorkspaceIntent) -> Un
     val trail = nodes
     if (trail.isEmpty()) return
     PantrixBreadcrumb(
-        items = trail.map { node ->
-            val label = when (val step = node.path.lastOrNull()) {
-                null -> ROOT_LABEL
-                is PathStep.Index -> "[${step.index}]"
-                is PathStep.Key -> step.name
-            }
-            BreadcrumbItem(key = node.key, label = label, tagKey = tagOf(node))
-        },
+        items = trail.map { node -> BreadcrumbItem(key = node.key, label = stepLabel(node), tagKey = tagOf(node)) },
         onSelect = { onIntent(WorkspaceIntent.Select(it)) },
         modifier = modifier,
         tagKey = "path"
@@ -33,6 +26,13 @@ internal fun PathTrail(nodes: List<ValueNode>, onIntent: (WorkspaceIntent) -> Un
 }
 
 private const val ROOT_LABEL = "$"
+
+/** The last step to [node], as the trail writes it: `$` for the root, a key, or an index in brackets. */
+internal fun stepLabel(node: ValueNode): String = when (val step = node.path.lastOrNull()) {
+    null -> ROOT_LABEL
+    is PathStep.Index -> "[${step.index}]"
+    is PathStep.Key -> step.name
+}
 
 /** A node's automation key, the same in every language: `root`, or its path without the `$`. */
 internal fun tagOf(node: ValueNode): String = if (node.path.isEmpty()) "root" else node.key.drop(1).removePrefix(".")

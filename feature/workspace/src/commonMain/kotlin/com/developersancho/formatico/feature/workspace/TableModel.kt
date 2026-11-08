@@ -162,3 +162,21 @@ internal fun csvRows(rows: List<TableRow>, columns: List<String>, text: String, 
             }
         }
     }
+
+/**
+ * [rows], the first of them the header, as a Markdown table: a backslash in a cell written `\\`, a `|` `\|` and a line
+ * break `<br>`, so that each cell stays whole and each row one line.
+ */
+internal fun markdownTable(rows: List<List<String>>): String {
+    if (rows.isEmpty()) return ""
+
+    fun line(cells: List<String>) = cells.joinToString(separator = " | ", prefix = "| ", postfix = " |") { cell ->
+        cell.replace("\\", "\\\\").replace("|", "\\|").replace("\r\n", "<br>").replace("\n", "<br>")
+    }
+    val header = rows.first()
+    return buildString {
+        appendLine(line(header))
+        appendLine(header.joinToString(separator = " | ", prefix = "| ", postfix = " |") { "---" })
+        rows.drop(1).forEach { appendLine(line(it)) }
+    }
+}

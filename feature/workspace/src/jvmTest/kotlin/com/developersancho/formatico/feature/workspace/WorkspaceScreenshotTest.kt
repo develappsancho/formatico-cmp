@@ -57,15 +57,27 @@ class WorkspaceScreenshotTest {
     }
 
     @Test
+    fun treeSearchBar() = TreeSearchBarCases().values.forEach { case ->
+        capturePreview("TreeSearchBar", case, case.value.board) { TreeSearchBarPreview(case) }
+    }
+
+    @Test
     fun openMenus() = WorkspaceScreenCases().values.forEach { case ->
         when (case.name) {
             "json" -> {
                 captureOpenMenu("FormatMenu", case, Board.Desktop, opener = "format_menu") { WorkspaceScreenPreview(case) }
                 captureOpenMenu("DocumentMenu", case, Board.Desktop, opener = "more") { WorkspaceScreenPreview(case) }
+                captureOpenMenu("CopyPathMenu", case, Board.Desktop, opener = "copy_path") { WorkspaceScreenPreview(case) }
+                captureOpenMenu("CopyPathMenu", case, Board.Tablet, opener = "copy_path") { WorkspaceScreenPreview(case) }
+            }
+
+            "yaml" -> {
+                captureOpenMenu("CopyPathMenu", case, Board.Phone, opener = "copy_path") { WorkspaceScreenPreview(case) }
             }
 
             "json table" -> {
                 captureOpenMenu("ColumnsChooser", case, Board.Desktop, opener = "columns") { WorkspaceScreenPreview(case) }
+                captureOpenMenu("TableOutMenu", case, Board.Desktop, opener = "table_out") { WorkspaceScreenPreview(case) }
             }
         }
     }

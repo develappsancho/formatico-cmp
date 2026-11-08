@@ -307,3 +307,14 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Ne: `Repairs.of` artık biçimi alıyor; bir kodun onarımı yalnızca o biçimin onarımıysa uygulanıyor. Önceden JSON'un onarımları her biçime uygulanabilirdi: XML'de kapanmayan bir yorum ` */` ile kapatılırdı, tek tırnaklı bir değer `"` ile kapanırdı, metindeki bir `<` silinirdi. Bugün XML'in ve INI'nin hiç onarımı yok. TOML'da yalnızca virgül onarımları var (fazla virgülü çıkarmak, eksik virgülü eklemek), properties'te yalnızca kaçış onarımı var.
     *   Öneri: XML'de kapanmayan öğeye bitiş etiketi, tırnaksız özniteliğe tırnak, `&` yerine `&amp;`; TOML'da dizgiyi kendi tırnağıyla kapatmak; INI'de başlığı `]` ile kapatmak.
     *   Durum: açık.
+*   [ ] **Telefonda ağaçta aramayı ve Summary'yi açan bir şey panolarda yok (2026-11-04).**
+    *   Ne: Workspace-390 panosu ağaçta aramanın çubuğunu ve seçili değer kartında "match 1 of 4"ü çiziyor; Summary-390 panosu Summary'yi çiziyor. Telefonda ikisini neyin açtığı çizilmemiş: telefonda durum çubuğu yok, üst çubuğun arama düğmesi komut paleti ("Search or run a command").
+    *   Öneri: ikisi için telefonun "more" menüsüne birer satır; ya da arama için ağacın üstünde bir simge, Summary için görünüm seçicisinde kalıcı bir "Summary".
+    *   Durum: açık, sahibinin kararını bekliyor. Kodda Summary telefonda çiziliyor (görünüm seçicisinde tablonun yerinde, gösterildiği sürece), ama onu açan bir düğme yok; ağaçta arama yalnızca geniş pencerede ve tablette var.
+*   [ ] **Summary panolarının yazı boyları ve aralıkları ölçekte yok (2026-11-04).**
+    *   Ne: Summary panoları başlıkları ve notları 13/18, karoların değerini 20/28 piksel yazıyor; aralıklarda 14, 10, 6 ve 20 piksel var. Tasarım sisteminin ve Pantrix'in ölçeğinde bunlar yok (yazı: 11, 12, 14, 16, 18, 22, 28, 36; aralık: 4, 8, 12, 16, 24, 32). Panolar elle çizilirken ölçeğin dışına çıkılmış.
+    *   Öneri: tuvalde Summary panolarını ölçeğe getirmek (başlık `label`, değer `title`); ya da bu sapmayı kabul etmek.
+    *   Durum: açık. Kodda temanın rolleri: başlık ve notlar `label`, karonun değeri `title`, aralıklar `PantrixTheme.spacing`.
+*   [ ] **Durum çubuğu, boyutun düğmesiyle panodan uzun (2026-11-04).**
+    *   Ne: Boyut Summary'yi açan bir düğme oldu; Pantrix ona platformun dokunma hedefini ayırdığı için çubuk masaüstünde 28'den 32'ye, tablette 32'den platformun hedefine (iOS'ta 44) uzuyor. Bkz. `PANTRIX_FINDINGS.md`, "Sık bir çubuktaki bir düğme dokunma hedefini alamıyor".
+    *   Durum: açık.
