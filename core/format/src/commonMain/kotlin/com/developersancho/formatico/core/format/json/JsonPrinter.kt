@@ -36,6 +36,43 @@ fun JsonDocument.minified(): String {
     return buildString(text.length) { appendMinified(root) }
 }
 
+/** [value] on one line with no space: what [minified] writes of a document. */
+internal fun minifiedJson(value: JsonValue): String = buildString { appendMinified(value) }
+
+/**
+ * [value] on one line, a space after each colon and comma, `{"id": 7, "tags": ["a", "b"]}`: its keys in their order,
+ * or sorted by name where [sortKeys] says so, its strings and numbers as they are written.
+ */
+internal fun inlineJson(value: JsonValue, sortKeys: Boolean = false): String = buildString { appendInline(value, sortKeys) }
+
+private fun StringBuilder.appendInline(value: JsonValue, sortKeys: Boolean) {
+    when (value) {
+        is JsonObject -> {
+            val members = if (sortKeys) value.members.sortedBy { it.key.name } else value.members
+            append('{')
+            members.forEachIndexed { index, member ->
+                if (index > 0) append(", ")
+                append(member.key.raw).append(": ")
+                member.value?.let { appendInline(it, sortKeys) }
+            }
+            append('}')
+        }
+
+        is JsonArray -> {
+            append('[')
+            value.items.forEachIndexed { index, item ->
+                if (index > 0) append(", ")
+                appendInline(item, sortKeys)
+            }
+            append(']')
+        }
+
+        else -> {
+            appendMinified(value)
+        }
+    }
+}
+
 private fun JsonDocument.requireValid(): JsonValue {
     require(isValid) { "Only a valid document is written out again" }
     return requireNotNull(root) { "A valid document has a value" }

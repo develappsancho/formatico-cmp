@@ -122,8 +122,100 @@ private val PreviewInvalidYaml =
         app: formatico
     """.trimIndent() + "\n"
 
-/** A feed in XML, a format Formatico does not read yet. */
-private const val PREVIEW_FEED = "<feed>\n  <entry id=\"1\">Formatico</entry>\n</feed>\n"
+/** Formatico's notes as an RSS feed, as the Query board shows it: three items, two of them releases. */
+private val PreviewFeed =
+    """
+    <?xml version="1.0" encoding="UTF-8"?>
+    <rss version="2.0">
+      <channel>
+        <title>Formatico notes</title>
+        <link>https://formatico.pantrixui.com/notes</link>
+        <language>en</language>
+        <item>
+          <title>Tabs that remember</title>
+          <pubDate>Mon, 26 Oct 2026 09:00:00 GMT</pubDate>
+          <category>release</category>
+        </item>
+        <item>
+          <title>YAML anchors, explained</title>
+          <pubDate>Wed, 21 Oct 2026 09:00:00 GMT</pubDate>
+          <category>guide</category>
+        </item>
+        <item>
+          <title>A tree that previews colours</title>
+          <pubDate>Thu, 15 Oct 2026 09:00:00 GMT</pubDate>
+          <category>release</category>
+        </item>
+      </channel>
+    </rss>
+    """.trimIndent() + "\n"
+
+/** Start's Rust manifest: tables, inline tables and arrays of tables. */
+private val PreviewCargo =
+    """
+    [package]
+    name = "formatico-cli"
+    version = "0.3.0"
+    edition = "2021"
+    description = "Format and convert structured text from the command line"
+    license = "MIT"
+
+    [dependencies]
+    serde = { version = "1.0", features = ["derive"] }
+    serde_json = "1.0"
+    toml = "0.8"
+    clap = { version = "4.5", features = ["derive"] }
+
+    [dev-dependencies]
+    pretty_assertions = "1.4"
+
+    [[bin]]
+    name = "fmt"
+    path = "src/main.rs"
+
+    [[bench]]
+    name = "parse"
+    harness = false
+
+    [profile.release]
+    lto = true
+    codegen-units = 1
+    """.trimIndent() + "\n"
+
+/** What was done in Formatico, an event to a line, as the Share board's events.ndjson has it. */
+private val PreviewEvents = listOf("open", "search", "format", "convert", "copy").mapIndexed { index, event ->
+    """{"at": "2026-10-29T09:0$index:12Z", "event": "$event", "bytes": ${1200 + 37 * index}}"""
+}.joinToString("\n", postfix = "\n")
+
+/** A Spring service's settings: dotted keys, a value carried on over two lines, an escape. */
+private val PreviewApplication =
+    """
+    # The web service, as Spring reads it.
+    server.port=8080
+    server.servlet.context-path=/api
+    spring.application.name=formatico
+    spring.datasource.url=jdbc:postgresql://localhost:5432/formatico
+    app.greeting=Merhaba, d\u00fcnya
+    app.allowed-origins=https://formatico.pantrixui.com, \
+        http://localhost:8080
+    """.trimIndent() + "\n"
+
+/** An INI file of Formatico's own: keys before the first section, sections, comments. */
+private val PreviewSettings =
+    """
+    ; Formatico's settings
+    version = 3
+
+    [editor]
+    theme = teal
+    font = Geist Mono
+    tab size = 2
+
+    [files]
+    ; How many documents Recent lists
+    recent = 12
+    max size = 50 MB
+    """.trimIndent() + "\n"
 
 /** The workspace of a document named [name], with [text] read as [format] and its tree left as [view] says. */
 private fun previewState(name: String?, text: String, format: Format?, view: DocumentView = DocumentView()) =
@@ -152,7 +244,11 @@ private val InvalidYaml = previewState("service.yaml", PreviewInvalidYaml, Forma
 
 /** Where the Invalid boards' caret stands: at the second problem, the missing comma on line 10. */
 private val InvalidCaret = PreviewInvalid.indexOf("\"127.0.0.1\"")
-private val Feed = previewState("feed.xml", PREVIEW_FEED, Format.Xml)
+private val Feed = previewState("feed.xml", PreviewFeed, Format.Xml, DocumentView(selected = "$.rss.channel.title"))
+private val Cargo = previewState("Cargo.toml", PreviewCargo, Format.Toml, DocumentView(selected = "$.dependencies.serde.version"))
+private val Events = previewState("events.ndjson", PreviewEvents, Format.Ndjson)
+private val Application = previewState("application.properties", PreviewApplication, Format.Properties)
+private val Settings = previewState("settings.ini", PreviewSettings, Format.Ini)
 private val BeingRead = WorkspaceState(document = OpenDocument(id = 1, name = "order.json", text = PreviewOrder, format = Format.Json))
 private val Empty = previewState(null, "", null)
 private val PlainText = previewState("notes.txt", "Things to check before the release.\n", null)
@@ -162,8 +258,8 @@ internal class ScreenCase(val state: WorkspaceState, val caret: Int = 0)
 
 /**
  * The workspace's cases: a JSON document with its value previews, a YAML one with anchors, a CSV and a JSON array as
- * tables, a document with mistakes and its problems, a YAML one with a flow left open, one in a format not read yet,
- * one being read, and a new, empty one.
+ * tables, a document with mistakes and its problems, a YAML one with a flow left open, an XML feed, a TOML manifest,
+ * newline-delimited JSON, a properties file and an INI one, one being read, and a new, empty one.
  */
 internal class WorkspaceScreenCases :
     PreviewCases<ScreenCase>(
@@ -174,7 +270,11 @@ internal class WorkspaceScreenCases :
         "invalid" to ScreenCase(Invalid, caret = InvalidCaret),
         "problems" to ScreenCase(InvalidProblems, caret = InvalidCaret),
         "invalid yaml" to ScreenCase(InvalidYaml),
-        "not read yet" to ScreenCase(Feed),
+        "xml" to ScreenCase(Feed),
+        "toml" to ScreenCase(Cargo),
+        "ndjson" to ScreenCase(Events),
+        "properties" to ScreenCase(Application),
+        "ini" to ScreenCase(Settings),
         "reading" to ScreenCase(BeingRead),
         "empty" to ScreenCase(Empty)
     )
@@ -201,13 +301,13 @@ internal class LaidOutState(val state: WorkspaceState, val layout: WorkspaceLayo
         }
 }
 
-/** The status bar's cases: what it says of a document read, with mistakes, being read and not read, on each board. */
+/** The status bar's cases: what it says of a document read, with mistakes, being read and in plain text, on each board. */
 internal class StatusBarCases :
     PreviewCases<LaidOutState>(
         "json" to LaidOutState(Order, WorkspaceLayout.Wide),
         "invalid" to LaidOutState(Invalid, WorkspaceLayout.Wide),
         "reading" to LaidOutState(BeingRead, WorkspaceLayout.Wide),
-        "not read yet" to LaidOutState(Feed, WorkspaceLayout.Wide),
+        "toml" to LaidOutState(Cargo, WorkspaceLayout.Wide),
         "plain text" to LaidOutState(PlainText, WorkspaceLayout.Wide),
         "csv on a tablet" to LaidOutState(Countries, WorkspaceLayout.Tablet),
         "yaml on a phone" to LaidOutState(Deployment, WorkspaceLayout.Phone)
@@ -286,11 +386,10 @@ internal fun SortSummaryPreview(@PreviewParameter(SortSummaryCases::class) case:
     FormaticoPreview(case) { SortSummary(table = it.table, sort = requireNotNull(it.sort)) }
 }
 
-/** What the tree's place says where there is no tree: plain text, a format not read yet, an empty document. */
+/** What the tree's place says where there is no tree: plain text, an empty document. */
 internal class TreePaneMessageCases :
     PreviewCases<WorkspaceState>(
         "plain text" to PlainText,
-        "not read yet" to Feed,
         "empty" to Empty
     )
 
@@ -306,7 +405,7 @@ internal class EditorComingCases :
         "json" to Order,
         "csv" to Countries,
         "invalid" to Invalid,
-        "not read yet" to Feed
+        "xml" to Feed
     )
 
 @Preview

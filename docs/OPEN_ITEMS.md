@@ -52,14 +52,14 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Ne: `QualityConventionPlugin` (Kotlinter ve detekt) uygulamanın modüllerine uygulanıyor; `build-logic/convention`'ın kendi `build.gradle.kts`'inde ikisi de yok. Convention eklentilerinin kodu biçim ve kural denetiminden geçmiyor.
     *   Nerede: `build-logic/convention/build.gradle.kts`.
     *   Öneri: `build-logic`'e Kotlinter (ve istenirse detekt) eklensin. Eklenti `build-logic`'in kendi derlemesinde olduğu için sürümü kataloğundan alınır.
-    *   Durum: açık.
+    *   Durum: açık. Bunun bir sonucu (2026-11-04): `InvisibleCharactersTask.kt`'nin kendi karakter tablosunda ve KDoc'unda görünmeyen karakterler kaçış yerine kendileri olarak yazılıydı (bölünmeyen boşluk, BOM, yön işaretleri). `checkInvisibleCharacters` `build-logic`'e bakmadığı için yakalanmadı. Kaçışla yazıldılar; görevin işi değişmedi.
 
 ## core:format
 
 *   [ ] **Büyük dosyalar ölçülmedi (2026-11-02).**
     *   Ne: Hedef masaüstünde 50 MB, telefonda ve web'de 10 MB. JSON okuyucusu her belirteci ve her değeri bir nesne olarak tutuyor, iç içe değerleri özyinelemeyle okuyor (512 düzeyle sınırlı).
     *   Öneri: 10 ve 50 MB'lık örneklerle her hedefte süre ve bellek ölçümü; gerekirse belirteçleri dizilerde tutmak ve okuyucuyu yığıtla yazmak.
-    *   Durum: açık.
+    *   Durum: açık. Faz 7'de iki ölçüm (JVM, geçici testlerle; testler silindi): 8,7 milyon karakterlik bir TOML 485 ms'de okunuyor ve yaklaşık 220 MB tutuyor; karşılaştırılabilir bir JSON 365 ms ve yaklaşık 262 MB. İkisi de doğrusal görünüyor, ama bu oranla 50 MB'lık bir belge 1,2–1,5 GB, 10 MB'lık bir belge yaklaşık 250 MB ister. XML okuyucusunda bulunan karesel bir yavaşlık giderildi: 10 MB 25 saniyeden yaklaşık 120 ms'ye indi.
 *   [x] **Sütun UTF-16 birimiyle sayılıyor (2026-11-02).**
     *   Ne: `TextPosition.column` UTF-16 birimi sayıyor; bir emoji iki sütun sayılır. Editörlerin çoğu kod noktası ya da görünen karakter sayar.
     *   Öneri: PantrixCodeEditor'ın imleci neyi sayıyorsa onu sayan bir dönüşüm.
@@ -68,9 +68,9 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Ne: `'﻿'`, `' '` gibi karakterler dosyaya kendileri olarak girerse Kotlinter'ın biçimlendiricisi BOM'u siliyor ve `''` derlenmiyor. Bu oturumda öyle oldu ve düzeltildi.
     *   Öneri: detekt'e ya da bir teste "Kotlin kaynağında görünmeyen karakter yok" denetimi.
     *   Durum: kapandı (2026-11-03). `formatico.quality` her modüle `checkInvisibleCharacters`'ı ekliyor (`check`'in parçası): `src` altındaki her `.kt` ve `.kts`'te bayt sırası işareti, bölünmeyen boşluk, yumuşak tire, genişliği olmayan boşluk ve birleştiriciler, yazı yönü işaretleri aranıyor; bulunan her biri dosya, satır ve sütunuyla, kaçış dizisi önerilerek bildiriliyor. Dikilmiş bir `\u00A0` ile denendi, yakaladı.
-*   [ ] **Biçimlerin yalnızca JSON ailesi okunuyor (2026-11-02).**
+*   [x] **Biçimlerin yalnızca JSON ailesi okunuyor (2026-11-02).**
     *   Ne: `core:format`'ta bugün JSON, JSONC ve JSON5 okuyucusu, biçim algılama, satır ve sütunlu problemler var. Biçimlendirme, küçültme, onarım, NDJSON okuyucusu, XML, YAML (`snakeyaml-engine-kmp` ve kendi yazıcımız), TOML, CSV/TSV, properties/INI sırada.
-    *   Durum: açık. Biçimlendirme, küçültme ve anahtar sıralama JSON ailesinde yazıldı (2026-11-03); YAML `snakeyaml-engine-kmp` 5.0.0 ile okunuyor ve Formatico'nun kendi yazıcısıyla yazılıyor (2026-11-03). CSV ve TSV kendi okuyucumuzla okunuyor ve biçimlendiriliyor (2026-11-03): ayırıcı tahmini (`,` `;` sekme `|`), tırnaklı alanlar, BOM, kapanmayan tırnak ve alan sayısı problemleri. NDJSON, XML, TOML, properties/INI ve onarım sırada.
+    *   Durum: kapandı (2026-11-04, Faz 7). `core:format`'ta her v1 biçiminin kayıpsız okuyucusu ve yazıcısı var: NDJSON (her satır RFC 8259 JSON'u), XML (kendi okuyucumuz; DOCTYPE olduğu gibi tutuluyor, iç alt kümesi okunmuyor), TOML 1.0, Java properties (`Properties.load`'ın kuralları) ve INI. Her biri metni karakter karakter geri veriyor (`print()`), problemleri satır ve sütunuyla buluyor, Format ve Minify'ı (XML dışında Sort keys'i de) yazıyor. Daha önce: JSON ailesi, YAML (2026-11-03), CSV ve TSV (2026-11-03).
 
 ## Start
 
@@ -123,10 +123,10 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Ne: Sahibinin kararıyla (2026-11-03) metin bölmesi `PantrixCodeEditor` bir sürümde gelene kadar boş: "Text editing is on its way". Metin ile ağacın seçimi birlikte yürümüyor; durum çubuğunda "Ln, Col" yok; telefondaki "Show in text" basılmıyor. Belge yalnızca ağaçta okunuyor, Format, Minify, Sort keys, Copy ve Save as a file metnin tamamında çalışıyor.
     *   Öneri: Pantrix'in editörü yayımlanınca metin bölmesi, seçimin iki yönlü bağı ve imlecin satırı ile sütunu.
     *   Durum: kapandı (2026-11-04). Metin bölmesi `PantrixCodeEditor` (Pantrix'in yerel 0.1.2-SNAPSHOT'ı): her biçimin kendi renklendiricisi (JSON ailesi, YAML, CSV ve TSV, TOML, INI, properties, XML), Formatico'nun sözdizimi renkleri, belgenin girintisi. Yazılan duraklayınca belgeye gidiyor; Format, Minify ve Sort keys editöre geri alınabilir bir adım olarak geliyor. Ağaçta seçilen değer metinde seçiliyor, imlecin durduğu değer ağaçta seçiliyor. Durum çubuğunda "Ln, Col"; telefonda "Show in text" basılıyor.
-*   [ ] **Yalnızca JSON ailesi okunuyor; dört örneğin üçü okunmuyor (2026-11-03).**
+*   [x] **Yalnızca JSON ailesi okunuyor; dört örneğin üçü okunmuyor (2026-11-03).**
     *   Ne: Workspace'in ağacı ve düzenlemeleri JSON, JSONC ve JSON5'te çalışıyor. YAML, TOML, CSV ve diğerleri "isn’t read yet" diyor; Start'ın dört örneğinden üçü (deployment.yaml, Cargo.toml, countries.csv) bugün yalnızca bu hâli gösteriyor. NDJSON da okunmuyor.
     *   Öneri: `core:format`'ın sıradaki okuyucuları; ilk olarak YAML (`snakeyaml-engine-kmp`) ve CSV, çünkü örnekleri var.
-    *   Durum: açık. YAML okunuyor (2026-11-03): deployment.yaml'ın ağacı, anchor'ları ve alias'ları görünüyor. countries.csv okunuyor (2026-11-03): Table'da açılıyor, ağaçta kayıtları görünüyor. Cargo.toml hâlâ "isn’t read yet" diyor.
+    *   Durum: kapandı (2026-11-04, Faz 7). Cargo.toml okunuyor: ağacında tabloları, satır içi tabloları ve tablo dizileri görünüyor; Format, Minify ve Sort keys çalışıyor. Start'ın dört örneği de okunuyor. "isn’t read yet" hâli kodda kalmadı; ağacı olmayan tek şey düz metin.
 *   [x] **Geri alma tek adım ve yalnızca bildirimden (2026-11-03).**
     *   Ne: Format, Minify ve Sort keys bir "Undo" bildirimi gösteriyor; bildirim kapanınca önceki metin gidiyor. Minify yorumları siliyor: bildirim kapandıktan sonra JSONC'nin ve YAML'ın yorumları geri gelmez. Telefonda eylemli bildirim, kapatılana kadar alttaki araç çubuğunun üstünde duruyor (Pantrix'in kuralı: eylemli bildirim kendiliğinden kapanmaz).
     *   Öneri: editörle birlikte belge başına bir geri alma geçmişi (`⌘Z`); o zamana kadar yorumu olan bir belgeyi küçültmeden önce uyarmak ya da yorumlar silinecekse bildirimde söylemek.
@@ -275,10 +275,10 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Ne: PantrixCodeEditor'ın bul ve değiştir çubuğu ⌘F ve ⌘H ile açılıyor; masaüstünde, tablette klavyeyle ve web'de çalışıyor. Klavyesi olmayan bir telefonda onu açacak bir düğme yok; panolarda da çizili değil.
     *   Öneri: telefonun "more" menüsüne ya da metin bölmesinin araç çubuğuna "Find" (`CodeEditorState.find`); önce Workspace-390'a çizilir.
     *   Durum: açık.
-*   [ ] **TOML, INI, properties ve XML'in renklendiricisi basit (2026-11-04).**
+*   [x] **TOML, INI, properties ve XML'in renklendiricisi basit (2026-11-04).**
     *   Ne: Bu biçimler henüz okunmuyor (Faz 7). Editör onları bir satırda gördüğü kadarıyla renklendiriyor: bölüm adı, anahtar, değer, yorum, etiket ve öznitelik. TOML'un birkaç satıra yayılan dizgisi ve dizisi, XML'in CDATA'sı satır satır renkleniyor.
     *   Öneri: Faz 7'de her biçimin okuyucusuyla birlikte renklendiricisini de tamamlamak.
-    *   Durum: açık, Faz 7'yle.
+    *   Durum: kapandı (2026-11-04, Faz 7). TOML'un kendi renklendiricisi var (`TomlHighlighter`): çok satırlı dizgiler ve satırlara yayılan diziler sonraki satırlara taşınıyor, satır içi tablonun anahtarları anahtar renginde, tarih ve saatler sayı renginde. Properties'in (`PropertiesHighlighter`) ters eğik çizgiyle devam eden değeri sonraki satırlarda da dizgi; anahtar, kaçışı olmayan ilk `=`, `:` ya da boşlukta bitiyor. XML'de CDATA ve satırlara yayılan öznitelik değerleri taşınıyor. INI eski renklendiricide kaldı (`SettingsHighlighter`), çünkü satırları tek başına duruyor. Taşınmayan: XML'de birkaç satıra yayılan bir DOCTYPE iç alt kümesi ve işleme yönergesi.
 *   [x] **Telefonun Invalid panosundaki şerit ve problem kartı yok (2026-11-04).**
     *   Ne: Invalid-390 metnin üstünde "Not valid JSON: 4 problems" şeridini ve "Repair all"u, altında da bir problem kartını çiziyor ("Problem 2 of 4 · line 10, column 5", önceki ve sonraki, onarım). Kodda telefonun Problems görünümü problemlerin listesi; metinde problemler işaretli, imleç üstündeyken iletisi görünüyor; Repair alttaki araç çubuğunda.
     *   Öneri: şeridi ve kartı Text görünümüne eklemek; kart Pantrix'te bir bileşen değil, Formatico'nun Pantrix'in parçalarıyla kurduğu bir kart olur.
@@ -287,4 +287,23 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
 *   [ ] **Telefonun Invalid görünümünde dört görünüm var, panoda üç (2026-11-04).**
     *   Ne: Invalid-390'ın görünüm seçimi Text, Tree ve Problems. Kodda Problems, belgenin tablosu olmadığında Table'ın yerini alıyor; panonun settings.json'ının bir tablosu çıktığı için telefonda dört görünüm var (Text, Tree, Table, Problems). 390'a sığıyorlar, ama pano bire bir değil.
     *   Öneri: sahibinin kararı: geçersiz belgede Table'ı telefonda hep Problems'a bırakmak (tablo Tree'den ya da düzeltilince açılır) ya da panoyu dört görünümle çizmek.
+    *   Durum: açık.
+*   [ ] **Workspace panolarının "unread" hâli artık olmuyor (2026-11-04).**
+    *   Ne: Workspace-1440, 834 ve 390'ın `unread` hâli Cargo.toml'u "TOML isn’t read yet" ve "Formatico reads JSON, JSONC, JSON5 and YAML today; TOML comes next." ile, durum çubuğunda "TOML, not checked" ile, Format, Minify ve Sort keys'i kapalı çiziyor. Faz 7'den beri her biçim okunuyor; kodda bu hâl ve sözcükleri kalktı. Ağacı olmayan tek şey düz metin ("Plain text has no tree"); onun panosu yok.
+    *   Nerede: tuvaldeki Workspace panolarının `state` seçeneği (`unread`).
+    *   Öneri: sahibinin kararı. Bu hâl ya tuvalden kalkar, ya düz metnin hâli olarak yeniden çizilir.
+    *   Durum: açık.
+*   [ ] **Yeni biçimlerin ağacı panolarda yok (2026-11-04).**
+    *   Ne: Tuvalde XML yalnızca Query-834'te ve yalnızca metin olarak var. TOML, NDJSON, properties ve INI'nin ağacı hiçbir panoda yok. Ağacın biçimi bu yüzden kodda seçildi, YAML'ın satırlarına göre:
+        *   XML: kök öğe `$`'ın altında, kendi adıyla. Öznitelikler `@ad` (değeri tırnaklarıyla), aynı adlı öğeler bir dizi, karışık içerikte ya da özniteliği olan öğede metin `#text`. Yalnızca metni olan öğe o metin, boş öğe boş bir dizgi. Yorumlar ve yönergeler ağaçta yok.
+        *   TOML: tablolar nesne, tablo dizileri dizi. Tarih ve saat yazıldığı gibi bir dizgi, önizlemesi tarih.
+        *   NDJSON: kayıtların dizisi, her satır bir öğe.
+        *   Properties: anahtarların düz bir nesnesi. `server.port` tek bir anahtar.
+        *   INI: ilk bölümden önceki anahtarlar ve bölümler, her bölüm bir nesne.
+        *   Tek kökün altındaki dal kendiliğinden açılıyor; XML'de bu, kök öğenin çocukları demek.
+    *   Öneri: sahibinin kararı. Ya bu ağaçlar tuvale çizilir, ya koddaki seçim kabul edilir.
+    *   Durum: açık.
+*   [ ] **XML, TOML ve INI'de onarım yok (2026-11-04).**
+    *   Ne: `Repairs.of` artık biçimi alıyor; bir kodun onarımı yalnızca o biçimin onarımıysa uygulanıyor. Önceden JSON'un onarımları her biçime uygulanabilirdi: XML'de kapanmayan bir yorum ` */` ile kapatılırdı, tek tırnaklı bir değer `"` ile kapanırdı, metindeki bir `<` silinirdi. Bugün XML'in ve INI'nin hiç onarımı yok. TOML'da yalnızca virgül onarımları var (fazla virgülü çıkarmak, eksik virgülü eklemek), properties'te yalnızca kaçış onarımı var.
+    *   Öneri: XML'de kapanmayan öğeye bitiş etiketi, tırnaksız özniteliğe tırnak, `&` yerine `&amp;`; TOML'da dizgiyi kendi tırnağıyla kapatmak; INI'de başlığı `]` ile kapatmak.
     *   Durum: açık.

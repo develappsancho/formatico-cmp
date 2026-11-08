@@ -24,8 +24,6 @@
     <string name="workspace_editor_body">It comes in a later version. Until then, the tree shows the document, and Format, Minify and Copy work on all of it.</string>
     <string name="workspace_editor_body_unread">It comes in a later version. Until then, Copy and Save as a file work on all of the document.</string>
     <string name="workspace_editor_body_read">It comes in a later version. Until then, the tree shows the document, and Copy and Save as a file work on all of it.</string>
-    <string name="workspace_unread_title">%1$s isn’t read yet</string>
-    <string name="workspace_unread_body">Formatico reads JSON, JSONC, JSON5 and YAML today; %1$s comes next.</string>
     <string name="workspace_plain_title">Plain text has no tree</string>
     <string name="workspace_plain_body">Choose the format it is written in, and it is read as one.</string>
     <string name="workspace_empty_title">The document is empty</string>
@@ -41,7 +39,6 @@
         <item quantity="one">%1$d problem</item>
         <item quantity="other">%1$d problems</item>
     </plurals>
-    <string name="workspace_status_not_checked">%1$s, not checked</string>
     <plurals name="workspace_lines">
         <item quantity="one">%1$d line</item>
         <item quantity="other">%1$d lines</item>
@@ -230,4 +227,31 @@
     <string name="problem_yaml_unclosed_flow">These brackets are never closed.</string>
     <string name="workspace_problem_error">Error</string>
     <string name="workspace_problem_warning">Warning</string>
+    <string name="problem_ini_unclosed_section">Close the section’s name with ].</string>
+    <string name="problem_ini_duplicate_section">This section is given twice: most readers take its keys into the first.</string>
+    <string name="problem_ini_trailing_content">Take out what follows the section’s header, or make it a comment.</string>
+    <string name="problem_xml_unclosed_element">Close &lt;%1$s&gt;: its end tag, &lt;/%1$s&gt;, is missing.</string>
+    <string name="problem_xml_mismatched_end_tag">This end tag’s name is not the name of the element it closes.</string>
+    <string name="problem_xml_unexpected_end_tag">Take out this end tag: no element is open for it.</string>
+    <string name="problem_xml_unterminated_tag">Close the tag with &gt;.</string>
+    <string name="problem_xml_duplicate_attribute">This attribute is given twice: an element has each once.</string>
+    <string name="problem_xml_unquoted_attribute">Put the attribute’s value in quotes.</string>
+    <string name="problem_xml_expected_attribute_value">Give the attribute a value: name="…".</string>
+    <string name="problem_xml_invalid_reference">Write &amp; as &amp;amp;, or as a reference XML knows.</string>
+    <string name="problem_xml_unterminated_cdata">Close the CDATA section with ]]&gt;.</string>
+    <string name="problem_xml_unterminated_instruction">Close the instruction with ?&gt;.</string>
+    <string name="problem_xml_misplaced_declaration">Move the XML declaration to the very start of the document, in small letters.</string>
+    <string name="problem_xml_second_root">Put this element inside the root: a document has one root element.</string>
+    <string name="problem_xml_text_outside_root">Put this text inside the root element, or take it out.</string>
+    <string name="problem_xml_no_root">Add a root element: the document has none.</string>
+    <string name="problem_xml_hyphens_in_comment">Take out the two hyphens: XML has none inside a comment.</string>
+    <string name="problem_xml_unexpected_character">Write this character as a reference, &amp;lt; for &lt;, or take it out.</string>
+    <string name="problem_xml_unterminated_comment">Close the comment with --&gt;.</string>
+    <string name="problem_xml_unterminated_string">Close the attribute’s value with its quote.</string>
+    <string name="problem_toml_expected_equals">Put = between the key and its value.</string>
+    <string name="problem_toml_table_redefined">This table is defined already: give its keys where it is first defined.</string>
+    <string name="problem_toml_invalid_date_time">Write the date or the time as TOML does: 2026-11-04, 09:30:00 or 2026-11-04T09:30:00Z.</string>
+    <string name="problem_toml_inline_table_line_break">Write the inline table on one line, or make it a [table].</string>
+    <string name="problem_toml_duplicate_key">This key is given twice: TOML gives a key one value.</string>
+    <string name="problem_toml_trailing_content">Take out what follows the value on this line, or make it a comment.</string>
 </resources>

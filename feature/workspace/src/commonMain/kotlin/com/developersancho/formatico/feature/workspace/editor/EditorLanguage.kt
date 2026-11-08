@@ -21,11 +21,10 @@ private val Json5 = EditorLanguage(
     CodeSyntax(quotes = "\"'", lineComment = "//", blockCommentStart = "/*", blockCommentEnd = "*/")
 )
 private val Yaml = EditorLanguage(YamlHighlighter, CodeSyntax(quotes = "\"'", lineComment = "#"))
-private val Toml = EditorLanguage(SettingsHighlighter(comments = "#", separators = "="), CodeSyntax(quotes = "\"'", lineComment = "#"))
+private val Toml = EditorLanguage(TomlHighlighter, CodeSyntax(quotes = "\"'", lineComment = "#"))
 private val Ini =
     EditorLanguage(SettingsHighlighter(comments = ";#", separators = "="), CodeSyntax(brackets = "[]", quotes = "\"", lineComment = ";"))
-private val Properties =
-    EditorLanguage(SettingsHighlighter(comments = "#!", separators = "=:"), CodeSyntax(brackets = "", quotes = "", lineComment = "#"))
+private val Properties = EditorLanguage(PropertiesHighlighter, CodeSyntax(brackets = "", quotes = "", lineComment = "#"))
 private val Csv = EditorLanguage(TableHighlighter(','), CodeSyntax(brackets = "", quotes = "\""))
 private val Tsv = EditorLanguage(TableHighlighter('\t'), CodeSyntax(brackets = "", quotes = "\""))
 private val Xml = EditorLanguage(

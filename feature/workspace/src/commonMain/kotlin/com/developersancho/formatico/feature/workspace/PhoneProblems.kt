@@ -88,7 +88,7 @@ internal fun ProblemCard(
     if (problems.isEmpty()) return
     val index = currentProblem(problems, editor.selection.min)
     val problem = problems[index]
-    val repair = Repairs.of(problem, document.text)
+    val repair = Repairs.of(problem, document.text, format)
     val goTo = { to: Int -> editor.selection = TextRange(problems[to].range.start, problems[to].range.end) }
     PantrixCard(
         modifier = modifier,

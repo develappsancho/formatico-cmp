@@ -115,6 +115,66 @@ class HighlightersTest {
     }
 
     @Test
+    fun tomlCarriesItsStringsAndArraysOverLines() {
+        assertEquals(
+            listOf(
+                listOf("[[bin]]:tag", "# the tool:comment"),
+                listOf("description :key", "=:sign", "\"\"\"Format:string"),
+                listOf("and convert\"\"\":string", "# done:comment"),
+                listOf("deps :key", "=:sign", "[:sign"),
+                listOf(
+                    "{:sign",
+                    "name:key",
+                    "=:sign",
+                    "\"serde\":string",
+                    ",:sign",
+                    "optional:key",
+                    "=:sign",
+                    "true:word",
+                    "}:sign",
+                    ",:sign"
+                ),
+                listOf("1979-05-27T07:32:00Z:number", ",:sign", "0x1F:number", "]:sign"),
+                listOf("key :key", "=:sign", "1_000:number")
+            ),
+            TomlHighlighter.read(
+                "[[bin]] # the tool",
+                "description = \"\"\"Format",
+                "and convert\"\"\" # done",
+                "deps = [",
+                "  { name = \"serde\", optional = true },",
+                "  1979-05-27T07:32:00Z, 0x1F]",
+                "key = 1_000"
+            )
+        )
+    }
+
+    @Test
+    fun propertiesCarryAValueOnOverLinesItsBackslashesEnd() {
+        assertEquals(
+            listOf(
+                listOf("! note:comment"),
+                listOf("path\\ with\\ spaces:key", "=:sign", "one, \\:string"),
+                listOf("two:string"),
+                listOf("next:key", "::sign", "3:string")
+            ),
+            PropertiesHighlighter.read("! note", "path\\ with\\ spaces = one, \\", "    two", "next: 3")
+        )
+    }
+
+    @Test
+    fun xmlCarriesCdataAndValuesOverLines() {
+        assertEquals(
+            listOf(
+                listOf("<:sign", "a:tag", "title:key", "=:sign", "\"one:string"),
+                listOf("two\":string", ">:sign", "<![CDATA[:sign"),
+                listOf("]]>:sign", "</:sign", "a:tag", ">:sign")
+            ),
+            XmlHighlighter.read("<a title=\"one", "two\"><![CDATA[if (a < b)", "{ }]]></a>")
+        )
+    }
+
+    @Test
     fun plainTextHasNoHighlighterAndEachFormatItsOwn() {
         assertNull(editorLanguage(null).highlighter)
         assertEquals("//", editorLanguage(Format.Jsonc).syntax.lineComment)

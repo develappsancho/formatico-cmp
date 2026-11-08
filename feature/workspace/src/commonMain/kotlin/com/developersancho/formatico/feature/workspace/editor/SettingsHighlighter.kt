@@ -8,9 +8,9 @@ import com.pantrixui.components.data.codeeditor.CodeHighlighter
 private val SettingNumber = Regex("""[-+]?(\d[\d_]*(\.\d+)?([eE][-+]?\d+)?|0x[0-9a-fA-F_]+|inf|nan)""")
 
 /**
- * A file of settings, a line at a time: TOML, INI and Java's properties. A section's name in brackets, a setting's name
- * before its `=` (or `:` in properties) in the key's colour, its value a string, a number or a word, and the comments
- * [comments] start. A string of several lines is coloured a line at a time: the reader of the format comes in Faz 7.
+ * A file of settings whose lines stand alone, a line at a time: INI. A section's name in brackets, a setting's name
+ * before one of its [separators] in the key's colour, its value a string, a number or a word, and the comments
+ * [comments] start.
  */
 internal class SettingsHighlighter(private val comments: String, private val separators: String) : CodeHighlighter<Unit> {
     override val initialState = Unit

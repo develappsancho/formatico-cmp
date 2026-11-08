@@ -97,9 +97,8 @@ class DocumentReadingTest {
     }
 
     @Test
-    fun aFormatNotReadYetAndPlainTextAreNotRead() {
-        assertEquals(Reading.Unread(Format.Toml), readDocument("a = 1", Format.Toml))
-        assertEquals(Reading.Unread(null), readDocument("hello", null))
+    fun plainTextIsNotRead() {
+        assertEquals(Reading.PlainText, readDocument("hello", null))
     }
 
     @Test

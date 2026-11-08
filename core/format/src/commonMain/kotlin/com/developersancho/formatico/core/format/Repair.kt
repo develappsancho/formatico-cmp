@@ -55,8 +55,13 @@ private const val ROUNDS = 20
 
 /** The repair of each problem Formatico knows how to repair. */
 object Repairs {
-    /** How [problem] in [text] is repaired, or null where it is not one Formatico repairs. */
-    fun of(problem: Problem, text: String): Repair? {
+    /**
+     * How [problem] in [text], read as [format], is repaired, or null where it is not one Formatico repairs there: a
+     * code another format has as well is repaired only where its repair is that format's: a comment in XML is not
+     * closed as JSON's is.
+     */
+    fun of(problem: Problem, text: String, format: Format): Repair? {
+        if (problem.code !in repairedIn(format)) return null
         val range = problem.range
         val at = text.substring(range.start, range.end)
         return when (problem.code) {
@@ -103,14 +108,14 @@ object Repairs {
     }
 
     /**
-     * [text] with every problem [read] finds in it that Formatico repairs, repaired: the repairs of a reading made at
-     * once, the later ones first so that the earlier ones' places hold, and the text read again, until no repair is
-     * left.
+     * [text], read as [format], with every problem [read] finds in it that Formatico repairs, repaired: the repairs of
+     * a reading made at once, the later ones first so that the earlier ones' places hold, and the text read again,
+     * until no repair is left.
      */
-    fun all(text: String, read: (String) -> List<Problem>): String {
+    fun all(text: String, format: Format, read: (String) -> List<Problem>): String {
         var repaired = text
         repeat(ROUNDS) {
-            val edits = read(repaired).mapNotNull { of(it, repaired) }.flatMap { it.edits }
+            val edits = read(repaired).mapNotNull { of(it, repaired, format) }.flatMap { it.edits }
             if (edits.isEmpty()) return repaired
             repaired = applied(repaired, edits)
         }
@@ -129,6 +134,50 @@ object Repairs {
         }
         return builder.toString()
     }
+
+    /** The codes whose repairs are [format]'s. */
+    private fun repairedIn(format: Format): Set<ProblemCode> = when (format) {
+        Format.Json, Format.Jsonc, Format.Json5 -> JsonRepaired
+
+        // A record is a line of its own: what closes a comment or a bracket at the end of the text is not its.
+        Format.Ndjson -> JsonRepaired - ProblemCode.UnterminatedComment - ProblemCode.Unclosed
+
+        Format.Yaml -> YamlRepaired
+
+        Format.Csv, Format.Tsv -> setOf(ProblemCode.UnclosedQuote, ProblemCode.StrayQuote)
+
+        Format.Toml -> setOf(ProblemCode.TrailingComma, ProblemCode.ExpectedCommaOrEnd)
+
+        Format.Properties -> setOf(ProblemCode.InvalidEscape)
+
+        Format.Xml, Format.Ini -> emptySet()
+    }
+
+    private val JsonRepaired = setOf(
+        ProblemCode.CommentNotAllowed,
+        ProblemCode.ExpectedCommaOrEnd,
+        ProblemCode.UnquotedPropertyName,
+        ProblemCode.TrailingComma,
+        ProblemCode.SingleQuotedString,
+        ProblemCode.UnterminatedString,
+        ProblemCode.UnterminatedComment,
+        ProblemCode.Unclosed,
+        ProblemCode.ExpectedColon,
+        ProblemCode.TrailingContent,
+        ProblemCode.UnexpectedCharacter,
+        ProblemCode.ControlCharacterInString,
+        ProblemCode.InvalidEscape,
+        ProblemCode.InvalidNumber
+    )
+
+    private val YamlRepaired = setOf(
+        ProblemCode.YamlColonInValue,
+        ProblemCode.YamlTab,
+        ProblemCode.YamlUnclosedFlow,
+        ProblemCode.UnterminatedString,
+        ProblemCode.ExpectedColon,
+        ProblemCode.InvalidEscape
+    )
 
     private fun insert(at: Int, text: String) = TextEdit(TextRange(at, at), text)
 

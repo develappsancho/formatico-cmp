@@ -45,8 +45,6 @@ import formatico.feature.workspace.generated.resources.workspace_no_value_body
 import formatico.feature.workspace.generated.resources.workspace_no_value_title
 import formatico.feature.workspace.generated.resources.workspace_plain_body
 import formatico.feature.workspace.generated.resources.workspace_plain_title
-import formatico.feature.workspace.generated.resources.workspace_unread_body
-import formatico.feature.workspace.generated.resources.workspace_unread_title
 import formatico.feature.workspace.generated.resources.workspace_view_problems
 import formatico.feature.workspace.generated.resources.workspace_view_problems_short
 import formatico.feature.workspace.generated.resources.workspace_view_table
@@ -116,14 +114,8 @@ internal fun treeMessage(state: WorkspaceState): Pair<String, String>? {
             stringResource(Res.string.workspace_empty_title) to stringResource(Res.string.workspace_empty_body)
         }
 
-        reading is Reading.Unread -> {
-            val format = reading.format
-            if (format == null) {
-                stringResource(Res.string.workspace_plain_title) to stringResource(Res.string.workspace_plain_body)
-            } else {
-                stringResource(Res.string.workspace_unread_title, format.displayName) to
-                    stringResource(Res.string.workspace_unread_body, format.displayName)
-            }
+        reading == Reading.PlainText -> {
+            stringResource(Res.string.workspace_plain_title) to stringResource(Res.string.workspace_plain_body)
         }
 
         reading is Reading.Read && reading.root != null -> {

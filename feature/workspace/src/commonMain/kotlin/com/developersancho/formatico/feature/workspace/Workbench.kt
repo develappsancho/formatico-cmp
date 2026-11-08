@@ -1,20 +1,8 @@
 package com.developersancho.formatico.feature.workspace
 
 import com.developersancho.formatico.core.format.Format
-import com.developersancho.formatico.core.format.ProblemCode
 import com.developersancho.formatico.core.format.Repairs
 import com.developersancho.formatico.core.format.TextEdit
-import com.developersancho.formatico.core.format.csv.CsvDocument
-import com.developersancho.formatico.core.format.csv.formatted
-import com.developersancho.formatico.core.format.json.JsonDialect
-import com.developersancho.formatico.core.format.json.JsonDocument
-import com.developersancho.formatico.core.format.json.formatted
-import com.developersancho.formatico.core.format.json.minified
-import com.developersancho.formatico.core.format.text.Indentation
-import com.developersancho.formatico.core.format.text.TextLayout
-import com.developersancho.formatico.core.format.yaml.YamlDocument
-import com.developersancho.formatico.core.format.yaml.formatted
-import com.developersancho.formatico.core.format.yaml.minified
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -110,23 +98,6 @@ sealed interface EditResult {
     /** Sorting a YAML document's keys would put an alias before the anchor it points at, which YAML does not allow. */
     data object AliasBeforeAnchor : EditResult
 }
-
-/** What Formatico can make of a document of this format: all of it in JSON and YAML, Format in CSV and TSV. */
-internal val Format.edits: Set<DocumentEdit>
-    get() = when {
-        jsonDialect != null || this == Format.Yaml -> DocumentEdit.entries.toSet()
-        this == Format.Csv || this == Format.Tsv -> setOf(DocumentEdit.Format)
-        else -> emptySet()
-    }
-
-/** The JSON a format is read as, or null for a format Formatico does not read yet. */
-internal val Format.jsonDialect: JsonDialect?
-    get() = when (this) {
-        Format.Json -> JsonDialect.Json
-        Format.Jsonc -> JsonDialect.Jsonc
-        Format.Json5 -> JsonDialect.Json5
-        else -> null
-    }
 
 /**
  * The documents open in Formatico's tabs, and the changes made to them: what the bar's tabs and every workspace
@@ -255,63 +226,6 @@ class Workbench(private val worker: CoroutineDispatcher = Dispatchers.Default) {
 
 /** The document whose id is [id] is no longer in Start's history: it is told of no changes and keeps its own text. */
 fun Workbench.leaveHistory(id: Long) = change(id) { it.copy(historyId = null) }
-
-/** What an edit makes of a document's text, before it is kept. */
-private sealed interface Edited {
-    class Text(val text: String, val commentsRemoved: Int = 0) : Edited
-
-    data object NotPossible : Edited
-
-    data object AliasBeforeAnchor : Edited
-}
-
-/** What [edit] makes of [document]. */
-private fun edited(document: OpenDocument, edit: DocumentEdit): Edited {
-    val indentation = TextLayout.of(document.text).indentation ?: Indentation.Spaces(2)
-    return when (val format = document.format) {
-        null -> Edited.NotPossible
-        Format.Yaml -> editedYaml(document.text, edit, indentation)
-        Format.Csv, Format.Tsv -> editedCsv(document.text, edit, delimiter = if (format == Format.Tsv) '\t' else null)
-        else -> format.jsonDialect?.let { editedJson(document.text, it, edit, indentation) } ?: Edited.NotPossible
-    }
-}
-
-private fun editedJson(text: String, dialect: JsonDialect, edit: DocumentEdit, indentation: Indentation): Edited {
-    val json = JsonDocument.parse(text, dialect)
-    if (!json.isValid) return Edited.NotPossible
-    return when (edit) {
-        DocumentEdit.Format -> Edited.Text(json.formatted(indentation))
-        DocumentEdit.Minify -> Edited.Text(json.minified(), commentsRemoved = json.comments.size)
-        DocumentEdit.SortKeys -> Edited.Text(json.formatted(indentation, sortKeys = true))
-    }
-}
-
-/** What [edit] makes of a CSV or a TSV [text]: Format alone, which quotes only what needs it. */
-private fun editedCsv(text: String, edit: DocumentEdit, delimiter: Char?): Edited {
-    val csv = CsvDocument.parse(text, delimiter)
-    return if (edit == DocumentEdit.Format && csv.isValid) Edited.Text(csv.formatted()) else Edited.NotPossible
-}
-
-/** What [edit] makes of a YAML [text]; its keys are not sorted where an alias would come before its anchor. */
-private fun editedYaml(text: String, edit: DocumentEdit, indentation: Indentation): Edited {
-    val yaml = YamlDocument.parse(text)
-    if (!yaml.isValid) return Edited.NotPossible
-    return when (edit) {
-        DocumentEdit.Format -> {
-            Edited.Text(yaml.formatted(indentation))
-        }
-
-        DocumentEdit.Minify -> {
-            Edited.Text(yaml.minified(), commentsRemoved = yaml.comments.size)
-        }
-
-        DocumentEdit.SortKeys -> {
-            val sorted = yaml.formatted(indentation, sortKeys = true)
-            val again = YamlDocument.parse(sorted).problems
-            if (again.any { it.code == ProblemCode.UndefinedAlias }) Edited.AliasBeforeAnchor else Edited.Text(sorted)
-        }
-    }
-}
 
 /** The text of the document whose id is [id] is now [text], as its editor wrote it: changed, not saved to its file. */
 fun Workbench.write(id: Long, text: String) = change(id) { if (it.text == text) it else it.copy(text = text, edited = true) }

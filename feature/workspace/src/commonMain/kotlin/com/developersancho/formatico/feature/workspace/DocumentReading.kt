@@ -3,13 +3,6 @@ package com.developersancho.formatico.feature.workspace
 import com.developersancho.formatico.core.format.Format
 import com.developersancho.formatico.core.format.Problem
 import com.developersancho.formatico.core.format.Severity
-import com.developersancho.formatico.core.format.json.JsonArray
-import com.developersancho.formatico.core.format.json.JsonBoolean
-import com.developersancho.formatico.core.format.json.JsonDocument
-import com.developersancho.formatico.core.format.json.JsonNumber
-import com.developersancho.formatico.core.format.json.JsonObject
-import com.developersancho.formatico.core.format.json.JsonString
-import com.developersancho.formatico.core.format.json.JsonValue
 import com.developersancho.formatico.core.format.json.PathStep
 import com.developersancho.formatico.core.format.json.jsonPath
 import com.developersancho.formatico.core.format.text.LineMap
@@ -56,8 +49,8 @@ internal sealed interface Reading {
     /** It is being read. */
     data object Pending : Reading
 
-    /** It is plain text, or in [format], which Formatico does not read yet. */
-    data class Unread(val format: Format?) : Reading
+    /** It is plain text: in no format, and so with no tree. */
+    data object PlainText : Reading
 
     /**
      * It was read.
@@ -88,16 +81,16 @@ internal data class TextStats(val lines: Int, val bytes: Long, val layout: TextL
 }
 
 /** Reads [text] as [format], for its tree. */
-internal fun readDocument(text: String, format: Format?): Reading {
-    if (format == Format.Yaml) return readYaml(text)
-    if (format == Format.Csv || format == Format.Tsv) return readCsv(text, format)
-    val dialect = format?.jsonDialect ?: return Reading.Unread(format)
-    val document = JsonDocument.parse(text, dialect)
-    return Reading.Read(
-        format = format,
-        root = document.root?.let { node(it, path = emptyList(), name = ROOT) },
-        problems = document.problems
-    )
+internal fun readDocument(text: String, format: Format?): Reading = when (format) {
+    null -> Reading.PlainText
+    Format.Json, Format.Jsonc, Format.Json5 -> readJson(text, format)
+    Format.Ndjson -> readNdjson(text)
+    Format.Yaml -> readYaml(text)
+    Format.Csv, Format.Tsv -> readCsv(text, format)
+    Format.Toml -> readToml(text)
+    Format.Xml -> readXml(text)
+    Format.Properties -> readProperties(text)
+    Format.Ini -> readIni(text)
 }
 
 internal const val ROOT = "$"
@@ -107,49 +100,18 @@ internal fun childKey(parent: String, step: PathStep, duplicate: Int? = null): S
     parent + jsonPath(listOf(step)).drop(1) + (duplicate?.let { "#$it" } ?: "")
 
 /**
- * The node of [value], at [path] and keyed [key]. A child's key is its parent's and its own step: a key given twice in
- * one object gives its second member a key of its own, `#` and its place, as the tree asks.
+ * The branches a document opens with: the root, and the objects in it. A branch that holds nothing but one branch is
+ * gone through, as an XML document's root holds its root element alone: what that branch holds is opened in its place.
  */
-private fun node(value: JsonValue, path: List<PathStep>, name: String, key: String = jsonPath(path)): ValueNode =
-    when (value) {
-        is JsonObject -> {
-            val seen = HashSet<String>()
-            val children = value.members.mapIndexedNotNull { index, member ->
-                val step = PathStep.Key(member.key.name)
-                val own = childKey(key, step, duplicate = index.takeUnless { seen.add(member.key.name) })
-                member.value?.let { node(it, path + step, member.key.name, own) }
-            }
-            ValueNode(key, path, name, ValueKind.Object, "{${value.members.size}}", null, null, children, value.range)
-        }
-
-        is JsonArray -> {
-            val children = value.items.mapIndexed { index, item ->
-                node(item, path + PathStep.Index(index), "$index", childKey(key, PathStep.Index(index)))
-            }
-            ValueNode(key, path, name, ValueKind.Array, "[${value.items.size}]", null, null, children, value.range)
-        }
-
-        else -> {
-            leaf(key, path, name, value)
-        }
-    }
-
-/** The node of a string, a number, `true`, `false` or `null`. */
-private fun leaf(key: String, path: List<PathStep>, name: String, value: JsonValue): ValueNode {
-    val (kind, text, string) = when (value) {
-        is JsonString -> Triple(ValueKind.String, value.raw, value.value)
-        is JsonNumber -> Triple(ValueKind.Number, value.raw, null)
-        is JsonBoolean -> Triple(ValueKind.Boolean, "${value.value}", null)
-        else -> Triple(ValueKind.Null, "null", null)
-    }
-    return ValueNode(key, path, name, kind, text, string, string?.let(::previewOf), emptyList(), value.range)
-}
-
-/** The branches a document opens with: the root, and the objects in it. */
 internal fun defaultExpanded(root: ValueNode?): Set<String> {
     if (root == null) return emptySet()
-    return setOf(root.key) +
-        root.children.filter { it.kind == ValueKind.Object && it.children.isNotEmpty() }.map { it.key }
+    val opened = mutableSetOf<String>()
+    var node: ValueNode = root
+    while (true) {
+        opened += node.key
+        node = node.children.singleOrNull()?.takeIf { it.children.isNotEmpty() } ?: break
+    }
+    return opened + node.children.filter { it.kind == ValueKind.Object && it.children.isNotEmpty() }.map { it.key }
 }
 
 /** What [text] read as [format] has wrong in it. */
@@ -166,11 +128,14 @@ internal fun json5Allows(text: String, format: Format?, reading: Reading): Int {
     return (reading.errors - asJson5.errors).coerceAtLeast(0)
 }
 
-/** The innermost value of [root] whose text holds the place [offset], or null where none does. */
+/**
+ * The innermost value of [root] whose text holds the place [offset], or null where none does. Of two children that hold
+ * it, the narrower is taken: a TOML table's text takes in its sub-tables, and a table given between them as well.
+ */
 internal fun nodeAt(root: ValueNode?, offset: Int): ValueNode? {
     var node = root?.takeIf { offset in it.range.start..it.range.end } ?: return null
     while (true) {
-        node = node.children.firstOrNull { offset in it.range.start..it.range.end } ?: return node
+        node = node.children.filter { offset in it.range.start..it.range.end }.minByOrNull { it.range.length } ?: return node
     }
 }
 

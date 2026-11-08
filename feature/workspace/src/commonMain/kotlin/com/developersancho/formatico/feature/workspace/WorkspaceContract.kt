@@ -28,7 +28,12 @@ internal data class WorkspaceState(
     val problems: List<Problem> get() = (reading as? Reading.Read)?.problems.orEmpty()
 
     /** How many of the [problems] Formatico repairs. */
-    val repairable: Int get() = document?.text?.let { text -> problems.count { Repairs.of(it, text) != null } } ?: 0
+    val repairable: Int
+        get() {
+            val document = document ?: return 0
+            val format = document.format ?: return 0
+            return problems.count { Repairs.of(it, document.text, format) != null }
+        }
 
     /** The value chosen in the tree, or null. */
     val selected: ValueNode? get() = trail.lastOrNull()

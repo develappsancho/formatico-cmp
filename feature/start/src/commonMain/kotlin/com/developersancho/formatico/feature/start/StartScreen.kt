@@ -111,11 +111,8 @@ internal fun StartScreen(state: StartState, onIntent: (StartIntent) -> Unit, mod
     Box(
         modifier = modifier
             .fillMaxSize()
-            // Around the root, not inside it as onPaste's example has it: inside, it does not see the focus the root
-            // holds, and a browser's paste goes unheard until a control has the focus (PANTRIX_FINDINGS: "onPaste,
-            // shortcutRoot'un içinde web'de duymuyor").
-            .onPaste { onIntent(StartIntent.Paste(it)) }
             .shortcutRoot()
+            .onPaste { onIntent(StartIntent.Paste(it)) }
             .pantrixVerticalScroll(rememberScrollState()),
         contentAlignment = Alignment.TopCenter
     ) {

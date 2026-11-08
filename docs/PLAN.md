@@ -77,7 +77,10 @@ eksikler Faz 4'te.
     Yapıldı (2026-11-04): editörde işaretler, Problems görünümü (uyarı, Repair all, Read as JSON5, her problem ve
     onarımı), araç çubuğunda Repair, `core:format`'ta onarımlar; telefonun şeridi ve problem kartı; YAML'ın hatalarının
     kendi kodları, iletileri ve onarımları. İmlecin satırındaki işaret Pantrix'in bulgusunu bekliyor (PANTRIX_FINDINGS).
-*   [ ] **Faz 7: Kalan biçimler.** NDJSON, XML, TOML, properties ve INI: kayıpsız okuyucu, yazıcı ve ağaç.
+*   [x] **Faz 7: Kalan biçimler.** NDJSON, XML, TOML, properties ve INI: kayıpsız okuyucu, yazıcı ve ağaç.
+    Yapıldı (2026-11-04): beşinin de `core:format`'ta okuyucusu, yazıcısı (Format, Minify; XML dışında Sort keys) ve
+    problemleri var. Hepsi workspace'te ağacıyla, iletileriyle ve renklendiricisiyle okunuyor. Onarımlar biçime bağlı.
+    "isn’t read yet" hâli kalktı. Ağaçların biçimi panolarda yok, kodda seçildi (OPEN_ITEMS).
 *   [ ] **Faz 8: Ağaç ve tablo.** Ağaçta arama, bir düzeye kadar açma, yolu JSONPath, JSON Pointer ya da jq olarak
     kopyalama; sütun türleri; tabloyu kaydetme ve kopyalama menüsü; renk ve resim önizlemesi; Summary (sahibinin
     kararıyla v1'de, 2026-11-04: düzen'den gelenlerin hepsi).

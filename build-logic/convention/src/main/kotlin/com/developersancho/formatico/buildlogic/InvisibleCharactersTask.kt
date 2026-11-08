@@ -16,7 +16,7 @@ import org.gradle.api.tasks.TaskAction
  * Fails where a Kotlin source holds a character that cannot be seen: a byte order mark, a space that does not break,
  * a joiner, a mark of the writing's direction. Written as itself, Kotlinter's formatter drops a byte order mark and
  * `''` no longer compiles, and a direction mark can make code read otherwise than it runs; in a source each is
- * written as its escape, `'﻿'`.
+ * written as its escape, `'\ufeff'`.
  */
 @CacheableTask
 abstract class InvisibleCharactersTask : DefaultTask() {
@@ -47,17 +47,17 @@ abstract class InvisibleCharactersTask : DefaultTask() {
 
     private companion object {
         val INVISIBLE: Map<Char, String> = buildMap {
-            put(' ', "a space that does not break")
-            put('­', "a soft hyphen")
-            put('​', "a space of no width")
-            put('‌', "a joiner of no width")
-            put('‍', "a joiner of no width")
-            ('‎'..'‏').forEach { put(it, "a mark of the writing's direction") }
-            (' '..' ').forEach { put(it, "a line or paragraph separator") }
-            ('‪'..'‮').forEach { put(it, "a mark of the writing's direction") }
-            ('⁠'..'⁤').forEach { put(it, "a joiner or an operator that cannot be seen") }
-            ('⁦'..'⁩').forEach { put(it, "a mark of the writing's direction") }
-            put('﻿', "a byte order mark")
+            put('\u00a0', "a space that does not break")
+            put('\u00ad', "a soft hyphen")
+            put('\u200b', "a space of no width")
+            put('\u200c', "a joiner of no width")
+            put('\u200d', "a joiner of no width")
+            ('\u200e'..'\u200f').forEach { put(it, "a mark of the writing's direction") }
+            ('\u2028'..'\u2029').forEach { put(it, "a line or paragraph separator") }
+            ('\u202a'..'\u202e').forEach { put(it, "a mark of the writing's direction") }
+            ('\u2060'..'\u2064').forEach { put(it, "a joiner or an operator that cannot be seen") }
+            ('\u2066'..'\u2069').forEach { put(it, "a mark of the writing's direction") }
+            put('\ufeff', "a byte order mark")
         }
     }
 }

@@ -26,3 +26,4 @@ node_modules/
 
 # Claude Code settings for this machine only: they hold absolute paths on it.
 .claude/settings.local.json
+.claude/worktrees

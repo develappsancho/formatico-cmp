@@ -99,19 +99,19 @@ class WorkspaceScreenTest {
     }
 
     @Test
-    fun aFormatNotReadYetSaysSoAndCannotBeChanged() = runComposeUiTest {
+    fun plainTextSaysItHasNoTreeAndCannotBeChanged() = runComposeUiTest {
         setContent {
             PantrixTestTheme(window = desktop, clock = clock) {
                 WorkspaceScreen(
-                    state = stateOf("a = 1\n", Format.Toml, name = "Cargo.toml"),
+                    state = stateOf("Things to check before the release.\n", format = null, name = "notes.txt"),
                     onIntent = {},
                     commands = rememberDocumentCommands(Workbench())
                 )
             }
         }
 
-        awaitText("TOML isn’t read yet")
-        awaitText("TOML, not checked")
+        awaitText("Plain text has no tree")
+        awaitText("Plain text")
         onPantrixNode("Button", "format").assertIsNotEnabled()
         onPantrixNode("Button", "minify").assertIsNotEnabled()
         onPantrixNode("TreeView", "document").assertDoesNotExist()

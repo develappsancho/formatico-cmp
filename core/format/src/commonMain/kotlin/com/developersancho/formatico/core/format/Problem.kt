@@ -39,10 +39,10 @@ enum class ProblemCode {
     /** A token that cannot stand where it is. */
     UnexpectedToken,
 
-    /** A string with no closing quote on its line. */
+    /** A string, or an XML attribute's value, whose closing quote is not where it should be: on its line, in JSON. */
     UnterminatedString,
 
-    /** A block comment with no `*` and `/` closing it. */
+    /** A comment that is never closed: a block comment of JSON's, or an XML comment. */
     UnterminatedComment,
 
     /** A backslash followed by what is not an escape. */
@@ -118,5 +118,74 @@ enum class ProblemCode {
     StrayQuote,
 
     /** A CSV record with another number of fields than the header. */
-    FieldCount
+    FieldCount,
+
+    /** An INI section's header with no `]` closing it. */
+    IniUnclosedSection,
+
+    /** An INI section given a second header: most readers take its keys into the first. */
+    IniDuplicateSection,
+
+    /** An XML element that is never closed: the range is its start tag. */
+    XmlUnclosedElement,
+
+    /** An XML end tag of another name than the element it closes: the range is the end tag's name. */
+    XmlMismatchedEndTag,
+
+    /** An XML end tag no element is open for. */
+    XmlUnexpectedEndTag,
+
+    /** An XML tag, or a DOCTYPE, with no `>` closing it. */
+    XmlUnterminatedTag,
+
+    /** An attribute given twice in one XML tag: the range is the later one's name. */
+    XmlDuplicateAttribute,
+
+    /** An XML attribute's value in no quotes. */
+    XmlUnquotedAttribute,
+
+    /** An XML attribute with no `=` and no value after its name. */
+    XmlExpectedAttributeValue,
+
+    /**
+     * An `&` in XML that starts no reference, a reference to a character XML does not have, or an entity other than the
+     * five XML has, `&amp;` `&lt;` `&gt;` `&quot;` `&apos;`, in a document with no DOCTYPE to declare it.
+     */
+    XmlInvalidReference,
+
+    /** An XML CDATA section with no `]]>` closing it. */
+    XmlUnterminatedCdata,
+
+    /** An XML processing instruction with no `?>` closing it. */
+    XmlUnterminatedInstruction,
+
+    /** The XML declaration, `<?xml …?>`, anywhere but at the start of the text, or written in capitals. */
+    XmlMisplacedDeclaration,
+
+    /** An XML element after the document's root, which is the only element at the top level. */
+    XmlSecondRoot,
+
+    /** Text that is not whitespace before or after an XML document's root. */
+    XmlTextOutsideRoot,
+
+    /** An XML text with no element in it: comments only, for instance. */
+    XmlNoRoot,
+
+    /** Two hyphens inside an XML comment, which XML does not allow: `<!-- a -- b -->`, or a comment ending in `--->`. */
+    XmlHyphensInComment,
+
+    /** A TOML key with no `=` after it. */
+    TomlExpectedEquals,
+
+    /**
+     * A TOML table defined again: a table, or a key made a table, given a header or keys once more, or a key given a value
+     * where a table is already.
+     */
+    TomlTableRedefined,
+
+    /** A TOML date or time that is none: `2026-02-30`, `25:00:00`, or one with no seconds, `07:32`. */
+    TomlInvalidDateTime,
+
+    /** A TOML inline table over more than one line, which TOML 1.0 keeps on one. */
+    TomlInlineTableLineBreak
 }

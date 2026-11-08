@@ -1,6 +1,9 @@
 package com.developersancho.formatico.feature.start
 
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -14,13 +17,13 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 /**
- * A browser's own paste, which Cmd+V or Ctrl+V makes on the page: a test cannot press the browser's keys, and so it
- * hands the page the paste the browser would.
+ * A browser's own paste, which follows Cmd+V or Ctrl+V on the page: a test cannot press the browser's keys, and so it
+ * presses Compose's and hands the page, while the key is down, the paste the browser would.
  */
 @OptIn(ExperimentalTestApi::class)
 class StartBrowserPasteTest {
     @Test
-    fun theBrowsersPasteIsHeardBeforeAnythingHasBeenFocused() = runComposeUiTest {
+    fun theBrowsersPasteThatFollowsItsKeyIsHeardBeforeAnythingHasBeenFocused() = runComposeUiTest {
         val intents = mutableListOf<StartIntent>()
         setContent {
             PantrixTestTheme(window = PantrixWindow(DpSize(1440.dp, 900.dp))) {
@@ -29,8 +32,19 @@ class StartBrowserPasteTest {
         }
         awaitText("Paste from clipboard")
 
+        // A paste with no key, as the browser's menu makes, is not the screen's.
+        assertEquals(false, pasteInBrowser("from the menu"))
+
         // The screen's root holds the focus: nothing inside it has been focused.
+        onRoot().performKeyInput {
+            keyDown(Key.CtrlLeft)
+            keyDown(Key.V)
+        }
         val taken = pasteInBrowser("a: 1\n")
+        onRoot().performKeyInput {
+            keyUp(Key.V)
+            keyUp(Key.CtrlLeft)
+        }
 
         awaitUntil("The paste") { intents.isNotEmpty() }
         assertEquals(listOf<StartIntent>(StartIntent.Paste("a: 1\n")), intents)

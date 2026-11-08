@@ -88,14 +88,22 @@ class WorkbenchTest {
     }
 
     @Test
-    fun aDocumentWithErrorsOrInAFormatNotReadYetIsNotEdited() = runTest {
+    fun aDocumentWithErrorsOrInPlainTextIsNotEdited() = runTest {
         val broken = workbench.open("broken.json", """{"a": }""", Format.Json)
-        val toml = workbench.open("Cargo.toml", "a = 1", Format.Toml)
+        val plain = workbench.open("notes.txt", "a = 1", format = null)
         val yaml = workbench.open("broken.yaml", "a: [1\n", Format.Yaml)
 
         assertEquals(EditResult.NotPossible, workbench.edit(broken, DocumentEdit.Format))
-        assertEquals(EditResult.NotPossible, workbench.edit(toml, DocumentEdit.Format))
+        assertEquals(EditResult.NotPossible, workbench.edit(plain, DocumentEdit.Format))
         assertEquals(EditResult.NotPossible, workbench.edit(yaml, DocumentEdit.Format))
+    }
+
+    @Test
+    fun aTomlManifestIsFormattedAndItsKeysSorted() = runTest {
+        val id = workbench.open("Cargo.toml", "[package]\nversion=\"0.3.0\"\nname   =  \"fmt\"\n", Format.Toml)
+
+        assertIs<EditResult.Changed>(workbench.edit(id, DocumentEdit.SortKeys))
+        assertEquals("[package]\nname = \"fmt\"\nversion = \"0.3.0\"\n", workbench.state.value.documents.single().text)
     }
 
     @Test

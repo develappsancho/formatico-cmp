@@ -32,7 +32,6 @@ import formatico.feature.workspace.generated.resources.workspace_line_column
 import formatico.feature.workspace.generated.resources.workspace_lines
 import formatico.feature.workspace.generated.resources.workspace_plain_text
 import formatico.feature.workspace.generated.resources.workspace_separated
-import formatico.feature.workspace.generated.resources.workspace_status_not_checked
 import formatico.feature.workspace.generated.resources.workspace_status_problems
 import formatico.feature.workspace.generated.resources.workspace_status_reading
 import formatico.feature.workspace.generated.resources.workspace_status_valid
@@ -137,7 +136,7 @@ private fun lineEndingName(lineEnding: LineEnding): String = when (lineEnding) {
     LineEnding.Cr -> "CR"
 }
 
-/** Whether the document is valid, how many problems it has, or that it is not checked: a tag in its colour. */
+/** Whether the document is valid, how many problems it has, or that it is plain text: a tag in its colour. */
 @Composable
 internal fun StatusTag(state: WorkspaceState) {
     val (text, tone) = when (val reading = state.reading) {
@@ -145,14 +144,8 @@ internal fun StatusTag(state: WorkspaceState) {
             stringResource(Res.string.workspace_status_reading) to TagTone.Neutral
         }
 
-        is Reading.Unread -> {
-            val format = reading.format
-            val text = if (format == null) {
-                stringResource(Res.string.workspace_plain_text)
-            } else {
-                stringResource(Res.string.workspace_status_not_checked, format.displayName)
-            }
-            text to TagTone.Neutral
+        Reading.PlainText -> {
+            stringResource(Res.string.workspace_plain_text) to TagTone.Neutral
         }
 
         is Reading.Read -> {

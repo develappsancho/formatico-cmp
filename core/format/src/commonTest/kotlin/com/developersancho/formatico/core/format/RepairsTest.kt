@@ -30,7 +30,7 @@ class RepairsTest {
 
     private fun repaired(text: String, code: ProblemCode, dialect: JsonDialect = JsonDialect.Json): String {
         val problem = problems(text, dialect).first { it.code == code }
-        return Repairs.applied(text, requireNotNull(Repairs.of(problem, text)).edits)
+        return Repairs.applied(text, requireNotNull(Repairs.of(problem, text, Format.Json)).edits)
     }
 
     @Test
@@ -42,7 +42,7 @@ class RepairsTest {
                 ProblemCode.UnquotedPropertyName to RepairKind.QuoteKey,
                 ProblemCode.TrailingComma to RepairKind.RemoveComma
             ),
-            problems(settings).map { it.code to Repairs.of(it, settings)?.kind }
+            problems(settings).map { it.code to Repairs.of(it, settings, Format.Json)?.kind }
         )
     }
 
@@ -60,7 +60,7 @@ class RepairsTest {
 
     @Test
     fun repairingAllLeavesAValidDocumentThatKeepsItsValues() {
-        val all = Repairs.all(settings) { problems(it) }
+        val all = Repairs.all(settings, Format.Json) { problems(it) }
 
         assertEquals(emptyList(), problems(all))
         assertTrue("\"timeout\": 30" in all && "\"127.0.0.1\"" in all)
@@ -76,7 +76,7 @@ class RepairsTest {
                 repaired(it, ProblemCode.InvalidNumber)
             }
         )
-        assertEquals("{\"a\": [1]}", Repairs.all("{\"a\": [1") { problems(it) }.trimEnd())
+        assertEquals("{\"a\": [1]}", Repairs.all("{\"a\": [1", Format.Json) { problems(it) }.trimEnd())
     }
 
     @Test
@@ -88,12 +88,12 @@ class RepairsTest {
     fun csvsQuotes() {
         val text = "a,b\n1,say \"hi\n"
         val problem = CsvDocument.parse(text).problems.first { it.code == ProblemCode.StrayQuote }
-        assertEquals(RepairKind.DoubleTheQuote, Repairs.of(problem, text)?.kind)
+        assertEquals(RepairKind.DoubleTheQuote, Repairs.of(problem, text, Format.Csv)?.kind)
     }
 
     @Test
     fun aKeyGivenTwiceIsNotRepaired() {
         val text = "{\"a\": 1, \"a\": 2}"
-        assertNull(Repairs.of(problems(text).single { it.code == ProblemCode.DuplicateKey }, text))
+        assertNull(Repairs.of(problems(text).single { it.code == ProblemCode.DuplicateKey }, text, Format.Json))
     }
 }

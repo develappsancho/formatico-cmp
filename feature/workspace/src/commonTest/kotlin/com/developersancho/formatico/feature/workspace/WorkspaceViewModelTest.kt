@@ -95,12 +95,12 @@ class WorkspaceViewModelTest {
     }
 
     @Test
-    fun aFormatNotReadYetIsNotEditable() {
-        val id = workbench.open("Cargo.toml", "a = 1", Format.Toml)
+    fun plainTextIsNotEditable() {
+        val id = workbench.open("notes.txt", "Things to check", format = null)
 
         val state = viewModel(id).state.value
 
-        assertEquals(Reading.Unread(Format.Toml), state.reading)
+        assertEquals(Reading.PlainText, state.reading)
         assertTrue(state.edits.isEmpty())
     }
 

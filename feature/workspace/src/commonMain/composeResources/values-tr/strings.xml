@@ -24,8 +24,6 @@
     <string name="workspace_editor_body">Sonraki bir sürümle geliyor. O zamana kadar belge ağaçta görünüyor; Biçimlendir, Küçült ve Kopyala belgenin tamamında çalışıyor.</string>
     <string name="workspace_editor_body_unread">Sonraki bir sürümle geliyor. O zamana kadar Kopyala ve Dosya olarak kaydet belgenin tamamında çalışıyor.</string>
     <string name="workspace_editor_body_read">Sonraki bir sürümle geliyor. O zamana kadar belge ağaçta görünüyor; Kopyala ve Dosya olarak kaydet belgenin tamamında çalışıyor.</string>
-    <string name="workspace_unread_title">%1$s henüz okunmuyor</string>
-    <string name="workspace_unread_body">Formatico bugün JSON, JSONC, JSON5 ve YAML okuyor; sırada %1$s var.</string>
     <string name="workspace_plain_title">Düz metnin ağacı yok</string>
     <string name="workspace_plain_body">Hangi biçimde yazıldığını seçersen öyle okunur.</string>
     <string name="workspace_empty_title">Belge boş</string>
@@ -41,7 +39,6 @@
         <item quantity="one">%1$d sorun</item>
         <item quantity="other">%1$d sorun</item>
     </plurals>
-    <string name="workspace_status_not_checked">%1$s, denetlenmedi</string>
     <plurals name="workspace_lines">
         <item quantity="one">%1$d satır</item>
         <item quantity="other">%1$d satır</item>
@@ -230,4 +227,31 @@
     <string name="problem_yaml_unclosed_flow">Bu parantezler hiç kapanmıyor.</string>
     <string name="workspace_problem_error">Hata</string>
     <string name="workspace_problem_warning">Uyarı</string>
+    <string name="problem_ini_unclosed_section">Bölümün adını ] ile kapat.</string>
+    <string name="problem_ini_duplicate_section">Bu bölüm iki kez verilmiş: çoğu okuyucu anahtarlarını ilkine katar.</string>
+    <string name="problem_ini_trailing_content">Bölümün başlığından sonra geleni çıkar ya da yorum yap.</string>
+    <string name="problem_xml_unclosed_element">&lt;%1$s&gt; öğesini kapat: bitiş etiketi, &lt;/%1$s&gt;, eksik.</string>
+    <string name="problem_xml_mismatched_end_tag">Bu bitiş etiketinin adı, kapattığı öğenin adı değil.</string>
+    <string name="problem_xml_unexpected_end_tag">Bu bitiş etiketini çıkar: onun için açık bir öğe yok.</string>
+    <string name="problem_xml_unterminated_tag">Etiketi &gt; ile kapat.</string>
+    <string name="problem_xml_duplicate_attribute">Bu öznitelik iki kez verilmiş: bir öğede her biri bir kez olur.</string>
+    <string name="problem_xml_unquoted_attribute">Özniteliğin değerini tırnağa al.</string>
+    <string name="problem_xml_expected_attribute_value">Özniteliğe bir değer ver: ad="…".</string>
+    <string name="problem_xml_invalid_reference">&amp; işaretini &amp;amp; olarak ya da XML’in bildiği bir başvuruyla yaz.</string>
+    <string name="problem_xml_unterminated_cdata">CDATA bölümünü ]]&gt; ile kapat.</string>
+    <string name="problem_xml_unterminated_instruction">Yönergeyi ?&gt; ile kapat.</string>
+    <string name="problem_xml_misplaced_declaration">XML bildirimini belgenin en başına, küçük harfle taşı.</string>
+    <string name="problem_xml_second_root">Bu öğeyi kökün içine al: bir belgenin tek kök öğesi olur.</string>
+    <string name="problem_xml_text_outside_root">Bu metni kök öğenin içine al ya da çıkar.</string>
+    <string name="problem_xml_no_root">Bir kök öğe ekle: belgede hiç yok.</string>
+    <string name="problem_xml_hyphens_in_comment">İki kısa çizgiyi çıkar: XML yorumun içinde onlara yer vermez.</string>
+    <string name="problem_xml_unexpected_character">Bu karakteri bir başvuruyla yaz, &lt; için &amp;lt;, ya da çıkar.</string>
+    <string name="problem_xml_unterminated_comment">Yorumu --&gt; ile kapat.</string>
+    <string name="problem_xml_unterminated_string">Özniteliğin değerini tırnağıyla kapat.</string>
+    <string name="problem_toml_expected_equals">Anahtarla değerinin arasına = koy.</string>
+    <string name="problem_toml_table_redefined">Bu tablo zaten tanımlı: anahtarlarını ilk tanımlandığı yerde ver.</string>
+    <string name="problem_toml_invalid_date_time">Tarihi ya da saati TOML’un yazdığı gibi yaz: 2026-11-04, 09:30:00 ya da 2026-11-04T09:30:00Z.</string>
+    <string name="problem_toml_inline_table_line_break">Satır içi tabloyu tek satırda yaz ya da bir [tablo] yap.</string>
+    <string name="problem_toml_duplicate_key">Bu anahtar iki kez verilmiş: TOML bir anahtara tek değer verir.</string>
+    <string name="problem_toml_trailing_content">Bu satırda değerden sonra geleni çıkar ya da yorum yap.</string>
 </resources>

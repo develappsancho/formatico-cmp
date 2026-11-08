@@ -176,7 +176,7 @@ private fun ProblemRow(
     val colors = PantrixTheme.colors
     val ink = if (current) colors.primary.onContainer else colors.textPrimary
     val quiet = if (current) colors.primary.onContainer else colors.textSecondary
-    val repair = Repairs.of(problem, text)
+    val repair = Repairs.of(problem, text, format)
     val error = problem.severity == Severity.Error
     // A phone has no room for the button beside the words: it goes under them.
     val phone = layout == WorkspaceLayout.Phone

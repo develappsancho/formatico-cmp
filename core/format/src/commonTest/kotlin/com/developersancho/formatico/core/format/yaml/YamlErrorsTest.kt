@@ -1,5 +1,6 @@
 package com.developersancho.formatico.core.format.yaml
 
+import com.developersancho.formatico.core.format.Format
 import com.developersancho.formatico.core.format.ProblemCode
 import com.developersancho.formatico.core.format.RepairKind
 import com.developersancho.formatico.core.format.Repairs
@@ -9,7 +10,7 @@ import kotlin.test.assertEquals
 class YamlErrorsTest {
     private fun problemOf(text: String) = YamlDocument.parse(text).problems.single()
 
-    private fun repaired(text: String) = Repairs.all(text) { YamlDocument.parse(it).problems }
+    private fun repaired(text: String) = Repairs.all(text, Format.Yaml) { YamlDocument.parse(it).problems }
 
     @Test
     fun aColonInAValueIsNamedAndTheValueQuoted() {
@@ -17,7 +18,7 @@ class YamlErrorsTest {
         val problem = problemOf(text)
 
         assertEquals(ProblemCode.YamlColonInValue, problem.code)
-        assertEquals(RepairKind.QuoteValue, Repairs.of(problem, text)?.kind)
+        assertEquals(RepairKind.QuoteValue, Repairs.of(problem, text, Format.Yaml)?.kind)
         assertEquals("title: \"Note: read this\"\nnext: 1\n", repaired(text))
     }
 
@@ -62,6 +63,6 @@ class YamlErrorsTest {
     @Test
     fun whatIsNotNamedIsStillYamlSyntax() {
         assertEquals(ProblemCode.YamlSyntax, problemOf("a: @b\n").code)
-        assertEquals(null, Repairs.of(problemOf("a: @b\n"), "a: @b\n"))
+        assertEquals(null, Repairs.of(problemOf("a: @b\n"), "a: @b\n", Format.Yaml))
     }
 }

@@ -73,7 +73,7 @@ internal class WorkspaceViewModel(
             is WorkspaceIntent.Write -> workbench.write(documentId, intent.text)
 
             is WorkspaceIntent.Repair -> state.value.document?.let { document ->
-                Repairs.of(intent.problem, document.text)?.let { workbench.repair(documentId, it.edits) }
+                document.format?.let { Repairs.of(intent.problem, document.text, it) }?.let { workbench.repair(documentId, it.edits) }
             }
 
             WorkspaceIntent.RepairAll -> repairAll()
@@ -85,8 +85,9 @@ internal class WorkspaceViewModel(
     /** Repairs every problem of the document Formatico repairs, reading it again after each round, off the main thread. */
     private fun repairAll() {
         val document = state.value.document ?: return
+        val format = document.format ?: return
         viewModelScope.launch {
-            val repaired = withContext(reader) { Repairs.all(document.text) { problemsOf(it, document.format) } }
+            val repaired = withContext(reader) { Repairs.all(document.text, format) { problemsOf(it, format) } }
             workbench.write(documentId, repaired)
         }
     }
