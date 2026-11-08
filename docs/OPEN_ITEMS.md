@@ -698,6 +698,16 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Öneri: tablette ve telefonda diyalog açılırken halkanın görünüp görünmediğine cihazda bakılsın; görünüyorsa
         Pantrix'in bulgusu (dokunmada odak halkası).
     *   Durum: açık.
+*   [ ] **Android'in Settings-390-dark resmi seyrek olarak geçmişi boş çekiyor (2026-11-11).**
+    *   Ne: `verifyRoborazziAndroidHostTest` iki koşuda bir kez `Settings-390-dark.png`'yi farklı buldu: geçmişin satırı
+        "nothing yet", Clear basılamaz. Kayıtlı resim doğru ("1 document, 665 B."). Pano turu çekmeden önce Clear'ın
+        basılabilir olmasını bekliyor (`BoardTour`, `clear_history`), resim de son kare çizildikten sonra çekiliyor
+        (`waitForIdle`); yani düğme bir an basılabilir olup yine boş geçmişe dönüyor. Geçmişi kaydeden (`DocumentOpener`)
+        ve budayan (`keepHistory`) aynı saati kullanıyor (`Clock.System`), budama kaydı silmemeli. Hemen ardından üç koşu
+        geçti; açık temada, tablette ve öteki platformlarda görülmedi.
+    *   Öneri: telefonda Settings açılırken geçmişin özetini kuran akışa bakılsın (`newTab` ile Start'a dönüş, Settings'in
+        view model'inin geçmişi ilk okuyuşu); tur geçmişin satırında "1 document"ı da beklesin.
+    *   Durum: açık.
 *   [ ] **Compare panosunun resminde seçili sekmenin çevresinde odak halkası kalıyor (2026-11-11).**
     *   Ne: `Compare-1440.png`'de ve `Compare-834.png`'de `order.json` sekmesinin çevresinde birincil renkte bir çerçeve var: pano turu iki
         belgeyi açıp birinci sekmeye basıyor (`BoardTour.chooseTab`), odak sekmede kalıyor ve Pantrix odaktaki sekmeye

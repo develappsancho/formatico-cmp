@@ -29,7 +29,7 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Ne: Kurulum'un ve `llms.txt`'nin ilk örneği `stringResource(Res.string.save)` çağırıyor; yeni projede `save` diye bir metin yok ve `Res`'in import'u gösterilmiyor (sihirbazda `formatico.app.shared.generated.resources.Res`). Kopyalanan örnek derlenmez.
     *   Nerede: [Installation](https://pantrixui.com/docs/installation), "Wrap the app in the theme"; [llms.txt](https://pantrixui.com/llms.txt).
     *   Öneri: örneğin yanında `composeResources/values/strings.xml`'in satırı ve `Res`'in import'u için bir yorum.
-    *   Durum: açık.
+    *   Durum: açık, sitede (2026-11-11). Kütüphanenin yanı yapıldı: README'nin ilk örneği, `llms.txt`'nin aldığı yer, metnin `composeResources/values/strings.xml`'deki satırını (`<string name="save">Save</string>`) ve `Res` ile `save`'in modülün `generated.resources` paketinden içe aktarıldığını bir yorumla söylüyor (yerel eklentinin MCP jar'ındaki `llms.txt`). Kurulum sayfası, sahibinin kararıyla, site kütüphanenin bir sonraki sürümüne geçirilirken düzelecek. Önceki durum: açık.
 *   [ ] **Web: sihirbazın yükleyicisi Safari 27.2'de boş kalabilir; Kurulum web uyumluluğu rehberine götürmüyor (2026-11-02).**
     *   Ne: Sihirbazın `webApp`'i JS ve Wasm hedeflerini birlikte kuruyor. Web uyumluluğu rehberi, Compose'un kendi yükleyicisinin (`composeCompatibilityBrowserDistribution`) tarayıcıyı bir kez sınadığını ve WebKit 27.2'de Wasm sürümü ilk karesinden sonra durunca JS'e geçmediğini söylüyor. Kurulum'un "On each platform → Web" satırı yalnızca yazı tiplerini anıyor.
     *   Nerede: [Installation](https://pantrixui.com/docs/installation), "On each platform".
@@ -264,7 +264,7 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Ne: Sayfa `claude plugin install pantrix-ui@pantrix-ui`'yi veriyor; bu kullanıcı kapsamına kurar. Beceri zip'i için "ekip git'le alsın" diyor, eklenti için `--scope project` demiyor (Formatico öyle kurdu: `.claude/settings.json`). "Then /mcp lists pantrix-ui as connected" diyor; eklenti ancak yeni bir oturumda yükleniyor: kurulduğu oturumda araçlar görünmedi, sunucu `https://pantrixui.com/mcp` adresinden doğrudan soruldu.
     *   Nerede: [For AI](https://pantrixui.com/ai), "Set it up in a minute".
     *   Öneri: `--scope project` satırı ve "yeni bir oturum açın" cümlesi.
-    *   Durum: açık.
+    *   Durum: açık, sitede (2026-11-11). Kütüphanenin yanı yapıldı: AI rehberinin eklenti bölümü iki komutta da `--scope project` ile pazarın ve eklentinin projenin `.claude/settings.json`'una yazıldığını, eklentinin bir oturum başlarken yüklendiğini, kurulduğu oturumun görmediğini ve yeni bir oturumda `/mcp`'nin onu bağlı gösterdiğini söylüyor (MCP jar'ındaki `guides/ai.md`). "For AI" sayfası, sahibinin kararıyla, sitenin bir sonraki sürümüyle. Önceki durum: açık.
 *   [x] **Test rehberi tarayıcıda UI testinin iki şartını söylemiyor (2026-11-03).**
     *   Ne: Rehber "The common tests run on every target: jvmTest, iosSimulatorArm64Test, jsBrowserTest, wasmJsBrowserTest" diyor. Formatico'da `runComposeUiTest`'li ortak testler tarayıcıda iki yerde takıldı: Compose, Wasm hedefi `binaries.executable()` demedikçe UI testini hiç çalıştırmıyor (`checkComposeUiTestConfigurationForWasmJs`, CMP-4906); çalıştırınca da uygulamanın kendi kaynaklarından gelen metinler (`stringResource`) test boyunca hiç görünmüyor. `PantrixTestTheme` ve Pantrix'in kendi metinleri bunu yaşamıyor, çünkü onlar kaynaktan okunmuyor. Bu Compose'un davranışı, ama rehber bir uygulamanın ekranlarının tarayıcıda öyle sınanacağını söylüyor.
     *   Nerede: `skill/testing` ("Running"); MCP `search_documentation testing`.
@@ -858,7 +858,7 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Öneri: basılabilen etiketin basma alanı, sıkışık bir satırda, çizdiğinin dışına platformun hedefine kadar uzansın
         (durum çubuğundaki gibi); ya da belgesi satırın en az hedef kadar olması gerektiğini söylesin.
     *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-11). Basılabilen `PantrixTag` yerleşimde kendi boyunda kalıyor, basışı çizdiğinin dışına platformun hedefine kadar uzanıyor ve tanılamaya bu uzanım bildiriliyor. Formatico'nun telefondaki yol satırı yine panodaki gibi 44 dp (`PhoneWorkspace.kt`); `BoardAccessibilityTest` Android'in telefon panolarında `SmallTouchTarget` bulmuyor. Android'in telefon panoları 4 dp yukarı, eski yerine döndü. Denendi: JVM, iOS simülatörü, Wasm ve JS testleri, tarayıcı testleri; JVM'in, Android'in ve iOS'un ekran görüntüleri. Önceki durum: açık. Formatico'yu tıkamıyor. Formatico yol satırını hedefe kadar uzatıyor (`heightIn(min = 44.dp)`): Android'de 48, iOS'ta 44; Android'in telefon panoları 4 dp aşağı kayıyor.
-*   [ ] **Tablonun seçili hücresinin çerçevesi üstte 1 piksel (2026-11-11).**
+*   [x] **Tablonun seçili hücresinin çerçevesi üstte 1 piksel (2026-11-11).**
     *   Ne: `PantrixDataTable(selectedCell)`'in çerçevesi hücrenin üç kenarında 2 piksel, üst kenarında 1: üstteki
         satırın çizgisi çerçevenin ilk pikselinin üstüne çiziliyor. Formatico'nun `TablePane/sorted-light-1440.png`'inde
         (yoğunluk 1) çerçeve 142. satırda başlıyor, 141. satır `divider` renginde; altta 175 ve 176, yanlarda 320–321
@@ -867,7 +867,7 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
         çizgileri); tuval oturumu da Table panolarına bakarken gördü.
     *   Öneri: çerçeve satırın çizgilerinden sonra çizilsin, ya da çizginin içinden başlasın; bir ekran resmi testi
         çerçevenin dört kenarını ölçsün.
-    *   Durum: açık. Formatico'yu tıkamıyor.
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-11). Çerçeve satırın üstündeki çizginin altından başlıyor, dört kenarı aynı kalınlıkta. Formatico'nun `TablePane/sorted-light-1440.png`'inde yeniden ölçüldü: üstte 142–143, altta 175–176, yanlarda 320–321 ve 447–448, dördü de 2 piksel. Denendi: JVM, iOS simülatörü, Wasm ve JS testleri; JVM'in, Android'in ve iOS'un ekran görüntüleri. Önceki durum: açık. Formatico'yu tıkamıyor.
 *   [ ] **Araç çubuğunun düğmesi açık olduğunu söyleyemiyor (2026-11-11).**
     *   Ne: Workspace'in araç çubuğunda gösterilen görünümün düğmesi (Query, Convert, Types, Schema) basılı çiziliyor:
         Formatico onu `ButtonVariant.Soft` ile veriyor, ötekiler `Text`. `ToolbarItem.Button`'da basılı ya da seçili bir
@@ -878,7 +878,7 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Öneri: `ToolbarItem.Button(selected: Boolean)` (ya da `pressed`): basılı çizim ve ekran okuyucuya açık olduğu
         (`aria-pressed`, Compose'da `selected` ya da `toggleableState`); "…" menüsündeki satırda da bir işaret. Tasarım
         sisteminde karşılığı.
-    *   Durum: açık. Formatico'yu tıkamıyor.
+    *   Durum: Compose'da kapandı (0.1.2-SNAPSHOT, 2026-11-11), tasarım sisteminde açık. `ToolbarItem.Button(selected)`: seçili düğme varyantı ne olursa olsun `Soft`'un dolgusuyla çiziliyor, ekran okuyucuya bir sekme gibi seçili diye söyleniyor (Android'de checked), "…" menüsünde işaretli bir satır; seçili olmayan ötekiler gibi okunuyor. Workspace'in görünüm düğmeleri artık `selected = shown` (`WorkspaceToolbar.kt`), elle verilen `Soft` kalktı; `WorkspaceToolbarTest` gösterilen görünümün düğmesinin seçili olduğunu, ötekinin seçili ya da seçili değil demediğini sınıyor. Kütüphanenin notu: Compose 1.12.2'nin web'deki gizli kopyası seçili hâli hiçbir denetimde taşımıyor, web'de ekran okuyucuya gitmiyor. Tasarım sisteminin `ToolbarItem`'ındaki karşılığı kütüphanenin askıdaki maddeleriyle bekliyor. Denendi: JVM, iOS simülatörü, Wasm ve JS testleri; ekran görüntüleri değişmedi. Önceki durum: açık. Formatico'yu tıkamıyor.
 *   [ ] **PageScaffold içerik genişliğindeki sayfayı ortalayamıyor (2026-11-11).**
     *   Ne: `PantrixPageScaffold(titleStyle, subtitleStyle)` gelince Start'ı sayfa iskeletine geçirmek denendi (kaynak jar'dan
         okunarak). Start panoları içeriği 1040 genişliğinde bir sütunda, geniş pencerenin ortasında çiziyor; başlıkla

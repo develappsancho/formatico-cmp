@@ -180,9 +180,11 @@ private fun madeItems(document: OpenDocument, wide: Boolean, onIntent: (Workspac
             label = label,
             onClick = { onIntent(WorkspaceIntent.ShowPane(if (shown) openingPane(document.format) else pane)) },
             icon = icon,
-            variant = if (shown) ButtonVariant.Soft else ButtonVariant.Text,
+            variant = ButtonVariant.Text,
             enabled = document.format != null,
-            priority = if (shown) ToolbarPriority.SHOWN else priority
+            priority = if (shown) ToolbarPriority.SHOWN else priority,
+            // The view shown is the one in effect, as a tab is: drawn pressed, and selected to a screen reader.
+            selected = shown
         )
     }
     val strings = workspaceStrings

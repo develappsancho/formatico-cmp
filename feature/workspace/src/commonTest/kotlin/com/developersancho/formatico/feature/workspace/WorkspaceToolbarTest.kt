@@ -8,8 +8,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.isSelected
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -58,8 +62,10 @@ class WorkspaceToolbarTest {
         }
         onPantrixNode("Action", "types", scope = "Toolbar_document").assertExists()
 
-        // Shown, it keeps its button, which says which view is open.
+        // Shown, it keeps its button, which says which view is open: to a screen reader too, as a tab is selected.
         state = previewState("order.json", PreviewOrder, Format.Json, DocumentView(pane = DocumentPane.Schema))
-        awaitNode(hasPantrixTag("Action", "schema", "Toolbar_document"), "Schema in the bar")
+        awaitNode(hasPantrixTag("Action", "schema", "Toolbar_document") and isSelected(), "Schema in the bar, selected")
+        // A view not shown is read as any other button: it says nothing of being selected.
+        onPantrixNode("Action", "types", scope = "Toolbar_document").assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Selected))
     }
 }
