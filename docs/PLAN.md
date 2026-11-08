@@ -267,9 +267,59 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
     *   **Pantrix:** düğümleri ve bağları çizen, kaydırılıp yakınlaştırılan bir grafik bileşeni yok; bulgu,
         `tıkıyor` (`PANTRIX_FINDINGS.md`, önerilen bir `PantrixGraph` ile). Kod, bileşen yerel pakete girince
         yazılır; öteki panoların görünüm seçimine Graph o zaman eklenir.
-    *   **Durum (2026-11-09):** panolar ve kararlar onaylandı; kod, Pantrix'in `PantrixGraph`'ını bekliyor (kütüphane
-        başka bir oturumda, sahibinin onayıyla).
-*   [ ] **Faz 19: JSON Schema.**
+    *   **Durum (2026-11-09):** panolar ve kararlar onaylandı; kod, Pantrix'in `PantrixGraph`'ını bekliyor. Bulgu,
+        sahibinin sözüyle ("bunu pantrixui oturumuna pasla orada geliştirme başlasın"), kütüphanenin oturumuna
+        ("Formatico ve PantrixCodeEditor geliştirmesi") iletildi; bileşen yerel pakete girince Faz 18'e dönülür, bu
+        arada Faz 19. Kütüphanenin oturumu `PantrixGraph`'a sahibinin cevaplarıyla başladı (2026-11-09):
+        `GraphNode` ve `GraphLink`, ağaç ve katmanlı yerleşim, kartın boyu verilirse yalnızca görünen kartlar
+        çiziliyor (Formatico'nunki 32 + 24 × satır), kartın içi ve katlama oku Formatico'nun, başlık için
+        `PantrixGraphZoom` (Fit, yeni `PantrixIcons.FitScreen` ile), `rememberGraphState`'te `initialZoom` (telefonun
+        %70'i) ve `bringIntoView(key)` (metinden ve ağaçtan gelen seçim), `expandedToLevel` (Open to). Tasarım
+        sistemi de bir Graph alacak: Graph panoları o zaman işaretleme yerine onu kullanır. Formatico'nun seçimin
+        dışarıdan yönetilmesi, otomasyon etiketleri ve ekran okuyucu üzerine soruları kütüphanenin oturumunda.
+*   [ ] **Faz 19: JSON Schema.** Panolar kanvasta (2026-11-09, sürüm 119–122): Schema-1440, Schema-834, Schema-390;
+    dört durum (`state`): problems, valid, none, unreadable. Önerilen kararlar, sahibinin onayını bekliyor:
+    *   **Yeri:** Schema, araç çubuğunda Types'tan sonra (`DocumentPane.Schema`): masaüstünde metnin yanında (Types
+        gibi `BesideTextPanes`), tablette bütün oda, telefonda kendi ekranı, "more" menüsünde Types'tan sonra.
+        Komut paletinde "Validate against a schema". Öteki panoların araç çubukları Schema'yı onaydan sonra alır.
+    *   **Şema:** Against menüsü açık sekmelerden JSON Schema olanları listeler (kökü bir nesne, `$schema`'sı bir
+        taslağı adlandırıyor ya da `type`, `properties`, `$defs` taşıyor); Choose a file bir dosyayı yeni bir sekmede
+        açar ve seçer, şema böylece kendi sekmesinde düzeltilebilir. Belgenin `$schema`'sı açık bir şemanın `$id`'sini
+        adlandırıyorsa o seçili gelir; bir web adresiyse ve öyle bir sekme yoksa menü "Open <adres>" der ve onu Faz
+        16'nın web adresi açmasıyla bir sekmede açar (basılmadan ağa gidilmez). Seçim belgenin görünümünde kalır;
+        şemanın sekmesi kapanınca seçim düşer.
+    *   **Doğrulama:** taslak şemanın `$schema`'sından: 2020-12 (ilk değer), 2019-09, 7, 6, 4. `$ref` şemanın içinde
+        ve açık şemaların `$id`'leri arasında çözülür; dışarıdaki bir adrese gidilmez. Çözülemeyen bir `$ref` ya da
+        şema olmayan bir şema durum unreadable'dır: uyarı, yeri ve neyi göstermediği. `format` bir onay olarak da
+        denetlenir (date, date-time, email, uri, uuid, ipv4, ipv6…): 2020-12'de yalnızca bir not, ama bir doğrulayıcı
+        ekranında denetlenmemesi şaşırtır. Belge ya da şema değişince yeniden doğrulanır, arka planda.
+    *   **Sorunlar:** Invalid'deki gibi listelenir: cümle, satır ve sütun, yol (`$.coupon`); metindeki sırayla.
+        Cümleler Formatico'nun, anahtar sözcüğe göre (`type`, `required`, `enum`, `const`, `minimum`, `maximum`,
+        `minLength`, `pattern`, `format`, `minItems`, `uniqueItems`, `additionalProperties`, `oneOf`, `anyOf`, `not`,
+        `if`…), İngilizce ve Türkçe; kütüphanenin İngilizce cümleleri gösterilmez. `required` sorunu nesnenin kendi
+        yerini gösterir. Basınca metindeki yerine gidilir: masaüstünde metin ve liste birlikte yürür, tablette ve
+        telefonda metin o yerde açılır. Metinde dalgalı alt çizgi; durum çubuğunda "2 schema problems". İlk 200
+        sorun listelenir, gerisi sayıyla.
+    *   **Biçimler:** değerleri bir ağaç olan biçimler: JSON ailesi, YAML, TOML (YAML ve TOML'ın değerleri JSON'a
+        çevrilir). CSV/TSV, properties/INI ve XML'de bölme, değerleri hep metin olduğu için doğrulamadığını söyler.
+        Hatalı bir belgede önce onarım, Types gibi.
+    *   **Kütüphane:** `io.github.optimumcode:json-schema-validator` 0.5.5 (MIT; Formatico'nun bütün hedefleri: JVM,
+        Android, iOS, Wasm). Taslak 4'ten 2020-12'ye, `$ref`, `format` ve birden çok şema; hatası şemadaki ve
+        belgedeki yolu JSON Pointer olarak veriyor, cümleleri bu yollardan kurulur. Belge `core:format`'ın
+        değerlerinden kotlinx.serialization'ın `JsonElement`'ine çevrilir, yol oradan metindeki yere döner. Kendi
+        doğrulayıcımız da olabilir, ama beş taslak ve `$ref` büyük bir iş; öneri kütüphane. İndirme sahibinin
+        onayıyla, Maven Central'dan, en çok 4,0 MB (bir kısmı Gradle'ın önbelleğinde): json-schema-validator 0.5.5
+        (2,3 MB, beş varyant), karacteristics 0.0.9 (1,0 MB), uri-kmp 0.0.21 (0,5 MB), normalize 1.4.0 ve
+        kotlin-codepoints 0.11.0 (0,1 MB).
+    *   **Şema üretmek (öneri):** Types'ın menüsüne beşinci dil olarak JSON Schema (2020-12): çıkarım zaten türleri,
+        her öğede olan alanları (`required`) ve boş olabilenleri biliyor. Onaylanırsa Types panoları beşinci dili
+        gösterecek biçimde güncellenir.
+    *   **Pantrix:** gereken her şey var (Menu, Alert, liste satırları, editörün işaretleri, dosya açma); yeni bulgu
+        beklenmiyor.
+    *   **Testler:** belgenin `JsonElement`'e çevrilmesi, yolun metindeki yere dönmesi, her anahtar sözcüğün cümlesi
+        iki dilde, şemaların seçilmesi (`$schema`, `$id`), dört durum, view model; bölmenin önizlemeleri (dört durum,
+        hatalı belge, doğrulanmayan biçim, üç genişlik, açık ve koyu), ekran görüntüleri ve UI testleri her hedefte.
+        Büyük belgede süre ölçülür (10 MB'lık bir JSON).
 *   [ ] **Faz 20: Uygulama içi yapay zekâ,** kullanıcının kendi anahtarıyla.
 
 ## Kapanış
