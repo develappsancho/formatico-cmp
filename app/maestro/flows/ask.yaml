@@ -1,0 +1,18 @@
+# A pasted text whose format cannot be told is asked about, and left as text when the reader says so.
+appId: ${APP_ID}
+name: A text of no format told is asked about
+---
+- launchApp:
+    clearState: true
+    stopApp: true
+- runFlow:
+    file: ../subflows/paste_text.yaml
+    env:
+      TEXT: "2026-11-05 21:04:11 INFO  Server started on port 8080"
+- extendedWaitUntil:
+    visible: "What format is this?"
+    timeout: 10000
+- takeScreenshot: ${SHOTS}/ask
+- tapOn:
+    id: "Button_leave_as_text"
+- assertVisible: "Plain text"

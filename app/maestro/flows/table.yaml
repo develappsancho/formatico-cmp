@@ -10,3 +10,4 @@ name: The countries open as a table
     env:
       SAMPLE: countries
 - assertVisible: ".*Afghanistan.*"
+- takeScreenshot: ${SHOTS}/table

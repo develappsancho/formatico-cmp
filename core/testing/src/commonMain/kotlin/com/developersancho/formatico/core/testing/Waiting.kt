@@ -40,10 +40,20 @@ suspend fun ComposeUiTest.awaitUntil(what: String, within: Duration = 10.seconds
 @OptIn(ExperimentalTestApi::class)
 suspend fun ComposeUiTest.awaitNode(matcher: SemanticsMatcher, what: String, forgetting: PantrixFindings? = null) {
     awaitUntil("$what was shown") { onAllNodes(matcher).fetchSemanticsNodes().size == 1 }
-    if (forgetting != null && currentPlatformType() == PlatformType.Web) {
+    forgetWhileWordsCame(forgetting)
+}
+
+/**
+ * In a browser, forgets what the diagnostics found in [findings] while a screen's words were still coming, a frame
+ * after they came: a row or a button has no name until then (PANTRIX_FINDINGS: "MissingName, kelimeler yüklenirken").
+ * Elsewhere the words are there from the first frame, and every finding is kept.
+ */
+@OptIn(ExperimentalTestApi::class)
+suspend fun ComposeUiTest.forgetWhileWordsCame(findings: PantrixFindings?) {
+    if (findings != null && currentPlatformType() == PlatformType.Web) {
         withContext(Dispatchers.Default) { delay(100.milliseconds) }
         awaitIdle()
-        forgetting.clear()
+        findings.clear()
     }
 }
 

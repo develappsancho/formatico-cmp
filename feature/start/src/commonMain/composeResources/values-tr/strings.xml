@@ -9,12 +9,12 @@
     <string name="start_new_document">Yeni belge</string>
     <string name="start_open_file">Dosya aç</string>
     <string name="start_clipboard_empty">Panodan metin okunamadı</string>
-    <string name="start_link_broken">Bu bağlantıda Formatico'nun okuyabileceği bir belge yok. Yarıda kesilmiş olabilir.</string>
-    <string name="start_clipboard_unreadable">Bu tarayıcı Formatico'nun panoyu okumasına izin vermiyor. Klavyeyle yapıştır ya da bir dosya aç.</string>
+    <string name="start_link_broken">Bu bağlantıda Formatico’nun okuyabileceği bir belge yok. Yarıda kesilmiş olabilir.</string>
+    <string name="start_clipboard_unreadable">Bu tarayıcı Formatico’nun panoyu okumasına izin vermiyor. Klavyeyle yapıştır ya da bir dosya aç.</string>
 
     <string name="start_file_drop_supporting">JSON, JSONC, JSON5, NDJSON, XML, YAML, TOML, CSV, TSV, properties ve INI, en çok %1$s</string>
     <string name="start_file_too_large">%1$s, %2$s sınırından büyük</string>
-    <string name="start_file_wrong_type">%1$s, Formatico'nun okuduğu bir metin türü değil</string>
+    <string name="start_file_wrong_type">%1$s, Formatico’nun okuduğu bir metin türü değil</string>
     <string name="start_file_unreadable">%1$s okunamadı</string>
 
     <string name="start_recent">Son açılanlar</string>
@@ -50,7 +50,7 @@
     <string name="start_yesterday">dün</string>
 
     <string name="start_samples">Örnekler</string>
-    <string name="start_samples_hint">Formatico'yu denemek için birini aç</string>
+    <string name="start_samples_hint">Formatico’yu denemek için birini aç</string>
     <string name="start_all_samples">Tüm örnekler</string>
     <string name="start_sample_order">Bir sipariş</string>
     <string name="start_sample_order_detail">Tarihler, renkler, bağlantılar ve bir resim</string>
@@ -59,17 +59,17 @@
     <string name="start_sample_deployment_short">Bir dağıtım</string>
     <string name="start_sample_deployment_detail">İç içe listeler ve çapalar</string>
     <string name="start_sample_deployment_detail_short">İç içe listeler</string>
-    <string name="start_sample_manifest">Bir Rust bildirimi</string>
+    <string name="start_sample_manifest">Bir Rust manifesti</string>
     <string name="start_sample_manifest_detail">Tablolar ve tablo dizileri</string>
     <string name="start_sample_countries">Ülkeler</string>
     <string name="start_sample_countries_detail">249 satır, 6 sütun</string>
 
-    <string name="start_privacy">Geçmiş bu cihazda kalır. Formatico'nun hesabı da sunucusu da yok.</string>
+    <string name="start_privacy">Geçmiş bu cihazda kalır. Formatico hesap istemez, sunucu da kullanmaz.</string>
     <string name="start_unknown_title">Bu hangi biçim?</string>
     <string name="start_unknown_pasted">Formatico yapıştırdığın metnin biçimini anlayamadı. Nasıl okunacağını seç.</string>
     <string name="start_unknown_file">Formatico %1$s dosyasının biçimini anlayamadı. Nasıl okunacağını seç.</string>
     <string name="start_unknown_read_as">Şöyle oku</string>
-    <string name="start_unknown_rule">Ayarlar'da Biçimler altında bunlardan biri kural yapılabilir.</string>
+    <string name="start_unknown_rule">Ayarlar’daki Biçimler bölümünden bunlardan birini varsayılan yapabilirsin.</string>
     <string name="start_unknown_leave">Metin olarak bırak</string>
     <string name="start_unknown_open">Aç</string>
 </resources>

@@ -1,0 +1,25 @@
+# Settings, from Start: Turkish is chosen and the app speaks it at once; the dark theme is chosen too.
+appId: ${APP_ID}
+name: Settings changes the language and the theme
+---
+- launchApp:
+    clearState: true
+    stopApp: true
+- tapOn:
+    id: "IconButton_settings"
+- extendedWaitUntil:
+    visible: "Indentation"
+    timeout: 10000
+- tapOn:
+    id: "Select_language"
+- tapOn:
+    id: ".*SelectOption_tr"
+- extendedWaitUntil:
+    visible: "Dil"
+    timeout: 10000
+- tapOn:
+    id: ".*Segment_dark"
+- takeScreenshot: ${SHOTS}/settings
+- tapOn:
+    id: ".*IconButton_back"
+- assertVisible: "Ne varsa yapıştır"

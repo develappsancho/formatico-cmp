@@ -20,6 +20,7 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalTestApi::class)
 class DocumentEditorTest {
     private val desktop = PantrixWindow(DpSize(1440.dp, 900.dp))
+    private val phone = PantrixWindow(DpSize(390.dp, 844.dp))
     private val order = "{\n  \"id\": \"ord_8842\",\n  \"customer\": {\"name\": \"Elif\"}\n}\n"
 
     private fun stateOf(text: String, view: DocumentView = DocumentView()) =
@@ -61,6 +62,47 @@ class DocumentEditorTest {
         assertTrue(editor.canUndo)
         editor.undo()
         assertEquals(order, editor.text)
+    }
+
+    @Test
+    fun aChangeMadeWhileTheTextIsNotShownIsInItOnceItIs() = runComposeUiTest {
+        // A phone shows the text or the tree: Minify, run while the tree is shown, is in the text the reader comes back to.
+        val editor = CodeEditorState(order)
+        var state by mutableStateOf(stateOf(order, DocumentView(pane = DocumentPane.Text)))
+        setContent {
+            PantrixTestTheme(window = phone) {
+                WorkspaceScreen(state, {}, rememberDocumentCommands(Workbench()), editor)
+            }
+        }
+        awaitIdle()
+
+        val minified = "{\"id\":\"ord_8842\",\"customer\":{\"name\":\"Elif\"}}\n"
+        state = stateOf(order, DocumentView(pane = DocumentPane.Tree))
+        awaitIdle()
+        state = stateOf(minified, DocumentView(pane = DocumentPane.Tree))
+        awaitIdle()
+        state = stateOf(minified, DocumentView(pane = DocumentPane.Text))
+
+        awaitUntil("The editor's text") { editor.text == minified }
+    }
+
+    @Test
+    fun whatIsTypedIsWrittenWhenTheTextLeavesTheScreenBeforeTheTypingPauses() = runComposeUiTest {
+        val editor = CodeEditorState(order)
+        val intents = mutableListOf<WorkspaceIntent>()
+        var state by mutableStateOf(stateOf(order, DocumentView(pane = DocumentPane.Text)))
+        setContent {
+            PantrixTestTheme(window = phone) {
+                WorkspaceScreen(state, { intents += it }, rememberDocumentCommands(Workbench()), editor)
+            }
+        }
+        awaitIdle()
+
+        editor.replace(0, 0, "// The order.\n")
+        state = stateOf(order, DocumentView(pane = DocumentPane.Tree))
+
+        awaitUntil("The text's write") { intents.any { it is WorkspaceIntent.Write } }
+        assertEquals(WorkspaceIntent.Write("// The order.\n$order"), intents.last { it is WorkspaceIntent.Write })
     }
 
     @Test

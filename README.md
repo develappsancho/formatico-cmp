@@ -51,13 +51,29 @@ loads it.
 - Screenshots on the desktop (Roborazzi): `./gradlew verifyRoborazziJvm` compares against each module's
   `screenshots/`, `./gradlew recordRoborazziJvm` writes them again. A module's are its previews, every case
   ([`feature/start/screenshots`](feature/start/screenshots), [`feature/workspace/screenshots`](feature/workspace/screenshots));
-  [`app/shared/screenshots`](app/shared/screenshots) has the app at the boards' widths and its bar's previews
+  [`app/shared/screenshots`](app/shared/screenshots) has the app on every board of the canvas at its three widths,
+  light, dark and in Turkish (`-tr`), and its bar's previews. Each board is drawn with Pantrix's diagnostics on and
+  has to find nothing
+- The boards as iOS and Android draw them: `./gradlew :app:shared:verifyRoborazziIosSimulatorArm64` (the simulator,
+  [`screenshots/ios`](app/shared/screenshots/ios)) and `./gradlew :app:shared:verifyRoborazziAndroidHostTest`
+  (Robolectric, [`screenshots/android`](app/shared/screenshots/android)); `record…` writes them again
+- Accessibility: `BoardAccessibilityTest` takes the app to every board at every width on the JVM, iOS and Wasm, and
+  asserts that Pantrix's diagnostics found nothing (a control without a name, words too faint, a touch target
+  squeezed, a tag on two nodes)
+- The words in English and in Turkish: `./gradlew checkTranslations` (part of `check`) keeps their keys, placeholders
+  and plurals together; a Turkish word the same as the English is named in
+  [`config/l10n/same-in-both.txt`](config/l10n/same-in-both.txt)
+- In a browser: `./gradlew :app:webTest:test` builds the web distribution, serves it on this machine and drives this
+  machine's Chrome through its DevTools (`-Pformatico.chrome=<path>` for another): the loader's choice of build, the
+  tab's history and address, shared links, a reload, a phone's width, Turkish
 - Previews: every screen and component has them beside it (`StartPreviews.kt`, `WorkspacePreviews.kt`,
   `AppPreviews.kt`), each case in the light theme and the dark, a screen at each board's width
 - The app icons, from the canvas's icon board: `python3 tools/icons/generate.py` (fontTools and Pillow; iconutil
   on macOS) writes them into each app's folders
 - On a device (Maestro, installed apart): install the debug build, then
-  `maestro --device <id> test -e APP_ID=com.developersancho.formatico app/maestro/flows`
+  `maestro --device <id> test -e APP_ID=com.developersancho.formatico -e SHOTS=<device> app/maestro/flows`.
+  A flow for each board, on a phone's layout. Each takes its screen's picture under `SHOTS`, in Maestro's output for
+  the run (`~/.maestro/tests/<run>/<flow>/takeScreenshot/`, or `--test-output-dir`). `--include-tags smoke` runs four
 
 ## Documents
 

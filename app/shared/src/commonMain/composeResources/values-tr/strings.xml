@@ -7,10 +7,10 @@
     <string name="settings">Ayarlar</string>
     <string name="untitled">Adsız</string>
     <string name="changes_not_saved">dosyasına kaydedilmemiş değişiklikleri var</string>
-    <string name="switch_documents">%1$s, açık %2$d belgeden biri. Belgeyi değiştir</string>
+    <string name="switch_documents">%1$s, açık %2$d belgeden biri. Belgeler arasında geçiş yap</string>
     <plurals name="switch_documents_from_new_tab">
-        <item quantity="one">Yeni sekme, açık %1$d belgenin yanında. Belgeyi değiştir</item>
-        <item quantity="other">Yeni sekme, açık %1$d belgenin yanında. Belgeyi değiştir</item>
+        <item quantity="one">Yeni sekme, açık %1$d belgenin yanında. Belgeler arasında geçiş yap</item>
+        <item quantity="other">Yeni sekme, açık %1$d belgenin yanında. Belgeler arasında geçiş yap</item>
     </plurals>
     <plurals name="open_documents">
         <item quantity="one">%1$d açık belge</item>

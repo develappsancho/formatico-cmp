@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.Composable
@@ -23,6 +24,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.pantrixui.components.elements.button.ButtonVariant
@@ -146,6 +148,8 @@ internal fun QueryField(field: TextFieldState, state: WorkspaceState, layout: Wo
         error = state.query is QueryOutcome.Failed,
         leadingIcon = { PantrixIcon(imageVector = PantrixIcons.Search, contentDescription = null) },
         showClearButton = true,
+        // The action is named: the default one never reaches the handler, and Enter would use nothing.
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
         onKeyboardAction = { onIntent(WorkspaceIntent.UseQuery) },
         tagKey = "query"
     )

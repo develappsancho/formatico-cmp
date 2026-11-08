@@ -1,0 +1,9 @@
+# The app's words written the same in English and in Turkish, by name, one to a line; `#` starts a note.
+# checkTranslations (build-logic, TranslationsTask) fails where a Turkish word is still the English one and its name is
+# not here, and where a name here is no longer the same in both.
+
+app_name # the app's name
+settings_version # the app's name and its version
+summary_kind_null # JSON's null, by its name in the format: null is not empty
+workspace_kind_null # the same, in the tree's kinds
+table_type_null # the same, in a table's column type

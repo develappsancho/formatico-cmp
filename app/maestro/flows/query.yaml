@@ -1,0 +1,33 @@
+# The order queried for its items' names: two matches, and choosing one shows it in the text.
+appId: ${APP_ID}
+name: A JSONPath finds the order's items
+---
+- launchApp:
+    clearState: true
+    stopApp: true
+- runFlow:
+    file: ../subflows/open_sample.yaml
+    env:
+      SAMPLE: order
+- runFlow:
+    file: ../subflows/more.yaml
+    env:
+      ITEM: query
+- tapOn:
+    id: "TextField_query"
+- inputText: "$.items[*].name"
+- extendedWaitUntil:
+    visible: "2 matches"
+    timeout: 10000
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - hideKeyboard
+- takeScreenshot: ${SHOTS}/query
+- tapOn:
+    id: ".*match0"
+# The phone shows the match in the text.
+- assertVisible:
+    id: "CodeEditor_text.*"
+    index: 0

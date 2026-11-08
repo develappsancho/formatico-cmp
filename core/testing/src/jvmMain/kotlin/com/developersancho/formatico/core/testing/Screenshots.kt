@@ -78,9 +78,12 @@ private fun hasKey(key: String) = SemanticsMatcher("has the automation key $key"
  * Runs [block] in English, and gives the JVM its language back: an app's words are Compose resources, which the
  * desktop reads in the JVM's language, not the theme's.
  */
-fun <T> inEnglish(block: () -> T): T {
+fun <T> inEnglish(block: () -> T): T = inLanguage("en", block)
+
+/** Runs [block] in the language whose tag is [tag], as [inEnglish] runs it in English. */
+fun <T> inLanguage(tag: String, block: () -> T): T {
     val locale = Locale.getDefault()
-    Locale.setDefault(Locale.ENGLISH)
+    Locale.setDefault(Locale.forLanguageTag(tag))
     return try {
         block()
     } finally {

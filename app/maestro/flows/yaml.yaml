@@ -10,4 +10,5 @@ name: The deployment opens with its tree
     env:
       SAMPLE: deployment
 - assertVisible: "apiVersion: .*"
-- assertVisible: "metadata"
+- assertVisible: "metadata: \\{3\\}"
+- takeScreenshot: ${SHOTS}/yaml

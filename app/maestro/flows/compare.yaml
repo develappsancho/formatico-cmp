@@ -1,0 +1,31 @@
+# The order compared with the deployment, by meaning: the differences are listed, the first shown.
+appId: ${APP_ID}
+name: Two documents are compared by meaning
+---
+- launchApp:
+    clearState: true
+    stopApp: true
+- runFlow:
+    file: ../subflows/open_sample.yaml
+    env:
+      SAMPLE: order
+- tapOn:
+    id: "Button_switch_documents"
+- tapOn:
+    id: ".*MenuItem_new"
+- runFlow:
+    file: ../subflows/open_sample.yaml
+    env:
+      SAMPLE: deployment
+- tapOn:
+    id: "Button_switch_documents"
+- tapOn: "order.json"
+- runFlow:
+    file: ../subflows/more.yaml
+    env:
+      ITEM: compare
+- extendedWaitUntil:
+    visible:
+      id: ".*difference0"
+    timeout: 10000
+- takeScreenshot: ${SHOTS}/compare

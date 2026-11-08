@@ -1,0 +1,20 @@
+# The order shared in a link: the link carries it, and its length is said under it.
+appId: ${APP_ID}
+name: The order is shared in a link
+---
+- launchApp:
+    clearState: true
+    stopApp: true
+- runFlow:
+    file: ../subflows/open_sample.yaml
+    env:
+      SAMPLE: order
+- runFlow:
+    file: ../subflows/more.yaml
+    env:
+      ITEM: share
+- extendedWaitUntil:
+    visible: ".* characters.*"
+    timeout: 10000
+- assertVisible: "https://formatico.pantrixui.com/#d=.*"
+- takeScreenshot: ${SHOTS}/share

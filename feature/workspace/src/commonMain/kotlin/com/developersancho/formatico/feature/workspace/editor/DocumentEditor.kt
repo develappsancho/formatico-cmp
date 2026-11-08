@@ -1,6 +1,7 @@
 package com.developersancho.formatico.feature.workspace.editor
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -74,8 +75,9 @@ internal fun DocumentEditor(
 ) {
     val language = editorLanguage(document.format)
     // The text the editor last wrote to the document, or took from it: a document's text that is another came from
-    // elsewhere.
-    var known by remember(editor) { mutableStateOf(document.text) }
+    // elsewhere. The editor outlives this, as a phone shows its tree in the text's place: what it holds is what it
+    // knows, and a change made to the document meanwhile, a Minify run from the tree, comes into it.
+    var known by remember(editor) { mutableStateOf(editor.text) }
     val write by rememberUpdatedState(onWrite)
     LaunchedEffect(editor) {
         snapshotFlow { editor.revision }.drop(1).collectLatest {
@@ -83,6 +85,13 @@ internal fun DocumentEditor(
             val text = editor.text
             known = text
             write(text)
+        }
+    }
+    // What was typed and not written yet, as the text leaves the screen before the typing pauses, is written then.
+    DisposableEffect(editor) {
+        onDispose {
+            val text = editor.text
+            if (text != known) write(text)
         }
     }
     LaunchedEffect(editor, document.text) {

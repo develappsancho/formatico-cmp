@@ -37,10 +37,16 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Öneri: tuvalin kimlik panosundaki `{ }` işaretinden bir simge seti; tuvale bir "simge" panosu.
     *   Durum: kapandı (2026-11-04). Simgeler tuvalin simge panosundan (sürüm 71) `tools/icons/generate.py` ile çiziliyor: uygulamanın kendi Geist Mono'su, tek bir geometri. Android'de uyarlanabilir simge (arka plan, vektör ön plan, temalı simge için tek renk; minSdk 30 olduğundan sihirbazın PNG'leri silindi), iOS'ta 1024 px açık, koyu ve renklendirilmiş, masaüstünde `.icns`, `.ico`, `.png` ve pencerenin simgesi, web'de `favicon.svg`, `favicon.ico`, dokunma simgesi, PWA simgeleri ve `manifest.webmanifest`. Android'in başlatıcısında ve iOS'un ana ekranında görüldü; iOS'un koyu ve renklendirilmiş simgeleri, masaüstünün paketleri ve penceresi gözle görülmedi. Bir not: `drawable-v24/ic_launcher_foreground.xml` silinip aynı ad `drawable/`'a yazılınca Android'in artımlı birleştirmesi onu düşürdü ve bu bozuk çıktı Gradle'ın yapı önbelleğine girdi; görev yeniden çalıştırılıp önbelleğe doğrusu yazıldı.
 
-*   [ ] **Ekran görüntüleri yalnızca masaüstünde (2026-11-03).**
+*   [x] **Ekran görüntüleri yalnızca masaüstünde (2026-11-03).**
     *   Ne: Roborazzi 1.77.0 `app/shared`'in masaüstü testlerinde: `BoardScreenshotTest` uygulamayı panoların üç genişliğinde (1440×900, 834×1194, 390×844) açık temada çiziyor, Start, Workspace, YAML ve Table olarak 12 resim `app/shared/screenshots/`'ta. `recordRoborazziJvm` yazıyor, `verifyRoborazziJvm` karşılaştırıyor. Android (Robolectric) ve iOS'un kendi resimleri, koyu tema ve panolarla gözle karşılaştırma yok.
     *   Öneri: Faz 15'te (`PLAN.md`) her pano ve her platform.
-    *   Durum: açık.
+    *   Durum: kapandı (2026-11-06, Faz 15). Kanvasın 11 panosu ve Start'ın iki cevabı (biçimi anlaşılmayan metin, kırık bağlantı), YAML'ın çalışma alanıyla 14 pano. Uygulama her panoya ortak bir gezintiyle (`app/shared/src/commonTest/…/BoardTour.kt`) getiriliyor: Invalid'in `settings.json`'ı, Query'nin `feed.xml`'i ve Compare'in iki siparişi dosya seçiciden açılıyor. Masaüstünde 126 resim: üç genişlik, açık ve koyu tema, açık temada Türkçe (`-tr`). iOS simülatöründe 56 (`screenshots/ios/`, 834 ve 390, iOS'un kendi kontrolleriyle, `recordRoborazziIosSimulatorArm64`). Android'de Robolectric'le 56 (`screenshots/android/`, `recordRoborazziAndroidHostTest`). Her resimde teşhisler bulgusuz olmak zorunda. Eski resimlerdeki gri satırlar, işaretçinin bıraktığı hover'dı; yeni gezinti ekran okuyucu gibi bastığı için onlar kalktı. Panolarla gözle karşılaştırma yalnızca yeni dört panoda (Invalid, Query, Compare, Summary) ve Türkçe resimlerde yapıldı; bütün panoların bire bir denetimi Faz 21'de.
+*   [x] **Tarayıcıda uçtan uca test yok (2026-11-06).**
+    *   Ne: `wasmJsBrowserTest` ortak testleri Karma'da koşuyor, uygulamanın dağıtımını değil: yükleyicinin Wasm ile JavaScript arasındaki seçimi, sekmenin geçmişi ve adresi, `#d=` bağlantıları, yeniden yüklemede saklananlar hiç sınanmıyordu. Maestro'nun Chromium'u Compose'un ağacını görmüyor (PANTRIX_FINDINGS).
+    *   Durum: kapandı (2026-11-06, Faz 15; sahibinin "Kotlin, JDK + Chrome" kararı). `app/webTest`: dağıtımı JDK'nın sunucusuyla sunan, kurulu Chrome'u başsız açıp DevTools protokolüyle süren, Compose'un gölge kökteki erişilebilirlik ağacında etiketi bulup ortasına basan sekiz test (`./gradlew :app:webTest:test`). İndirme yok; Chrome başka bir yerdeyse `-Pformatico.chrome=<yol>`.
+*   [x] **Türkçe ve İngilizce sözcükler birbirinden ayrılabiliyordu (2026-11-06).**
+    *   Ne: Bir anahtarın bir dilde olup ötekinde olmaması, bir yer tutucunun (`%1$s`) düşmesi ya da İngilizce kalan bir Türkçe sözcük derlemede yakalanmıyordu.
+    *   Durum: kapandı (2026-11-06, Faz 15). `checkTranslations` (`build-logic`, `TranslationsTask`, `check`'in parçası): her modülün `values` ve `values-tr` `strings.xml`'i aynı anahtarları, aynı yer tutucuları ve `other`'ı olan çoğulları tutmalı; İngilizcesiyle aynı Türkçe sözcük `config/l10n/same-in-both.txt`'te nedeniyle yazılı olmalı (beş tane: adlar ve `null`). Bozuk bir dosyada derlemenin durduğu denendi.
 
 *   [x] **Kullanılmayan importlar lint'ten geçiyor (2026-11-04).**
     *   Ne: `StartScreenTest.kt`'de yedi kullanılmayan import vardı (`Dispatchers`, `delay`, `withContext`, `TimeSource`, `seconds`, `milliseconds`, `ComposeUiTest`); bekleme yardımcıları `core:testing`'e taşınırken kalmışlar. `lintKotlin` ve detekt geçiyordu. ktlint 1.8.0'ın `no-unused-imports` kuralı jar'da var, ama bu dosyada bir şey söylemedi. detekt'in `style.UnusedImports`'u varsayılan ayarda kapalı ve `config/detekt/detekt.yml` onu açmıyor.
@@ -482,6 +488,34 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Öneri: Faz 14'te ölçmek; Myers'ın algoritması ya da satırları özetleriyle (hash) karşılaştırmak.
     *   Durum: kapandı (2026-11-06). `commonRun` iki dizinin baştaki ve sondaki ortak öğelerini önce ayırıyor, sınır yalnızca aradakine uygulanıyor: 10 bin öğelik bir dizinin ortasına konan bir öğe tek fark (`CompareTest`). Ölçümde (`docs/MEASURE.md`) ortasında bir değeri değişmiş iki belge, altı biçimde 10 ve 50 MB'ta tek fark buluyor; anlamla karşılaştırma 10 MB'ta 0,8–1,5 s, 50 MB'ta 3,6–8,2 s (JVM, ana iş parçacığının dışında). Ortası büyük ve dağınık değişiklikli iki dizi hâlâ sınırın ötesinde: "Büyük belgelerde ölçülüp bırakılanlar".
 
+*   [x] **Sorgu alanında Enter ve klavyenin tuşu hiçbir şey yapmıyordu (2026-11-06).**
+    *   Ne: Query'nin alanı `onKeyboardAction` veriyor ama eylemi adlandırmıyordu; Pantrix adsız eylemde işleyiciyi hiç çağırmıyor (PANTRIX_FINDINGS). Bir sorgu yalnızca bir eşleşme seçilince, kopyalanınca ya da açılınca "son kullanılanlar"a giriyordu. Query panosunu çizen yeni gezinti buldu.
+    *   Durum: kapandı (2026-11-06). Alan `ImeAction.Search`'ü adlandırıyor; `QueryScreenTest.theKeyboardsActionUsesTheQueryAsked` sınıyor.
+*   [x] **Telefonda ağaç gösterilirken yapılan bir değişiklik metne gelmiyordu (2026-11-06).**
+    *   Ne: Telefon metni ya da ağacı gösteriyor. Ağaç gösterilirken Minify (alt çubuktan ya da paletten) belgeyi küçültüyor, ama metne dönülünce editör eski metni gösteriyordu. Okuyucu o metne yazarsa eski metin belgeye geri yazılacak, Minify kaybolacaktı. `DocumentEditor` belgeden en son aldığı metni yalnızca kompozisyondayken tutuyordu: geri gelince belgenin yeni metniyle başlıyor, farkı görmüyordu. Ayrıca yazının yarım saniyelik beklemesi bitmeden metin ekrandan çıkarsa son yazılan belgeye hiç yazılmıyordu. Maestro'nun palet akışı Android'de buldu.
+    *   Durum: kapandı (2026-11-06). Editörün bildiği metin editörün kendi metniyle başlıyor; ekrandan çıkarken yazılmamış olan yazılıyor. `DocumentEditorTest`'in iki yeni testi önce kırmızıydı.
+*   [x] **Telefonun geçersiz belge şeridindeki "Repair all" Android'in dokunma hedefinden alçaktı (2026-11-06).**
+    *   Ne: Şerit panodaki gibi 44 dp yüksekti; Android'in dokunma hedefi 48 dp. Teşhisler `SmallTouchTarget` buldu (pano testi, 390).
+    *   Durum: kapandı (2026-11-06). Şerit en az 44 dp: Android'de 48'e uzuyor, iOS'ta 44 kalıyor. Panodan 4 dp'lik bir ayrılık; panoya Android'in hâli çizilmedi.
+*   [ ] **Telefonda biçimi okunamayan bir metnin biçimi seçilemiyor (2026-11-06).**
+    *   Ne: Telefonda yeni boş belgeye yazılan JSON "Plain text" kalıyor: biçim seçici (`FormatMenu`) yalnızca geniş araç çubuğunda, telefonun "more" menüsünde ve paletinde biçim seçen bir komut yok. Biçim yalnızca açılırken (yapıştırma, dosya) anlaşılıyor. Maestro'nun Invalid akışını kurarken görüldü; akış metni kopyalayıp Start'ta yapıştırarak açıyor.
+    *   Nerede: `WorkspaceScreen.kt` (`FormatMenu`), `PhoneWorkspace.kt`, `DocumentPalette.kt`.
+    *   Öneri: telefonda durum etiketi ("Plain text") biçim menüsünü açsın, ya da paletin Document grubuna "Read as …" komutları. Önce Workspace-390'a çizilir.
+    *   Durum: açık. Sahibinin kararı.
+*   [ ] **Enter sorgu yazıldıktan hemen sonra basılırsa önceki sorguyu saklıyor (2026-11-06).**
+    *   Ne: Alanın metni görünüm modeline bir kare sonra ulaşıyor (`snapshotFlow`); `UseQuery` sorguyu taşımıyor, durumdakini okuyor. Yazıp o karede Enter'a basan önceki sorguyu "son kullanılanlar"a ekler. Gezinti bunu, eşleşmenin gelmesini bekleyerek aşıyor.
+    *   Öneri: `WorkspaceIntent.UseQuery(query)`, alanın o anki metniyle.
+    *   Durum: açık, küçük.
+*   [ ] **Problem satırının kendisinin etiketi yok; onarım düğmesi `problem_N` (2026-11-06).**
+    *   Ne: Problems listesinde satırın probleme götüren tıklanabilir kısmı Formatico'nun kendi `clickable`'ı ve etiketsiz; `Button_problem_1` satırın değil, onarım düğmesinin etiketi. Gezinti ikinci probleme giderken önce onu onardı. Bir Maestro akışı da satıra etiketle basamaz.
+    *   Öneri: satır `Modifier.pantrixTestTag(rememberPantrixTestTag("ProblemRow", "problem_N"))` (ya da bir Pantrix bileşeni), düğme `repair_N`.
+    *   Durum: açık.
+*   [ ] **Masaüstünün testi telefonun paylaşma sayfasını bağlantı alanı odaklı çiziyor; cihazda ve panoda odaksız (2026-11-06).**
+    *   Ne: Faz 15'in gezintisi kontrollere ekran okuyucu gibi bastığından beri Share-390 ve Share-834'ün masaüstü resminde bağlantı alanı odaklı (kalın, birincil renkte kenar). Eski resimlerde ve panoda odaksız. Android'de (Pixel 7 Pro) ve iOS simülatöründe Maestro'nun `share` resmi de odaksız. Uygulamanın değil, testin çiziminin farkı: dokunma kipine geçmek değiştirmedi, nedeni bulunmadı.
+    *   Nerede: `app/shared/screenshots/Share-390.png`, `BoardTour.kt`.
+    *   Öneri: masaüstü testinde sayfa açılmadan odağın nerede olduğuna bakılsın.
+    *   Durum: açık, testin.
+
 ## Üst çubuk
 
 *   [ ] **Sekmeler sığmayınca ilki logonun yanında yarım kesiliyor (2026-11-06).**
@@ -531,4 +565,10 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
         *   Başlatıcının `⌘K`'sı ve Start'ın `⌘V` ipucu panolarda tek kapak; `PantrixKeycaps` her tuşa bir kapak veriyor (`Ctrl` `K`), paletin ve Settings panosunun yaptığı gibi. Panolar tuş başına kapağa çekilebilir, ya da Pantrix'ten tek kapaklı bir biçim istenebilir.
     *   Öneri: sahibinin onayı; geçmişin "Text" yazılması için kayıt sorunun cevabından sonraya alınabilir.
     *   Durum: açık.
+
+## Metinler
+
+*   [x] **Türkçe metinlerin gözden geçirilmesi (2026-11-06).**
+    *   Ne: 632 metnin Türkçesi bir dil incelemesinden geçti. Yanlış anlamlar vardı: "Belgeyi değiştir" (switch documents) "düzenle" diye okunuyordu; "Bir değer okunamadı" "bir değer" diyordu; null "Boş" yazılıyordu. Yer tutucular yanlış dolan cümleler kurulmuştu ("…, 552 karakterde"). Terimler karışıktı: "problem" ve "sorun", "alias" ve "takma ad", "anchor" ve "çapa", "metin" ve "dizgi". Kesme işareti düz de kıvrık da yazılıyordu.
+    *   Durum: kapandı (2026-11-06). 74 metin düzeltildi. Seçilen terimler: sorun, takma ad, çapa, dizgi, indis, `null`. Kesme işareti İngilizcedeki gibi kıvrık (’). "en yeni önce" yerine "yeniden eskiye"; "anlamla karşılaştır" yerine "anlama göre". Türkçe telefonda iki taşma da kalktı: dördüncü görünüm artık "Sorunlar" ("Problemler" kesiliyordu); Summary'nin boyut kutucukları ("665 bayt") sığmadığında `PantrixAutoText` ile küçülüyor. Terimler sahibinin onayına açık.
 

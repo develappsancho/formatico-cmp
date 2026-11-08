@@ -1,0 +1,15 @@
+# A pasted link cut short opens nothing: Start says it holds no document Formatico can read.
+appId: ${APP_ID}
+name: A broken link is said and opens nothing
+---
+- launchApp:
+    clearState: true
+    stopApp: true
+- runFlow:
+    file: ../subflows/paste_text.yaml
+    env:
+      TEXT: "https://formatico.pantrixui.com/#d=eJyrVspMUbJSUEpKzSmyUiopTUoqUqoFAGG1CBs"
+- extendedWaitUntil:
+    visible: "This link holds no document.*"
+    timeout: 10000
+- takeScreenshot: ${SHOTS}/broken_link

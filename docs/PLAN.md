@@ -142,8 +142,18 @@ eksikler Faz 4'te.
     okunmuşlar bir sınırla tutuluyor, geçmiş yazdığı metinleri bellekte tutmuyor. Android `largeHeap` istiyor, masaüstü
     belleğin yarısını alıyor. Kalanlar
     `OPEN_ITEMS.md`'de, "Büyük belgelerde ölçülüp bırakılanlar".
-*   [ ] **Faz 15: v1'in testi.** Roborazzi her panoyla, Maestro akışları Android ve iOS'ta, tarayıcı testleri;
-    Türkçe ve İngilizce metinler, erişilebilirlik.
+*   [x] **Faz 15: v1'in testi.** Roborazzi her panoyla, Maestro akışları Android ve iOS'ta, tarayıcı testleri;
+    Türkçe ve İngilizce metinler, erişilebilirlik. Yapıldı (2026-11-06; sahibinin kararları: masaüstü, Android ve iOS
+    resimleri; tarayıcıda Kotlin, JDK ve Chrome; her pano bir Maestro akışı). Uygulama, kanvasın 11 panosuna ve
+    Start'ın iki cevabına ortak bir gezintiyle (`BoardTour`) getiriliyor. Masaüstünde 126 resim çiziliyor: üç
+    genişlik, açık ve koyu tema, Türkçe. iOS simülatöründe ve Android'de (Robolectric) 56'şar resim var, 834 ve 390'da.
+    Her resimde Pantrix'in teşhisleri bulgusuz olmak zorunda. `BoardAccessibilityTest` aynı gezintiyi JVM'de, iOS'ta
+    ve Wasm'da koşturuyor (42 test). Maestro'nun 15 akışı her panoya bir tane. `app/webTest`'in tarayıcı testleri
+    dağıtımı kurulu Chrome'da sınıyor: yükleyici, geçmiş, bağlantılar, yeniden yükleme, telefon genişliği, Türkçe.
+    `checkTranslations` iki dilin sözcüklerini bir arada tutuyor; Türkçenin 74 metni bir dil incelemesiyle düzeltildi.
+    Testlerin bulduğu dört hata düzeltildi: telefonda ağaçtayken yapılan değişikliğin metne gelmemesi, sorgu alanında
+    Enter'ın hiçbir şey yapmaması, şeridin Android'in dokunma hedefinden alçak olması, Türkçe telefonda iki taşma.
+    Kalanlar `OPEN_ITEMS.md`'de, Pantrix'in beş yeni bulgusu `PANTRIX_FINDINGS.md`'de.
 
 ## v2
 

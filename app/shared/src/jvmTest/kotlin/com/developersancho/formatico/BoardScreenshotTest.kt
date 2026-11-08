@@ -1,35 +1,28 @@
 package com.developersancho.formatico
 
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.onRoot
-import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performMouseInput
-import androidx.compose.ui.test.performScrollTo
-import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.printToString
 import androidx.compose.ui.test.v2.runDesktopComposeUiTest
-import androidx.compose.ui.test.waitUntilAtLeastOneExists
-import androidx.compose.ui.test.waitUntilDoesNotExist
-import androidx.compose.ui.test.waitUntilExactlyOneExists
 import com.developersancho.formatico.core.designsystem.Board
 import com.developersancho.formatico.core.storage.memoryStorageModule
-import com.developersancho.formatico.core.testing.inEnglish
+import com.developersancho.formatico.core.testing.inLanguage
+import com.pantrixui.foundation.diagnostics.PantrixFindings
+import com.pantrixui.foundation.l10n.PantrixLocale
 import com.pantrixui.testing.PantrixTestTheme
-import com.pantrixui.testing.TestClipboard
-import com.pantrixui.testing.onPantrixNode
 import io.github.takahirom.roborazzi.captureRoboImage
 import org.koin.core.context.stopKoin
 import kotlin.test.AfterTest
 import kotlin.test.Test
 
 /**
- * The app as the canvas's boards draw it, at their three widths, in the light theme and the dark: `recordRoborazziJvm`
- * writes each under `screenshots/`, named as its board is (`Workspace-1440.png`, and `Workspace-1440-dark.png` in the
- * dark theme), and `verifyRoborazziJvm` compares against them.
+ * The app as the canvas's boards draw it, at their three widths: in English in the light theme and the dark, and in
+ * Turkish in the light. `recordRoborazziJvm` writes each under `screenshots/`, named as its board is
+ * (`Workspace-1440.png`, `Workspace-1440-dark.png` and `Workspace-1440-tr.png`), and `verifyRoborazziJvm` compares
+ * against them. Each board is drawn with the theme's diagnostics on, and has to find nothing: no control without a
+ * name, no words too faint, no touch target squeezed, no tag on two nodes, in either language or theme.
  */
 @OptIn(ExperimentalTestApi::class)
 class BoardScreenshotTest {
@@ -40,147 +33,98 @@ class BoardScreenshotTest {
     }
 
     @Test
-    fun start() = boards { board, dark -> capture("Start", board, dark) }
+    fun start() = boards(AppBoard.Start)
 
     @Test
-    fun workspace() = boards { board, dark -> capture("Workspace", board, dark, sample = "order", shows = "customer") }
+    fun workspace() = boards(AppBoard.Workspace)
 
     @Test
-    fun yaml() = boards { board, dark -> capture("Yaml", board, dark, sample = "deployment", shows = "apiVersion") }
+    fun yaml() = boards(AppBoard.Yaml)
 
     @Test
-    fun table() = boards { board, dark -> capture("Table", board, dark, sample = "countries", shows = "Afghanistan") }
+    fun table() = boards(AppBoard.Table)
 
     @Test
-    fun convert() = boards { board, dark -> capture("Convert", board, dark, sample = "order", shows = "customer", then = Then.Convert) }
+    fun invalid() = boards(AppBoard.Invalid)
 
     @Test
-    fun palette() = boards { board, dark -> capture("Palette", board, dark, sample = "order", shows = "customer", then = Then.Palette) }
+    fun query() = boards(AppBoard.Query)
 
     @Test
-    fun settings() = boards { board, dark -> capture("Settings", board, dark, sample = "order", shows = "customer", then = Then.Settings) }
+    fun convert() = boards(AppBoard.Convert)
 
     @Test
-    fun unknownFormat() = boards { board, dark -> capture("Ask", board, dark, then = Then.Ask) }
+    fun compare() = boards(AppBoard.Compare)
 
     @Test
-    fun share() = boards { board, dark -> capture("Share", board, dark, sample = "order", shows = "customer", then = Then.Share) }
+    fun summary() = boards(AppBoard.Summary)
 
     @Test
-    fun brokenLink() = boards { board, dark -> capture("BrokenLink", board, dark, then = Then.BrokenLink) }
+    fun palette() = boards(AppBoard.Palette)
 
-    /** What a board shows once its sample is open: nothing more, or what is opened over it. */
-    private enum class Then { Nothing, Convert, Palette, Settings, Ask, Share, BrokenLink }
+    @Test
+    fun settings() = boards(AppBoard.Settings)
 
-    /** Every board, in the light theme and the dark. */
-    private fun boards(capture: (Board, Boolean) -> Unit) = Board.entries.forEach { board ->
-        listOf(false, true).forEach { dark -> capture(board, dark) }
+    @Test
+    fun unknownFormat() = boards(AppBoard.Ask)
+
+    @Test
+    fun share() = boards(AppBoard.Share)
+
+    @Test
+    fun brokenLink() = boards(AppBoard.BrokenLink)
+
+    /** A way a board is drawn: its language, its theme, and what its screenshot's name ends with. */
+    private enum class Look(val language: String, val dark: Boolean, val suffix: String) {
+        Light("en", dark = false, suffix = ""),
+        Dark("en", dark = true, suffix = "-dark"),
+        Turkish("tr", dark = false, suffix = "-tr")
+    }
+
+    /** [board] at every width, in every look. */
+    private fun boards(board: AppBoard) = Board.entries.forEach { window ->
+        Look.entries.forEach { look ->
+            try {
+                inLanguage(look.language) { draw(board, window, look) }
+            } catch (failure: Throwable) {
+                throw AssertionError("$board at ${window.width}, ${look.name.lowercase()}: ${failure.message}", failure)
+            } finally {
+                stopKoin()
+            }
+        }
     }
 
     /**
-     * Draws the app on [board], as dark as the system is where [dark] says so, opens [sample] where one is named and
-     * waits for what it [shows], does what [then] says, and writes the picture as `[name]-width.png`, or
-     * `[name]-width-dark.png`.
+     * Draws the app on [window] in [look], brings it to [board], writes the picture as
+     * `screenshots/<board>-<width><suffix>.png`, and asserts the diagnostics found nothing on the way.
      */
-    private fun capture(
-        name: String,
-        board: Board,
-        dark: Boolean,
-        sample: String? = null,
-        shows: String? = null,
-        then: Then = Then.Nothing
-    ) {
-        inEnglish { draw("screenshots/$name-${board.width}${if (dark) "-dark" else ""}.png", board, dark, sample, shows, then) }
-        stopKoin()
-    }
-
-    @Suppress("LongParameterList") // What a board shows, as capture is given it.
-    private fun draw(file: String, board: Board, dark: Boolean, sample: String?, shows: String?, then: Then) =
-        runDesktopComposeUiTest(width = board.width, height = board.height) {
-            // The board's text of no format told is what the clipboard holds, or a link cut short.
-            val clipboard = TestClipboard().apply { putText(if (then == Then.BrokenLink) BROKEN_LINK else UNTOLD) }
+    private fun draw(board: AppBoard, window: Board, look: Look) =
+        runDesktopComposeUiTest(width = window.width, height = window.height) {
+            val findings = PantrixFindings()
+            val files = BoardFiles()
+            val turkish = look == Look.Turkish
             setContent {
-                PantrixTestTheme(platform = board.platform, dark = dark, window = board.window, clipboard = clipboard) {
-                    App(systemDark = dark, storage = memoryStorageModule)
+                PantrixTestTheme(
+                    platform = window.platform,
+                    dark = look.dark,
+                    locale = if (turkish) PantrixLocale.Turkish else PantrixLocale.English,
+                    window = window.window,
+                    findings = findings,
+                    clipboard = board.clipboard(),
+                    filePicker = files
+                ) {
+                    App(systemDark = look.dark, storage = memoryStorageModule)
                 }
             }
-            waitUntilExactlyOneExists(hasText("Paste anything"), timeoutMillis = 10_000)
-            if (sample != null && shows != null) {
-                if (board == Board.Phone) onPantrixNode("Link", "all_samples").performClick()
-                onPantrixNode("ListItem", "sample_$sample").performScrollTo().performClick()
-                waitUntilAtLeastOneExists(hasText(shows, substring = true), timeoutMillis = 10_000)
-                // The text shows what it [shows] at once, and the tree and the status only once the document is read,
-                // which on a busy machine is later.
-                waitUntilDoesNotExist(hasText("Reading…"), timeoutMillis = 10_000)
+            try {
+                tour(board, window, if (turkish) BoardWords.Turkish else BoardWords.English, files)
+            } catch (failure: Throwable) {
+                System.err.println(onAllNodes(isRoot(), useUnmergedTree = true).printToString(maxDepth = 60))
+                onRoot().captureRoboImage("build/board-failures/${board.fileName}-${window.width}${look.suffix}.png")
+                throw failure
             }
-            // A control is pressed as a screen reader presses it: a pointer left where it was would hover over what
-            // stands there once the screen has changed.
-            when (then) {
-                Then.Nothing -> onRoot().captureRoboImage(file)
-
-                Then.Convert -> {
-                    // A phone converts from its bar's "more" menu, a wider window from its toolbar.
-                    if (board == Board.Phone) {
-                        onPantrixNode("IconButton", "more").performSemanticsAction(SemanticsActions.OnClick)
-                        onPantrixNode("MenuItem", "convert", scope = "Menu_document").performSemanticsAction(SemanticsActions.OnClick)
-                    } else {
-                        onPantrixNode("Button", "convert").performClick()
-                    }
-                    waitUntilAtLeastOneExists(hasText("Nothing is lost"), timeoutMillis = 10_000)
-                    onRoot().captureRoboImage(file)
-                }
-
-                Then.Palette -> {
-                    // The palette is a window of its own, over the app: the last root drawn.
-                    onPantrixNode(if (board == Board.Desktop) "Button" else "IconButton", "launcher")
-                        .performSemanticsAction(SemanticsActions.OnClick)
-                    waitUntilAtLeastOneExists(hasText("Copy the document"), timeoutMillis = 10_000)
-                    onAllNodes(isRoot()).onLast().captureRoboImage(file)
-                }
-
-                Then.Settings -> {
-                    // A phone's bar over a document has no settings: its Start has.
-                    if (board == Board.Phone) {
-                        onPantrixNode("Button", "switch_documents").performSemanticsAction(SemanticsActions.OnClick)
-                        onPantrixNode("MenuItem", "new", scope = "Menu_documents").performSemanticsAction(SemanticsActions.OnClick)
-                        waitUntilExactlyOneExists(hasText("Paste anything"), timeoutMillis = 10_000)
-                    }
-                    onPantrixNode("IconButton", "settings").performSemanticsAction(SemanticsActions.OnClick)
-                    waitUntilAtLeastOneExists(hasText("Indentation"), timeoutMillis = 10_000)
-                    // The pointer that opened the sample would rest over a row of Settings.
-                    onRoot().performMouseInput { moveTo(Offset(1f, 1f)) }
-                    onRoot().captureRoboImage(file)
-                }
-
-                Then.Ask -> {
-                    onPantrixNode("Button", "paste").performSemanticsAction(SemanticsActions.OnClick)
-                    waitUntilAtLeastOneExists(hasText("What format is this?"), timeoutMillis = 10_000)
-                    onAllNodes(isRoot()).onLast().captureRoboImage(file)
-                }
-
-                Then.Share -> {
-                    // Share is in the document's "more" menu, a phone's in its bar and a wider window's in its toolbar.
-                    onPantrixNode("IconButton", "more").performSemanticsAction(SemanticsActions.OnClick)
-                    onPantrixNode("MenuItem", "share", scope = "Menu_document").performSemanticsAction(SemanticsActions.OnClick)
-                    // The link is made a moment after the share opens: its length is said under it then.
-                    waitUntilAtLeastOneExists(hasText(" characters", substring = true), timeoutMillis = 10_000)
-                    onAllNodes(isRoot()).onLast().captureRoboImage(file)
-                }
-
-                Then.BrokenLink -> {
-                    onPantrixNode("Button", "paste").performSemanticsAction(SemanticsActions.OnClick)
-                    waitUntilAtLeastOneExists(hasText("This link holds no document", substring = true), timeoutMillis = 10_000)
-                    onRoot().captureRoboImage(file)
-                }
-            }
+            val file = "screenshots/${board.fileName}-${window.width}${look.suffix}.png"
+            if (board.overlay) onAllNodes(isRoot()).onLast().captureRoboImage(file) else onRoot().captureRoboImage(file)
+            assertNoFindingsOnBoard(findings)
         }
-
-    private companion object {
-        /** The Share board's link, whose checksum is not its text's: a link Start says it cannot read. */
-        const val BROKEN_LINK = "https://formatico.pantrixui.com/#d=eJyrVspMUbJSUEpKzSmyUiopTUoqUqoFAGG1CBs"
-
-        /** A text Formatico cannot tell the format of, as the Start boards' question shows it. */
-        const val UNTOLD = "2026-11-05 21:04:11 INFO  Server started on port 8080\n" +
-            "2026-11-05 21:04:12 WARN  Slow query took 812 ms\n2026-11-05 21:04:15 INFO  Shutting down"
-    }
 }

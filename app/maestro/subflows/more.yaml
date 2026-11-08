@@ -1,0 +1,7 @@
+# Runs the document's "more" menu's row ${ITEM}: a phone's in its bar.
+appId: ${APP_ID}
+---
+- tapOn:
+    id: "IconButton_more"
+- tapOn:
+    id: ".*MenuItem_${ITEM}"

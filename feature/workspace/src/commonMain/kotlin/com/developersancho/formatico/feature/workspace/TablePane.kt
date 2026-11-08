@@ -129,9 +129,7 @@ internal fun TablePane(
                 }
 
                 // A large document is read for seconds: the status bar says so, and the table is not yet known to be none.
-                state.reading == Reading.Pending -> {
-                    Unit
-                }
+                state.reading == Reading.Pending -> {}
 
                 table == null -> {
                     PaneMessage(

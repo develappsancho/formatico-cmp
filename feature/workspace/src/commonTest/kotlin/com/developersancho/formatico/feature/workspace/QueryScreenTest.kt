@@ -4,16 +4,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.v2.runComposeUiTest
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.format.Format
@@ -92,6 +96,22 @@ class QueryScreenTest {
         assertEquals("order-query.json", opened?.name)
         assertEquals(Format.Json, opened?.format)
         assertNoFindings(findings)
+    }
+
+    @Test
+    fun theKeyboardsActionUsesTheQueryAsked() = runComposeUiTest {
+        val intents = mutableListOf<WorkspaceIntent>()
+        setContent {
+            PantrixTestTheme(window = desktop, clock = clock) {
+                WorkspaceScreen(state = OrderNames, onIntent = { intents += it }, commands = rememberDocumentCommands(Workbench()))
+            }
+        }
+
+        awaitText("3 matches. XPath is for XML documents.")
+        // The field names its action: the default one never reaches the handler, and Enter used nothing.
+        onPantrixNode("TextField", "query").assert(SemanticsMatcher.expectValue(SemanticsProperties.ImeAction, ImeAction.Search))
+        onPantrixNode("TextField", "query").performImeAction()
+        assertEquals(WorkspaceIntent.UseQuery, intents.last())
     }
 
     @Test

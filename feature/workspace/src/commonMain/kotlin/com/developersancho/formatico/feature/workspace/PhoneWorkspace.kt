@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -134,7 +135,9 @@ private fun UnderTheViews(
     val spacing = PantrixTheme.spacing
     when {
         problemsInText -> {
-            InvalidStrip(state, onIntent, Modifier.fillMaxWidth().height(44.dp).padding(start = spacing.lg, end = spacing.sm))
+            // The board's strip is 44 high; Repair all's touch target is the platform's, 48 on Android, and the strip
+            // grows to it there.
+            InvalidStrip(state, onIntent, Modifier.fillMaxWidth().heightIn(min = 44.dp).padding(start = spacing.lg, end = spacing.sm))
         }
 
         pane == DocumentPane.Tree && search.open && state.root != null -> {

@@ -1,0 +1,20 @@
+# The order's summary: its sizes, its values and what was found in them.
+appId: ${APP_ID}
+name: The order's summary counts its values
+---
+- launchApp:
+    clearState: true
+    stopApp: true
+- runFlow:
+    file: ../subflows/open_sample.yaml
+    env:
+      SAMPLE: order
+- runFlow:
+    file: ../subflows/more.yaml
+    env:
+      ITEM: summary
+- extendedWaitUntil:
+    visible: "Values"
+    timeout: 10000
+- assertVisible: "665 B"
+- takeScreenshot: ${SHOTS}/summary

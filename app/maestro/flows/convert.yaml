@@ -1,0 +1,23 @@
+# The order converted to YAML: nothing of it is lost, and the phone's conversion has a bar of its own.
+appId: ${APP_ID}
+name: The order converts to YAML with nothing lost
+---
+- launchApp:
+    clearState: true
+    stopApp: true
+- runFlow:
+    file: ../subflows/open_sample.yaml
+    env:
+      SAMPLE: order
+- runFlow:
+    file: ../subflows/more.yaml
+    env:
+      ITEM: convert
+- extendedWaitUntil:
+    visible: "Nothing is lost"
+    timeout: 10000
+- assertVisible: ".*id: ord_8842.*"
+- takeScreenshot: ${SHOTS}/convert
+- tapOn:
+    id: ".*IconButton_back"
+- assertVisible: "Valid JSON"

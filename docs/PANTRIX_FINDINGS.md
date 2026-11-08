@@ -134,7 +134,7 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Ne: `PantrixTestTheme(window = PantrixWindow(DpSize(1440.dp, 900.dp)))` ekrana 1440'lık bir pencerede olduğunu söylüyor, ama masaüstünde `runComposeUiTest` ekranı kendi 1024×768 piksellik yüzeyinde çiziyor. Formatico'nun geniş Table testi bu yüzden 1024'te koştu: araç çubuğu sığmadı, sondaki "Save as CSV" düğmesi sıfır genişlikte kaldı ve tıklama hiçbir şey yapmadı. Test ekranın kendisi değil, düzenin pencereden küçük olduğu bir hâli sınıyordu; hata bulunana kadar "düğme çalışmıyor" gibi göründü. `window`'un belgesi "the window the screen is told it is in" diyor, yani söylenen bu; ama test rehberi, ekranı o boyda çizmek için `PantrixWindowFrame`'in boyutlu bir kutuyla kullanılacağını söylemiyor (yalnızca uyarlanabilir rehberde, katlanan pencere örneğinde geçiyor).
     *   Nerede: MCP `get_api PantrixTestTheme` (`window`); `guide/testing`; `guide/adaptive` ("A folding window in a preview and a test").
     *   Öneri: test rehberine "bir genişlikteki düzeni sınamak için ekranı o boyda bir `PantrixWindowFrame`'e koyun" cümlesi ve örneği; ya da `PantrixTestTheme`'in `window` verildiğinde içeriği o boyda çizmesi.
-    *   Durum: açık. Formatico (2026-11-03) araç çubuğunu dar genişlikte de sığacak biçimde düzeltti (yol izi önce daralıyor); testler 1024'te koşmaya devam ediyor.
+    *   Durum: açık. Formatico (2026-11-03) araç çubuğunu dar genişlikte de sığacak biçimde düzeltti (yol izi önce daralıyor); testler 1024'te koşmaya devam ediyor. Faz 15'te (2026-11-06) iki yol bulundu: ortak testte ekran panonun boyunda bir `PantrixWindowFrame`'e (`requiredSize`) konuyor; iOS'ta ve web'de Compose'un `runSkikoComposeUiTest(size = …)`'su testi o boyda çiziyor (iOS'un pano resimleri böyle). Rehber ikisini de anmıyor.
 
 *   [ ] **Ekran görüntüsü testinin kurulumu sitede yok; Maestro görevleri yayımlanmıyor (2026-11-03).**
     *   Ne: Test rehberi Roborazzi için "Pantrix's own setup is in the Roborazzi guide" diyor ve deponun bir dosyasına bağlıyor; dışarıdan biri o depoyu okuyamıyor, sitede ve MCP'de o rehber yok. Kurulum özetin üç maddesinden çıkarıldı (eklenti, `roborazzi-compose-desktop`, `captureRoboImage`, `runDesktopComposeUiTest(width, height)`). Maestro'da rehber `maestroTest` ve `maestroIosTest` görevlerini anlatıyor; görevler Pantrix'in kendi `build-logic`'inde (`pantrix.demo.maestro`), bir uygulamaya verilmiyor. Formatico akışlarını `maestro test` ile koşturuyor.
@@ -158,6 +158,22 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Öneri: sunucu hangi derlemeden olduğunu söylesin (sürüm ve derleme zamanı, `get_changelog`'un başında ya da her cevabın yapısal içeriğinde), eskisiyle çalışıldığı görülsün. CLAUDE.md'deki adım da yerel derlemeden sonra yeni bir oturum (ya da MCP sunucusunun yeniden bağlanması) desin.
     *   Durum: açık. Formatico'yu tıkamıyor. Yeni bir oturum sunucuyu yeni jar'la başlatır.
 
+*   [ ] **Test rehberi Android'in host testlerinin ortak testleri almadığını söylüyor; almaları ve Android 17'nin iki şartı yazmıyor (2026-11-06).**
+    *   Ne: Rehberin tuzaklarında "On Android the common tests do not run in the host tree" yazıyor. Formatico `app/shared`'de `withHostTest` açınca (AGP 9.5.0, Kotlin 2.4.21) derleyici `commonTest`'in `androidHostTest`'in bir parçası olduğunu söyledi: aynı dosyayı iki ağaca vermek "can be a part of only one module" hatası verdi, ortak testler de host testinin görevine girdi. Ortak testlerde Robolectric'in koşucusu (`@RunWith`) olmadığı için Android'de koşamıyorlar. Robolectric'le Roborazzi'nin özeti (bölüm 3.6) iki şeyi de anmıyor. Birincisi, Compose Multiplatform 1.12.2'nin Android `ui-test`'i Espresso 3.5.0 getiriyor; Espresso, Android 17'de (API 37, `compileSdk 37`) olmayan `InputManager.getInstance()`'ı arıyor ve her test düşüyor. İkincisi, Robolectric 4.17'nin Android 17'si JDK 21'de `jdk.internal.access`'e erişemiyor ("Failed to interact with raw FileDescriptor internals").
+    *   Nerede: MCP `guide/testing`, bölüm 3.6 ve 7; `skill/testing` ("Running").
+    *   Öneri: tuzak düzeltilsin ("host testi ortak testleri de alır; Robolectric'le koşmaları için…"); 3.6'ya Espresso 3.7.0 ve `--add-exports=java.base/jdk.internal.access=ALL-UNNAMED` eklensin.
+    *   Durum: açık. Formatico'yu tıkamıyor. Formatico (2026-11-06) host testinin görevini kendi resim testine süzüyor, Espresso 3.7.0'ı ve JVM bayrağını `app/shared/build.gradle.kts`'te veriyor; ikisi de önbellekteydi, indirme yok.
+*   [ ] **Web'de etiketin nerede olduğu ve nasıl basılacağı rehberde "doğrulanmadı" olarak kalıyor (2026-11-06).**
+    *   Ne: Rehber web'de cihaz otomasyonunu yok sayıyor: Maestro 2.10'un Chromium'u gölge kökün içini görmüyor (Formatico'da da öyle: Maestro'nun ağacında yalnızca `#app` var). "Not Verified" altında gölge köke giren bir aracın (Playwright) etiketleri bulup bulamayacağı denenmemiş. Formatico denedi: gölge kök açık (`element.shadowRoot`), `#cmp_a11y_root`'ta Pantrix etiketi `id`, adı `aria-label`, metni düğümün yazısı. Düğüm ekrandaysa kendi yerinde ve boyunda duruyor; ortasına DevTools'un fare olayıyla basmak Compose'a gerçek bir basış olarak gidiyor. Ekrandışı düğümler sıfır boyda.
+    *   Nerede: MCP `guide/testing`, bölüm 5 ("Device automation on the web"), 8 ("The web (Maestro's Chromium)", "Not Verified").
+    *   Öneri: rehbere web'de uçtan uca test için bir bölüm: kökü bulan bir satır JavaScript, etiketle seçim, kutunun ortasına basış. `com.pantrixui:testing`'de JVM'den Chrome'u süren küçük bir yardımcı da olabilir.
+    *   Durum: açık, bilgi. Formatico'nun tarayıcı testleri (`app/webTest`) bunu kendi yazdığı istemciyle yapıyor.
+*   [ ] **`onKeyboardAction` bir eylem adı verilmeyince sessizce hiç çağrılmıyor (2026-11-06).**
+    *   Ne: `PantrixTextField(state, …, onKeyboardAction = …)`'ın belgesi "It is called only for a named action, since the default one never reaches a handler" diyor; doğru, ama tek satırlık bir alana işleyici verip `keyboardOptions`'ta eylemi adlandırmayan bir çağrı hiçbir şey yapmıyor, hata ya da uyarı da çıkmıyor. Formatico'nun sorgu alanı Faz 9'dan beri böyleydi: Enter ve klavyenin tuşu sorguyu son kullanılanlara hiç eklemedi, test de yakalamadı. Formun aşırı yüklemesi bu durumda kendisi `ImeAction.Done` veriyor ("since the default action never reaches a handler"); durumun (`TextFieldState`) aşırı yüklemesi vermiyor.
+    *   Nerede: MCP `get_component_metadata TextField` (`onKeyboardAction`, ve form aşırı yüklemesinin `form`'u).
+    *   Öneri: tek satırlık bir alanda işleyici verilip eylem adlandırılmamışsa `ImeAction.Done` (form aşırı yüklemesindeki gibi), ya da bir teşhis.
+    *   Durum: açık. Formatico'yu tıkamıyor. Formatico sorgu alanında `ImeAction.Search`'ü adlandırdı (`QueryScreenTest.theKeyboardsActionUsesTheQueryAsked`).
+
 ## 5. Web
 
 *   [ ] **Yol silen webpack eklentisi rehberde yok (2026-11-02).**
@@ -170,7 +186,13 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Ne: Tarayıcıda uygulamanın kendi kelimeleri (Compose kaynakları) ilk kareden sonra geliyor. O arada `PantrixListItem`'ın başlığı boş; teşhisler bunu hemen `MissingName` diye bildiriyor ("ListItem has a blank name"). Kelimeler birkaç kare sonra geliyor, satırın adı oluyor, bulgu ise kalıyor ve `assertNoFindings` başarısız. Sıkışan dokunma alanı yarım saniye, iki düğümdeki etiket bir buçuk saniye bekleniyor; boş ad hiç beklenmiyor. Masaüstünde ve iOS'ta kelimeler ilk karede olduğu için görülmüyor.
     *   Nerede: MCP `guide/diagnostics`, `get_api checkName`; `guide/testing` ("Some findings come late").
     *   Öneri: `MissingName` da kısa bir süre beklesin, ya da bir ad yalnızca boş kalmaya devam ederse bildirilsin.
-    *   Durum: açık. Formatico'nun testleri (2026-11-03) kelimeleri beklemek zorunda kaldıklarında o arada bulunanı `PantrixFindings.clear()` ile unutuyor; yorumda bu bulgu anılıyor.
+    *   Durum: açık. Formatico'nun testleri (2026-11-03) kelimeleri beklemek zorunda kaldıklarında o arada bulunanı `PantrixFindings.clear()` ile unutuyor; yorumda bu bulgu anılıyor. Faz 15'te (2026-11-06) panoların erişilebilirlik testi bunu her basıştan sonra da yapmak zorunda kaldı: telefonda bir menü ya da problem kartı açılınca sözcükleri bir an sonra geliyor (`forgetWhileWordsCame`).
+
+*   [ ] **Web'de snackbar'ın iletisi ekran okuyucuya gitmiyor (2026-11-06).**
+    *   Ne: Compose'un web'de ekran okuyucu için kurduğu ağaçta (`#cmp_a11y_root`) `PantrixSnackbar`'ın öğesi (`Snackbar_<tagKey>`) yalnızca kapatma düğmesini tutuyor: iletinin metni, bir rolü ya da `aria-live`'ı yok. Compose'un anlam ağacında metin var: ortak testler Wasm'da onu `hasText` ile buluyor. Formatico'nun kırık bağlantı uyarısı ("This link holds no document Formatico can read") tarayıcıda bir ekran okuyucuya hiç söylenmiyor olabilir; ekran okuyucuyla dinlenmedi. Tarayıcı testinde bir kez metin göründü, sonraki dört koşuda görünmedi.
+    *   Nerede: Formatico'nun `app/webTest`'i, `WebAppTest.aLinkCutShortIsSaidAndOpensNothing`; öğe `<div id="Snackbar_link_broken"><div aria-label="Close" id="SnackbarClose_link_broken" role="button"></div></div>`.
+    *   Öneri: snackbar'ın web'de ne yansıttığına bakılsın (iletinin düğümü, canlı bölge); Compose'un yansısıysa onun için bir not ve geçici bir yol (iletiyi `contentDescription` olarak, `role="status"`).
+    *   Durum: açık. Formatico'yu tıkamıyor; erişilebilirliğin bir eksiği. Tarayıcı testi uyarının etiketine bakıyor.
 
 ## 6. Bileşenler
 
@@ -428,3 +450,9 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Nerede: kaynak jar'da `data/common/TreeRow.kt` (`val count = tree.shape.childrenOf(node).size.takeIf { node.hasChildren && !open && it > 0 }`).
     *   Öneri: `TreeNode.childCount: Int?`, yüklenmemiş bir dalın kaç çocuğu olacağı; ekran okuyucu onu söylesin.
     *   Durum: açık. Formatico'yu tıkamıyor.
+
+*   [ ] **Komut paletinin arama alanının adı yok (2026-11-06).**
+    *   Ne: `PantrixCommandPalette`'in alanı (`CommandPalette_<tagKey>.TextField_query`) ekran okuyucuya boş adla gidiyor: teşhisler her panoda `MissingName TextField … has a blank name` buluyor. Palet alana bir `placeholder` veriyor ("Type a command or a format"), ama yer tutucu ad değil; paletin alanın adını vermek için bir parametresi (`label`, `contentDescription`) yok. Pantrix'in kendi metin alanı adsız bir arama alanı için `contentDescription`'ı öneriyor, palet onu kullanmıyor.
+    *   Nerede: MCP `get_api PantrixCommandPalette`; `get_component_metadata TextField` (`contentDescription`: "its name where it has no label, as a search field has none").
+    *   Öneri: palet alanına yer tutucusunu (ya da temanın komut arama sözcüklerini) `contentDescription` olarak versin.
+    *   Durum: açık. Formatico'nun pano testleri (`BoardTour.assertNoFindingsOnBoard`) yalnızca bu bulguyu, yorumunda bu başlığı anarak, saymıyor. Erişilebilirliğin bir eksiği: sahibi `tıkıyor` derse önce düzeltilir.

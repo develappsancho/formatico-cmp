@@ -1,0 +1,32 @@
+# Puts ${TEXT} on the system's clipboard as a user would, typing it into a new document and copying it, closes that
+# document, and pastes the text on Start: what a text pasted from another app opens as. A text pasted while a document
+# holding it is open goes to that document.
+appId: ${APP_ID}
+---
+- tapOn:
+    id: "Button_new_document"
+- tapOn:
+    id: "SegmentButton_view.Segment_text"
+- tapOn:
+    id: "CodeEditor_text.*"
+    index: 0
+- inputText: ${TEXT}
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - hideKeyboard
+- tapOn:
+    id: "IconButton_copy"
+- tapOn:
+    id: "IconButton_more"
+- tapOn:
+    id: ".*MenuItem_close"
+- tapOn:
+    id: "Button_paste"
+# iOS asks before an app reads what another put on the clipboard.
+- runFlow:
+    when:
+      visible: "Allow Paste"
+    commands:
+      - tapOn: "Allow Paste"

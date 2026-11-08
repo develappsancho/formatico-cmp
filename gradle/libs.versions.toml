@@ -17,6 +17,7 @@ cryptography = "0.6.0"
 navigation3 = "1.2.0"
 navigationevent = "1.1.0"
 pantrix = "0.1.2-SNAPSHOT"
+robolectric = "4.17"
 roborazzi = "1.77.0"
 snakeyaml-engine-kmp = "5.0.0"
 
@@ -26,6 +27,7 @@ kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-c
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutinesSwing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
 kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinx-serialization" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 snakeyaml-engine-kmp = { module = "it.krzeminski:snakeyaml-engine-kmp", version.ref = "snakeyaml-engine-kmp" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity" }
 androidx-lifecycle-viewmodel = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel", version.ref = "androidx-lifecycle" }
@@ -52,6 +54,12 @@ pantrix-components = { module = "com.pantrixui:components", version.ref = "pantr
 pantrix-testing = { module = "com.pantrixui:testing", version.ref = "pantrix" }
 pantrix-detektRules = { module = "com.pantrixui:detekt-rules", version.ref = "pantrix" }
 roborazzi-composeDesktop = { module = "io.github.takahirom.roborazzi:roborazzi-compose-desktop", version.ref = "roborazzi" }
+roborazzi-composeIos = { module = "io.github.takahirom.roborazzi:roborazzi-compose-ios", version.ref = "roborazzi" }
+roborazzi-android = { module = "io.github.takahirom.roborazzi:roborazzi", version.ref = "roborazzi" }
+roborazzi-compose = { module = "io.github.takahirom.roborazzi:roborazzi-compose", version.ref = "roborazzi" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+androidx-test-espressoCore = { module = "androidx.test.espresso:espresso-core", version = "3.7.0" }
+kotlin-testJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 
 # The plugins build-logic compiles its convention plugins against.
 android-gradlePlugin = { module = "com.android.tools.build:gradle", version.ref = "agp" }

@@ -1,0 +1,24 @@
+# A pasted JSON with a missing comma, a key in no quotes and a trailing comma: its problems are said, and Repair
+# mends them all.
+appId: ${APP_ID}
+name: An invalid document says its problems and is repaired
+tags:
+  - smoke
+---
+- launchApp:
+    clearState: true
+    stopApp: true
+- runFlow:
+    file: ../subflows/paste_text.yaml
+    env:
+      TEXT: '{"name": "formatico" "port": 8080, timeout: 30,}'
+# A phone opens it in its tree, the status saying how many problems it has.
+- extendedWaitUntil:
+    visible: "3 problems"
+    timeout: 10000
+- takeScreenshot: ${SHOTS}/invalid
+- tapOn:
+    id: "Button_repair"
+- extendedWaitUntil:
+    visible: "Valid JSON"
+    timeout: 10000

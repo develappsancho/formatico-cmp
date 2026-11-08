@@ -18,8 +18,8 @@
     <string name="workspace_view_text">Metin</string>
     <string name="workspace_view_tree">Ağaç</string>
     <string name="workspace_view_table">Tablo</string>
-    <string name="workspace_find">Bir anahtar ya da değer bul</string>
-    <string name="workspace_find_in_tree">Ağaçta bul</string>
+    <string name="workspace_find">Anahtar ya da değer ara</string>
+    <string name="workspace_find_in_tree">Ağaçta ara</string>
     <string name="workspace_show_summary_item">Özeti göster</string>
     <string name="workspace_match">eşleşme %1$s</string>
     <string name="workspace_open_to">Düzey</string>
@@ -28,7 +28,7 @@
     <string name="workspace_open_all_levels">Ağacın tamamını aç</string>
     <string name="workspace_close_search">Aramayı kapat</string>
 
-    <string name="workspace_editor_title">Metin düzenleme yolda</string>
+    <string name="workspace_editor_title">Metin düzenleme yakında geliyor</string>
     <string name="workspace_editor_body">Sonraki bir sürümle geliyor. O zamana kadar belge ağaçta görünüyor; Biçimlendir, Küçült ve Kopyala belgenin tamamında çalışıyor.</string>
     <string name="workspace_editor_body_unread">Sonraki bir sürümle geliyor. O zamana kadar Kopyala ve Dosya olarak kaydet belgenin tamamında çalışıyor.</string>
     <string name="workspace_editor_body_read">Sonraki bir sürümle geliyor. O zamana kadar belge ağaçta görünüyor; Kopyala ve Dosya olarak kaydet belgenin tamamında çalışıyor.</string>
@@ -36,8 +36,8 @@
     <string name="workspace_plain_body">Hangi biçimde yazıldığını seçersen öyle okunur.</string>
     <string name="workspace_empty_title">Belge boş</string>
     <string name="workspace_empty_body">İçinde henüz okunacak bir şey yok.</string>
-    <string name="workspace_no_value_title">Bir değer okunamadı</string>
-    <string name="workspace_no_value_body">Belgenin sorunları ağacının önünde duruyor.</string>
+    <string name="workspace_no_value_title">Hiçbir değer okunamadı</string>
+    <string name="workspace_no_value_body">Belgedeki sorunlar ağacın gösterilmesini engelliyor.</string>
 
     <string name="workspace_text_of">%1$s metni</string>
     <string name="workspace_line_column">Satır %1$d, Sütun %2$d</string>
@@ -67,11 +67,11 @@
     </plurals>
     <string name="workspace_keys_sorted">Anahtarlar sıralandı</string>
     <string name="workspace_undo">Geri al</string>
-    <string name="workspace_already_formatted">Zaten biçimli</string>
+    <string name="workspace_already_formatted">Zaten biçimlendirilmiş</string>
     <string name="workspace_already_minified">Zaten küçültülmüş</string>
     <string name="workspace_already_sorted">Anahtarları zaten sıralı</string>
     <string name="workspace_edit_impossible">Formatico yalnızca geçerli bir JSON, JSONC, JSON5 ya da YAML belgesini değiştirir</string>
-    <string name="workspace_alias_before_anchor">Anahtarlar olduğu gibi bırakıldı: sıralamak bir alias’ı anchor’ının önüne koyardı</string>
+    <string name="workspace_alias_before_anchor">Anahtarlar olduğu gibi bırakıldı: sıralamak bir takma adı çapasının önüne koyardı</string>
     <string name="workspace_copied">Belge kopyalandı</string>
     <string name="workspace_copy_failed">Belge kopyalanamadı</string>
     <string name="workspace_value_copied">Değer kopyalandı</string>
@@ -99,19 +99,19 @@
     <string name="workspace_kind_colour">Renk</string>
     <string name="workspace_kind_link">Bağlantı</string>
     <string name="workspace_kind_picture">Resim</string>
-    <string name="workspace_kind_string">Metin</string>
+    <string name="workspace_kind_string">Dizgi</string>
     <string name="workspace_kind_number">Sayı</string>
     <string name="workspace_kind_boolean">Mantıksal</string>
-    <string name="workspace_kind_null">Boş</string>
+    <string name="workspace_kind_null">Null</string>
     <string name="workspace_kind_object">Nesne</string>
     <string name="workspace_kind_array">Dizi</string>
-    <string name="workspace_kind_alias">Alias</string>
+    <string name="workspace_kind_alias">Takma ad</string>
     <string name="workspace_colour_of">Renk %1$s</string>
     <string name="workspace_picture_at">Bu adresteki resim</string>
     <string name="workspace_open_link">Bağlantıyı aç</string>
-    <string name="workspace_alias_detail">&amp;%1$s anchor’ını gösteriyor</string>
-    <string name="workspace_alias_missing">Önünde &amp;%1$s anchor’ı yok</string>
-    <string name="workspace_go_to_anchor">Anchor’a git</string>
+    <string name="workspace_alias_detail">&amp;%1$s çapasını gösteriyor</string>
+    <string name="workspace_alias_missing">Önünde &amp;%1$s çapası yok</string>
+    <string name="workspace_go_to_anchor">Çapaya git</string>
     <plurals name="workspace_keys">
         <item quantity="one">%1$d anahtar</item>
         <item quantity="other">%1$d anahtar</item>
@@ -125,7 +125,7 @@
         <item quantity="other">%1$d karakter</item>
     </plurals>
     <string name="workspace_moment_utc">%1$s, %2$s UTC</string>
-    <string name="workspace_moment_local">senin saatinle %1$s</string>
+    <string name="workspace_moment_local">yerel saatle %1$s</string>
     <string name="workspace_today">bugün</string>
     <string name="workspace_yesterday">dün</string>
     <string name="workspace_tomorrow">yarın</string>
@@ -150,12 +150,12 @@
         <item quantity="one">%1$d sütun</item>
         <item quantity="other">%1$d sütun</item>
     </plurals>
-    <string name="workspace_filter_rows">Satırları süz</string>
+    <string name="workspace_filter_rows">Satırları filtrele</string>
     <string name="workspace_columns">Sütunlar</string>
     <string name="workspace_columns_all">Sütunlar: %1$d sütunun hepsi görünüyor. Sütunları seç</string>
     <string name="workspace_columns_some">Sütunlar: %2$d sütunun %1$d tanesi görünüyor. Sütunları seç</string>
     <string name="workspace_value_column">değer</string>
-    <string name="workspace_index">Dizideki yeri</string>
+    <string name="workspace_index">Dizideki indisi</string>
     <string name="workspace_missing_key">Bu nesnede %1$s anahtarı yok</string>
     <string name="workspace_open_value">%1$s. Aç</string>
     <plurals name="workspace_numbers">
@@ -172,10 +172,10 @@
     <string name="workspace_stat_different">farklı</string>
     <string name="workspace_stat_empty">boş</string>
     <string name="workspace_sorted_by">%1$s sütununa göre sıralı, %2$s</string>
-    <string name="workspace_newest_first">en yeni önce</string>
-    <string name="workspace_oldest_first">en eski önce</string>
-    <string name="workspace_largest_first">en büyük önce</string>
-    <string name="workspace_smallest_first">en küçük önce</string>
+    <string name="workspace_newest_first">yeniden eskiye</string>
+    <string name="workspace_oldest_first">eskiden yeniye</string>
+    <string name="workspace_largest_first">büyükten küçüğe</string>
+    <string name="workspace_smallest_first">küçükten büyüğe</string>
     <string name="workspace_a_to_z">A’dan Z’ye</string>
     <string name="workspace_z_to_a">Z’den A’ya</string>
     <string name="workspace_no_table_title">Tablo olarak gösterilecek bir liste yok</string>
@@ -186,7 +186,7 @@
     <string name="problem_unquoted_property_name">Bu anahtarı çift tırnağa al: "%1$s".</string>
     <string name="problem_trailing_comma">Son üyeden sonraki virgülü çıkar.</string>
     <string name="problem_unexpected_character">Bu karakteri çıkar: hiçbir değer onunla başlamaz.</string>
-    <string name="problem_unexpected_token">Bu burada duramaz.</string>
+    <string name="problem_unexpected_token">Bu burada olamaz.</string>
     <string name="problem_unterminated_string">Dizgiyi kapat: tırnağı eksik.</string>
     <string name="problem_unterminated_comment">Yorumu */ ile kapat.</string>
     <string name="problem_invalid_escape">Ters eğik çizgiyi iki kez ya da %1$s biçiminin bildiği bir kaçışla yaz.</string>
@@ -198,10 +198,10 @@
     <string name="problem_expected_colon">Anahtardan sonra iki nokta koy.</string>
     <string name="problem_unclosed">Burada açılan hiç kapanmıyor.</string>
     <string name="problem_trailing_content">Belgenin değerinden sonra geleni çıkar.</string>
-    <string name="problem_too_deep">Değerler burada Formatico’nun okuduğundan derin.</string>
+    <string name="problem_too_deep">Değerler burada Formatico’nun okuyabileceğinden daha derin iç içe geçiyor.</string>
     <string name="problem_duplicate_key">Bu anahtar iki kez verilmiş: sonraki değer geçerli.</string>
     <string name="problem_yaml_syntax">Formatico burayı YAML olarak okuyamıyor.</string>
-    <string name="problem_undefined_alias">Bu alias’ın anchor’ı ondan önce verilmemiş.</string>
+    <string name="problem_undefined_alias">Bu takma adın çapası ondan önce verilmemiş.</string>
     <string name="problem_unclosed_quote">Alanın tırnağını kapat.</string>
     <string name="problem_text_after_quote">Bu metni alanın tırnaklarının içine al.</string>
     <string name="problem_stray_quote">Alanın içindeki tırnağı iki tırnak olarak yaz.</string>
@@ -216,43 +216,43 @@
     <string name="repair_remove">Çıkar</string>
     <string name="repair_escape">Kaçışla yaz</string>
     <string name="repair_fix_number">Sayıyı düzelt</string>
-    <string name="repair_double_the_quote">Tırnağı iki yap</string>
+    <string name="repair_double_the_quote">Tırnağı çiftle</string>
     <string name="workspace_repair">Onar</string>
     <string name="workspace_repair_all">Hepsini onar</string>
     <string name="workspace_read_as_json5">JSON5 olarak oku</string>
     <string name="workspace_invalid_title">Bu geçerli bir %1$s değil</string>
     <string name="workspace_problem_where">Satır %1$d, sütun %2$d</string>
-    <string name="workspace_next_problem">Sonraki problem</string>
-    <string name="workspace_previous_problem">Önceki problem</string>
-    <string name="workspace_view_problems">Problemler (%1$d)</string>
-    <string name="workspace_view_problems_short">Problemler</string>
+    <string name="workspace_next_problem">Sonraki sorun</string>
+    <string name="workspace_previous_problem">Önceki sorun</string>
+    <string name="workspace_view_problems">Sorunlar (%1$d)</string>
+    <string name="workspace_view_problems_short">Sorunlar</string>
     <plurals name="workspace_invalid_body">
-        <item quantity="one">Formatico okuyabildiğini okudu: ağaç ve tablo onu gösteriyor. Onar problemi düzeltir.</item>
-        <item quantity="other">Formatico okuyabildiğini okudu: ağaç ve tablo onu gösteriyor. Onar %1$d problemin hepsini birden düzeltir.</item>
+        <item quantity="one">Formatico okuyabildiğini okudu: ağaç ve tablo onu gösteriyor. Onar, sorunu düzeltir.</item>
+        <item quantity="other">Formatico okuyabildiğini okudu: ağaç ve tablo onu gösteriyor. Onar, %1$d sorunun hepsini birden düzeltir.</item>
     </plurals>
     <plurals name="workspace_json5_allows">
-        <item quantity="one">JSON5 %2$d problemin %1$d tanesine izin veriyor.</item>
-        <item quantity="other">JSON5 %2$d problemin %1$d tanesine izin veriyor.</item>
+        <item quantity="one">JSON5 %2$d sorunun %1$d tanesine izin veriyor.</item>
+        <item quantity="other">JSON5 %2$d sorunun %1$d tanesine izin veriyor.</item>
     </plurals>
     <plurals name="workspace_not_valid_count">
-        <item quantity="one">Geçerli %2$s değil: %1$d problem</item>
-        <item quantity="other">Geçerli %2$s değil: %1$d problem</item>
+        <item quantity="one">Geçerli bir %2$s değil: %1$d sorun</item>
+        <item quantity="other">Geçerli bir %2$s değil: %1$d sorun</item>
     </plurals>
     <plurals name="workspace_problem_of">
-        <item quantity="one">Problem %1$d / %2$d · satır %3$d, sütun %4$d</item>
-        <item quantity="other">Problem %1$d / %2$d · satır %3$d, sütun %4$d</item>
+        <item quantity="one">Sorun %1$d / %2$d · satır %3$d, sütun %4$d</item>
+        <item quantity="other">Sorun %1$d / %2$d · satır %3$d, sütun %4$d</item>
     </plurals>
     <string name="problem_yaml_colon_in_value">Bu değeri tırnağa al: içindeki iki nokta ve boşluk bir eşleme başlatıyor.</string>
     <string name="problem_yaml_tab">YAML boşlukla girintilenir: bu sekmeyi boşluk olarak yaz.</string>
-    <string name="problem_yaml_indentation">Bunu üstündeki anahtarlarla hizala: girintisi onlarınki değil.</string>
+    <string name="problem_yaml_indentation">Bunu üstündeki anahtarlarla hizala: girintisi onlarınkiyle aynı değil.</string>
     <string name="repair_quote_value">Değeri tırnağa al</string>
     <string name="repair_use_spaces">Boşluk kullan</string>
     <string name="problem_yaml_unclosed_flow">Bu parantezler hiç kapanmıyor.</string>
     <string name="workspace_problem_error">Hata</string>
     <string name="workspace_problem_warning">Uyarı</string>
     <string name="problem_ini_unclosed_section">Bölümün adını ] ile kapat.</string>
-    <string name="problem_ini_duplicate_section">Bu bölüm iki kez verilmiş: çoğu okuyucu anahtarlarını ilkine katar.</string>
-    <string name="problem_ini_trailing_content">Bölümün başlığından sonra geleni çıkar ya da yorum yap.</string>
+    <string name="problem_ini_duplicate_section">Bu bölüm iki kez verilmiş: çoğu araç anahtarlarını ilkine katar.</string>
+    <string name="problem_ini_trailing_content">Bölümün başlığından sonra geleni çıkar ya da yoruma çevir.</string>
     <string name="problem_xml_unclosed_element">&lt;%1$s&gt; öğesini kapat: bitiş etiketi, &lt;/%1$s&gt;, eksik.</string>
     <string name="problem_xml_mismatched_end_tag">Bu bitiş etiketinin adı, kapattığı öğenin adı değil.</string>
     <string name="problem_xml_unexpected_end_tag">Bu bitiş etiketini çıkar: onun için açık bir öğe yok.</string>
@@ -268,7 +268,7 @@
     <string name="problem_xml_text_outside_root">Bu metni kök öğenin içine al ya da çıkar.</string>
     <string name="problem_xml_no_root">Bir kök öğe ekle: belgede hiç yok.</string>
     <string name="problem_xml_hyphens_in_comment">İki kısa çizgiyi çıkar: XML yorumun içinde onlara yer vermez.</string>
-    <string name="problem_xml_unexpected_character">Bu karakteri bir başvuruyla yaz, &lt; için &amp;lt;, ya da çıkar.</string>
+    <string name="problem_xml_unexpected_character">Bu karakteri bir başvuruyla yaz (&lt; için &amp;lt;) ya da çıkar.</string>
     <string name="problem_xml_unterminated_comment">Yorumu --&gt; ile kapat.</string>
     <string name="problem_xml_unterminated_string">Özniteliğin değerini tırnağıyla kapat.</string>
     <string name="problem_toml_expected_equals">Anahtarla değerinin arasına = koy.</string>
@@ -276,7 +276,7 @@
     <string name="problem_toml_invalid_date_time">Tarihi ya da saati TOML’un yazdığı gibi yaz: 2026-11-04, 09:30:00 ya da 2026-11-04T09:30:00Z.</string>
     <string name="problem_toml_inline_table_line_break">Satır içi tabloyu tek satırda yaz ya da bir [tablo] yap.</string>
     <string name="problem_toml_duplicate_key">Bu anahtar iki kez verilmiş: TOML bir anahtara tek değer verir.</string>
-    <string name="problem_toml_trailing_content">Bu satırda değerden sonra geleni çıkar ya da yorum yap.</string>
+    <string name="problem_toml_trailing_content">Bu satırda değerden sonra geleni çıkar ya da yoruma çevir.</string>
     <string name="summary_title_size">Boyut</string>
     <string name="summary_title_values">Değerler</string>
     <string name="summary_title_found">Değerlerde bulunanlar</string>
@@ -297,7 +297,7 @@
     <string name="summary_values">Değerler</string>
     <string name="summary_values_in">%1$s ve %2$s içinde</string>
     <string name="summary_keys">Anahtarlar</string>
-    <string name="summary_keys_none">Bir nesnede yinelenen yok</string>
+    <string name="summary_keys_none">Hiçbir nesnede yinelenen yok</string>
     <string name="summary_keys_none_short">Yinelenen yok</string>
     <string name="summary_deepest">En derin</string>
     <string name="summary_levels_word">Düzey</string>
@@ -316,7 +316,7 @@
     <string name="summary_kind_null">Null</string>
     <string name="summary_kind_alias">Takma ad</string>
     <string name="summary_and"> ve </string>
-    <string name="summary_table_note">%1$s, aynı %3$s olan %2$s tutuyor; tablo olarak okunuyor.</string>
+    <string name="summary_table_note">%1$s: %2$s, hepsinde aynı %3$s var; bu yüzden tablo olarak okunuyor.</string>
     <string name="summary_show_table">Tablo olarak göster</string>
     <string name="workspace_view_summary">Özet</string>
     <string name="workspace_show_summary">%1$s. Belgenin özetini göster</string>
@@ -389,7 +389,7 @@
     <string name="query_xpath_elsewhere">XPath, XML belgeleri içindir.</string>
     <string name="query_status_and_note">%1$s. %2$s</string>
     <string name="query_unread">Belge okunamadı; sorgulanacak bir şey yok.</string>
-    <string name="query_computed">XPath bir değer veriyor</string>
+    <string name="query_computed">XPath tek bir değer döndürüyor</string>
     <string name="query_no_matches">Eşleşme yok</string>
     <plurals name="query_matches">
         <item quantity="one">%1$d eşleşme</item>
@@ -407,18 +407,18 @@
     <string name="query_results_copy_failed">Sonuçlar kopyalanamadı</string>
     <string name="query_error_empty">Sorgu boş</string>
     <string name="query_error_unexpected_end">Sorgu erken bitiyor</string>
-    <string name="query_error_unexpected_character">Bu burada duramaz</string>
+    <string name="query_error_unexpected_character">Bu burada olamaz</string>
     <string name="query_error_missing_root">JSONPath $ ile başlar</string>
-    <string name="query_error_unclosed_string">Bu metin hiç kapanmıyor</string>
-    <string name="query_error_invalid_escape">Bu kaçış JSONPath'te yok</string>
-    <string name="query_error_invalid_number">Bu sayı JSONPath'in yazdığı gibi yazılmamış</string>
-    <string name="query_error_integer_out_of_range">Bu sayı bir sıra için fazla büyük</string>
+    <string name="query_error_unclosed_string">Bu dizgi hiç kapanmıyor</string>
+    <string name="query_error_invalid_escape">Bu kaçış JSONPath’te yok</string>
+    <string name="query_error_invalid_number">Bu sayı JSONPath’in yazdığı gibi yazılmamış</string>
+    <string name="query_error_integer_out_of_range">Bu sayı bir indis için fazla büyük</string>
     <string name="query_error_not_singular">Bu birden fazla değer bulabilir; burada tek bir değer karşılaştırılır</string>
-    <string name="query_error_wrong_type">Bu burada duramaz: türü başka</string>
+    <string name="query_error_wrong_type">Bu burada olamaz: türü uygun değil</string>
     <string name="query_error_unknown_function">Bu adda bir işlev yok</string>
-    <string name="query_error_wrong_argument_count">Bu işlev başka sayıda bağımsız değişken alır</string>
+    <string name="query_error_wrong_argument_count">Bu işlev farklı sayıda argüman alır</string>
     <string name="query_error_unknown_axis">Bu adda bir eksen yok</string>
-    <string name="query_error_unsupported">Formatico'nun XPath'inde değişken ve namespace ekseni yok</string>
+    <string name="query_error_unsupported">Formatico’nun XPath’inde değişken ya da ad alanı ekseni yok</string>
     <string name="query_error_too_deep">Sorgu fazla iç içe</string>
     <string name="table_type_text">metin</string>
     <string name="table_type_date">tarih</string>
@@ -426,8 +426,8 @@
     <string name="table_type_boolean">mantıksal</string>
     <string name="table_type_object">nesne</string>
     <string name="table_type_array">dizi</string>
-    <string name="table_type_alias">alias</string>
-    <string name="table_type_null">boş</string>
+    <string name="table_type_alias">takma ad</string>
+    <string name="table_type_null">null</string>
     <string name="convert_to">Hedef</string>
     <string name="convert_from_to">%1$s biçiminden</string>
     <string name="convert_to_menu">%1$s biçimine dönüştür. Başka bir biçim seç</string>
@@ -517,21 +517,21 @@
         <item quantity="other">%1$d değer metin oldu</item>
     </plurals>
     <string name="convert_loss_flattened_title">%1$s biçiminde tek düzey var</string>
-    <string name="convert_loss_flattened_one">%1$s kendi başına bir ad oldu: geri dönüştürmek onu tek düzeyde verir.</string>
+    <string name="convert_loss_flattened_one">%1$s ayrı bir anahtar oldu: geri dönüştürmek onu tek düzeyde verir.</string>
     <plurals name="convert_loss_flattened_many">
-        <item quantity="one">%1$s ve %2$d değer daha kendi başına adlar oldu: geri dönüştürmek onları tek düzeyde verir.</item>
-        <item quantity="other">%1$s ve %2$d değer daha kendi başına adlar oldu: geri dönüştürmek onları tek düzeyde verir.</item>
+        <item quantity="one">%1$s ve %2$d değer daha ayrı anahtarlar oldu: geri dönüştürmek onları tek düzeyde verir.</item>
+        <item quantity="other">%1$s ve %2$d değer daha ayrı anahtarlar oldu: geri dönüştürmek onları tek düzeyde verir.</item>
     </plurals>
     <plurals name="convert_tag_flattened">
         <item quantity="one">%1$d değer düzleşti</item>
         <item quantity="other">%1$d değer düzleşti</item>
     </plurals>
-    <string name="convert_loss_wrapped_title">Belge %1$s altına kondu</string>
+    <string name="convert_loss_wrapped_title">Belge %1$s anahtarının altına kondu</string>
     <string name="convert_loss_wrapped">%2$s belgesinin değeri olduğu gibi bir %1$s belgesi olamaz: geri dönüştürmek onu %3$s altında verir.</string>
     <string name="convert_loss_row_title">Belge tek bir satır</string>
     <string name="convert_loss_line_title">Belge tek bir satır</string>
     <string name="convert_loss_in_array">%1$s biçimi bir liste yazar: geri dönüştürmek %2$s belgesinin değerini bir dizi içinde verir.</string>
-    <string name="convert_tag_wrapped">%1$s altına kondu</string>
+    <string name="convert_tag_wrapped">%1$s anahtarının altına kondu</string>
     <string name="convert_tag_row">Tek satır</string>
     <string name="convert_tag_line">Tek satır</string>
     <string name="convert_loss_renamed_title">Anahtarlar yeniden adlandırılıyor</string>
@@ -551,8 +551,8 @@
         <item quantity="other">%1$s ve %2$d anahtar daha iki kez verilmiş, %3$s biçimi bir anahtarı bir kez tutar: her birinin sonuncusu kaldı.</item>
     </plurals>
     <plurals name="convert_tag_duplicates">
-        <item quantity="one">%1$d anahtar düştü</item>
-        <item quantity="other">%1$d anahtar düştü</item>
+        <item quantity="one">%1$d anahtar atıldı</item>
+        <item quantity="other">%1$d anahtar atıldı</item>
     </plurals>
     <string name="convert_loss_respelled_title">Sayıların yazılışı değişiyor</string>
     <string name="convert_loss_respelled_one">%1$s, %3$s biçiminin yazdığı gibi %2$s olarak yazıldı: geri dönüştürmek bu yazılışı korur.</string>
@@ -615,10 +615,10 @@
         <item quantity="other">%1$d değer tek satıra indi</item>
     </plurals>
     <string name="convert_loss_items_title">Öğeler item adını alıyor</string>
-    <string name="convert_loss_items_one">%1$s bir dizinin içinde bir dizi; XML biçiminde onun adı yok: öğeleri item öğeleri olarak yazıldı.</string>
+    <string name="convert_loss_items_one">%1$s bir dizinin içinde bir dizi; XML biçiminde onun adı yok: elemanları item öğeleri olarak yazıldı.</string>
     <plurals name="convert_loss_items_many">
-        <item quantity="one">%1$s ve %2$d değer daha dizilerin içinde diziler; XML biçiminde onların adı yok: öğeleri item öğeleri olarak yazıldı.</item>
-        <item quantity="other">%1$s ve %2$d değer daha dizilerin içinde diziler; XML biçiminde onların adı yok: öğeleri item öğeleri olarak yazıldı.</item>
+        <item quantity="one">%1$s ve %2$d değer daha dizilerin içinde diziler; XML biçiminde onların adı yok: elemanları item öğeleri olarak yazıldı.</item>
+        <item quantity="other">%1$s ve %2$d değer daha dizilerin içinde diziler; XML biçiminde onların adı yok: elemanları item öğeleri olarak yazıldı.</item>
     </plurals>
     <plurals name="convert_tag_items">
         <item quantity="one">%1$d dizi adlandırıldı</item>
@@ -670,8 +670,8 @@
     </plurals>
     <string name="compare_not_counted_both">%1$s %2$s</string>
     <string name="compare_difference_of">Fark %1$d / %2$d</string>
-    <string name="compare_by_meaning_note">Anlamla karşılaştırıldı: anahtarların sırası ve sayıların yazılışı fark sayılmıyor</string>
-    <string name="compare_by_text_note">Metinle karşılaştırıldı: her karakter sayılıyor</string>
+    <string name="compare_by_meaning_note">Anlama göre karşılaştırıldı: anahtarların sırası ve sayıların yazılışı fark sayılmıyor</string>
+    <string name="compare_by_text_note">Metne göre karşılaştırıldı: her karakter hesaba katılıyor</string>
     <plurals name="compare_side">
         <item quantity="one">%1$s · %2$s · %3$d satır</item>
         <item quantity="other">%1$s · %2$s · %3$d satır</item>
@@ -679,22 +679,22 @@
     <string name="compare_side_short">%1$s · %2$s</string>
     <string name="compare_title">Karşılaştır</string>
     <string name="compare_show">Göster</string>
-    <string name="compare_show_in">%1$s değerini A ile B'de göster</string>
-    <string name="compare_in_a">A'da</string>
-    <string name="compare_in_b">B'de</string>
+    <string name="compare_show_in">%1$s değerini A ile B’de göster</string>
+    <string name="compare_in_a">A’da</string>
+    <string name="compare_in_b">B’de</string>
     <string name="compare_not_there">yok</string>
     <string name="compare_alone_title">Karşılaştırılacak bir belge yok</string>
     <string name="compare_alone_body">Yeni bir sekmede başka bir belge aç, bunu onunla karşılaştır.</string>
-    <string name="compare_unread_title">%1$s belgesinde anlamla karşılaştırılacak bir şey yok</string>
-    <string name="compare_unread_body">Düz metin, ya da hiçbir yeri okunamadı: onu metinle karşılaştır.</string>
+    <string name="compare_unread_title">%1$s belgesinde anlama göre karşılaştırılacak bir şey yok</string>
+    <string name="compare_unread_body">Düz metin ya da hiçbir yeri okunamadı: bunun yerine metne göre karşılaştır.</string>
     <plurals name="compare_invalid_title">
         <item quantity="one">%1$s belgesinde bir hata var</item>
         <item quantity="other">%1$s belgesinde %2$d hata var</item>
     </plurals>
-    <string name="compare_invalid_body">Anlamla karşılaştırmak için onar, ya da metinle karşılaştır.</string>
+    <string name="compare_invalid_body">Anlama göre karşılaştırmak için onar ya da metne göre karşılaştır.</string>
     <string name="palette_group_document">Belge</string>
     <string name="palette_group_view">Görünüm</string>
-    <string name="palette_group_convert">Dönüştür</string>
+    <string name="palette_group_convert">Dönüştürme</string>
     <string name="palette_format">Belgeyi biçimlendir</string>
     <string name="palette_format_keywords">güzelleştir, girinti, pretty, beautify</string>
     <string name="palette_minify_keywords">sıkıştır, tek satır, compact</string>
@@ -712,16 +712,16 @@
     <string name="share_body">Bağlantı belgenin kendisini sıkıştırılmış olarak taşır. Hiçbir sunucuya gönderilmez: bağlantısı olan herkes belgeyi okuyabilir.</string>
     <string name="share_body_phone">Bağlantı belgenin kendisini sıkıştırılmış olarak taşır. Hiçbir sunucuya gönderilmez: bağlantısı olan herkes onu okuyabilir.</string>
     <string name="share_link">Bağlantı</string>
-    <string name="share_fits_short">%1$s %2$s, %3$s karakterde: her tarayıcıya ve uygulamaya sığacak kadar kısa.</string>
-    <string name="share_fits_short_phone">%1$s %2$s, %3$s karakterde</string>
-    <string name="share_fits_long">%1$s %2$s, %3$s karakterde: tarayıcılar açar, ama bir sohbet ya da posta uygulaması bu uzunlukta bir bağlantıyı kesebilir.</string>
+    <string name="share_fits_short">%1$s %2$s, %3$s karakterlik bir bağlantıda: her tarayıcı ve uygulama için yeterince kısa.</string>
+    <string name="share_fits_short_phone">%1$s %2$s, %3$s karakterlik bağlantıda</string>
+    <string name="share_fits_long">%1$s %2$s, %3$s karakterlik bir bağlantıda: tarayıcılar açar, ama bir sohbet ya da e-posta uygulaması bu kadar uzun bir bağlantıyı kesebilir.</string>
     <string name="share_plain_text">metin</string>
     <string name="share_formatted">Bağlantıdaki belgeyi biçimlendir</string>
     <string name="share_cancel">Vazgeç</string>
     <string name="share_copy">Bağlantıyı kopyala</string>
     <string name="share_send">Başka bir uygulamayla gönder</string>
     <string name="share_too_large_title">%1$s bir bağlantı için çok büyük</string>
-    <string name="share_too_large_body">Bir bağlantı yaklaşık 32 KB metin taşır, bu belge ise %1$s. Onu bir dosya olarak kaydedip dosyayı gönder.</string>
+    <string name="share_too_large_body">Bir bağlantı yaklaşık 32 KB metin taşır, bu belge ise %1$s. Bunun yerine dosya olarak kaydedip dosyayı gönder.</string>
     <string name="share_link_label">Bağlantı</string>
     <string name="share_link_copied">Bağlantı kopyalandı</string>
     <string name="share_link_copy_failed">Bağlantı kopyalanamadı</string>

@@ -11,3 +11,4 @@ tags:
     id: "ListItem_sample_order"
 - assertVisible:
     id: "ListItem_sample_deployment"
+- takeScreenshot: ${SHOTS}/start

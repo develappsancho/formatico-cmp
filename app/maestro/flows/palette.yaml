@@ -1,0 +1,28 @@
+# The command palette, from the bar: a command found by its name runs on the document.
+appId: ${APP_ID}
+name: The palette minifies the order
+---
+- launchApp:
+    clearState: true
+    stopApp: true
+- runFlow:
+    file: ../subflows/open_sample.yaml
+    env:
+      SAMPLE: order
+- tapOn:
+    id: "IconButton_launcher"
+- extendedWaitUntil:
+    visible: "Copy the document"
+    timeout: 10000
+- takeScreenshot: ${SHOTS}/palette
+- inputText: "minify"
+- tapOn:
+    id: ".*Command_minify"
+- assertVisible: "Minified"
+# The snackbar stands over the views on iOS, at the top: it is closed first.
+- tapOn:
+    id: "SnackbarClose_.*"
+# Minified while the tree is shown, the text is the minified one.
+- tapOn:
+    id: "SegmentButton_view.Segment_text"
+- assertVisible: '.*\{"id":"ord_8842","status":"shipped".*'

@@ -11,5 +11,6 @@ tags:
     file: ../subflows/open_sample.yaml
     env:
       SAMPLE: order
-- assertVisible: "customer"
+- assertVisible: "customer: \\{4\\}"
 - assertVisible: "createdAt: .*"
+- takeScreenshot: ${SHOTS}/workspace

@@ -26,6 +26,7 @@ import com.pantrixui.components.container.card.CardVariant
 import com.pantrixui.components.container.card.PantrixCard
 import com.pantrixui.components.data.listitem.ListItemDivider
 import com.pantrixui.components.data.listitem.PantrixListItem
+import com.pantrixui.components.elements.autotext.PantrixAutoText
 import com.pantrixui.components.elements.button.ButtonSize
 import com.pantrixui.components.elements.button.ButtonVariant
 import com.pantrixui.components.elements.button.PantrixButton
@@ -199,11 +200,8 @@ private fun Tile(tile: SummaryTile, modifier: Modifier = Modifier) {
     SummaryCard(modifier = modifier) {
         Column {
             PantrixText(text = tile.label, style = typography.footnote.copy(fontWeight = FontWeight.Medium), color = quiet, maxLines = 1)
-            PantrixText(
-                text = tile.value,
-                style = typography.title,
-                maxLines = 1
-            )
+            // A size in Turkish is written out ("665 bayt"), longer than a phone's third of a row: it gets smaller.
+            PantrixAutoText(text = tile.value, modifier = Modifier.fillMaxWidth(), style = typography.title)
             PantrixText(
                 text = tile.detail,
                 style = if (tile.mono) {
