@@ -86,6 +86,48 @@ class DocumentReadingTest {
     }
 
     @Test
+    fun aLargeLogOpensItsFirstRecordsAndATableNoneOfItsRows() {
+        val events = (0 until 200).joinToString("\n") { """{"at": "09:00", "event": "open", "bytes": $it, "user": "elif"}""" }
+        val log = assertIs<Reading.Read>(readDocument(events, Format.Ndjson)).root
+        // Two hundred rows of records and four of each record's values: the first 75 records fill five hundred rows.
+        assertEquals(setOf("$") + (0 until 75).map { "$[$it]" }, defaultExpanded(log))
+        val rows = (0 until 600).joinToString("\n", prefix = "id,name\n") { "$it,elif" }
+        val table = assertIs<Reading.Read>(readDocument(rows, Format.Csv)).root
+        assertEquals(setOf("$"), defaultExpanded(table))
+    }
+
+    @Test
+    fun theLocatorFindsWhatALookAtEveryChildFinds() {
+        // A TOML table's text takes in its sub-tables, and XML's elements of one name are an array among the others.
+        val toml =
+            """
+            title = "Orders"
+            [owner]
+            name = "Elif"
+            [owner.address]
+            city = "İzmir"
+            [[orders]]
+            id = 1
+            [[orders]]
+            id = 2
+            """.trimIndent()
+        val xml = "<orders><order id=\"1\"><total>1</total></order><note>a</note><order id=\"2\"/></orders>"
+        for ((text, format) in listOf(order to Format.Json, toml to Format.Toml, xml to Format.Xml)) {
+            val root = assertIs<Reading.Read>(readDocument(text, format)).root
+            val locator = NodeLocator(root)
+            for (offset in 0..text.length) assertEquals(lookedAt(root, offset)?.key, locator.at(offset)?.key, "$format at $offset")
+        }
+    }
+
+    /** [nodeAt] as it was written first: every child looked at, at each level. */
+    private fun lookedAt(root: ValueNode?, offset: Int): ValueNode? {
+        var node = root?.takeIf { offset in it.range.start..it.range.end } ?: return null
+        while (true) {
+            node = node.children.filter { offset in it.range.start..it.range.end }.minByOrNull { it.range.length } ?: return node
+        }
+    }
+
+    @Test
     fun theTrailRunsFromTheRootToTheChosenValue() {
         assertEquals(
             listOf("$", "$.items", "$.items[0]", "$.items[0].sku"),

@@ -42,6 +42,19 @@ class StoredDocumentHistoryTest {
     }
 
     @Test
+    fun aTextIsReadFromTheDeviceOnceItIsWrittenAndFromMemoryUntilThen() = runTest {
+        val history = history()
+        val id = history.record(order, moment)
+        // Not yet written: the text recorded is the one read.
+        assertEquals(order.text, history.document(id)?.text)
+        runCurrent()
+
+        // Written, and let go: what the device has is what is read, as the history keeps no copy of a large text.
+        texts.write(historyTextName(id), "{\"id\": \"on the device\"}")
+        assertEquals("{\"id\": \"on the device\"}", history.document(id)?.text)
+    }
+
+    @Test
     fun theSameDocumentOpenedTwiceIsListedOnceAtTheTop() = runTest {
         val history = history()
         val first = history.record(order, moment)

@@ -17,6 +17,9 @@ dependencies {
 compose.desktop {
     application {
         mainClass = "com.developersancho.formatico.MainKt"
+        // A 50 MB document read, its tree and its editor take some 2.5 GB (Faz 14's measure): half the machine's
+        // memory rather than the JVM's quarter, which is 2 GB on a machine of 8.
+        jvmArgs += listOf("-XX:MaxRAMPercentage=50")
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)

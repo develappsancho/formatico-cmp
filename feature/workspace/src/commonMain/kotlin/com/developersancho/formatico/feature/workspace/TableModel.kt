@@ -6,13 +6,21 @@ import com.developersancho.formatico.core.format.json.PathStep
 internal const val VALUE_COLUMN = "#value"
 
 /**
- * A row of a table: an item of the array, at [index], and what it holds under each column.
+ * A row of a table: an item of the array, at [index], and what it holds under each column, read from the item as a
+ * cell is asked for: a large array's rows hold nothing of their own.
  *
  * @property node the item.
  */
-internal class TableRow(val index: Int, val node: ValueNode, private val cells: Map<String, ValueNode>) {
-    /** What the row holds under [column], or null where its object has no such key. */
-    fun cell(column: String): ValueNode? = cells[column]
+internal class TableRow(val index: Int, val node: ValueNode) {
+    /**
+     * What the row holds under [column], or null where its object has no such key. A key given twice: its first value
+     * is the one shown, as the tree shows the first first.
+     */
+    fun cell(column: String): ValueNode? = when {
+        node.kind == ValueKind.Object -> node.children.firstOrNull { it.name == column }
+        column == VALUE_COLUMN -> node
+        else -> null
+    }
 }
 
 /**
@@ -33,27 +41,26 @@ internal data class TableChoice(val row: Int, val column: String?)
  * The table of [root] for the value whose key is [selected]: the array it stands in, or is, the innermost of them, or
  * where it stands in none, the first array of the document. Null for a document with no array.
  */
-internal fun tableOf(root: ValueNode?, selected: String?): TableModel? {
-    val source = trail(root, selected).lastOrNull { it.kind == ValueKind.Array } ?: firstArray(root) ?: return null
-    val rows = source.children.mapIndexed { index, item ->
-        val cells = if (item.kind == ValueKind.Object) {
-            // A key given twice: its first value is the one shown, as the tree shows the first first.
-            item.children.reversed().associateBy { it.name }
-        } else {
-            mapOf(VALUE_COLUMN to item)
-        }
-        TableRow(index, item, cells)
+internal fun tableOf(root: ValueNode?, selected: String?): TableModel? = tableSource(root, selected)?.let(::tableFrom)
+
+/** The array [tableOf] makes a table of. */
+internal fun tableSource(root: ValueNode?, selected: String?): ValueNode? {
+    fun firstArray(node: ValueNode?): ValueNode? = when {
+        node == null -> null
+        node.kind == ValueKind.Array -> node
+        else -> node.children.firstNotNullOfOrNull(::firstArray)
     }
-    val columns = source.children.flatMap { item ->
-        if (item.kind == ValueKind.Object) item.children.map { it.name } else listOf(VALUE_COLUMN)
-    }.distinct()
-    return TableModel(source, columns, rows)
+    return trail(root, selected).lastOrNull { it.kind == ValueKind.Array } ?: firstArray(root)
 }
 
-private fun firstArray(node: ValueNode?): ValueNode? {
-    if (node == null) return null
-    if (node.kind == ValueKind.Array) return node
-    return node.children.firstNotNullOfOrNull(::firstArray)
+/** The table of [source], an array. */
+internal fun tableFrom(source: ValueNode): TableModel {
+    val rows = source.children.mapIndexed { index, item -> TableRow(index, item) }
+    val columns = LinkedHashSet<String>()
+    source.children.forEach { item ->
+        if (item.kind == ValueKind.Object) item.children.mapTo(columns) { it.name } else columns += VALUE_COLUMN
+    }
+    return TableModel(source, columns.toList(), rows)
 }
 
 /** Where [table] stands in the trail to the chosen value, or null where the choice is not in it. */
@@ -134,7 +141,9 @@ internal sealed interface ColumnStats {
 internal fun statsOf(rows: List<TableRow>, column: String): ColumnStats {
     val cells = rows.map { it.cell(column) }
     val present = cells.filterNotNull().filter { it.kind != ValueKind.Null && it.shownText.isNotEmpty() }
-    val numbers = present.mapNotNull { cell -> cell.text.toDoubleOrNull()?.takeIf { cell.kind == ValueKind.Number } }
+    // Only a column of numbers alone is read as numbers: reading a cell that is no number fails, which is slow on iOS,
+    // where a column of 200 000 names took most of a minute to line up.
+    val numbers = if (present.all { it.kind == ValueKind.Number }) present.mapNotNull { it.text.toDoubleOrNull() } else emptyList()
     return if (present.isNotEmpty() && numbers.size == present.size) {
         ColumnStats.Numbers(numbers.size, numbers.min(), numbers.max(), numbers.average())
     } else {

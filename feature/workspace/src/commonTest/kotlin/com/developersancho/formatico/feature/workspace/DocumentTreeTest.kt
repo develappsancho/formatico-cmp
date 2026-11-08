@@ -8,7 +8,9 @@ import com.developersancho.formatico.core.format.Format
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertNotSame
 import kotlin.test.assertNull
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class DocumentTreeTest {
@@ -48,6 +50,10 @@ class DocumentTreeTest {
         assertIs<Reading.Read>(readDocument(text, format)).root!!
 
     private fun ValueNode.find(key: String): ValueNode = trail(this, key).last()
+
+    /** The keys of every branch under this node and its own: a tree with all of them open. */
+    private fun ValueNode.branches(): Set<String> =
+        children.flatMapTo(if (children.isEmpty()) mutableSetOf() else mutableSetOf(key)) { it.branches() }
 
     /** The parts of [label] in a style, as the text they cover and the style. */
     private fun partsOf(label: AnnotatedString): List<Pair<String, SpanStyle>> =
@@ -126,7 +132,7 @@ class DocumentTreeTest {
 
     @Test
     fun aRowEndsInWhatItsStringLooksLikeItsAnchorAndWhereItsAliasPoints() {
-        val rows = documentRows(root(), inks, selected = "$.id", marks = null)
+        val rows = documentRows(root(), inks, selected = "$.id", marks = null, expanded = root().branches())
         val top = rows.nodes.single()
         assertEquals("$", top.key)
         assertEquals("root", top.tagKey)
@@ -138,8 +144,61 @@ class DocumentTreeTest {
         // The chosen row's label has no colours of its own.
         assertTrue(top.children.first { it.key == "$.id" }.styledLabel!!.spanStyles.isEmpty())
 
-        val yaml = documentRows(root(deployment, Format.Yaml), inks, selected = null, marks = null)
+        val yaml = root(deployment, Format.Yaml).let { documentRows(it, inks, selected = null, marks = null, expanded = it.branches()) }
         assertEquals("&labels", yaml.ends.getValue("$.metadata.labels").anchor)
         assertEquals("$.metadata.labels", yaml.ends.getValue("$.spec.selector.matchLabels").target)
+    }
+
+    @Test
+    fun aClosedBranchsRowsAreMadeAsItOpens() {
+        val root = root()
+        val closed = documentRows(root, inks, selected = null, marks = null, expanded = setOf("$"))
+        val customer = closed.nodes.single().children.first { it.key == "$.customer" }
+        assertTrue(customer.children.isEmpty())
+        assertTrue(customer.hasChildren)
+        // What a closed branch's own row ends in is made with it.
+        assertIs<ValuePreview.Moment>(closed.ends.getValue("$.createdAt").preview)
+        assertNull(closed.ends["$.customer.website"])
+
+        val open = documentRows(root, inks, selected = null, marks = null, expanded = setOf("$", "$.customer"))
+        val opened = open.nodes.single().children.first { it.key == "$.customer" }
+        assertEquals(listOf("$.customer.name", "$.customer.email", "$.customer.website"), opened.children.map { it.key })
+        assertIs<ValuePreview.Link>(open.ends.getValue("$.customer.website").preview)
+        // A leaf is no branch, open or not.
+        assertTrue(opened.children.none { it.hasChildren })
+    }
+
+    @Test
+    fun aValueChosenOrABranchOpenedMakesItsOwnRowsAgainAndKeepsTheRest() {
+        val root = root()
+        val maker = RowMaker(root, inks)
+        val first = maker.rows(selected = null, marks = null, expanded = setOf("$", "$.customer"))
+
+        fun DocumentRows.row(key: String) = nodes.single().children.first { it.key == key }
+
+        val chosen = maker.rows(selected = "$.id", marks = null, expanded = setOf("$", "$.customer"))
+        // The chosen row has no colours of its own; the rows beside it, and the branch's rows, are the ones made before.
+        assertTrue(chosen.row("$.id").styledLabel!!.spanStyles.isEmpty())
+        assertSame(first.row("$.total"), chosen.row("$.total"))
+        assertSame(first.row("$.customer"), chosen.row("$.customer"))
+
+        val opened = maker.rows(selected = "$.id", marks = null, expanded = setOf("$", "$.customer", "$.theme"))
+        assertEquals(listOf("$.theme.accent"), opened.row("$.theme").children.map { it.key })
+        assertSame(chosen.row("$.customer"), opened.row("$.customer"))
+        assertSame(chosen.row("$.id"), opened.row("$.id"))
+
+        // The value chosen before is written in its colours again, and a search makes every row again.
+        val other = maker.rows(selected = "$.total", marks = null, expanded = setOf("$", "$.customer", "$.theme"))
+        assertTrue(other.row("$.id").styledLabel!!.spanStyles.isNotEmpty())
+        val searched = maker.rows(
+            selected = "$.total",
+            marks = TreeMarks("elif", "en", current = null),
+            expanded = setOf("$", "$.customer", "$.theme")
+        )
+        assertNotSame(other.row("$.customer"), searched.row("$.customer"))
+        assertEquals(
+            documentRows(root, inks, "$.total", TreeMarks("elif", "en", current = null), setOf("$", "$.customer", "$.theme")).nodes,
+            searched.nodes
+        )
     }
 }

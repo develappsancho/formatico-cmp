@@ -57,7 +57,10 @@ internal class WorkspaceViewModel(
                     // Only a JSON document with errors is read again, as JSON5, to say what that would leave out.
                     val invalid = reading is Reading.Read && reading.errors > 0
                     val allows = if (invalid) withContext(reader) { json5Allows(text, format, reading) } else 0
-                    setState { copy(reading = reading, stats = stats, json5Allows = allows).arranged() }
+                    // A large array's table is made off the main thread too: the view keeps it while its array is shown.
+                    val source = tableSource((reading as? Reading.Read)?.root, state.value.document?.view?.selected)
+                    val table = source?.let { withContext(reader) { tableFrom(it) } }
+                    setState { copy(reading = reading, stats = stats, json5Allows = allows, table = table).arranged() }
                 }
         }
     }
@@ -278,13 +281,17 @@ internal class WorkspaceViewModel(
     }
 }
 
-/** The state with its open branches, the trail to its chosen value and its table, from its document's view and its tree. */
+/**
+ * The state with its open branches, the trail to its chosen value and its table, from its document's view and its tree.
+ * The table is made again only for another array: a view changes with each branch opened and each value chosen.
+ */
 internal fun WorkspaceState.arranged(): WorkspaceState {
     val view = document?.view ?: DocumentView()
+    val source = tableSource(root, view.selected)
     return copy(
         expanded = view.expanded ?: defaultExpanded(root),
         trail = trail(root, view.selected),
-        table = tableOf(root, view.selected)
+        table = table?.takeIf { it.source === source } ?: source?.let(::tableFrom)
     )
 }
 

@@ -62,7 +62,8 @@ class StoredDocumentHistory(
     private var kept: List<KeptRecent>? = null
     private var nextId = 1L
 
-    // The texts recorded since the app opened: what has not been written yet is read from here.
+    // The texts recorded and not yet written: they are read from here until the device has them, and let go then, as a
+    // large document's text would otherwise stay in memory, once for each change, until the app closes.
     private val recorded = mutableMapOf<Long, String>()
     private val listed = MutableStateFlow<List<RecentDocument>>(emptyList())
 
@@ -162,6 +163,7 @@ class StoredDocumentHistory(
         listed.value = shown.map(KeptRecent::recent)
         writes.send {
             texts.write(textName(text.first), text.second)
+            lock.withLock { if (recorded[text.first] === text.second) recorded.remove(text.first) }
             dropped.forEach { texts.delete(it.textName) }
             small.put(KEY, shown, ListSerializer(KeptRecent.serializer()))
         }

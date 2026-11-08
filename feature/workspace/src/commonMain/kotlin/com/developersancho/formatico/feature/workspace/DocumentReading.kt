@@ -101,8 +101,10 @@ internal fun childKey(parent: String, step: PathStep, duplicate: Int? = null): S
     parent + jsonPath(listOf(step)).drop(1) + (duplicate?.let { "#$it" } ?: "")
 
 /**
- * The branches a document opens with: the root, and the objects in it. A branch that holds nothing but one branch is
- * gone through, as an XML document's root holds its root element alone: what that branch holds is opened in its place.
+ * The branches a document opens with: the root, and the objects in it, the first first, while the tree shows no more
+ * than [OPENED_ROWS] rows: the records of a large log or table are left for the reader to open. A branch that holds
+ * nothing but one branch is gone through, as an XML document's root holds its root element alone: what that branch
+ * holds is opened in its place.
  */
 internal fun defaultExpanded(root: ValueNode?): Set<String> {
     if (root == null) return emptySet()
@@ -112,8 +114,18 @@ internal fun defaultExpanded(root: ValueNode?): Set<String> {
         opened += node.key
         node = node.children.singleOrNull()?.takeIf { it.children.isNotEmpty() } ?: break
     }
-    return opened + node.children.filter { it.kind == ValueKind.Object && it.children.isNotEmpty() }.map { it.key }
+    var rows = node.children.size
+    for (child in node.children) {
+        if (child.kind != ValueKind.Object || child.children.isEmpty()) continue
+        rows += child.children.size
+        if (rows > OPENED_ROWS) break
+        opened += child.key
+    }
+    return opened
 }
+
+/** How many rows the branches a document opens with show at most, besides those of the branch they stand in. */
+internal const val OPENED_ROWS = 500
 
 /** What [text] read as [format] has wrong in it. */
 internal fun problemsOf(text: String, format: Format?): List<Problem> = (readDocument(text, format) as? Reading.Read)?.problems.orEmpty()
@@ -133,10 +145,57 @@ internal fun json5Allows(text: String, format: Format?, reading: Reading): Int {
  * The innermost value of [root] whose text holds the place [offset], or null where none does. Of two children that hold
  * it, the narrower is taken: a TOML table's text takes in its sub-tables, and a table given between them as well.
  */
-internal fun nodeAt(root: ValueNode?, offset: Int): ValueNode? {
-    var node = root?.takeIf { offset in it.range.start..it.range.end } ?: return null
-    while (true) {
-        node = node.children.filter { offset in it.range.start..it.range.end }.minByOrNull { it.range.length } ?: return node
+internal fun nodeAt(root: ValueNode?, offset: Int): ValueNode? = NodeLocator(root).at(offset)
+
+/**
+ * Finds [nodeAt]'s value for many places of one document's text, as an XPath's matches are: where a node's children
+ * stand one after another in the text, as most do, the child that holds a place is looked for by halves, and a node
+ * is told to be so once.
+ */
+internal class NodeLocator(private val root: ValueNode?) {
+    private val inOrder = HashMap<String, Boolean>()
+
+    /** The innermost value of the root whose text holds the place [offset], or null where none does. */
+    fun at(offset: Int): ValueNode? {
+        var node = root?.takeIf { offset in it.range.start..it.range.end } ?: return null
+        while (true) {
+            node = childAt(node, offset) ?: return node
+        }
+    }
+
+    private fun childAt(node: ValueNode, offset: Int): ValueNode? {
+        val children = node.children
+        if (children.isEmpty()) return null
+        if (!inOrder.getOrPut(node.key) { standInOrder(children) }) {
+            return children.filter { offset in it.range.start..it.range.end }.minByOrNull { it.range.length }
+        }
+        // The last child that starts at the place or before it, and those before it that end there too.
+        var low = 0
+        var high = children.lastIndex
+        var last = -1
+        while (low <= high) {
+            val middle = (low + high) ushr 1
+            if (children[middle].range.start <= offset) {
+                last = middle
+                low = middle + 1
+            } else {
+                high = middle - 1
+            }
+        }
+        var narrowest: ValueNode? = null
+        var place = last
+        while (place >= 0 && children[place].range.end >= offset) {
+            val child = children[place--]
+            if (narrowest == null || child.range.length <= narrowest.range.length) narrowest = child
+        }
+        return narrowest
+    }
+
+    private fun standInOrder(children: List<ValueNode>): Boolean {
+        for (place in 1 until children.size) {
+            if (children[place - 1].range.end > children[place].range.start) return false
+        }
+        return true
     }
 }
 
@@ -144,7 +203,9 @@ internal fun nodeAt(root: ValueNode?, offset: Int): ValueNode? {
 internal fun trail(root: ValueNode?, key: String?): List<ValueNode> {
     if (root == null || key == null) return emptyList()
     if (root.key == key) return listOf(root)
+    // A child's key is its parent's and more (childKey): only a child whose key starts the one sought can lead to it.
     for (child in root.children) {
+        if (!key.startsWith(child.key)) continue
         val below = trail(child, key)
         if (below.isNotEmpty()) return listOf(root) + below
     }

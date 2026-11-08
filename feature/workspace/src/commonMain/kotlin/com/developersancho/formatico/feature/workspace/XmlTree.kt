@@ -19,56 +19,62 @@ internal const val XML_TEXT = "#text"
 internal fun readXml(text: String): Reading {
     val document = XmlDocument.parse(text)
     val root = document.root?.let { element ->
-        val step = PathStep.Key(element.name)
-        val child = xmlNode(element, listOf(step), element.name, childKey(ROOT, step))
-        ValueNode(ROOT, emptyList(), ROOT, ValueKind.Object, "{1}", null, null, listOf(child), TextRange(0, text.length))
+        val nodes = XmlNodes()
+        val step = nodes.parts.key(element.name)
+        val child = nodes.node(element, NodePath.Root + step, step.name, childKey(ROOT, step))
+        ValueNode(ROOT, NodePath.Root, ROOT, ValueKind.Object, "{1}", null, null, listOf(child), TextRange(0, text.length))
     }
     return Reading.Read(format = Format.Xml, root = root, problems = document.problems, comments = document.comments.size)
 }
 
-/** The node of [element], at [path] and keyed [key]. */
-private fun xmlNode(element: XmlElement, path: List<PathStep>, name: String, key: String): ValueNode {
-    val texts = element.children.filterIsInstance<XmlText>().filter { it.cdata || it.value.isNotBlank() }
-    val elements = element.children.filterIsInstance<XmlElement>()
-    val written = texts.joinToString("") { it.raw }.trim()
-    val read = texts.joinToString("") { it.value }.trim()
-    if (element.attributes.isEmpty() && elements.isEmpty()) {
-        return ValueNode(key, path, name, ValueKind.String, written, read, previewOf(read), emptyList(), element.range)
-    }
-    val children = ArrayList<ValueNode>()
-    element.attributes.forEach { attribute ->
-        val step = PathStep.Key("@${attribute.name}")
-        children += ValueNode(
-            childKey(key, step),
-            path + step,
-            step.name,
-            ValueKind.String,
-            attribute.raw,
-            attribute.value,
-            previewOf(attribute.value),
-            emptyList(),
-            attribute.range
-        )
-    }
-    elements.groupBy { it.name }.forEach { (tag, named) -> children += elementsNamed(tag, named, path, key) }
-    if (texts.isNotEmpty()) {
-        val step = PathStep.Key(XML_TEXT)
-        val range = TextRange(texts.first().range.start, texts.last().range.end)
-        children +=
-            ValueNode(childKey(key, step), path + step, XML_TEXT, ValueKind.String, written, read, previewOf(read), emptyList(), range)
-    }
-    return ValueNode(key, path, name, ValueKind.Object, "{${children.size}}", null, null, children, element.range)
-}
+/** The nodes of one XML document, which share their names, their steps and their paths' steps. */
+private class XmlNodes {
+    val parts = SharedParts()
 
-/** The elements of one [tag] in an element keyed [key]: the element where there is one, an array of them otherwise. */
-private fun elementsNamed(tag: String, named: List<XmlElement>, path: List<PathStep>, key: String): ValueNode {
-    val step = PathStep.Key(tag)
-    val own = childKey(key, step)
-    if (named.size == 1) return xmlNode(named.single(), path + step, tag, own)
-    val items = named.mapIndexed { index, element ->
-        val item = PathStep.Index(index)
-        xmlNode(element, path + step + item, "$index", childKey(own, item))
+    /** The node of [element], at [path] and keyed [key]. */
+    fun node(element: XmlElement, path: NodePath, name: String, key: String): ValueNode {
+        val texts = element.children.filterIsInstance<XmlText>().filter { it.cdata || it.value.isNotBlank() }
+        val elements = element.children.filterIsInstance<XmlElement>()
+        val read = texts.joinToString("") { it.value }.trim()
+        val written = parts.sameOrBoth(texts.joinToString("") { it.raw }.trim(), read)
+        if (element.attributes.isEmpty() && elements.isEmpty()) {
+            return ValueNode(key, path, name, ValueKind.String, written, read, previewOf(read), emptyList(), element.range)
+        }
+        val children = ArrayList<ValueNode>()
+        element.attributes.forEach { attribute ->
+            val step = parts.key("@${attribute.name}")
+            children += ValueNode(
+                childKey(key, step),
+                path + step,
+                step.name,
+                ValueKind.String,
+                parts.sameOrBoth(attribute.raw, attribute.value),
+                attribute.value,
+                previewOf(attribute.value),
+                emptyList(),
+                attribute.range
+            )
+        }
+        elements.groupBy { it.name }.forEach { (tag, named) -> children += elementsNamed(tag, named, path, key) }
+        if (texts.isNotEmpty()) {
+            val step = parts.key(XML_TEXT)
+            val range = TextRange(texts.first().range.start, texts.last().range.end)
+            children +=
+                ValueNode(childKey(key, step), path + step, XML_TEXT, ValueKind.String, written, read, previewOf(read), emptyList(), range)
+        }
+        return ValueNode(key, path, name, ValueKind.Object, "{${children.size}}", null, null, children, element.range)
     }
-    val range = TextRange(named.first().range.start, named.last().range.end)
-    return ValueNode(own, path + step, tag, ValueKind.Array, "[${items.size}]", null, null, items, range)
+
+    /** The elements of one [tag] in an element keyed [key]: the element where there is one, an array of them otherwise. */
+    private fun elementsNamed(tag: String, named: List<XmlElement>, path: NodePath, key: String): ValueNode {
+        val step = parts.key(tag)
+        val own = childKey(key, step)
+        if (named.size == 1) return node(named.single(), path + step, step.name, own)
+        val items = named.mapIndexed { index, element ->
+            val item = PathStep.Index(index)
+            node(element, path + step + item, parts.place(index), childKey(own, item))
+        }
+        val range = TextRange(named.first().range.start, named.last().range.end)
+        return ValueNode(own, path + step, step.name, ValueKind.Array, "[${items.size}]", null, null, items, range)
+    }
 }

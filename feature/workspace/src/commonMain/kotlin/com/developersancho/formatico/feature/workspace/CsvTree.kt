@@ -31,21 +31,9 @@ internal fun readCsv(text: String, format: Format): Reading {
     val root = if (document.records.isEmpty()) {
         null
     } else {
-        val children = rows.mapIndexed { index, record -> record(record, index, header, codes, text) }
-        ValueNode(
-            ROOT,
-            emptyList(),
-            ROOT,
-            ValueKind.Array,
-            "[${rows.size}]",
-            null,
-            null,
-            children,
-            TextRange(
-                0,
-                text.length
-            )
-        )
+        val columns = CsvColumns(header, codes)
+        val children = rows.mapIndexed { index, record -> columns.record(record, index, text) }
+        ValueNode(ROOT, NodePath.Root, ROOT, ValueKind.Array, "[${rows.size}]", null, null, children, TextRange(0, text.length))
     }
     return Reading.Read(
         format = format,
@@ -54,49 +42,62 @@ internal fun readCsv(text: String, format: Format): Reading {
     )
 }
 
-/** The node of the record at [index]: an object of its fields, each named by its column's name in [header]. */
-private fun record(record: CsvRecord, index: Int, header: List<String>, codes: Set<Int>, text: String): ValueNode {
-    val step = PathStep.Index(index)
-    val key = childKey(ROOT, step)
-    val seen = HashSet<String>()
-    val fields = record.fields.mapIndexed { column, field ->
-        val name = header.getOrNull(column) ?: "${column + 1}"
-        val fieldStep = PathStep.Key(name)
-        val place = FieldPlace(
-            path = listOf(step, fieldStep),
-            name = name,
-            key = childKey(key, fieldStep, column.takeUnless { seen.add(name) }),
-            inCodes = column in codes
+/**
+ * The columns of a table, each named in [header] or by its place, and the places of those that are [codes]: what every
+ * record's fields share, their names and their steps.
+ */
+private class CsvColumns(private val header: List<String>, private val codes: Set<Int>) {
+    private val parts = SharedParts()
+
+    /** The node of the record at [index]: an object of its fields, each named by its column's name. */
+    fun record(record: CsvRecord, index: Int, text: String): ValueNode {
+        val step = PathStep.Index(index)
+        val key = childKey(ROOT, step)
+        val path = NodePath.Root + step
+        val seen = HashSet<String>()
+        val fields = record.fields.mapIndexed { column, field ->
+            val fieldStep = parts.key(header.getOrNull(column) ?: "${column + 1}")
+            val name = fieldStep.name
+            val place = FieldPlace(
+                path = path + fieldStep,
+                name = name,
+                key = childKey(key, fieldStep, column.takeUnless { seen.add(name) }),
+                inCodes = column in codes
+            )
+            field(field, text, place)
+        }
+        return ValueNode(
+            key = key,
+            path = path,
+            name = parts.place(index),
+            kind = ValueKind.Object,
+            text = "{${fields.size}}",
+            value = null,
+            preview = null,
+            children = fields,
+            range = record.range
         )
-        field(field, text, place)
     }
-    return ValueNode(
-        key = key,
-        path = listOf(step),
-        name = "$index",
-        kind = ValueKind.Object,
-        text = "{${fields.size}}",
-        value = null,
-        preview = null,
-        children = fields,
-        range = record.range
-    )
+
+    private fun field(field: CsvField, text: String, place: FieldPlace): ValueNode {
+        val number = !place.inCodes && CsvNumber.matches(field.value)
+        // A field in no quotes is written as it is read: its text and its value are one.
+        val asRead = !field.quoted && field.range.length == field.value.length &&
+            text.regionMatches(field.range.start, field.value, 0, field.value.length)
+        val written = if (number || asRead) field.value else text.substring(field.range.start, field.range.end)
+        return ValueNode(
+            key = place.key,
+            path = place.path,
+            name = place.name,
+            kind = if (number) ValueKind.Number else ValueKind.String,
+            text = written,
+            value = field.value.takeUnless { number },
+            preview = if (number) null else previewOf(field.value),
+            children = emptyList(),
+            range = field.range
+        )
+    }
 }
 
 /** Where a field stands: its path, its column's name, its node's key, and whether its column is one of codes. */
-private class FieldPlace(val path: List<PathStep>, val name: String, val key: String, val inCodes: Boolean)
-
-private fun field(field: CsvField, text: String, place: FieldPlace): ValueNode {
-    val number = !place.inCodes && CsvNumber.matches(field.value)
-    return ValueNode(
-        key = place.key,
-        path = place.path,
-        name = place.name,
-        kind = if (number) ValueKind.Number else ValueKind.String,
-        text = if (number) field.value else text.substring(field.range.start, field.range.end),
-        value = field.value.takeUnless { number },
-        preview = if (number) null else previewOf(field.value),
-        children = emptyList(),
-        range = field.range
-    )
-}
+private class FieldPlace(val path: NodePath, val name: String, val key: String, val inCodes: Boolean)

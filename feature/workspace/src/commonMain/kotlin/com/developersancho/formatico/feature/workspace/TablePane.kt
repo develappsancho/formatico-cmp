@@ -128,6 +128,11 @@ internal fun TablePane(
                     PaneMessage(PantrixIcons.Info, message.first, message.second, Modifier.fillMaxSize())
                 }
 
+                // A large document is read for seconds: the status bar says so, and the table is not yet known to be none.
+                state.reading == Reading.Pending -> {
+                    Unit
+                }
+
                 table == null -> {
                     PaneMessage(
                         icon = PantrixIcons.Info,

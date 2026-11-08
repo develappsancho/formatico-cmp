@@ -1,6 +1,7 @@
 package com.developersancho.formatico.feature.workspace
 
 import com.developersancho.formatico.core.settings.SettingsStore
+import com.pantrixui.foundation.platform.currentPlatformType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -26,7 +27,7 @@ val workspaceModule: Module = module {
     single(createdAtStart = true) {
         QueryHistory(small = get(), scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)).also { it.start() }
     }
-    single { Readings(workbench = get()) }
+    single { Readings(workbench = get(), budget = readingsBudget(currentPlatformType())) }
     single { Editors(workbench = get()) }
     viewModel { (documentId: Long) -> WorkspaceViewModel(documentId = documentId, workbench = get(), readings = get(), queries = get()) }
 }

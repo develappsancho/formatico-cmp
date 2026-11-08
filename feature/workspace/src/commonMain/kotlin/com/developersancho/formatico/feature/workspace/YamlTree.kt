@@ -22,7 +22,7 @@ internal fun readYaml(text: String): Reading {
     val documents = document.documents
     val root = when (documents.size) {
         0 -> null
-        1 -> documents.single()?.let { tree.node(it, path = emptyList(), name = ROOT, key = ROOT) }
+        1 -> documents.single()?.let { tree.node(it, path = NodePath.Root, name = ROOT, key = ROOT) }
         else -> tree.stream(documents)
     }
     return Reading.Read(
@@ -37,18 +37,19 @@ internal fun readYaml(text: String): Reading {
 private class YamlTree(private val text: String) {
     /** The anchored values met so far, by the value: the same object, as an alias's target is. */
     private val anchored = HashMap<YamlNode, ValueReference>()
+    private val parts = SharedParts()
 
     fun stream(documents: List<YamlNode?>): ValueNode {
         val children = documents.mapIndexed { index, document ->
             val step = PathStep.Index(index)
             val key = childKey(ROOT, step)
-            document?.let { node(it, listOf(step), "$index", key) }
-                ?: ValueNode(key, listOf(step), "$index", ValueKind.Null, "", null, null, emptyList(), TextRange(0, 0))
+            document?.let { node(it, NodePath.Root + step, parts.place(index), key) }
+                ?: ValueNode(key, NodePath.Root + step, parts.place(index), ValueKind.Null, "", null, null, emptyList(), TextRange(0, 0))
         }
         val text = "[${documents.size}]"
         return ValueNode(
             ROOT,
-            emptyList(),
+            NodePath.Root,
             ROOT,
             ValueKind.Array,
             text,
@@ -62,7 +63,7 @@ private class YamlTree(private val text: String) {
         )
     }
 
-    fun node(value: YamlNode, path: List<PathStep>, name: String, key: String): ValueNode {
+    fun node(value: YamlNode, path: NodePath, name: String, key: String): ValueNode {
         // An alias inside its own anchor's value points at a node still being made: its place is known already.
         if (value.anchor != null) anchored[value] = ValueReference(key, path)
         return when (value) {
@@ -73,7 +74,7 @@ private class YamlTree(private val text: String) {
             is YamlSequence -> {
                 val children = value.items.mapIndexed { index, item ->
                     val step = PathStep.Index(index)
-                    node(item, path + step, "$index", childKey(key, step))
+                    node(item, path + step, parts.place(index), childKey(key, step))
                 }
                 ValueNode(
                     key,
@@ -110,12 +111,13 @@ private class YamlTree(private val text: String) {
         }
     }
 
-    private fun mapping(value: YamlMapping, path: List<PathStep>, name: String, key: String): ValueNode {
+    private fun mapping(value: YamlMapping, path: NodePath, name: String, key: String): ValueNode {
         val seen = HashSet<String>()
         val children = value.entries.mapIndexed { index, entry ->
-            val keyName =
+            val step = parts.key(
                 (entry.key as? YamlScalar)?.value ?: text.substring(entry.key.range.start, entry.key.range.end)
-            val step = PathStep.Key(keyName)
+            )
+            val keyName = step.name
             node(
                 entry.value,
                 path + step,
@@ -143,7 +145,7 @@ private class YamlTree(private val text: String) {
         )
     }
 
-    private fun scalar(value: YamlScalar, path: List<PathStep>, name: String, key: String): ValueNode {
+    private fun scalar(value: YamlScalar, path: NodePath, name: String, key: String): ValueNode {
         val kind = when (value.kind) {
             YamlScalarKind.Null -> ValueKind.Null
             YamlScalarKind.Boolean -> ValueKind.Boolean
@@ -156,7 +158,8 @@ private class YamlTree(private val text: String) {
             path = path,
             name = name,
             kind = kind,
-            text = shown(value),
+            // A plain scalar is shown as it is read: its text and its value are one.
+            text = string?.let { parts.sameOrBoth(shown(value), it) } ?: shown(value),
             value = string,
             preview = string?.let(::previewOf),
             children = emptyList(),
@@ -174,7 +177,8 @@ private class YamlTree(private val text: String) {
         }
 
         else -> {
-            value.raw.lines().joinToString(" ") { it.trim() }
+            val raw = value.raw
+            if ('\n' in raw || '\r' in raw) raw.lines().joinToString(" ") { it.trim() } else raw.trim()
         }
     }
 }

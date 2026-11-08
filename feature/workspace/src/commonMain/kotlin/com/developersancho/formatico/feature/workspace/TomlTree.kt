@@ -21,42 +21,77 @@ internal fun readToml(text: String): Reading {
     val document = TomlDocument.parse(text)
     return Reading.Read(
         format = Format.Toml,
-        root = tomlNode(document.root, emptyList(), ROOT, ROOT),
+        root = TomlNodes().node(document.root, NodePath.Root, ROOT, ROOT),
         problems = document.problems,
         comments = document.comments.size
     )
 }
 
-/** The node of [value], at [path] and keyed [key]. */
-private fun tomlNode(value: TomlValue, path: List<PathStep>, name: String, key: String): ValueNode = when (value) {
-    is TomlTable -> {
-        val seen = HashSet<String>()
-        val children = value.entries.mapIndexed { index, entry ->
-            val step = PathStep.Key(entry.key)
-            tomlNode(entry.value, path + step, entry.key, childKey(key, step, duplicate = index.takeUnless { seen.add(entry.key) }))
+/** The nodes of one TOML document, which share their names, their steps and their paths' steps. */
+private class TomlNodes {
+    private val parts = SharedParts()
+
+    /** The node of [value], at [path] and keyed [key]. */
+    fun node(value: TomlValue, path: NodePath, name: String, key: String): ValueNode = when (value) {
+        is TomlTable -> {
+            val seen = HashSet<String>()
+            val children = value.entries.mapIndexed { index, entry ->
+                val step = parts.key(entry.key)
+                node(entry.value, path + step, step.name, childKey(key, step, duplicate = index.takeUnless { seen.add(entry.key) }))
+            }
+            // A table's sub-tables may be given headers of their own further down: its range takes them in, so that the
+            // caret in one is in the table as well.
+            val start = children.minOfOrNull { it.range.start }?.coerceAtMost(value.range.start) ?: value.range.start
+            val end = children.maxOfOrNull { it.range.end }?.coerceAtLeast(value.range.end) ?: value.range.end
+            ValueNode(key, path, name, ValueKind.Object, "{${children.size}}", null, null, children, TextRange(start, end))
         }
-        // A table's sub-tables may be given headers of their own further down: its range takes them in, so that the
-        // caret in one is in the table as well.
-        val start = children.minOfOrNull { it.range.start }?.coerceAtMost(value.range.start) ?: value.range.start
-        val end = children.maxOfOrNull { it.range.end }?.coerceAtLeast(value.range.end) ?: value.range.end
-        ValueNode(key, path, name, ValueKind.Object, "{${children.size}}", null, null, children, TextRange(start, end))
-    }
 
-    is TomlArray -> {
-        val children = value.items.mapIndexed { index, item ->
-            val step = PathStep.Index(index)
-            tomlNode(item, path + step, "$index", childKey(key, step))
+        is TomlArray -> {
+            val children = value.items.mapIndexed { index, item ->
+                val step = PathStep.Index(index)
+                node(item, path + step, parts.place(index), childKey(key, step))
+            }
+            ValueNode(key, path, name, ValueKind.Array, "[${children.size}]", null, null, children, value.range)
         }
-        ValueNode(key, path, name, ValueKind.Array, "[${children.size}]", null, null, children, value.range)
+
+        is TomlString -> ValueNode(
+            key,
+            path,
+            name,
+            ValueKind.String,
+            value.raw,
+            value.value,
+            previewOf(value.value),
+            emptyList(),
+            value.range
+        )
+
+        is TomlDateTime -> ValueNode(
+            key,
+            path,
+            name,
+            ValueKind.String,
+            value.raw,
+            value.raw,
+            previewOf(value.raw),
+            emptyList(),
+            value.range
+        )
+
+        is TomlInteger -> ValueNode(key, path, name, ValueKind.Number, value.raw, null, null, emptyList(), value.range)
+
+        is TomlFloat -> ValueNode(key, path, name, ValueKind.Number, value.raw, null, null, emptyList(), value.range)
+
+        is TomlBoolean -> ValueNode(
+            key,
+            path,
+            name,
+            ValueKind.Boolean,
+            if (value.value) "true" else "false",
+            null,
+            null,
+            emptyList(),
+            value.range
+        )
     }
-
-    is TomlString -> ValueNode(key, path, name, ValueKind.String, value.raw, value.value, previewOf(value.value), emptyList(), value.range)
-
-    is TomlDateTime -> ValueNode(key, path, name, ValueKind.String, value.raw, value.raw, previewOf(value.raw), emptyList(), value.range)
-
-    is TomlInteger -> ValueNode(key, path, name, ValueKind.Number, value.raw, null, null, emptyList(), value.range)
-
-    is TomlFloat -> ValueNode(key, path, name, ValueKind.Number, value.raw, null, null, emptyList(), value.range)
-
-    is TomlBoolean -> ValueNode(key, path, name, ValueKind.Boolean, "${value.value}", null, null, emptyList(), value.range)
 }

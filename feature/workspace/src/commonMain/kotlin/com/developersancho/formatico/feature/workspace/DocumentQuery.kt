@@ -95,16 +95,18 @@ private fun xPathOutcome(document: XmlDocument, root: ValueNode, query: String):
 
     is QueryParse.Parsed -> when (val result = parsed.query.evaluate(document)) {
         is XPathResult.Nodes -> QueryOutcome.Found(
-            result.matches.map { match ->
-                // A node is chosen in the tree by the value written where it is: an element's, an attribute's, or the
-                // element a text stands in.
-                QueryMatch(
-                    path = match.path,
-                    value = match.value,
-                    kind = null,
-                    key = nodeAt(root, match.range.start)?.key,
-                    range = match.range
-                )
+            NodeLocator(root).let { locator ->
+                result.matches.map { match ->
+                    // A node is chosen in the tree by the value written where it is: an element's, an attribute's, or the
+                    // element a text stands in.
+                    QueryMatch(
+                        path = match.path,
+                        value = match.value,
+                        kind = null,
+                        key = locator.at(match.range.start)?.key,
+                        range = match.range
+                    )
+                }
             }
         )
 

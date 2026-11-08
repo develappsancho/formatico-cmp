@@ -18,6 +18,7 @@ import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -49,6 +50,8 @@ import formatico.feature.workspace.generated.resources.workspace_open_all
 import formatico.feature.workspace.generated.resources.workspace_open_all_levels
 import formatico.feature.workspace.generated.resources.workspace_open_to
 import formatico.feature.workspace.generated.resources.workspace_open_to_level
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.stringResource
 
 /** The levels the tree is opened to by a press, from the root's: the root alone open, its children too, and theirs. */
@@ -206,10 +209,10 @@ internal class TreeSearch(
     private val chosen: MutableIntState,
     val query: TextFieldState,
     private val language: String,
-    private val found: State<List<ValueNode>>,
+    private val found: State<Searched>,
     private val onIntent: (WorkspaceIntent) -> Unit
 ) {
-    val matches: List<ValueNode> get() = found.value
+    val matches: List<ValueNode> get() = found.value.matches
 
     /** Which of the [matches] is chosen, from 0. */
     val current: Int get() = chosen.intValue
@@ -242,9 +245,16 @@ internal class TreeSearch(
         return TreeMarks(sought = folded(text.trim(), language), language = language, current = matches.getOrNull(current)?.key)
     }
 
-    /** Which match of how many is chosen, "No matches", or nothing while nothing is looked for. */
+    /**
+     * Which match of how many is chosen, "No matches", or nothing while nothing is looked for or what is typed is still
+     * looked for: a large document's search takes a moment, and its matches are not yet none.
+     */
     @Composable
-    fun position(): String? = searchPosition(query.text.toString(), chosen.intValue, matches.size)
+    fun position(): String? {
+        val text = query.text.toString()
+        if (found.value.query != text) return null
+        return searchPosition(text, chosen.intValue, matches.size)
+    }
 
     /** "match 1 of 4", where [node] is the chosen match, as a phone's card says it; or null. */
     @Composable
@@ -261,23 +271,32 @@ internal fun rememberTreeSearch(state: WorkspaceState, onIntent: (WorkspaceInten
     val chosen = rememberSaveable { mutableIntStateOf(0) }
     val language = PantrixTheme.locale.language
     val text = query.text.toString()
-    val found = rememberUpdatedState(remember(state.root, text, language) { matchesOf(state.root, text, language) })
+    val root = state.root
+    // Looked for off the main thread, as a large document has a million values to fold to small letters; a letter
+    // typed before the search ends sets it aside for the next.
+    val search = produceState(Searched(), root, text, language) {
+        value = Searched(text, withContext(Dispatchers.Default) { matchesOf(root, text, language) })
+    }
     val intents = rememberUpdatedState(onIntent)
     val open = state.document?.view?.searching == true
-    val search = remember(open, query, chosen, found, language) {
+    val tree = remember(open, query, chosen, search, language) {
         TreeSearch(
             open = open,
             chosen = chosen,
             query = query,
             language = language,
-            found = found,
+            found = search,
             onIntent = { intents.value(it) }
         )
     }
-    // A new search goes to its first match.
-    LaunchedEffect(query, text) { if (text.isNotBlank()) search.restart() }
-    return search
+    // A new search goes to its first match, once its matches are found.
+    val done = search.value
+    LaunchedEffect(done) { if (done.query == text && text.isNotBlank()) tree.restart() }
+    return tree
 }
+
+/** The [matches] of a search for [query]: what the tree's search found last, and what it looked for. */
+internal class Searched(val query: String = "", val matches: List<ValueNode> = emptyList())
 
 /** Which match of [count], the one at [current], a search for [query] has chosen: "1 of 4", "No matches", or null. */
 @Composable

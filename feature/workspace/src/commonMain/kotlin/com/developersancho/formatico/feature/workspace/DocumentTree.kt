@@ -11,7 +11,6 @@ import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.designsystem.LocalSyntaxColors
 import com.developersancho.formatico.core.designsystem.SyntaxColors
@@ -47,7 +46,18 @@ internal data class RowInks(
     val match: Color,
     val current: Color,
     val onCurrent: Color
-)
+) {
+    /** A key's style, made once for every row: a large document's tree has a hundred thousand of them. */
+    val keyStyle = SpanStyle(color = syntax.key)
+
+    /** The colon's style. */
+    val colonStyle = SpanStyle(color = syntax.punctuation)
+
+    private val kindStyles = ValueKind.entries.map { SpanStyle(color = syntaxInk(it, syntax, size)) }
+
+    /** The style a value of [kind] is written in: its syntax's, and the size of an object or an array quieter. */
+    fun styleOf(kind: ValueKind): SpanStyle = kindStyles[kind.ordinal]
+}
 
 @Composable
 private fun rowInks(): RowInks {
@@ -69,23 +79,70 @@ internal data class RowEnd(val preview: ValuePreview?, val written: String?, val
 internal class DocumentRows(val nodes: List<TreeNode>, val ends: Map<String, RowEnd>)
 
 /**
- * The rows of [root]: each value as `name: value` in the document's colours, the [selected] one in the chosen row's
- * own colour, and what a search [marks] marked in each.
+ * The rows of [root] that the [expanded] branches show: each value as `name: value` in the document's colours, the
+ * [selected] one in the chosen row's own colour, and what a search [marks] marked in each. A closed branch's rows are
+ * made as it opens: in a large document they are most of it, and the tree shows none of them.
  */
-internal fun documentRows(root: ValueNode, inks: RowInks, selected: String?, marks: TreeMarks?): DocumentRows {
-    val ends = HashMap<String, RowEnd>()
+internal fun documentRows(root: ValueNode, inks: RowInks, selected: String?, marks: TreeMarks?, expanded: Set<String>): DocumentRows =
+    RowMaker(root, inks).rows(selected, marks, expanded)
 
-    fun nodeOf(node: ValueNode): TreeNode {
-        endOf(node)?.let { ends[node.key] = it }
-        return TreeNode(
-            key = node.key,
-            label = rowLabel(node),
-            children = node.children.map(::nodeOf),
-            tagKey = tagOf(node),
-            styledLabel = styledLabelOf(node, inks, chosen = node.key == selected, marks = marks)
-        )
+/**
+ * Makes the rows of [root] in [inks], as [documentRows] says, again each time the choice, the search or the open
+ * branches change, keeping every row that did not change: a value chosen or a branch opened makes that row again and
+ * the rows it stands in, not the hundred thousand beside them. A new search makes them all again.
+ */
+internal class RowMaker(private val root: ValueNode, private val inks: RowInks) {
+    private var made: TreeNode? = null
+    private var selected: String? = null
+    private var marks: TreeMarks? = null
+    private var expanded: Set<String> = emptySet()
+
+    // What each row made ends in: the same for a key while the document is, and only looked up for the rows shown.
+    private val ends = HashMap<String, RowEnd>()
+
+    /** The rows for [selected], [marks] and [expanded], the rows made last kept where nothing of theirs changed. */
+    fun rows(selected: String?, marks: TreeMarks?, expanded: Set<String>): DocumentRows {
+        val before = made.takeIf { marks == this.marks }
+        // The keys whose rows are made again: the value chosen before and the one chosen now, which a chosen row's
+        // label tells (PANTRIX_FINDINGS, "Seçili satırın biçimli etiketi"), and the branches opened or closed.
+        val changed = HashSet<String>()
+        if (selected != this.selected) {
+            this.selected?.let(changed::add)
+            selected?.let(changed::add)
+        }
+        expanded.filterTo(changed) { it !in this.expanded }
+        this.expanded.filterTo(changed) { it !in expanded }
+        val keeping = before.takeIf { changed.size <= MOST_CHANGED }
+
+        fun nodeOf(node: ValueNode, old: TreeNode?): TreeNode {
+            // A row is kept where no key that changed is its own or one under it, as a key under it starts with its.
+            if (old != null && changed.none { it.startsWith(node.key) }) return old
+            endOf(node)?.let { ends[node.key] = it }
+            val label = rowLabel(node)
+            val open = node.key in expanded
+            // The rows under it made before stand in the same order as its children, where it was open.
+            val oldChildren = old?.children?.takeIf { it.size == node.children.size }
+            return TreeNode(
+                key = node.key,
+                label = label,
+                children = if (open) node.children.mapIndexed { index, child -> nodeOf(child, oldChildren?.get(index)) } else emptyList(),
+                hasChildren = node.children.isNotEmpty(),
+                tagKey = tagOf(node),
+                styledLabel = styledLabelOf(node, inks, chosen = node.key == selected, marks = marks, label = label)
+            )
+        }
+        val top = nodeOf(root, keeping)
+        made = top
+        this.selected = selected
+        this.marks = marks
+        this.expanded = expanded
+        return DocumentRows(listOf(top), ends)
     }
-    return DocumentRows(listOf(nodeOf(root)), ends)
+
+    private companion object {
+        // Past so many changed keys, as "All" opens every branch, each row is made again rather than weighed.
+        const val MOST_CHANGED = 64
+    }
 }
 
 /** A value as its row writes it: `name: value`, an object or an array by its size; the root's `$` with no colon. */
@@ -95,20 +152,31 @@ private fun colonOf(node: ValueNode): String = if (node.path.isEmpty()) "" else 
 
 /**
  * [rowLabel] in the document's colours: the key, the colon and the value each in its kind's, or none on a [chosen]
- * row, which is written in its own; and over them what [marks] found in the key and in the value.
+ * row, which is written in its own; and over them what [marks] found in the key and in the value. [label] is the
+ * row's label, which the styled one is written over.
  */
-internal fun styledLabelOf(node: ValueNode, inks: RowInks, chosen: Boolean, marks: TreeMarks?): AnnotatedString {
-    val colon = colonOf(node)
-    val syntax = inks.syntax
-
-    fun AnnotatedString.Builder.part(text: String, color: Color) {
-        if (chosen) append(text) else withStyle(SpanStyle(color = color)) { append(text) }
+internal fun styledLabelOf(
+    node: ValueNode,
+    inks: RowInks,
+    chosen: Boolean,
+    marks: TreeMarks?,
+    label: String = rowLabel(node)
+): AnnotatedString {
+    val nameEnd = node.name.length
+    val valueStart = nameEnd + colonOf(node).length
+    val parts = if (chosen) {
+        emptyList()
+    } else {
+        listOf(
+            AnnotatedString.Range(inks.keyStyle, 0, nameEnd),
+            AnnotatedString.Range(inks.colonStyle, nameEnd, valueStart),
+            AnnotatedString.Range(inks.styleOf(node.kind), valueStart, label.length)
+        )
     }
+    val styled = AnnotatedString(label, parts)
+    if (marks == null) return styled
     return buildAnnotatedString {
-        part(node.name, syntax.key)
-        part(colon, syntax.punctuation)
-        part(node.text, inkOf(node.kind, inks))
-        if (marks == null) return@buildAnnotatedString
+        append(styled)
         val mark = if (node.key == marks.current) {
             SpanStyle(color = inks.onCurrent, background = inks.current)
         } else {
@@ -118,14 +186,10 @@ internal fun styledLabelOf(node: ValueNode, inks: RowInks, chosen: Boolean, mark
             placesOf(marks.sought, node.name, marks.language).forEach { addStyle(mark, it.first, it.last + 1) }
         }
         if (valueHolds(node, marks.sought, marks.language)) {
-            val start = node.name.length + colon.length
-            placesOf(marks.sought, node.text, marks.language).forEach { addStyle(mark, start + it.first, start + it.last + 1) }
+            placesOf(marks.sought, node.text, marks.language).forEach { addStyle(mark, valueStart + it.first, valueStart + it.last + 1) }
         }
     }
 }
-
-/** The colour a value of [kind] is written in: its syntax's, and the size of an object or an array quieter. */
-private fun inkOf(kind: ValueKind, inks: RowInks): Color = syntaxInk(kind, inks.syntax, inks.size)
 
 /**
  * Where [sought], in small letters as [language] writes them, stands in [text]: the ranges of [text]'s own letters,
@@ -178,7 +242,8 @@ internal fun DocumentTree(
     val root = state.root ?: return
     val inks = rowInks()
     val selected = state.selected?.key
-    val rows = remember(root, inks, selected, marks) { documentRows(root, inks, selected, marks) }
+    val maker = remember(root, inks) { RowMaker(root, inks) }
+    val rows = remember(maker, selected, marks, state.expanded) { maker.rows(selected, marks, state.expanded) }
     val words = previewWords()
     val links = LocalUriHandler.current
     val openLink = stringResource(Res.string.workspace_open_link)

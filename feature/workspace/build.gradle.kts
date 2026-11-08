@@ -19,3 +19,17 @@ kotlin {
         }
     }
 }
+
+// The large documents' measure (Faz 14) runs only when asked for, `-Pformatico.measure`, with the heap a document of
+// 50 MB needs; `-Pformatico.measure.sizes` and `-Pformatico.measure.formats` narrow it.
+tasks.withType<Test>().matching { it.name == "jvmTest" }.configureEach {
+    val measure = providers.gradleProperty("formatico.measure")
+    if (measure.isPresent) {
+        systemProperty("formatico.measure", "true")
+        providers.gradleProperty("formatico.measure.sizes").orNull?.let { systemProperty("formatico.measure.sizes", it) }
+        providers.gradleProperty("formatico.measure.formats").orNull?.let { systemProperty("formatico.measure.formats", it) }
+        maxHeapSize = "8g"
+        // A measure is what it measures, every time: Gradle keeps no result of one.
+        outputs.upToDateWhen { false }
+    }
+}

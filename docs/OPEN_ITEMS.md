@@ -56,10 +56,10 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
 
 ## core:format
 
-*   [ ] **Büyük dosyalar ölçülmedi (2026-11-02).**
+*   [x] **Büyük dosyalar ölçülmedi (2026-11-02).**
     *   Ne: Hedef masaüstünde 50 MB, telefonda ve web'de 10 MB. JSON okuyucusu her belirteci ve her değeri bir nesne olarak tutuyor, iç içe değerleri özyinelemeyle okuyor (512 düzeyle sınırlı).
     *   Öneri: 10 ve 50 MB'lık örneklerle her hedefte süre ve bellek ölçümü; gerekirse belirteçleri dizilerde tutmak ve okuyucuyu yığıtla yazmak.
-    *   Durum: açık. Faz 7'de iki ölçüm (JVM, geçici testlerle; testler silindi): 8,7 milyon karakterlik bir TOML 485 ms'de okunuyor ve yaklaşık 220 MB tutuyor; karşılaştırılabilir bir JSON 365 ms ve yaklaşık 262 MB. İkisi de doğrusal görünüyor, ama bu oranla 50 MB'lık bir belge 1,2–1,5 GB, 10 MB'lık bir belge yaklaşık 250 MB ister. XML okuyucusunda bulunan karesel bir yavaşlık giderildi: 10 MB 25 saniyeden yaklaşık 120 ms'ye indi.
+    *   Durum: kapandı (2026-11-06). Ölçüldü: `LargeDocumentsMeasure` (`-Pformatico.measure`) altı biçimde 10 ve 50 MB'ta her adımın süresini ve tuttuğu belleği yazıyor; sonuçlar ve cihazlar `docs/MEASURE.md`'de. Okuma JVM'de 10 MB'ta 0,4–1,0 s, 50 MB'ta 1,7–4,0 s; okunmuş belge 10 MB'ta 135–320 MB (önce 182–408), 50 MB'ta 0,7–1,6 GB. Düğümler babalarının yolunu, belgenin adlarını ve adımlarını paylaşıyor; ağaç kapalı dalları kurmuyor; tablo bir kez ve ana iş parçacığının dışında kuruluyor; XPath'in eşleşmeleri ağaçta yarılanarak bulunuyor; karşılaştırma ortak uçları ayırıyor. Cihazlarda 10 MB: Android'de JSON 5,1 s, CSV 9,8 s (uygulama `largeHeap` istiyor); iOS'ta 4 s ve 5,9 s; web'de 2 s ve 10 s. Kalanlar "Büyük belgelerde ölçülüp bırakılanlar"da. Okuyucu belirteçleri hâlâ nesne olarak tutuyor ve özyinelemeli; 50 MB'ta sorun olmadı. Önceki ölçüm (Faz 7): Faz 7'de iki ölçüm (JVM, geçici testlerle; testler silindi): 8,7 milyon karakterlik bir TOML 485 ms'de okunuyor ve yaklaşık 220 MB tutuyor; karşılaştırılabilir bir JSON 365 ms ve yaklaşık 262 MB. İkisi de doğrusal görünüyor, ama bu oranla 50 MB'lık bir belge 1,2–1,5 GB, 10 MB'lık bir belge yaklaşık 250 MB ister. XML okuyucusunda bulunan karesel bir yavaşlık giderildi: 10 MB 25 saniyeden yaklaşık 120 ms'ye indi.
 *   [x] **Sütun UTF-16 birimiyle sayılıyor (2026-11-02).**
     *   Ne: `TextPosition.column` UTF-16 birimi sayıyor; bir emoji iki sütun sayılır. Editörlerin çoğu kod noktası ya da görünen karakter sayar.
     *   Öneri: PantrixCodeEditor'ın imleci neyi sayıyorsa onu sayan bir dönüşüm.
@@ -330,10 +330,17 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Ne: Workspace panolarında bir adresin satırının sonundaki simge bir bağlantı ("Open the link"). `PantrixLazyTreeView`'in `trailing`'i "satırla okunur, kendi basışı yoktur" diyor; satırın içinde ikinci bir basılan şey de ekran okuyucuda ve klavyede satırı ikiye böler. Kodda bağlantının yerinde "Link" sözcüğü (simge yok, bkz. PANTRIX_FINDINGS "Resmin ve bağlantının simgesi yok").
     *   Öneri: bağlantıyı açmak seçili değerin kartında ve ağacın satır menüsünde ("Open the link"); satırın sonundaki simge yalnızca gösterir.
     *   Durum: kapandı (2026-11-05). Sahibinin seçtiği biçimle Pantrix'e satırın eylemi geldi (`rowAction`, `TreeRowAction`; bkz. PANTRIX_FINDINGS "Ağacın satırının sonu basılamıyor"). Bağlantının satırı panodaki gibi bağlantı simgesiyle bitiyor ve o simge adresi açan düğme: tarayıcıda ya da adresi açan uygulamada, satırı seçmeden. Klavyede Shift+Enter, ekran okuyucuda satırın "Open the link" eylemi; hiçbir uygulamanın açamadığı bir adres yok sayılıyor. Renk ve resim yalnızca gösteriyor. `TreeLinkTest` her hedefte sınıyor.
+*   [ ] **Ağacın arama çubuğu dar bir bölmede kapatma düğmesini sıkıştırıyor (2026-11-06).**
+    *   Ne: Geniş düzende ağacın bölmesi dar kalınca, çubukta "No matches" yazınca satır sığmıyor: kapatma düğmesine 16×48
+        dp kalıyor (tanılamanın `SmallTouchTarget`'ı; web'deki UI testinde, arama sürerken bir an görülen "No matches"la
+        çıktı). Alan genişte 240, tablette 280 dp sabit; konum yazısı ve üç düğme kalanı paylaşıyor.
+    *   Öneri: konum yazısı daralıp üç noktayla kısalsın (`weight(1f, fill = false)`), ya da alan kalan yere göre küçülsün.
+    *   Durum: açık. Arama sürerken çubuk artık bir şey yazmıyor, bu yüzden test geçiyor; aranan gerçekten bulunmayınca
+        sıkışma duruyor.
 *   [ ] **Ağacın satırları her seçimde ve aramanın her harfinde yeniden kuruluyor (2026-11-04).**
     *   Ne: Seçili satırın ve aramanın işaretleri satırın etiketinde (`styledLabel`), bu yüzden `documentRows` seçim ya da aranan değişince bütün düğümleri yeniden kuruyor. Küçük belgelerde fark edilmiyor; Faz 14'ün 50 MB hedefinde ölçülmeli.
     *   Öneri: Faz 14'te ölçmek; gerekirse yalnızca değişen satırların yolunu yeniden kurmak.
-    *   Durum: açık.
+    *   Durum: seçimde ve dal açılınca kapandı, aramada açık (2026-11-06). Ölçüldü: bütün satırları kurmak 10 MB'lık CSV'de (194 bin satır) 53 ms, 50 MB'ta (960 bin) 204 ms (JVM), emülatörde seçim yarım saniye. Ağaç artık kapalı dalların satırlarını kurmuyor, açılışta en çok 500 satırlık dalı açıyor (`OPENED_ROWS`) ve `RowMaker` değişmeyen satırları koruyor: seçimde ve bir dal açılınca yalnızca o satırların yolu yeniden kuruluyor (CSV 10 MB'ta 24 ms, 50 MB'ta 95 ms; çoğu kökün çocuklarını dolaşmak). Satırların biçimleri bütün satırlarca paylaşılıyor, etiketin metni bir kez yazılıyor: 112 bin satırlık NDJSON ağacı 91 MB'tan 47 MB'a indi. Aramanın her harfi hâlâ bütün satırları kuruyor; eşleşmeler artık ana iş parçacığının dışında aranıyor (10 MB CSV'de 76 ms). Seçili satırın renksiz kurulması Pantrix'in bir eksiği (PANTRIX_FINDINGS, "Seçili satırın biçimli etiketi kendi renkleriyle çiziliyor"). `DocumentTreeTest` sınıyor.
 
 *   [ ] **Telefonda Query'ye giriş panolarda yok (2026-11-05).**
     *   Ne: Query-390 sorguyu görünümlerin içinde, tablonun yerinde gösteriyor (`Text`, `Tree`, `Query`), ama Workspace-390'da Query'yi açan bir şey yok: araç çubuğunun Query'si telefonda yok, More menüsü hiçbir hâlde çizilmemiş. Tabletin More düğmesinin adı ("More actions: sort keys, compare, save as a file") Query'yi saymıyor; tablette Query araç çubuğunda.
@@ -363,7 +370,7 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
 *   [ ] **Büyük bir XML'de XPath her sorguda dizinini yeniden kuruyor (2026-11-05).**
     *   Ne: Workspace bir XML metnini her metin için bir kez okuyor, ama `XPath.evaluate` her sorguda belgenin dizinini (ebeveynler, sıra) yeniden kuruyor; her eşleşmenin değeri de (`XPathMatch.value`) hemen yazılıyor: `//*` büyük bir belgede metni derinlik kadar kopyalıyor. Sorgu her harfte soruluyor.
     *   Öneri: Faz 14'te 50 MB'ta ölçmek; gerekirse dizini belgeyle tutmak, değeri gösterilen satırlar için yazmak, sorguyu yazım durunca sormak.
-    *   Durum: açık, Faz 14'le.
+    *   Durum: açık, ölçüldü (2026-11-06). Ölçümde asıl yük başka çıktı: her eşleşmenin ağaçtaki düğümü kökten, her düzeyde bütün çocuklara bakılarak aranıyordu (`nodeAt`); 25 bin `<order>`'lık 10 MB'ta `//order` karesel, dakikalar sürüyordu. `NodeLocator` sıralı çocukları yarılayarak arıyor; şimdi `//order` 10 MB'ta 442 ms, 50 MB'ta 2 s (JVM, ana iş parçacığının dışında). Dizinin ve değerlerin önerisi duruyor: Query her harfte soruyor ve bir harfin sorgusu öncekinin bitmesini bekliyor (iptal edilen hesap durmuyor), 50 MB'ta harf başına 2 s.
 *   [ ] **CSV panosunun `numeric` sütunu `number` diyor, kod `text` (2026-11-05).**
     *   Ne: Table panolarının CSV hâlinde `numeric` sütununun türü `number`; değerleri ise başında sıfır olan kodlar ("004", "020"). Formatico böyle bir sütunu kod olarak, metin diye okuyor (Faz 4'ün kararı: baştaki sıfır kaybolmasın), türü de bu yüzden `text`, değerleri sola dayalı.
     *   Öneri: panoda o sütunu `text` yapmak, ya da sayı gibi görünen kodları sayı saymak (sıfırları kaybetmeden); karar tasarımın.
@@ -432,12 +439,48 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
         anahtarlar ve başka yazılmış sayılar.
     *   Öneri: sahibinin onayı; dizilerin anahtarla eşleşmesi (`id`'si aynı öğeler) istenirse Settings'e.
     *   Durum: açık.
-*   [ ] **Büyük belgelerde karşılaştırma kısa kesiliyor (2026-11-05).**
+*   [x] **Geçmiş, kaydettiği her metni uygulama kapanana dek bellekte tutuyordu (2026-11-06).**
+    *   Ne: `StoredDocumentHistory`'nin `recorded`'ı, cihaza yazılmamış metinleri okumak için tutuluyordu, ama yazıldıktan
+        sonra bırakılmıyordu: açılan ve her değiştirilen belgenin metni (10 MB'ta 20 MB) uygulama açık kaldıkça bellekteydi.
+        Android'de iki 10 MB'lık belgeyle yığın küçük belgelere dönülünce bile 146–160 MB kalıyordu; iki büyük belge
+        arasında geçişte uygulama bellek yetmezliğiyle kapandı.
+    *   Öneri: metin cihaza yazılınca bırakılsın; o andan sonra cihazdan okunsun.
+    *   Durum: kapandı (2026-11-06). Yazma bitince, metin o arada değişmediyse `recorded`'dan çıkıyor;
+        `StoredDocumentHistoryTest` sınıyor. Android'de 10 MB'lık JSON açıkken yığın 161 MB; düzeltmeden önce yalnızca küçük belgeler açıkken bile 146–160 MB'tı.
+*   [ ] **Büyük belgelerde ölçülüp bırakılanlar (2026-11-06).**
+    *   Ne: Faz 14'ün ölçümünde (`docs/MEASURE.md`) hedefler karşılandı, ama şunlar yavaş ya da ağır kaldı:
+        *   **Okumanın belleği:** okunmuş belge metnin 15–32 katı (10 MB'ta JSON 135 MB, CSV 320 MB; 50 MB'lık CSV 1,6
+            GB). Her düğümün anahtarı ayrı bir metin (10 MB'lık CSV'de 1,36 milyon), aralığı ve yolu birer nesne.
+            Telefonda yığın sınıra yaklaştıkça çöp toplayıcı sürekli çalışıyor ve okuma uzuyor.
+        *   **Ağaçta arama:** her harf bütün satırları yeniden kuruyor (10 MB'lık CSV'de 53 ms, JVM'de).
+        *   **Karşılaştırma:** ortası iki binden çok öğe olan, dağınık değişiklikli iki dizi hâlâ öğe öğe
+            karşılaştırılıyor; ortaya konan birkaç öğe sonrakileri kaydırıyor. 50 MB'lık CSV'yi anlamla karşılaştırmak 8 s.
+        *   **Biçimi sezmek:** uzantısı olmayan bir metin (yapıştırılan) bütünüyle JSON5 diye okunuyor: 10 MB'ta 250 ms,
+            50 MB'ta 1 s, okumanın geçici belleğiyle; Workspace sonra bir daha okuyor.
+        *   **YAML:** 50 MB'ta okuma 4 s, Format 3,7 s, Minify 4,4 s.
+        *   **Yazarken:** yazım durunca belge baştan okunuyor (10 MB'ta JVM'de 0,4–1 s, telefonda birkaç saniye); okuma
+            iptal edilemiyor, sonraki duraklama onu bekliyor.
+        *   **Açık sekmeler:** okunmuşlar telefonda ve web'de 12 milyon, masaüstünde 60 milyon karakterle sınırlı
+            (`readingsBudget`): sınırın dışında kalan büyük bir sekme, dönülünce yeniden okunuyor (telefonda 10 MB'ta
+            5–10 s). Her açık sekmenin metni ve editörü de bellekte kalıyor.
+        *   **iOS'un belleği:** 10 MB'lık CSV açıkken uygulama 1,35 GB, JSON'la 1,0 GB tutuyor; Kotlin/Native'in nesneleri
+            JVM'dekilerin iki katı kadar. Yeni bir iPhone'da sorun değil, 4 GB'lık eskilerde sınıra yakın.
+        *   **Web'in donması:** Wasm'da okuma ana iş parçacığında: 10 MB'lık JSON'da sayfa 2 s, CSV'de 2,3 s'ye kadar
+            donuyor; Convert, Compare ve Summary de öyle.
+        *   **Telefonda iki büyük belge arasında:** Android'de 10 MB'lık CSV kapatılıp 10 MB'lık JSON'a geçilince JSON
+            okunurken yığın 547/576 MB'a çıkıyor: kapanan belgenin okunmuşu ve tablosu okuma sürerken bir süre
+            bırakılmıyor. Geçmişin metin kopyaları bırakılmadan önce (aşağıda) aynı adımda uygulama bellek yetmezliğiyle
+            kapandı (2026-11-06).
+    *   Öneri: anahtarı ve yolu düğümde tutmamak, babasından türetmek; aramanın işaretlerini yalnızca eşleşen satırlarda
+        kurmak; Myers'ın algoritması; sezmeyi metnin başıyla yapmak; okumayı iptal edilebilir yapmak; web'de okumayı bir
+        Web Worker'a ya da parça parça, araya kare bırakarak yapmak.
+    *   Durum: açık.
+*   [x] **Büyük belgelerde karşılaştırma kısa kesiliyor (2026-11-05).**
     *   Ne: Dizilerin ve satırların ortak dizisi en çok dört milyon karşılaştırmayla (iki bin satıra iki bin satır)
         aranıyor; ötesinde iki dizi baştan sona değişmiş sayılıyor. Metinde baştaki ve sondaki ortak satırlar önce
         ayrılıyor, ama ortası büyükse fark tek bir koşu.
     *   Öneri: Faz 14'te ölçmek; Myers'ın algoritması ya da satırları özetleriyle (hash) karşılaştırmak.
-    *   Durum: açık, Faz 14'le.
+    *   Durum: kapandı (2026-11-06). `commonRun` iki dizinin baştaki ve sondaki ortak öğelerini önce ayırıyor, sınır yalnızca aradakine uygulanıyor: 10 bin öğelik bir dizinin ortasına konan bir öğe tek fark (`CompareTest`). Ölçümde (`docs/MEASURE.md`) ortasında bir değeri değişmiş iki belge, altı biçimde 10 ve 50 MB'ta tek fark buluyor; anlamla karşılaştırma 10 MB'ta 0,8–1,5 s, 50 MB'ta 3,6–8,2 s (JVM, ana iş parçacığının dışında). Ortası büyük ve dağınık değişiklikli iki dizi hâlâ sınırın ötesinde: "Büyük belgelerde ölçülüp bırakılanlar".
 
 ## Üst çubuk
 

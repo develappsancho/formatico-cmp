@@ -152,6 +152,12 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Öneri: `inheritedDarkThemeOrSystem()`'i açmak ya da `PantrixTheme.isDark` (renklerin koyu takımdan olup olmadığı).
     *   Durum: açık. Formatico'nun önizleme hâlleri koyu ya da açık olduklarını kendileri taşıyor ve temayı açıkça veriyor.
 
+*   [ ] **Yerel eklentinin önbelleği yenilenmiyor: MCP sunucusu ve skill 3 Kasım'da kaldı (2026-11-06).**
+    *   Ne: Bu oturumun Pantrix MCP'si `PantrixLazyTreeView`'i tanımıyor (`get_api`: "The library declares nothing called `PantrixLazyTreeView`"; `search_components` de bulmuyor), değişiklik günlüğünün Unreleased'ında 4–6 Kasım'da gelenler (`PantrixLazyTreeView`, `TreeRowAction`, `PantrixKeycaps`) yok. Claude Code eklentiyi `~/.claude/plugins/cache/pantrix-ui-local/pantrix-ui/0.1.2-SNAPSHOT/`'tan çalıştırıyor (`.mcp.json`: `${CLAUDE_PLUGIN_ROOT}/server/…`); o kopya 3 Kasım 23:10'da yazılmış. `~/.pantrix/marketplace`'teki jar 6 Kasım 00:23'te yazılmış ve ikisini de biliyor (`pages/lazy-tree-view.md`, değişiklik günlüğünde 102. ve 103. bileşen). Sürüm her derlemede `0.1.2-SNAPSHOT` kaldığı için `/reload-plugins` ve yeni bir oturum önbelleği yenilemiyor: CLAUDE.md'deki "yeni bir yerel derleme: eklentileri yeniden yükle" adımı yetmiyor. 3 Kasım'dan beri MCP'nin verdiği her şey o günün belgeleri; ağacın ve tuş kapaklarının API'si kaynak jar'dan okundu.
+    *   Nerede: `~/.claude/plugins/cache/pantrix-ui-local/pantrix-ui/0.1.2-SNAPSHOT/server/mcp-0.1.2-SNAPSHOT-all.jar` ve `~/.pantrix/marketplace/plugins/pantrix-ui/server/mcp-0.1.2-SNAPSHOT-all.jar`; MCP `get_api PantrixLazyTreeView`, `get_changelog`.
+    *   Öneri: yerel pazaryerini yazan derleme eklentinin sürümüne derlemenin zamanını eklesin (`0.1.2-SNAPSHOT+202611060023` gibi), Claude Code her derlemede yeni bir kopya alsın; ya da CLAUDE.md'deki adım `claude plugin update pantrix-ui@pantrix-ui-local` (gerekirse kaldırıp yeniden kurmak) desin.
+    *   Durum: açık. Formatico'yu tıkamıyor. Önbelleği yenilemek Claude Code'un ayarı; sahibi yapacak.
+
 ## 5. Web
 
 *   [ ] **Yol silen webpack eklentisi rehberde yok (2026-11-02).**
@@ -405,3 +411,20 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Öneri: sayfaya "uygulamanın kendi dili" bölümü; ya da Pantrix'te bir yardımcı (`PantrixTheme`'in dili Compose'un kaynaklarına da geçirmesi, ya da `rememberAppLanguage`), testteki karşılığıyla.
     *   Durum: açık. Formatico'yu tıkamıyor. Cihazlarda denendi (2026-11-06): Android'de, iOS simülatöründe ve web'de dil anında geçiyor, yeniden açılışta kalıyor. Web'de bir tuzak çıktı: bileşimin sözcükleri `navigator.languages`'tan, bileşim dışında okunanlar (`getString`; Convert'in TOML'da bırakılan null'ı anan yorumu) `navigator.language`'tan geliyor (Compose kaynaklarının Wasm ve JS `getSystemEnvironment`'ı). Yalnızca `languages` değiştirildiğinde arayüz Türkçe, yorum İngilizce kaldı; `index.html` şimdi ikisini de değiştiriyor. Bir yardımcı ya da bölüm bunu da söylemeli.
 
+*   [ ] **Seçili satırın biçimli etiketi kendi renkleriyle çiziliyor; seçim değişince satırlar yeniden kuruluyor (2026-11-06).**
+    *   Ne: Formatico'nun ağacının satırları sözdiziminin renklerinde (`TreeNode.styledLabel`). Seçili satırın zemini seçimin rengi, panolarda yazısı da tek renkte; `PantrixLazyTreeView` ise `styledLabel`'ı seçili satırda da olduğu gibi çiziyor, renkleri seçimin yazı rengini örtüyor. Formatico seçili satırın etiketini renksiz kuruyor; `TreeNode` değişmez olduğu için seçim değişince iki satırla birlikte onların bütün ataları da yeniden kuruluyor. Bütün satırları baştan kurmak 10 MB'lık bir CSV'de (194 bin satır) emülatörde yarım saniye, 50 MB'ta JVM'de 540 ms sürüyordu.
+    *   Nerede: kaynak jar'da `data/common/TreeRow.kt` (`Label`: `node.styledLabel ?: AnnotatedString(node.label)`); `TreeNode.styledLabel`'ın KDoc'u.
+    *   Öneri: seçili satırda `styledLabel`'ın renklerini seçimin yazı rengiyle değiştirmek (kalınlık gibi öteki biçimler kalsın), etkin olmayan satırdaki gibi; ya da `TreeNode`'a seçiliyken çizilecek bir etiket. Seçim satırların girdisi olmaktan çıkar.
+    *   Durum: açık. Formatico'yu tıkamıyor. Formatico değişmeyen satırları koruyor (`RowMaker`): seçimde iki satır ve yolları yeniden kuruluyor, 10 MB'lık CSV'de JVM'de 65 ms'den 24 ms'ye. Seçimin satırları değiştirmesi bu bulgunun geçici çözümü; düzeltme gelince seçili satırın etiketi renkli kurulacak.
+
+*   [ ] **Tembel ağaç, açık her satırın `TreeNode`'unu baştan istiyor (2026-11-06).**
+    *   Ne: `PantrixLazyTreeView` yalnızca görünen satırları oluşturuyor, ama `nodes` açık her satırın `TreeNode`'unu, etiketi ve biçimli etiketiyle, baştan istiyor: ağacın şekli açık dalların bütün çocuklarını dolaşıyor, anahtarların tekliği bütün ağaçta sınanıyor. 10 MB'lık bir NDJSON'un kökü açıkken 112 bin satır (47 MB), 10 MB'lık bir CSV'ninki açıkken 194 bin satır (81 MB), 50 MB'lık CSV'de 960 bin satır; ekranda otuzu görünüyor. Telefonun yığını 10 MB'lık bir belgeyle zaten sınıra yakın.
+    *   Nerede: kaynak jar'da `data/common/TreeShape.kt` (`lay`), `data/treeview/TreeNode.kt` (`requireOneKeyEach`).
+    *   Öneri: bir dalın çocuklarının istendikçe verildiği bir biçim: dalın kaç çocuğu olduğu ve `index`'teki çocuğu veren bir sağlayıcı; ağaç yalnızca görünen satırların düğümünü istesin.
+    *   Durum: açık. Formatico'yu tıkamıyor. Formatico kapalı dalların satırlarını kurmuyor (`hasChildren`), açılışta da en çok 500 satırlık dalı açıyor; kökü kayıtlarla dolu bir belgenin satırları kök açıldıkça kuruluyor.
+
+*   [ ] **Yüklenmemiş bir dalın kaç çocuğu olduğu söylenemiyor (2026-11-06).**
+    *   Ne: Formatico büyük belgede kapalı dalların satırlarını kurmuyor: `hasChildren = true`, `children` boş. Ağaç kapalı bir dalın çocuk sayısını ekran okuyucuya çocuklarının sayısından söylüyor; boş olduğu için söylemiyor. Formatico'nun etiketinde sayı var (`{6}`, `[26795]`), ama başka bir uygulamanın etiketinde olmayabilir.
+    *   Nerede: kaynak jar'da `data/common/TreeRow.kt` (`val count = tree.shape.childrenOf(node).size.takeIf { node.hasChildren && !open && it > 0 }`).
+    *   Öneri: `TreeNode.childCount: Int?`, yüklenmemiş bir dalın kaç çocuğu olacağı; ekran okuyucu onu söylesin.
+    *   Durum: açık. Formatico'yu tıkamıyor.

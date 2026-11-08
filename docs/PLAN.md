@@ -133,7 +133,15 @@ eksikler Faz 4'te.
     çok büyük belge dosya olarak kaydediliyor. Bağlantıyı web açıyor (adres sonra gezintiye kalıyor), uygulamada
     herhangi bir yere yapıştırınca da açılıyor; bozuk bağlantı bir uyarıyla söyleniyor (sahibinin kararları,
     2026-11-06). App Links ve Universal Links Faz 22'de.
-*   [ ] **Faz 14: Büyük dosyalar.** Masaüstünde 50 MB, telefonda ve web'de 10 MB, ölçülerek.
+*   [x] **Faz 14: Büyük dosyalar.** Masaüstünde 50 MB, telefonda ve web'de 10 MB, ölçülerek. Yapıldı (2026-11-06):
+    `LargeDocumentsMeasure` altı biçimi 10 ve 50 MB'ta ölçüyor; sonuçlar ve Android, iOS, web'deki denemeler
+    [`MEASURE.md`](MEASURE.md)'de. Düzeltilenler: okumanın belleği (yollar, adlar ve adımlar paylaşılıyor, %20–30 az),
+    ağacın kapalı dalları kurulmuyor ve seçimde değişmeyen satırlar korunuyor, açılışta en çok 500 satırlık dal açılıyor,
+    tablo bir kez ve ana iş parçacığının dışında, XPath'in eşleşmeleri karesel değil, karşılaştırma ortak uçları ayırıyor,
+    sütunlar yalnızca sayılarsa sayı diye okunuyor (iOS'ta 48 s'den 6 s'ye), ağaçta arama ana iş parçacığının dışında,
+    okunmuşlar bir sınırla tutuluyor, geçmiş yazdığı metinleri bellekte tutmuyor. Android `largeHeap` istiyor, masaüstü
+    belleğin yarısını alıyor. Kalanlar
+    `OPEN_ITEMS.md`'de, "Büyük belgelerde ölçülüp bırakılanlar".
 *   [ ] **Faz 15: v1'in testi.** Roborazzi her panoyla, Maestro akışları Android ve iOS'ta, tarayıcı testleri;
     Türkçe ve İngilizce metinler, erişilebilirlik.
 

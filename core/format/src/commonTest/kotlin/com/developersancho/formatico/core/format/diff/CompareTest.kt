@@ -143,4 +143,17 @@ class CompareTest {
             compareLines(boardA, boardB)
         )
     }
+
+    @Test
+    fun anItemPutInTheMiddleOfALongArrayIsTheOneDifference() {
+        // Ten thousand items each side are far more than are weighed pair by pair: the ends both share are set aside.
+        val items = (0 until 10_000).map { """{"id": $it}""" }
+        val a = dataOf(items.joinToString(", ", "[", "]"))
+        val b = dataOf((items.subList(0, 5_000) + """{"id": "new"}""" + items.subList(5_000, items.size)).joinToString(", ", "[", "]"))
+        assertEquals(listOf("$[5000]"), compareValues(a, b).differences.map { jsonPath(it.path) })
+        assertEquals(Change.Added, compareValues(a, b).differences.single().change)
+        val lines = (0 until 10_000).joinToString("\n")
+        val inserted = lines.replace("\n5000\n", "\nnew\n5000\n")
+        assertEquals(listOf(LineDifference(Change.Added, 5000, 0, 5000, 1)), compareLines(lines, inserted))
+    }
 }

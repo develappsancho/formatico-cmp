@@ -732,6 +732,20 @@ class WorkspaceScreenTest {
     }
 
     @Test
+    fun aDocumentBeingReadDoesNotSayItHasNoTable() = runComposeUiTest {
+        val read = stateOf("[1, 2]", Format.Json, view = DocumentView(pane = DocumentPane.Table))
+        setContent {
+            PantrixTestTheme(window = tablet, clock = clock) {
+                WorkspaceScreen(state = read.copy(reading = Reading.Pending, table = null), onIntent = {
+                }, commands = rememberDocumentCommands(Workbench()))
+            }
+        }
+
+        awaitText("Reading", substring = true)
+        onNodeWithText("No list to show as a table").assertDoesNotExist()
+    }
+
+    @Test
     fun aDocumentWithMistakesSaysHowManyAndCannotBeFormatted() = runComposeUiTest {
         setContent {
             PantrixTestTheme(window = desktop, clock = clock) {
