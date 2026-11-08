@@ -6,6 +6,7 @@ import com.developersancho.formatico.core.format.diff.Change
 import com.developersancho.formatico.core.format.diff.KeysMoved
 import com.developersancho.formatico.core.format.diff.NumbersRespelled
 import com.developersancho.formatico.core.format.json.jsonPath
+import com.developersancho.formatico.core.format.text.TextRange
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -38,6 +39,26 @@ class DocumentComparisonTest {
         assertEquals(NumbersRespelled("129.90", "129.9", 1), compared.respelled)
         assertEquals(11, compared.a.lines)
         assertEquals("order-v2.json", compared.b.name)
+    }
+
+    @Test
+    fun aChangedValueIsFoundWhereEachSideWritesIt() {
+        val compared = assertIs<CompareOutcome.Compared>(compare(orderA, orderB))
+        val written = { text: String, range: TextRange? -> range?.let { text.substring(it.start, it.end) } }
+        assertEquals(listOf("\"shipped\"", null, null, "1"), compared.differences.map { written(PreviewCompareA, it.aValue) })
+        assertEquals(listOf("\"delivered\"", null, null, "2"), compared.differences.map { written(PreviewCompareB, it.bValue) })
+        // An object written over several lines is found by its lines alone.
+        val nested = OpenDocument(
+            id = 2,
+            name = "nested.json",
+            text = "{\n  \"status\": {\n    \"code\": 1\n  }\n}\n",
+            format = Format.Json
+        )
+        val flat = OpenDocument(id = 3, name = "flat.json", text = "{\"status\": 2}", format = Format.Json)
+        val retyped = assertIs<CompareOutcome.Compared>(compare(nested, flat)).differences.single()
+        assertNull(retyped.aValue)
+        assertEquals("2", written(flat.text, retyped.bValue))
+        assertTrue(assertIs<CompareOutcome.Compared>(compare(orderA, orderB, CompareBy.Text)).differences.all { it.aValue == null })
     }
 
     @Test

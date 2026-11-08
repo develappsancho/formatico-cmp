@@ -21,6 +21,7 @@ import com.developersancho.formatico.core.format.diff.compareValues
 import com.developersancho.formatico.core.format.json.PathStep
 import com.developersancho.formatico.core.format.json.jsonPath
 import com.developersancho.formatico.core.format.text.LineMap
+import com.developersancho.formatico.core.format.text.TextRange
 
 /** What two documents are compared by: what their values mean, whatever their format, or their text, a line at a time. */
 enum class CompareBy { Meaning, Text }
@@ -49,6 +50,9 @@ internal data class ComparedDocument(val id: Long, val name: String?, val format
  * @property after what B has there; null for none.
  * @property aLines the lines of A it stands on, counted from nought; empty where A has none.
  * @property bLines the lines of B it stands on; empty where B has none.
+ * @property aValue where A's value is written, where they are compared by meaning, the value changed and written on one
+ *   line; null otherwise.
+ * @property bValue where B's value is written, as [aValue] says of A's.
  */
 @Immutable
 internal data class ShownDifference(
@@ -57,7 +61,9 @@ internal data class ShownDifference(
     val before: String?,
     val after: String?,
     val aLines: IntRange,
-    val bLines: IntRange
+    val bLines: IntRange,
+    val aValue: TextRange? = null,
+    val bValue: TextRange? = null
 )
 
 /** What comparing a document with another came to. */
@@ -155,7 +161,9 @@ private fun valueDifference(difference: ValueDifference, a: NodesByPath, b: Node
     before = difference.before?.let(::shortText),
     after = difference.after?.let(::shortText),
     aLines = difference.aPath?.let(a::linesOf) ?: IntRange.EMPTY,
-    bLines = difference.bPath?.let(b::linesOf) ?: IntRange.EMPTY
+    bLines = difference.bPath?.let(b::linesOf) ?: IntRange.EMPTY,
+    aValue = difference.aPath?.takeIf { difference.change == Change.Changed }?.let(a::valueOf),
+    bValue = difference.bPath?.takeIf { difference.change == Change.Changed }?.let(b::valueOf)
 )
 
 private fun textDifference(run: LineDifference, a: String, b: String): ShownDifference {
@@ -211,6 +219,10 @@ private class NodesByPath(root: ValueNode, private val text: String) {
             steps = steps.dropLast(1)
         }
     }
+
+    /** Where the value at [path] is written, where the tree has a node there and it is written on one line. */
+    fun valueOf(path: List<PathStep>): TextRange? =
+        byPath[jsonPath(path)]?.range?.takeIf { '\n' !in text.subSequence(it.start, it.end) }
 
     /** The line, from nought, of the place [offset]: a value's end just past a line break is on the line before it. */
     private fun lineOf(offset: Int): Int = lines.position(offset.coerceIn(0, text.length)).line - 1

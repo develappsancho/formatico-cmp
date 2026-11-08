@@ -10,7 +10,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontWeight
 import com.developersancho.formatico.core.format.diff.Change
-import com.pantrixui.components.data.codeblock.CodeMark
 import com.pantrixui.components.data.tag.PantrixTag
 import com.pantrixui.components.data.tag.TagVariant
 import com.pantrixui.components.elements.button.ButtonSize
@@ -155,25 +154,3 @@ internal fun StopComparingButton(document: OpenDocument, size: ButtonSize, onInt
         tagKey = "stop_comparing"
     )
 }
-
-/** The bands of [side]'s lines in [compared]: each difference's lines in the tone of its change. */
-internal fun sideMarks(compared: CompareOutcome.Compared, side: Side): Map<Int, CodeMark> = buildMap {
-    compared.differences.forEach { difference ->
-        difference.linesOn(side).forEach { line -> if (line !in this) put(line, CodeMark(difference.change.codeTone)) }
-    }
-}
-
-/**
- * The lines of [side] the difference at [current] stands on; where it has none there, an empty range at the line after
- * the nearest difference before it that has some, or at the first line.
- */
-internal fun shownLines(compared: CompareOutcome.Compared, side: Side, current: Int): IntRange? {
-    val difference = compared.differences.getOrNull(current) ?: return null
-    val lines = difference.linesOn(side)
-    if (!lines.isEmpty()) return lines
-    val before = compared.differences.take(current).lastOrNull { !it.linesOn(side).isEmpty() }?.linesOn(side)?.last ?: -1
-    return (before + 1) until (before + 1)
-}
-
-/** The lines of [side] the difference stands on. */
-private fun ShownDifference.linesOn(side: Side): IntRange = if (side == Side.A) aLines else bLines

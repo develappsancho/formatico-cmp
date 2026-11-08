@@ -63,6 +63,17 @@ internal val OrdersCompared = compared()
 /** The two orders compared by text. */
 internal val OrdersComparedAsText = compared(CompareChoice(by = CompareBy.Text))
 
+/** An order of [items] items, the last one's quantity [last]: long enough that its last lines are off the screen. */
+private fun longOrder(last: Int, items: Int = 60): String = buildString {
+    append("{\n  \"items\": [\n")
+    for (item in 1..items) {
+        val qty = if (item == items) last else 1
+        append("    { \"sku\": \"SKU-$item\", \"qty\": $qty }")
+        append(if (item == items) "\n" else ",\n")
+    }
+    append("  ]\n}\n")
+}
+
 /** A case of the comparison: [state], laid out for [layout]. */
 internal class CompareCase(val state: WorkspaceState, val layout: WorkspaceLayout) {
     val board get() = LaidOutState(state, layout).board
@@ -70,8 +81,9 @@ internal class CompareCase(val state: WorkspaceState, val layout: WorkspaceLayou
 
 /**
  * The comparison's cases: the boards' two orders by meaning at each width, the last difference shown on a phone, and by
- * text; the order against itself in YAML, which differs in nothing; one open document alone; and B with errors, and B
- * in plain text, which have nothing to compare by meaning.
+ * text; two long orders whose one difference is off the screen until it is brought into view; the order against itself
+ * in YAML, which differs in nothing; one open document alone; and B with errors, and B in plain text, which have nothing
+ * to compare by meaning.
  */
 internal class CompareCases :
     PreviewCases<CompareCase>(
@@ -80,6 +92,13 @@ internal class CompareCases :
         "meaning on a phone" to CompareCase(OrdersCompared, WorkspaceLayout.Phone),
         "last on a phone" to CompareCase(compared(CompareChoice(current = 3)), WorkspaceLayout.Phone),
         "text" to CompareCase(OrdersComparedAsText, WorkspaceLayout.Wide),
+        "far down" to CompareCase(
+            compared(
+                others = listOf(OpenDocument(id = 2, name = "order-v2.json", text = longOrder(last = 2), format = Format.Json)),
+                text = longOrder(last = 1)
+            ),
+            WorkspaceLayout.Tablet
+        ),
         "the same" to CompareCase(
             compared(
                 others = listOf(

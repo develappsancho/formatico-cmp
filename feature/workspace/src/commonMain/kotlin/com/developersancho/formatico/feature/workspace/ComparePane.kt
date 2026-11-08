@@ -202,7 +202,8 @@ internal fun SideText(compared: CompareOutcome.Compared, side: Side, layout: Wor
             text = document.text,
             format = document.format,
             name = name,
-            marks = sideMarks(compared, side),
+            marks = sideMarks(compared, side, current),
+            values = sideValues(compared, side),
             shown = shownLines(compared, side, current),
             tagKey = if (side == Side.A) "text_a" else "text_b",
             modifier = Modifier.weight(1f).fillMaxWidth()

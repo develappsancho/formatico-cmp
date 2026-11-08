@@ -413,7 +413,7 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
             uyarısı yok, alt şerit "Compared by text: every character counts".
         *   Hiç fark yoksa: "No differences" ve "A and B mean the same." (ya da "are the same text").
         *   Biçimleri ayrı iki belge anlamla karşılaştırılıyor: bir JSON ile onun YAML'ı aynı anlama geliyor.
-        *   Telefonda "Show" bir sayfa açıyor: A'nın ve B'nin metni üst üste, farkın satırları seçili. Çubuğun More'u
+        *   Telefonda "Show" bir sayfa açıyor: A'nın ve B'nin metni üst üste, farkın satırları birincil çubukla. Çubuğun More'u
             belgenin "more" menüsü. "Not counted" kartların altında, tek satır yazı.
         *   Geniş pencerede ve tablette çubuk araç çubuğunun, alt şerit durum çubuğunun yerinde; X görünümü ağaca (tablonun
             belgesinde tabloya) döndürüyor.
