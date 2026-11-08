@@ -31,7 +31,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.developersancho.formatico.core.designsystem.FormaticoIcons
 import com.developersancho.formatico.feature.workspace.DocumentPane
 import com.developersancho.formatico.feature.workspace.OpenDocument
 import com.developersancho.formatico.feature.workspace.WorkbenchState
@@ -414,7 +413,7 @@ private fun BarActions(
     }
     if (withTheme) {
         PantrixIconButton(
-            imageVector = if (darkTheme) FormaticoIcons.Sun else FormaticoIcons.Moon,
+            imageVector = if (darkTheme) PantrixIcons.Sun else PantrixIcons.Moon,
             contentDescription = if (darkTheme) appStrings.useLightTheme else appStrings.useDarkTheme,
             onClick = onToggleTheme,
             size = size,
@@ -426,7 +425,7 @@ private fun BarActions(
         return
     }
     PantrixIconButton(
-        imageVector = FormaticoIcons.Settings,
+        imageVector = PantrixIcons.Settings,
         contentDescription = appStrings.settings,
         onClick = onOpenSettings,
         size = size,

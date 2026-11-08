@@ -149,11 +149,11 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Nerede: tasarım sistemi, `project/components/index.d.ts` (`CodeBlockProps`); MCP `get_api CodeLine`, `CodeMark`.
     *   Öneri: web karşılığına satır başına işaret (ton, ileti, kaynak) ve renkler.
     *   Durum: açık.
-*   [ ] **Simgeler kapalı bir liste; bir uygulamanın sık simgeleri yok (2026-11-02).**
+*   [x] **Simgeler kapalı bir liste; bir uygulamanın sık simgeleri yok (2026-11-02).**
     *   Ne: Tasarım sistemindeki bileşenlerin `icon` özelliği `IconName` türünde, PantrixIcons'ın 35 adından biri; uygulamanın kendi simgesi verilemiyor. Formatico'nun panolarında ayarlar, tema (ay), yapıştır (pano), dış bağlantı ve resim simgeleri yok; bu yüzden o düğmeler `Pantrix.IconButton` değil, elle çizilmiş SVG'li işaretleme. Compose tarafında sorun yok: `PantrixIconButton` her `ImageVector`'ü alıyor. README "uygulamanın simgeleri ızgarayı ve çizgiyi paylaşır" diyor, ama tasarım tuvalinde paylaşmanın yolu yok.
     *   Nerede: tasarım sistemi, `project/components/index.d.ts` (`IconName`), `project/assets/Icons/README.md`.
     *   Öneri: web karşılıklarında `icon`'a bir SVG ya da bir düğüm de verilebilmesi; PantrixIcons'a sık kullanılanlar: ayarlar, güneş ve ay, pano, dış bağlantı, resim, geçmiş, çöp kutusu, paylaş.
-    *   Durum: açık. Dış bağlantı ve resim geldi (`ExternalLink`, `Image`; tasarım sisteminde `1794244829-b310`, 2026-11-09) ve panolar onları `Pantrix.Icon` ile çiziyor; ayarlar, tema ve pano hâlâ yok, o düğmeler elle çizilmiş SVG'li işaretleme kalıyor.
+    *   Durum: kapandı (0.1.2-SNAPSHOT ve tasarım sistemi `1794307114-8e1c`, 2026-11-10). Önerilen simgeler geldi: `Settings`, `Sun`, `Moon`, `Clipboard`, `History`, `Delete`, `Share`, ayrıca `ChevronUp` ve `Code`. Tasarım sisteminde `IconSource` bir uygulamanın kendi simgesini de alıyor (bir `<svg>` öğesi ya da bir `.svg` adresi). Formatico'nun kendi simgeleri (`FormaticoIcons`: ayarlar, güneş, ay) silindi; üst çubuk Pantrix'inkileri kullanıyor. Panolarda elle çizilmiş ay ve ayar simgeleri 21 panoda `Pantrix.Icon` oldu (tuval `1794308598-786b`). Önceki durum: açık. Dış bağlantı ve resim geldi (`ExternalLink`, `Image`; tasarım sisteminde `1794244829-b310`, 2026-11-09) ve panolar onları `Pantrix.Icon` ile çiziyor; ayarlar, tema ve pano hâlâ yok, o düğmeler elle çizilmiş SVG'li işaretleme kalıyor.
 *   [ ] **Menu ve Popover tuvalde açık çizilemiyor (2026-11-03).**
     *   Ne: Workspace ve Table panolarına iki menü çizildi. Biri seçili değerin yolunu JSONPath, JSON Pointer ya da jq olarak kopyalıyor, öteki tabloyu kaydediyor ya da kopyalıyor. İkisi de açık gösterilmek istendi. Tasarım sistemindeki `Menu`'nün ve `Popover`'ın `anchor`'u bir React düğümü ya da düğüm döndüren bir işlev. Panodaki `x-import` bir bileşene yalnızca `renderVals()`'tan değer verebiliyor, düğüm veremiyor; öğenin içeriği de `anchor`'a değil `children`'a gidiyor. Masaüstündeki menüler bu yüzden işaretleme: yüzey, ayraç ve gölge belirteçleri, satırlar `role="menuitem"`. Telefonda aynı seçimler `Sheet` ile (`visible`, `contained`) gerçek bileşenle çizildi.
     *   Nerede: tasarım sistemi, `project/components/index.d.ts` (`MenuProps`, `PopoverProps`); tasarım türünün `design-system-components.md`'si ("An overlay shown open").
@@ -447,11 +447,11 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Nerede: [Breadcrumb](https://pantrixui.com/components/breadcrumb); MCP `get_api PantrixBreadcrumb`.
     *   Öneri: izin kendi sınırında kırpılması ya da en kısa hâlinin genişliğini en küçük içsel genişlik olarak vermesi (satırın ağırlıkları onu gözetsin); belgede bu durumun bir cümlesi.
     *   Durum: açık. Formatico (2026-11-03) izi `clipToBounds()` ile kırpıyor: yer kalmayınca iz görünmüyor, sayı okunuyor.
-*   [ ] **PantrixIcons'ta ChevronUp yok; aramanın önceki ve sonraki eşleşmesi yukarı ve aşağı çizilemiyor (2026-11-03).**
+*   [x] **PantrixIcons'ta ChevronUp yok; aramanın önceki ve sonraki eşleşmesi yukarı ve aşağı çizilemiyor (2026-11-03).**
     *   Ne: Workspace panolarına ağaçta arama çizildi: bir alan, eşleşme sayısı ("1 of 4"), önceki ve sonraki eşleşme düğmeleri. Editörlerde ve tarayıcılarda bu iki düğme yukarı ve aşağı ok. PantrixIcons'ta `ChevronDown` var, `ChevronUp` yok; `ChevronBack` ve `ChevronForward` sayfalamanın simgeleri ve sağdan sola yazılan dillerde dönüyorlar. Panolarda önceki ve sonraki bu yüzden `ChevronBack` ve `ChevronForward`.
     *   Nerede: MCP `search_icons "chevron up"`; tasarım sistemi, `project/components/index.d.ts` (`IconName`).
     *   Öneri: dönmeyen bir `ChevronUp`.
-    *   Durum: açık.
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-10). `PantrixIcons.ChevronUp` geldi (sağdan sola düzende aynalanmıyor), tasarım sisteminde de var (`1794307114-8e1c`). Ağaç aramasının önceki eşleşmesi `ChevronUp`, sonrakisi `ChevronDown` (`TreeSearchBar.kt`); Workspace panoları da öyle (tuval `1794308207-6da3`). Görüntüler yeniden kaydedildi. Önceki durum: açık.
 *   [ ] **FileDrop'un sözcükleri tasarım sistemindekinden farklı ve tek dosyada da çoğul (2026-11-03).**
     *   Ne: Tasarım sistemindeki `FileDrop` bir başlık (`title`), bir eylem (`action`) ve alanın içinde bir destek metni alıyor; Start panoları "Drop a file here", "Choose a file" ve biçimlerin listesini alanın içinde çiziyor. Compose'daki `PantrixFileDrop`'ta yalnızca `label` ("what the zone says first") var, eylemin sözcükleri verilemiyor, `supportingText` alanın altında. `multiple = false` iken de alan "Drop files here", "or choose files" diyor.
     *   Nerede: MCP `get_component_metadata PantrixFileDrop`; tasarım sistemi, `FileDrop`'un özellikleri.
@@ -572,13 +572,13 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Nerede: MCP `get_api PantrixCommandPalette`; `get_component_metadata TextField` (`contentDescription`: "its name where it has no label, as a search field has none").
     *   Öneri: palet alanına yer tutucusunu (ya da temanın komut arama sözcüklerini) `contentDescription` olarak versin.
     *   Durum: açık. Formatico'nun pano testleri (`BoardTour.assertNoFindingsOnBoard`) yalnızca bu bulguyu, yorumunda bu başlığı anarak, saymıyor. Erişilebilirliğin bir eksiği: sahibi `tıkıyor` derse önce düzeltilir.
-*   [ ] **PantrixIcons'ta kod simgesi yok (2026-11-07).**
+*   [x] **PantrixIcons'ta kod simgesi yok (2026-11-07).**
     *   Ne: Faz 17'nin Types düğmesi (belgenin değerlerinden Kotlin, TypeScript, Swift, Go tipleri) Convert'in ok
         simgesi gibi bir simge istiyor; PantrixIcons'ta `</>` ya da `{ }` gibi bir kod simgesi yok (`search_icons
         code` yalnızca Copy'yi buluyor). Düğme, Compare gibi, yalnızca yazıyla.
     *   Nerede: MCP `search_icons` ("code", "brackets"); tasarım sistemi, `IconName`.
     *   Öneri: PantrixIcons'a bir kod simgesi (`Code`), "Simgeler kapalı bir liste" bulgusunun listesine.
-    *   Durum: açık.
+    *   Durum: kapandı (0.1.2-SNAPSHOT ve tasarım sistemi `1794307114-8e1c`, 2026-11-10). `PantrixIcons.Code` geldi. Types düğmesi bugün, panolardaki gibi, yalnızca sözcükle; simgeyi alıp almayacağı, panolarıyla birlikte, sahibinin kararı. Önceki durum: açık.
 *   [ ] **Adları bir cümlede birleştiren bir yardımcı yok (2026-11-07).**
     *   Ne: Formatico'nun uyarıları alan adlarını cümlede sayıyor ("createdAt and eta stay strings", Türkçede "createdAt
         ve eta"). `PantrixStrings`'te bir listeyi dilin kuralıyla birleştiren bir yardımcı ("a, b and c", "a, b ve c")

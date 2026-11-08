@@ -116,17 +116,16 @@ private fun SearchSteps(position: String?, size: ButtonSize, onStep: (Int) -> Un
             overflow = TextOverflow.Ellipsis
         )
     }
-    // Back and forward stand for up and down (PANTRIX_FINDINGS, "PantrixIcons'ta ChevronUp yok; aramanın önceki ve
-    // sonraki eşleşmesi yukarı ve aşağı çizilemiyor").
+    // The match before is up the tree, the one after down it, as the Workspace boards draw them.
     PantrixIconButton(
-        imageVector = PantrixIcons.ChevronBack,
+        imageVector = PantrixIcons.ChevronUp,
         contentDescription = strings.previousMatch,
         onClick = { onStep(-1) },
         size = size,
         tagKey = "previous_match"
     )
     PantrixIconButton(
-        imageVector = PantrixIcons.ChevronForward,
+        imageVector = PantrixIcons.ChevronDown,
         contentDescription = strings.nextMatch,
         onClick = { onStep(1) },
         size = size,
