@@ -13,8 +13,8 @@ import com.pantrixui.foundation.icons.PantrixIcons
 
 /**
  * What is made of the document, each a view of its own: Query, Convert, Types and Schema. Each, pressed again, gives
- * the view the document opens with back. PantrixIcons has no icon of code: Types stands in words alone, as Compare
- * does, and Schema as it.
+ * the view the document opens with back. PantrixIcons has no icon of code (PANTRIX_FINDINGS, "PantrixIcons'ta kod
+ * simgesi yok"): Types stands in words alone, as Compare does, and Schema as it.
  */
 @Composable
 internal fun MadeButtons(document: OpenDocument, size: ButtonSize, onIntent: (WorkspaceIntent) -> Unit) {

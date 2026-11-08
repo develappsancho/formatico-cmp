@@ -92,7 +92,11 @@ internal fun nameHolds(node: ValueNode, sought: String, language: String): Boole
 internal fun valueHolds(node: ValueNode, sought: String, language: String): Boolean =
     !node.kind.isContainer && sought in folded(node.value ?: node.text, language)
 
-/** [text] in small letters as [language] writes them: Turkish and Azerbaijani have a dotted and a dotless i. */
+/**
+ * [text] in small letters as [language] writes them: Turkish and Azerbaijani have a dotted and a dotless i. Pantrix
+ * keeps its own such lowercase to itself (PANTRIX_FINDINGS, "Temanın diline göre küçük harfe çevirme dışarıya açık
+ * değil").
+ */
 internal fun folded(text: String, language: String): String = if (language == "tr" || language == "az") {
     text.replace('I', 'ı').replace('İ', 'i').lowercase()
 } else {
@@ -182,6 +186,8 @@ internal fun TreeSearchBar(
             )
         }
         val size = layout.buttons
+        // Back and forward stand for up and down (PANTRIX_FINDINGS, "PantrixIcons'ta ChevronUp yok; aramanın önceki ve
+        // sonraki eşleşmesi yukarı ve aşağı çizilemiyor").
         PantrixIconButton(PantrixIcons.ChevronBack, strings.previousMatch, onClick = { onStep(-1) }, size = size, tagKey = "previous_match")
         PantrixIconButton(PantrixIcons.ChevronForward, strings.nextMatch, onClick = { onStep(1) }, size = size, tagKey = "next_match")
         if (!phone) Spacer(modifier = Modifier.weight(1f))

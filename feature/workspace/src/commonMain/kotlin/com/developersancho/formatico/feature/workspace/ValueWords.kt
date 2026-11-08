@@ -85,6 +85,8 @@ internal class ValueReading(val kind: String, val icon: ImageVector?, val headli
 @Composable
 internal fun readValue(node: ValueNode): ValueReading {
     val strings = PantrixTheme.strings
+    // A date is written with longDate, which the boards' date without the day of the week is not
+    // (PANTRIX_FINDINGS, "Ayın adıyla yazılan, haftanın günü olmayan bir tarih yok").
     return when (val preview = node.preview) {
         is ValuePreview.Moment -> {
             val clock = LocalPantrixClock.current

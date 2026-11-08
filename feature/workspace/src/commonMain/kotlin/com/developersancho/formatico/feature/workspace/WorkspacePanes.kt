@@ -37,7 +37,10 @@ import com.pantrixui.foundation.theme.PantrixTheme
 /** The widest a pane's message is set. */
 private val MessageWidth = 320.dp
 
-/** A pane's message where it has nothing else to show: an icon, a title and a sentence, in its middle. */
+/**
+ * A pane's message where it has nothing else to show: an icon, a title and a sentence, in its middle. Pantrix has no
+ * such empty state (PANTRIX_FINDINGS, "Boş bir listenin hâlini çizen bir bileşen yok").
+ */
 @Composable
 internal fun PaneMessage(icon: ImageVector, title: String, body: String, modifier: Modifier = Modifier) {
     val spacing = PantrixTheme.spacing
@@ -60,23 +63,6 @@ internal fun PaneMessage(icon: ImageVector, title: String, body: String, modifie
             textAlign = TextAlign.Center
         )
     }
-}
-
-/** Where the text editor will stand: what works on the document meanwhile, by what Formatico makes of it. */
-@Composable
-internal fun EditorComing(state: WorkspaceState, modifier: Modifier = Modifier) {
-    val body = when {
-        DocumentEdit.Minify in state.edits -> workspaceStrings.editorBody
-        DocumentEdit.Format in state.edits -> workspaceStrings.editorBodyTable
-        state.reading is Reading.Read -> workspaceStrings.editorBodyRead
-        else -> workspaceStrings.editorBodyUnread
-    }
-    PaneMessage(
-        icon = PantrixIcons.File,
-        title = workspaceStrings.editorTitle,
-        body = body,
-        modifier = modifier
-    )
 }
 
 /**

@@ -201,7 +201,8 @@ private fun TableToolbar(toolbar: TableToolbarState, layout: WorkspaceLayout, on
                 PathTrail(
                     nodes = trail(toolbar.state.root, table.source.key),
                     onIntent = onIntent,
-                    // A trail keeps a short page whole and draws past its room: it is cut there, not over the count.
+                    // A trail keeps a short page whole and draws past its room: it is cut there, not over the count
+                    // (PANTRIX_FINDINGS, "Breadcrumb, kısa bir sayfaya yetmeyen yerde sınırının dışına taşıyor").
                     modifier = Modifier.weight(1f, fill = false).clipToBounds()
                 )
             }
@@ -393,6 +394,8 @@ private fun TableCell(
     val chosen = choice.value.let { it != null && it.row == row.index && it.column == column }
     val syntax = LocalSyntaxColors.current
     val code = PantrixTheme.typography.code.copy(fontSize = PantrixTheme.typography.label.fontSize)
+    // The chosen cell is marked by an edge inside it, as the table cannot choose a cell
+    // (PANTRIX_FINDINGS, "DataTable'da bir hücre seçilemiyor ya da işaretlenemiyor").
     Box(
         modifier = Modifier
             .fillMaxWidth()

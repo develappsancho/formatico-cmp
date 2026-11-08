@@ -35,12 +35,6 @@ internal object WorkspaceStringsEnglish : WorkspaceStrings {
     override val openAll = "All"
     override val openAllLevels = "Open the whole tree"
     override val closeSearch = "Close the search"
-    override val editorTitle = "Text editing is on its way"
-    override val editorBody =
-        "It comes in a later version. Until then, the tree shows the document, and Format, Minify and Copy work on all of it."
-    override val editorBodyUnread = "It comes in a later version. Until then, Copy and Save as a file work on all of the document."
-    override val editorBodyRead =
-        "It comes in a later version. Until then, the tree shows the document, and Copy and Save as a file work on all of it."
     override val plainTitle = "Plain text has no tree"
     override val plainBody = "Choose the format it is written in, and it is read as one."
     override val emptyTitle = "The document is empty"
@@ -149,9 +143,6 @@ internal object WorkspaceStringsEnglish : WorkspaceStrings {
     override fun daysAgo(count: Int, first: Int) = if (count == 1) "$first day ago" else "$first days ago"
 
     override fun daysAhead(count: Int, first: Int) = if (count == 1) "in $first day" else "in $first days"
-
-    override val editorBodyTable =
-        "It comes in a later version. Until then, the table shows the document, and Format and Copy work on all of it."
 
     override fun rows(count: Int, first: Int) = if (count == 1) "$first row" else "$first rows"
 

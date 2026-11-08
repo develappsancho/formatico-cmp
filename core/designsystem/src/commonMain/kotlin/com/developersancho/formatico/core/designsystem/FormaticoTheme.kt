@@ -19,6 +19,8 @@ import com.pantrixui.foundation.token.color.rememberPantrixColors
 @Composable
 fun FormaticoTheme(darkTheme: Boolean = isSystemInDarkTheme(), locale: PantrixLocale? = null, content: @Composable () -> Unit) {
     val colors = rememberPantrixColors(FormaticoPreset, darkTheme = darkTheme)
+    // The syntax colours follow the darkTheme given here, as a component cannot read whether the theme around it is
+    // dark (PANTRIX_FINDINGS, "Bir bileşen, içinde durduğu temanın koyu olup olmadığını okuyamıyor").
     val syntax = @Composable {
         CompositionLocalProvider(
             LocalSyntaxColors provides if (darkTheme) SyntaxColors.Dark else SyntaxColors.Light,

@@ -124,7 +124,11 @@ internal fun defaultExpanded(root: ValueNode?): Set<String> {
     return opened
 }
 
-/** How many rows the branches a document opens with show at most, besides those of the branch they stand in. */
+/**
+ * How many rows the branches a document opens with show at most, besides those of the branch they stand in: the lazy
+ * tree asks for every open row's node up front (PANTRIX_FINDINGS, "Tembel ağaç, açık her satırın `TreeNode`'unu baştan
+ * istiyor").
+ */
 internal const val OPENED_ROWS = 500
 
 /** What [text] read as [format] has wrong in it. */

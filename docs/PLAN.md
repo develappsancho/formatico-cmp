@@ -407,33 +407,40 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
         8.  **Son denetim:**
             *   Bütün hedeflerde testler; `verifyRoborazzi`, web testleri, lint ve detekt.
             *   Pantrix'e kalan bulgular kütüphanenin oturumuna toplu olarak iletilir (sahibinin onayıyla).
-    *   **Sahibinin kararları:**
-        *   **Kodda seçilip panolarda olmayanlar:**
+    *   **Sahibinin kararları (2026-11-10):** sahibi önerileri kabul etti ("önerilerin olsun"):
+        *   **Kodda seçilip panolarda olmayanlar: kod onaylandı, panolar koda göre çizilir.**
             *   Query'nin, Convert'in ve Compare'in hâlleri ve kuralları.
             *   Sorgu sonuçlarının biçimi ve dosya adı; son sorguların saklanması.
             *   Share, komut paleti ve Settings'in panolardan ayrıldığı yerler.
             *   Yeni biçimlerin ağaçları.
-            *   Tuvaldeki "unread" hâli.
-        *   **Ölçeğe uymayan ölçüler:** Summary'nin yazı ve aralıkları, ağaç satırının 13/20 ile 14/20 farkı,
-            CSV'nin `numeric` sütununun türü.
+            *   Tuvaldeki "unread" hâli kalkar.
+        *   **Ölçeğe uymayan ölçüler:** panolar Pantrix'in ölçeğine çekilir; Summary'nin yazı ve aralıkları ile
+            ağaç satırı 14/20 olur. CSV'nin `numeric` sütunu kodda olduğu gibi `text` kalır, çünkü CSV'de tür
+            yok; pano düzeltilir.
         *   **Seçenekler:**
-            *   YAML yazıcısının kuralları.
-            *   YAML 1.1 (merge anahtarı, yes ve no).
-            *   CSV'de ayırıcı, hizalama ve "ilk satır başlık".
-            *   Android'in uygulama başına dili (`localeConfig`).
+            *   v1'de yalnızca iki seçenek gelir: Android'in uygulama başına dili (`localeConfig`, İngilizce ve
+                Türkçe) ve CSV'de "ilk satır başlık".
+            *   YAML yazıcısının kuralları ve YAML 1.2 olduğu gibi kalır; YAML 1.1 seçeneği yok.
+            *   CSV'de ayırıcı ve hizalama seçeneği yok.
         *   **Telefon:**
-            *   Invalid'de dört görünüm mü, üç mü.
-            *   Biçim nereden seçilecek.
-            *   Bul ve değiştir nereden açılacak.
+            *   Invalid'de panodaki gibi üç görünüm.
+            *   Biçim, durum çubuğundaki biçim yazısına basınca açılan menüden seçilir.
+            *   Bul ve değiştir, "more" menüsünden açılır.
+            *   Üçü önce panolara çizilir.
         *   **Öteki kararlar:**
-            *   Kökün `${4}` diye yazılması.
-            *   Büyük dizinin grafiğinde kökün gösterilmesi.
-            *   Web'de paylaşım bağlantısının sayfanın kendi adresiyle kurulması.
-            *   Büyük belgelerin takiplerinden hangilerinin v1'de olacağı.
-            *   Resim değerlerinin simge yerine küçük resimle gösterilmesi.
-            *   Belge açıkken sürükle bırak.
-            *   Önizleme ve ekran görüntüsü tabanlarının `core:base` dışında kalması.
-            *   CLAUDE.md'de editörün hâlâ beklendiğini söyleyen cümleler.
+            *   Ağacın kökü `$ {4}` diye yazılır.
+            *   Hiçbir değer seçili değilken grafik kökü göstererek açılır.
+            *   Web'de paylaşım bağlantısı sayfanın kendi adresiyle kurulur.
+            *   Büyük belgelerde v1'e giren yalnızca ölçüm: masaüstü penceresinde 50 MB ve JavaScript yedeği.
+                Web Worker, bellek ve iptal edilebilen okuma v1'den sonraya kalır.
+            *   Resim değerleri simge yerine küçük resimle gösterilir (CLAUDE.md "images" diyor).
+            *   Belge açıkken sürüklenip bırakılan dosya yeni bir sekmede açılır.
+            *   Önizleme tabanları `core:designsystem`'da, ekran görüntüsü tabanları `core:testing`'de kalır.
+                CLAUDE.md'nin "her taban tek modülde" kuralı MVI tabanları için okunur.
+            *   CLAUDE.md'nin editörü hâlâ bekleyen iki cümlesi düzeltildi.
+        *   **Henüz karar yok:** Formatico'yu artık ilgilendirmeyen üç bulgu (316 JsonView, 331 yan yana
+            karşılaştırma, 275 MissingName) kapatılır mı, yalnızca kütüphanenin işi olarak açık mı kalır?
+            Bunun için bir öneri yapılmadı.
     *   **Kimin işi (2026-11-10):** `PANTRIX_FINDINGS.md`'deki açık bulgular kütüphanenin, `OPEN_ITEMS.md`'deki
         maddeler ve denetimin çıkardıkları Formatico'nun. Ayrıntısı:
         *   **Kütüphanenin oturumu yapar.** 70 açık bulgu var, ikisi aynı (460 ve 478); başına sayı konanlar

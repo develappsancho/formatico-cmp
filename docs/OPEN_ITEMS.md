@@ -28,10 +28,15 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Ne: Wasm derlemesi açılınca konsola "Accessing `memory` via `wasmExports` is deprecated" yazılıyor. Kaynağı Compose Multiplatform 1.12.2'nin `org.jetbrains.compose.resources.copyArrayBufferToWasmMemory`'si (Kotlin'in ürettiği `import-object.mjs`); Formatico'nun ya da Pantrix'in kodu değil. Uygulama çalışıyor.
     *   Öneri: Compose Multiplatform'un sonraki sürümünde yeniden bakmak.
     *   Durum: açık.
-*   [ ] **iOS: ilk kare beyaz (2026-11-02).**
-    *   Ne: Simülatörde uygulama açılırken Compose çizene kadar ekran bir an beyaz; koyu temada bu bir parlama olur. `Info.plist`'in açılış ekranı boş.
+*   [x] **iOS: ilk kare beyaz (2026-11-02).**
+    *   Ne: Simülatörde uygulama açılırken Compose çizene kadar ekran bir an beyazdı; koyu temada bu bir parlama olur. `Info.plist`'in açılış ekranı boştu.
     *   Öneri: açılış ekranına temanın zemini (`#f8fafc` / `#020617`) için bir renk varlığı.
-    *   Durum: düzeltildi, gözle doğrulanacak (2026-11-03). `Assets.xcassets/LaunchBackground` açıkta `#F8FAFC`, koyuda `#020617`; `Info.plist`'in `UILaunchScreen`'i onu gösteriyor. Derlenen uygulamanın `Info.plist`'inde görüldü; açılışın ilk karesi gözle görülmedi.
+    *   Durum: kapandı (2026-11-10, iPhone 18 Pro Max simülatöründe soğuk açılışın kaydı, 30 karede bir saniye). Koyu görünümde açılış ekranı `#020617` ve ardından Start; açık görünümde `#F8FAFC`; hiçbir karede beyaz yok. Düzeltme 2026-11-03'teydi: `Assets.xcassets/LaunchBackground` ve `Info.plist`'in `UILaunchScreen`'i. Kalan bir şey ayrı bir maddede: "iOS'ta seçilen tema sistemin temasından başkaysa açılış ekranı öteki renkte".
+*   [ ] **iOS'ta seçilen tema sistemin temasından başkaysa açılış ekranı öteki renkte (2026-11-10).**
+    *   Ne: Açılış ekranı sistemin görünümünü izliyor, Settings'te seçilen temayı bilemiyor. Simülatör açık görünümdeyken ve uygulamada Dark seçiliyken açılışta 1,7 saniye açık zemin (`#F8FAFC`), sonra koyu Start geliyor; tersi de olur. Açılış ekranı uygulamanın kodu çalışmadan gösterildiği için bu, iOS'un bir sınırı.
+    *   Nerede: `app/iosApp/iosApp/Info.plist` (`UILaunchScreen`), `Assets.xcassets/LaunchBackground`.
+    *   Öneri: Kabul etmek. Ya da açılış ekranında iki temanın arasında duran nötr bir renk; sahibinin kararı. Android'in açılış ekranı da aynı sınırda mı, bakılmadı.
+    *   Durum: açık. Faz 21'de görüldü.
 *   [x] **Uygulama simgeleri sihirbazınki (2026-11-02).**
     *   Ne: Android'in açılış ekranında ve başlatıcıda sihirbazın Android simgesi, iOS'ta sihirbazın simgesi, web'de favicon yok.
     *   Öneri: tuvalin kimlik panosundaki `{ }` işaretinden bir simge seti; tuvale bir "simge" panosu.
@@ -103,7 +108,7 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
 *   [x] **Üst çubuğun bazı düğmeleri basılmıyor (2026-11-03).**
     *   Ne: Başlatıcı (komut paleti) ve Ayarlar kendi ekranları gelene kadar `enabled = false`; tek sekme var ve yeni sekme düğmesi çizilmiyor.
     *   Öneri: Palette, Settings ve sekmeler yazıldıkça bağlamak.
-    *   Durum: açık. Sekmeler ve yeni sekme düğmesi Workspace'le bağlandı (2026-11-03); başlatıcı ve Ayarlar hâlâ basılmıyor. Workspace'in Query, Convert, Compare, ağaçta arama ve Table görünümü de kendi ekranlarını bekliyor. Query, Convert ve Compare bağlandı (2026-11-05). Başlatıcı bağlandı (2026-11-05, Faz 12): komut paletini açıyor; Command ya da Control ve K her yerde açıyor. Kapandı (2026-11-05): Ayarlar Settings'i açıyor (geniş pencerede ve tablette bir sekme, telefonda kendi ekranı), Command ya da Control ve virgül de.
+    *   Durum: kapandı (2026-11-05): Ayarlar Settings'i açıyor (geniş pencerede ve tablette bir sekme, telefonda kendi ekranı), Command ya da Control ve virgül de. Yol: sekmeler ve yeni sekme düğmesi Workspace'le bağlandı (2026-11-03); Query, Convert ve Compare bağlandı (2026-11-05); başlatıcı bağlandı (2026-11-05, Faz 12): komut paletini açıyor, Command ya da Control ve K her yerde açıyor.
 *   [x] **Temanın seçimi saklanmıyor (2026-11-03).**
     *   Ne: Çubuğun tema düğmesi seçimi `rememberSaveable` ile tutuyor; uygulama yeniden açılınca sistemin teması geri geliyor.
     *   Öneri: Settings ekranıyla birlikte cihazda saklamak.
@@ -173,9 +178,9 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Ne: `JsonDocument.formatted` JSONC ve JSON5'te sondaki virgülü yazmıyor; bir üyenin anahtarıyla değeri arasındaki yorum (`"b": /* not */ 2`) üyenin önüne kendi satırına geçiyor. İkisi de belgeyi geçerli bırakıyor, ama yazanın biçimi değil.
     *   Öneri: Settings'e "sondaki virgülü koru" seçeneği; ya da JSON5'te varsayılan olarak korumak.
     *   Durum: kapandı (2026-11-04). Format, belgede sondaki virgül olan bir kabın son girdisinden sonra onu koruyor (JSONC, JSON5), anahtarlar sıralanınca da; bir üyenin anahtarıyla değeri arasındaki blok yorumu yerinde kalıyor. Satır yorumu orada kalsa değeri satırdan atacağı için üyenin önüne geçiyor. Settings'e seçenek gerekmedi.
-*   [ ] **Değer önizlemesi yalnızca sözcük (2026-11-03).**
-    *   Ne: Panolarda ağacın satırı bir renk örneği, bir bağlantı simgesi ve bir küçük resim gösteriyor; `PantrixTreeView` satırın sonuna yalnızca metin aldığı için Formatico "Colour", "Link", "Picture" yazıyor. Tarih, okuyucunun dilinde UTC olarak yazılıyor. Bkz. `PANTRIX_FINDINGS.md`.
-    *   Durum: açık.
+*   [x] **Değer önizlemesi yalnızca sözcük (2026-11-03).**
+    *   Ne: Panolarda ağacın satırı bir renk örneği, bir bağlantı simgesi ve bir küçük resim gösteriyor; `PantrixTreeView` satırın sonuna yalnızca metin aldığı için Formatico "Colour", "Link", "Picture" yazıyordu. Tarih, okuyucunun dilinde UTC olarak yazılıyor. Bkz. `PANTRIX_FINDINGS.md`.
+    *   Durum: kapandı (Faz 21'in denetiminde görüldü, 2026-11-10). Satırın sonunu `TreeRowEnd.kt` çiziyor: tarihin takvimi, rengin örneği, resmin kutusu (`PantrixIcons.Image`); bağlantının simgesi satırın eylemi (`ExternalLink`). Sözcükler yalnızca ekran okuyucuya kaldı. Resmin bir küçük resimle gösterilmesi Faz 21'in kararı (`PLAN.md`).
 *   [x] **Tabletin metin ile ağaç arasındaki ayırıcısı sürüklenmiyor (2026-11-03).**
     *   Ne: Workspace-834 panosundaki "Resize the text and the tree" tutamacı çizilmiyor; metin 480 dp, ağaç geri kalanı. Bkz. `PANTRIX_FINDINGS.md`.
     *   Durum: kapandı (2026-11-04). Tablette metin ile ağaç ya da problemler arasında panodaki 13 dp'lik şerit ve `PantrixTwoPane`'in tutamacı var; metin 480 dp'den başlıyor, sürüklenen boyu ekran tutuyor. Tutamacın rengi ve dokunmatikteki şeridi panodan ayrılıyor: iki yeni Pantrix bulgusu.
@@ -203,9 +208,9 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Ne: YAML 1.2'nin çekirdek şemasıyla okunuyor: `<<: *defaults` birleştirilmiyor, ağaçta `<<` adlı bir anahtar ve bir alias olarak duruyor; `yes`, `no`, `on`, `off` mantıksal değil metin. Kubernetes gibi YAML 1.1 alışkanlığıyla yazılmış belgelerde bu şaşırtabilir.
     *   Öneri: Settings'e "YAML 1.1" seçeneği ya da ağaçta birleştirilmiş anahtarları gösteren bir görünüm.
     *   Durum: açık. Bir seçenek olarak Settings'le (Faz 12); sahibinin kararı.
-*   [ ] **Ağaç seçilen satıra kaydırılamıyor (2026-11-03).**
-    *   Ne: "Go to the anchor" ve izin adımları bir değeri seçiyor, üstündeki dalları açıyor; ama satır ekranın dışındaysa ağaç ona kaymıyor. Bkz. `PANTRIX_FINDINGS.md`.
-    *   Durum: açık, Pantrix'i bekliyor: "TreeView satırının sonunda yalnızca bir metin var…" bulgusu `tıkıyor` (2026-11-04).
+*   [x] **Ağaç seçilen satıra kaydırılamıyor (2026-11-03).**
+    *   Ne: "Go to the anchor" ve izin adımları bir değeri seçiyor, üstündeki dalları açıyor; ama satır ekranın dışındaysa ağaç ona kaymıyordu. Bkz. `PANTRIX_FINDINGS.md`.
+    *   Durum: kapandı (Faz 21'in denetiminde görüldü, 2026-11-10). Beklenen bulgu 2026-11-04'te kapandı; ağaç seçilen satıra `PantrixLazyTreeView`'in `scrollToKey`'iyle kayıyor (`DocumentTree.kt`). Test: `WorkspaceScreenTest.theChosenValueIsBroughtIntoViewInALongTree`. Önceki durum: açık, Pantrix'i bekliyor (`tıkıyor`, 2026-11-04).
 *   [ ] **CSV'de Format yalnızca tırnakları ve satır sonlarını düzeltiyor (2026-11-03).**
     *   Ne: `CsvDocument.formatted` her alanı yalnızca gerektiğinde tırnaklıyor, belgenin ayırıcısını ve satır sonunu koruyor, sona bir satır sonu koyuyor, boş satırları atıyor. Sütunları hizalamıyor. Minify ve Sort keys CSV ile TSV'de kapalı (panodaki gibi); kapalı düğmeler nedenini söylemiyor.
     *   Öneri: Settings'e ya da More menüsüne "ayırıcıyı değiştir" (CSV ↔ TSV dönüşümü Convert'le gelecek); hizalama istenirse ayrı bir eylem.
@@ -222,10 +227,10 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Ne: Table-390 panosunda bir kaydın başlığı veriye göre seçilmiş: siparişte `id` ve tutar, ülkede `name` ve kodlar. Kod genel bir kural kullanıyor: ilk görünen sütun kalın başlık, ikincisi sağda, gerisi `key: value` satırında. countries.csv'de başlık bu yüzden "AF", ad satırın içinde.
     *   Öneri: sütun seçicide "kaydın başlığı" seçimi ya da `name`, `title`, `id` gibi adları öne alan bir kural.
     *   Durum: kapandı (2026-11-04). Kaydın başlığı, varsa kaydı adlandıran sütun (`name`, `title`, `label`), yoksa ilk sütun: countries.csv'de "Afghanistan", yanında kodu; siparişte `id`.
-*   [ ] **iOS'ta belge açılırken üst çubuk içerikten önce değişiyor (2026-11-03).**
+*   [x] **iOS'ta belge açılırken üst çubuk içerikten önce değişiyor (2026-11-03).**
     *   Ne: Start'tan bir örnek açılırken bir an üst çubuk belgenin çubuğu ("countries.csv", sayaç, more) olurken içerik hâlâ Start'ı gösteriyor; geçiş bitince Table geliyor. Android'de gözle görülmedi.
     *   Öneri: çubuğu geri yığının o an gösterdiği hedefe göre değil, geçişin vardığı hedefe göre seçmek ya da çubuğu da geçişle birlikte değiştirmek.
-    *   Durum: düzeltildi, gözle doğrulanacak (2026-11-04). Telefonun çubuğu ekranla birlikte, temanın yavaş süresinde (350 ms) bir kararmayla değişiyor; azaltılmış harekette hemen. Simülatörde geçişin ortası gözle görülmedi.
+    *   Durum: kapandı (2026-11-10, iPhone 18 Pro Max simülatöründe Start'tan "An order" açılırken alınan kayıt, 30 karede bir saniye). Çubuk ile içerik aynı karede değişiyor: 0,23 saniyede ikisi de Start, 0,26 saniyede ikisi de belge. Düzeltme 2026-11-04'teydi: telefonun çubuğu ekranla birlikte değişiyor.
 *   [x] **Panolar düzen'den alınanlarla genişledi, kod henüz değil (2026-11-03).**
     *   Ne: Sahibinin yaptırdığı ayrı tasarımdan ("düzen") seçilenler tuvale çizildi (sürüm 59).
         *   Workspace (1440, 834, 390): ağaçta arama, eşleşme sayısı ve önceki/sonraki (durum `search`); ağacı 1, 2, 3 ya da bütün düzeylere açma (1440, 834); seçili değerin yolunu JSONPath, JSON Pointer ya da jq olarak kopyalama (durum `path`).
@@ -242,10 +247,10 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Ne: `core:navigation` ekranı adresin `#` kısmına yazıyor (`#start`, `#document?id=3`). v1'in paylaşımı (Faz 13) da belgeyi bağlantının fragment'ında taşıyacak. Bir paylaşım bağlantısıyla açılan sayfa ilk ekranı yazınca bağlantının fragment'ı siliniyor; bugün tanımadığı bir `#` kısmını uygulama yok sayıyor, ama adresi yine kendi girdisiyle değiştiriyor.
     *   Öneri: Faz 13'te paylaşılan belgeyi fragment'tan okuyup açtıktan sonra adresi gezintiye bırakmak (`#share=…` okunur, sonra `#document?id=N` olur); ya da navigation3-browser'ın birleşmemiş PR #9'u gibi gezintiyi yola (`/document/3`) taşımak, bu da sunucunun her yolu `index.html`'e yönlendirmesini ister.
     *   Durum: kapandı (2026-11-06). İlk öneriyle: bağlantı `#d=…&n=…` (sahibinin seçtiği ad, `&n=`). Sayfa onunla açılınca `FollowBrowserHistory` fragment'ı belgeyi açana (`DocumentOpening.openLink`) veriyor, sonra adres gezintiye kalıyor: `#start`, belge açılınca `#document?id=N`. Paylaşılan belge tarayıcının geçmişinde kalmıyor; tarayıcı fragment'ı sunucuya hiç göndermiyor.
-*   [ ] **Uygulama aldığı kodun lisanslarını göstermiyor (2026-11-04).**
-    *   Ne: navigation3-browser'dan alınan kodun MIT lisansı web dağıtımında bir dosya olarak gidiyor (`licenses/navigation3-browser.txt`); uygulamanın içinde, öteki platformlarda ve öteki bağımlılıklar (Geist, KSafe, snakeyaml-engine-kmp, Koin, Compose) için bir lisans sayfası yok. Geist'in OFL'si de yazı tipiyle birlikte lisansının verilmesini istiyor.
+*   [x] **Uygulama aldığı kodun lisanslarını göstermiyor (2026-11-04).**
+    *   Ne: navigation3-browser'dan alınan kodun MIT lisansı web dağıtımında bir dosya olarak gidiyordu (`licenses/navigation3-browser.txt`); uygulamanın içinde, öteki platformlarda ve öteki bağımlılıklar (Geist, KSafe, snakeyaml-engine-kmp, Koin, Compose) için bir lisans sayfası yoktu. Geist'in OFL'si de yazı tipiyle birlikte lisansının verilmesini istiyor.
     *   Öneri: Settings'e (Faz 12) bir "Licenses" satırı; önce tuvalde Settings panosuna çizilir.
-    *   Durum: açık, Faz 12'yle.
+    *   Durum: kapandı (Faz 12; Faz 21'in denetiminde görüldü, 2026-11-10). Settings'in Open-source licences sayfası kütüphaneleri ve lisanslarını gösteriyor (`OpenSourceLibrary.kt`, `SettingsLicences.kt`); metinler uygulamanın kaynaklarında. Listede eksik kalanlar (Ktor, OkHttp, kotlinx-browser, navigationevent) Faz 21'in küçük işlerinde; listenin elle tutulması "Settings'in panolardan ve önceki davranıştan ayrıldığı yerler"de.
 *   [x] **Web'de geri gelen belgeden geri tuşu Start'a dönmüyor (2026-11-04).**
     *   Ne: Uygulama yeni bir sekmede açılıp saklanan belgeyi geri verince ekranlar `#start` ve `#document?id=1` olur, ama tarayıcının geçmişinde bunlar tek bir girdi (`history.state` ikisini de tutuyor). Tarayıcının geri tuşu Start'a değil, sitenin öncesine gidiyor. Start'tan bir belge açılınca ya da adres elle yazılınca geri ve ileri doğru çalışıyor (yerel dağıtımda, 2026-11-04).
     *   Öneri: `BrowserHistory` ilk yazışında, tarayıcının girdisinin hâli yokken ve birden çok ekran varken, kökü bulunduğu girdiye yazsın ve kalan ekranları birer yeni girdi olarak eklesin.
@@ -556,7 +561,8 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
 *   [ ] **Workspace panolarının bazı durumları editörü bekleyen eski uygulamayı çiziyor (2026-11-09).**
     *   Ne: Tuvalde Workspace-1440 ve -834'ün `waiting` ve `yaml` durumları, Workspace-390'ın `text` durumu metin
         bölmesini "Text editing is on its way" yer tutucusuyla çiziyor. Uygulama 2026-11-03'ten beri metni
-        `PantrixCodeEditor`'la gösteriyor; `EditorComing` yalnızca `WorkspacePreviews.kt`'den çağrılıyor. `yaml`'da
+        `PantrixCodeEditor`'la gösteriyor; `EditorComing`'i yalnızca önizlemesi (`WorkspacePreviews.kt`) ve ekran
+        görüntüsü testi (`WorkspaceScreenshotTest.editorComing`) çağırıyor. `yaml`'da
         uygulama YAML'ın metnini editörde, telefonun `text`'inde editörü dokunmatik tuş sırasıyla gösterirdi.
         Panoların öteki durumları 2026-11-09'da tasarım sisteminin `CodeEditor`'üne geçirildi; bu üçü dokunulmadan
         kaldı.

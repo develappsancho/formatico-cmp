@@ -29,7 +29,8 @@ class KmpComposeConventionPlugin : Plugin<Project> {
                     androidResources { enable = true }
                 }
                 // A UI test in the browser is bundled with Skiko only where the target makes an executable
-                // (CMP-4906): the module's tests run as one, the library is published as it was.
+                // (CMP-4906): the module's tests run as one, the library is published as it was. Pantrix's testing
+                // guide does not say so (PANTRIX_FINDINGS, "Test rehberi tarayıcıda UI testinin iki şartını söylemiyor").
                 @OptIn(ExperimentalWasmDsl::class)
                 wasmJs {
                     binaries.executable()

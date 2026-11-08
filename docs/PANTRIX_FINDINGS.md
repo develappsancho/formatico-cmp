@@ -458,10 +458,10 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Durum: açık. Formatico'yu tıkamıyor. Seçilen eşleşme metinde seçiliyor ve imleç ona gidiyor; öteki eşleşmeler işaretlenmiyor. Kodda ipucu bu yüzden "Choosing a match moves the cursor to it." (`query_choose_hint`); bulgu kapanınca panodaki ilk yarısı geri gelir. Yarısı geldi: `CodeRangeStyle.Highlight` (Compose'da 0.1.2-SNAPSHOT, 2026-11-05) ve tasarım sisteminde `rangeMarks`'ın `style: 'highlight'`'ı (`1794244829-b310`) bir aralığın arkasını tonun %28'iyle boyuyor, noktasız ve iletisiz. Şimdiki eşleşmenin çerçevesi yok. Query panoları 2026-11-09'da `Pantrix.CodeEditor`'e geçti: eşleşmeler uyarı tonunda `highlight`, şimdiki eşleşme seçili; panodaki çerçeve düştü. Formatico'nun kodu öteki eşleşmeleri henüz `Highlight`'la işaretlemiyor.
 
 *   [ ] **SegmentButton'a grubun adı verilemiyor (2026-11-05).**
-    *   Ne: Panolar her segment grubuna bir ad veriyor: görünümlerin seçimi `label="View"`, Query'nin dili `label="Query language"`. `PantrixSegmentButton` bir `contentDescription` ya da etiket almıyor; ekran okuyucu grubu adsız, yalnızca seçenekleriyle okuyor.
-    *   Nerede: kaynak jar'da `PantrixSegmentButton`'ın imzası: `options`, `selected`, `onSelect`, `modifier`, `enabled`, `fullWidth`, `style`, `colors`, `tagKey`, `labelStyle`.
-    *   Öneri: `PantrixSegmentButton(contentDescription = …)`, grubun anlamında (radio group gibi) okunan bir ad.
-    *   Durum: açık. Formatico'nun iki grubu adsız.
+    *   Ne: Panolar her segment grubuna bir ad veriyor: görünümlerin seçimi `label="View"`, Query'nin dili `label="Query language"`, Convert'te girintinin seçimi (`2 spaces`, `4 spaces`) "Indentation", null'ın seçimi (`Leave it out`, `Write an empty string`) "What a null value becomes". `PantrixSegmentButton` bir `contentDescription` ya da etiket almıyor; ekran okuyucu grubu adsız, yalnızca seçenekleriyle okuyor. Null'ın seçiminin yanında görünen bir etiket var ("A null value"), girintininkinin yok.
+    *   Nerede: kaynak jar'da `PantrixSegmentButton`'ın imzası: `options`, `selected`, `onSelect`, `modifier`, `enabled`, `fullWidth`, `style`, `colors`, `tagKey`, `labelStyle`; MCP `get_component_metadata SegmentButton`, [segment-button](https://pantrixui.com/docs/components/segment-button).
+    *   Öneri: `PantrixSegmentButton(label = …)` ya da `contentDescription`: grubun anlamında (radio group gibi) okunan bir ad, tasarım sisteminin `label`'ı gibi; görünen bir etiketin yanında olan bir seçim için onunla aynı.
+    *   Durum: açık. Formatico'yu tıkamıyor; görünümlerin, Query'nin dilinin ve girintinin seçimi adsız. Aynı bulgunun Convert'ten yazılan ikinci kaydı buraya birleştirildi (2026-11-10).
 
 *   [x] **Ağacın satırının sonu basılamıyor (2026-11-04).**
     *   Ne: Workspace panolarında bir adresin satırı bağlantı simgesiyle bitiyor ve o simge bağlantıyı açıyor ("Open the link"). `PantrixLazyTreeView`'in `trailing`'i satırla okunuyor ve kendi basışı yok; satırın içine konan ikinci bir basılan şey ekran okuyucuda ve klavyede satırı ikiye bölerdi. Formatico simgeyi yalnızca gösteriyordu (bkz. OPEN_ITEMS "Panoda ağaçtaki bağlantı simgesi bir bağlantı").
@@ -475,11 +475,8 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Öneri: düğmenin basılan alanı satırın boyunda ve en az platformun dokunma hedefi genişliğinde, satırın son boşluğuna taşarak; simge ise `trailing`'deki şeylerle aynı çizgide bitsin (basılan alan simgeden geniş, çizim simgenin yerinde).
     *   Durum: açık. Formatico'yu tıkamıyor. Bağlantının simgesi masaüstünde 6, telefonda 8 dp içeride; telefonda simge 20 dp (ağacın `iconSize`'ı), panoda 18.
 
-*   [ ] **SegmentButton'a grubun adı verilemiyor (2026-11-05).**
-    *   Ne: Convert panolarında girintinin seçimi (`2 spaces`, `4 spaces`) ekran okuyucuya "Indentation", null'ın seçimi (`Leave it out`, `Write an empty string`) "What a null value becomes" diye adlandırılıyor: tasarım sisteminin `SegmentButton`'ının `label`'ı. Compose'un `PantrixSegmentButton`'ında grubun adı için bir parametre yok (`options`, `selected`, `onSelect`, `enabled`, `fullWidth`, `style`, `colors`, `tagKey`, `labelStyle`); ekran okuyucu yalnızca seçenekleri duyuyor. Null'ın seçiminin yanında görünen bir etiket var ("A null value"), girintininkinin yok.
-    *   Nerede: MCP `get_component_metadata SegmentButton`, [segment-button](https://pantrixui.com/docs/components/segment-button).
-    *   Öneri: `label: String?`: grubun ekran okuyucudaki adı, tasarım sistemininki gibi; görünen bir etiketin yanında olan bir seçim için onunla aynı.
-    *   Durum: açık. Formatico'yu tıkamıyor; girintinin seçimi adsız.
+*   [x] **SegmentButton'a grubun adı verilemiyor, Convert'ten (2026-11-05).**
+    *   Durum: birleştirildi (2026-11-10). Aynı bulgunun ikinci kaydıydı; Convert'in girinti ve null seçimleri yukarıdaki "SegmentButton'a grubun adı verilemiyor" maddesinde.
 
 *   [ ] **Salt okunur kod editörü, odak yokken de imlecin satırını boyuyor (2026-11-05).**
     *   Ne: Convert'in yeni belgesi `PantrixCodeEditor(readOnly = true)` ile gösteriliyor (seçilip kopyalanabilsin diye). Editör odakta değilken de ilk satırı imlecin satırı olarak boyuyor; Convert panolarının çıktısında böyle bir bant yok. Yazılabilen bir editörde bu bant imlecin yerini söylüyor; okunan bir metinde, imleç görünmezken, yalnızca bir satırı öne çıkarıyor.

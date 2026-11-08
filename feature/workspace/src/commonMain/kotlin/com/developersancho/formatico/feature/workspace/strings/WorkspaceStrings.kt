@@ -48,10 +48,6 @@ internal interface WorkspaceStrings {
     val openAll: String
     val openAllLevels: String
     val closeSearch: String
-    val editorTitle: String
-    val editorBody: String
-    val editorBodyUnread: String
-    val editorBodyRead: String
     val plainTitle: String
     val plainBody: String
     val emptyTitle: String
@@ -175,8 +171,6 @@ internal interface WorkspaceStrings {
 
     /** "in {first} days", the form [count] chooses */
     fun daysAhead(count: Int, first: Int): String
-
-    val editorBodyTable: String
 
     /** "{first} rows", the form [count] chooses */
     fun rows(count: Int, first: Int): String

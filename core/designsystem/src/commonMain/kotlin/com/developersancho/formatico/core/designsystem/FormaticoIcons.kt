@@ -9,8 +9,9 @@ import androidx.compose.ui.graphics.vector.addPathNodes
 import androidx.compose.ui.unit.dp
 
 /**
- * Formatico's own icons, for what `PantrixIcons` has none of: drawn on its 24-unit grid with its 2-unit round stroke,
- * in black, which `PantrixIcon` tints. Their paths are the design canvas's.
+ * Formatico's own icons, for what `PantrixIcons` has none of (PANTRIX_FINDINGS, "Simgeler kapalı bir liste; bir
+ * uygulamanın sık simgeleri yok"): drawn on its 24-unit grid with its 2-unit round stroke, in black, which
+ * `PantrixIcon` tints. Their paths are the design canvas's.
  */
 object FormaticoIcons {
     /** Settings: two sliders, each with its knob. */

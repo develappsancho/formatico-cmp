@@ -469,21 +469,6 @@ internal fun TreePaneMessagePreview(@PreviewParameter(TreePaneMessageCases::clas
     FormaticoPreview(case) { TreePaneMessage(state = it, modifier = Modifier.size(width = 480.dp, height = 320.dp)) }
 }
 
-/** What the editor's place says until the editor comes, by what can be done to the document meanwhile. */
-internal class EditorComingCases :
-    PreviewCases<WorkspaceState>(
-        "json" to Order,
-        "csv" to Countries,
-        "invalid" to Invalid,
-        "xml" to Feed
-    )
-
-@Preview
-@Composable
-internal fun EditorComingPreview(@PreviewParameter(EditorComingCases::class) case: PreviewCase<WorkspaceState>) {
-    FormaticoPreview(case) { EditorComing(state = it, modifier = Modifier.size(width = 480.dp, height = 320.dp)) }
-}
-
 /** The views' choice: [selected] among them, with the text's or without it, on [board]. */
 internal class ViewChoiceCase(val selected: DocumentPane, val withText: Boolean, val board: Board)
 

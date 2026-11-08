@@ -53,11 +53,6 @@ class WorkspaceScreenshotTest {
     }
 
     @Test
-    fun editorComing() = EditorComingCases().values.forEach { case ->
-        capturePreview("EditorComing", case, Board.Desktop) { EditorComingPreview(case) }
-    }
-
-    @Test
     fun viewChoice() = ViewChoiceCases().values.forEach { case ->
         capturePreview("ViewChoice", case, case.value.board) { ViewChoicePreview(case) }
     }

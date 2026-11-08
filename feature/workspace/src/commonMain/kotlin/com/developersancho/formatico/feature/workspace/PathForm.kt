@@ -76,6 +76,7 @@ internal fun CopyPathMenu(node: ValueNode, layout: WorkspaceLayout, onCopy: (Str
         tagKey = "path_forms"
     ) {
         val spacing = PantrixTheme.spacing
+        // The menu's title is a text inside it (PANTRIX_FINDINGS, "Menünün bir başlığı, satırın sonunda bir yazısı yok").
         PantrixText(
             text = workspaceStrings.copyPathAs(name),
             modifier = Modifier.padding(start = spacing.md, end = spacing.md, top = spacing.sm, bottom = spacing.xs),

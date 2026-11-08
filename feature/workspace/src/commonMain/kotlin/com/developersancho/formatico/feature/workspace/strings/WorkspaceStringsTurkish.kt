@@ -8,6 +8,8 @@ internal object WorkspaceStringsTurkish : WorkspaceStrings {
 
     override fun formatMenu(first: String) = "Biçim: $first. Biçimi değiştir"
 
+    // Shorter than "Biçimlendir" so that the tablet's toolbar holds Schema too
+    // (PANTRIX_FINDINGS, "Sığmayan eylemleri menüsüne alan bir araç çubuğu yok").
     override val format = "Biçimle"
     override val minify = "Küçült"
     override val sortKeys = "Anahtarları sırala"
@@ -35,13 +37,6 @@ internal object WorkspaceStringsTurkish : WorkspaceStrings {
     override val openAll = "Tümü"
     override val openAllLevels = "Ağacın tamamını aç"
     override val closeSearch = "Aramayı kapat"
-    override val editorTitle = "Metin düzenleme yakında geliyor"
-    override val editorBody =
-        "Sonraki bir sürümle geliyor. O zamana kadar belge ağaçta görünüyor; Biçimle, Küçült ve Kopyala belgenin tamamında çalışıyor."
-    override val editorBodyUnread =
-        "Sonraki bir sürümle geliyor. O zamana kadar Kopyala ve Dosya olarak kaydet belgenin tamamında çalışıyor."
-    override val editorBodyRead =
-        "Sonraki bir sürümle geliyor. O zamana kadar belge ağaçta görünüyor; Kopyala ve Dosya olarak kaydet belgenin tamamında çalışıyor."
     override val plainTitle = "Düz metnin ağacı yok"
     override val plainBody = "Hangi biçimde yazıldığını seçersen öyle okunur."
     override val emptyTitle = "Belge boş"
@@ -150,9 +145,6 @@ internal object WorkspaceStringsTurkish : WorkspaceStrings {
     override fun daysAgo(count: Int, first: Int) = "$first gün önce"
 
     override fun daysAhead(count: Int, first: Int) = "$first gün sonra"
-
-    override val editorBodyTable =
-        "Sonraki bir sürümle geliyor. O zamana kadar belge tabloda görünüyor; Biçimle ve Kopyala belgenin tamamında çalışıyor."
 
     override fun rows(count: Int, first: Int) = "$first satır"
 

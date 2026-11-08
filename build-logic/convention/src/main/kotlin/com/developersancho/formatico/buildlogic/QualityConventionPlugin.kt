@@ -26,6 +26,8 @@ class QualityConventionPlugin : Plugin<Project> {
                 buildUponDefaultConfig = true
                 parallel = true
                 config.setFrom(rootProject.file("config/detekt/detekt.yml"))
+                // Every source set of a multiplatform module, which detekt does not find by itself
+                // (PANTRIX_FINDINGS, "Çok platformlu bir uygulamada detekt'in neye bakacağı gösterilmiyor").
                 source.setFrom(file("src"))
             }
             dependencies.add("detektPlugins", libs.library("pantrix-detektRules"))

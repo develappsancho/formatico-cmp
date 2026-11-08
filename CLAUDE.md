@@ -62,8 +62,7 @@ Formatico is also a test of Pantrix UI: it is built the way a developer who foun
   user's own key was dropped (the owner's decision, 2026-11-09).
 - **Parsers:** our own lossless ones in a pure Kotlin `core:format` module (comments, the spelling of numbers and the
   order of keys kept), except YAML, which is parsed by `snakeyaml-engine-kmp` and printed by our own printer.
-- **Editor:** `PantrixCodeEditor`, a new component being built in the library. Until a release carries it, the
-  workspace's text pane waits for it.
+- **Editor:** `PantrixCodeEditor` is the workspace's text pane (in the local package since 2026-11-03).
 - **No backend in v1:** a small document is shared compressed in the link's fragment. v2 brings a Spring Boot server
   for end-to-end encrypted links and a URL proxy.
 - **Navigation:** Compose's navigation3.
@@ -92,8 +91,9 @@ Formatico is also a test of Pantrix UI: it is built the way a developer who foun
   list of problems, repair); Table; Query; Convert; Compare; Summary; the command palette; Settings; the share
   dialog. The tree's value previews and the text and tree kept in step are shown on them.
 - The canvas already holds the identity boards (A is the pick). It reads the design system's `tokens.css`;
-  `formatico-options.css` keeps only Formatico's brand, typefaces and syntax colours. Until the design system carries
-  a code editor, the editor is drawn as markup, and that is a finding.
+  `formatico-options.css` keeps only Formatico's brand, typefaces and syntax colours, and the editor's pane look until
+  the design system's `CodeEditor` takes an app's style (a finding). The boards draw the editor with the design
+  system's `CodeEditor` (since 2026-11-09).
 - **Identity: Teal with Geist and Geist Mono**, the owner's pick, as Formatico's own `DesignPreset`:
   - Brand role, light: `#0F766E`, on it `#FFFFFF`, container `#CCFBF1`, on the container `#134E4A`, focus ring
     `#0D9488`.
