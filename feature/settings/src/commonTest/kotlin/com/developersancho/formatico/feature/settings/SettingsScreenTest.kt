@@ -1,10 +1,13 @@
 package com.developersancho.formatico.feature.settings
 
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.v2.runComposeUiTest
@@ -20,6 +23,7 @@ import com.pantrixui.testing.assertNoFindings
 import com.pantrixui.testing.onPantrixNode
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
 class SettingsScreenTest {
@@ -52,6 +56,20 @@ class SettingsScreenTest {
             intents
         )
         assertNoFindings(findings)
+    }
+
+    @Test
+    fun aWindowJustWiderThanATabletLeavesRoomBesideTheColumn() = runComposeUiTest {
+        val size = DpSize(860.dp, 700.dp)
+        setContent {
+            PantrixTestTheme(window = PantrixWindow(size)) {
+                SettingsScreen(state = state, onIntent = {}, modifier = Modifier.size(size))
+            }
+        }
+
+        awaitText("Settings")
+        val theme = onPantrixNode("SegmentButton", "theme").getBoundsInRoot()
+        assertTrue(size.width - theme.right >= 24.dp, "The column ends ${size.width - theme.right} from the window's edge")
     }
 
     @Test

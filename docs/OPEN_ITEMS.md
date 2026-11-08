@@ -395,10 +395,14 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Ne: Telefonun Convert'i kendi ekranı; çubuğunun geri düğmesi de sistemin geri hareketi de onu bırakıp ağaca dönüyor (`NavigationBackHandler`). Query ve Summary de telefonda More menüsünden açılıyor, ama sistemin geri hareketi onlarda `NavDisplay`'in `onBack`'ine gidiyor: sekme bırakılıyor, Start açılıyor.
     *   Öneri: telefonda Query'nin ve Summary'nin de geri hareketiyle ağaca dönmesi.
     *   Durum: açık.
-*   [ ] **Null'ın yorumu sistemin dilinde yazılıyor (2026-11-05).**
+*   [x] **Null'ın yorumu sistemin dilinde yazılıyor (2026-11-05).**
     *   Ne: Dışarıda bırakılan bir null'ın yeni belgedeki yorumu (`# coupon = null in the JSON: TOML has no null`) view model'de `getString` ile okunuyor; o da sistemin dilini kullanıyor, uygulamanınkini değil.
     *   Öneri: Settings uygulamanın kendi dilini getirince (Faz 12) yorumun dili de ondan.
-    *   Durum: açık. Settings'in dili geldi (2026-11-05): seçilen dil platformun dili yapılıyor (`LocalAppLocale`: JVM'in ve Android'in `Locale`'i, iOS'un `AppleLanguages`'ı, web'de `navigator.languages`), `getString` de onu okumalı. Masaüstünde ekranın sözcükleri sınandı; yorumun dili hiçbir platformda sınanmadı.
+    *   Durum: kapandı (2026-11-06). Cihazlarda denendi: Android'de, iOS simülatöründe ve web'de Türkçe seçilince TOML'daki yorum `# coupon = null (JSON); TOML biçiminde null yok`; masaüstünde `AppLanguageTest` aynısını sınıyor. Web'de önce İngilizce çıktı: bileşim dışında `getString` `navigator.language`'ı okuyor, `index.html` yalnızca `navigator.languages`'ı değiştiriyordu; şimdi ikisini de değiştiriyor (PANTRIX_FINDINGS: "Uygulamanın kendi sözcüklerinin dili için yol gösterilmiyor"). Önceki durum: açık. Settings'in dili geldi (2026-11-05): seçilen dil platformun dili yapılıyor (`LocalAppLocale`: JVM'in ve Android'in `Locale`'i, iOS'un `AppleLanguages`'ı, web'de `navigator.languages`), `getString` de onu okumalı. Masaüstünde ekranın sözcükleri sınandı; yorumun dili hiçbir platformda sınanmadı.
+*   [ ] **Masaüstünde ve web'de Escape belgeden Yeni sekme'ye geçiyor (2026-11-06).**
+    *   Ne: Compose masaüstünde ve web'de Escape'i sistemin geri hareketi sayıyor; o da `NavDisplay`'in `onBack`'ine gidiyor ve bir belgeden geri, Yeni sekme (Start) demek (telefonun geri hareketi için seçilmişti). Odak metinde değilken (Convert'in boş bir yerine tıklanınca, bir seçim kutusundan sonra) Escape'e basılınca belge sekmesi açık kalıyor ama Start'a geçiliyor. Web'de denendi; metnin içindeyken Escape belgede kalıyor.
+    *   Öneri: masaüstünde ve web'de Escape açık olanı kapatsın (palet, menü, arama çubuğu), belgeden çıkarmasın; geri yığınının geri'si yalnızca telefonda ve tablette sistemin geri hareketiyle.
+    *   Durum: açık.
 *   [ ] **Sorgu sonuçlarının JSON'ı ayrı bir yazıcıyla yazılıyor (2026-11-05).**
     *   Ne: `QueryResults.kt`'nin kendi `JsonWriter`'ı var; `core:format`'ın dönüştürücüsü aynı işi (değerleri JSON olarak yazmak, YAML'ın takma adlarını açmak, JSON'ın yazamadığı sayıları dizgi yapmak) yapıyor.
     *   Öneri: sorgunun sonuçlarını dönüştürücüyle yazmak; ayrı bir temizlik değişikliği.

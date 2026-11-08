@@ -14,8 +14,8 @@ private external object PageWindow {
 }
 
 /**
- * A browser gives its words' language as `navigator.languages`, which `index.html` answers with the one chosen while it
- * is chosen.
+ * A browser gives its words' language as `navigator.languages`, and the words read outside a composition as
+ * `navigator.language`; `index.html` answers both with the one chosen while it is chosen.
  */
 actual object LocalAppLocale {
     private val Tag = staticCompositionLocalOf { Locale.current.toLanguageTag() }

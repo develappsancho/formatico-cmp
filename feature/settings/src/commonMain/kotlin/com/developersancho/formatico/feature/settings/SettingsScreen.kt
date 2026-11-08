@@ -114,7 +114,13 @@ internal fun SettingsScreen(state: SettingsState, onIntent: (SettingsIntent) -> 
             SettingsLayout.Wide -> Row(modifier = Modifier.fillMaxSize()) {
                 SettingsSidebar(state.page, scroll, placed)
                 Box(modifier = Modifier.weight(1f).fillMaxHeight().pantrixVerticalScroll(scroll), contentAlignment = Alignment.TopCenter) {
-                    Pages(state, layout, onIntent, placed, Modifier.widthIn(max = WideColumn).padding(vertical = 32.dp))
+                    Pages(
+                        state,
+                        layout,
+                        onIntent,
+                        placed,
+                        Modifier.padding(horizontal = 24.dp).widthIn(max = WideColumn).padding(vertical = 32.dp)
+                    )
                 }
             }
 
@@ -138,7 +144,10 @@ internal fun SettingsScreen(state: SettingsState, onIntent: (SettingsIntent) -> 
     }
 }
 
-/** How wide a wide window's column of settings is: the board's 720. */
+/**
+ * How wide a wide window's column of settings is: the board's 720, with 24 beside it where the window is only a little
+ * wider than a tablet's.
+ */
 private val WideColumn = 720.dp
 
 /** The page Settings is at; its sections tell [placed] where each stands, for the sidebar to go to. */
