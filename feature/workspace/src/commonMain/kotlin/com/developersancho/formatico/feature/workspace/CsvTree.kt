@@ -1,7 +1,6 @@
 package com.developersancho.formatico.feature.workspace
 
 import com.developersancho.formatico.core.format.Format
-import com.developersancho.formatico.core.format.Severity
 import com.developersancho.formatico.core.format.csv.CsvDocument
 import com.developersancho.formatico.core.format.csv.CsvField
 import com.developersancho.formatico.core.format.csv.CsvRecord
@@ -51,9 +50,7 @@ internal fun readCsv(text: String, format: Format): Reading {
     return Reading.Read(
         format = format,
         root = root,
-        errors = document.problems.count {
-            it.severity == Severity.Error
-        }
+        problems = document.problems
     )
 }
 

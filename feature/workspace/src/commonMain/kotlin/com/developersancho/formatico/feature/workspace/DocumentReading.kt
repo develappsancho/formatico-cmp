@@ -1,6 +1,7 @@
 package com.developersancho.formatico.feature.workspace
 
 import com.developersancho.formatico.core.format.Format
+import com.developersancho.formatico.core.format.Problem
 import com.developersancho.formatico.core.format.Severity
 import com.developersancho.formatico.core.format.json.JsonArray
 import com.developersancho.formatico.core.format.json.JsonBoolean
@@ -64,7 +65,10 @@ internal sealed interface Reading {
      * @property root its value, as much as could be read of it, or null where none could.
      * @property errors how many errors it has: none, for a valid document.
      */
-    data class Read(val format: Format, val root: ValueNode?, val errors: Int) : Reading
+    data class Read(val format: Format, val root: ValueNode?, val problems: List<Problem>) : Reading {
+        /** How many of the [problems] make the document invalid. */
+        val errors: Int get() = problems.count { it.severity == Severity.Error }
+    }
 }
 
 /**
@@ -92,7 +96,7 @@ internal fun readDocument(text: String, format: Format?): Reading {
     return Reading.Read(
         format = format,
         root = document.root?.let { node(it, path = emptyList(), name = ROOT) },
-        errors = document.problems.count { it.severity == Severity.Error }
+        problems = document.problems
     )
 }
 
@@ -146,6 +150,20 @@ internal fun defaultExpanded(root: ValueNode?): Set<String> {
     if (root == null) return emptySet()
     return setOf(root.key) +
         root.children.filter { it.kind == ValueKind.Object && it.children.isNotEmpty() }.map { it.key }
+}
+
+/** What [text] read as [format] has wrong in it. */
+internal fun problemsOf(text: String, format: Format?): List<Problem> = (readDocument(text, format) as? Reading.Read)?.problems.orEmpty()
+
+/**
+ * How many of the errors of [reading], [text] read as JSON or JSONC, JSON5 allows: the comments, the trailing commas,
+ * the keys in no quotes and the single quotes that reading it as JSON5 leaves out. None for any other format.
+ */
+internal fun json5Allows(text: String, format: Format?, reading: Reading): Int {
+    if (format != Format.Json && format != Format.Jsonc) return 0
+    if (reading !is Reading.Read || reading.errors == 0) return 0
+    val asJson5 = readDocument(text, Format.Json5) as? Reading.Read ?: return 0
+    return (reading.errors - asJson5.errors).coerceAtLeast(0)
 }
 
 /** The innermost value of [root] whose text holds the place [offset], or null where none does. */

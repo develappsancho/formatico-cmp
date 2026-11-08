@@ -73,6 +73,9 @@ eksikler Faz 4'te.
     yönde; Ln ve Col durum çubuğunda ve Table'da; telefonda "Show in text"; belge başına geri alma geçmişi; bul ve
     değiştir; sütun editörün saydığı birimle.
 *   [ ] **Faz 6: Geçersiz belge.** Satırlarda işaretler, bütün problemlerin listesi, her probleme kendi onarımı.
+    Yapıldı (2026-11-04): editörde işaretler, Problems görünümü (uyarı, Repair all, Read as JSON5, her problem ve
+    onarımı), araç çubuğunda Repair, `core:format`'ta onarımlar. Kalan: telefonun şeridi ve kartı, YAML'ın hatalarının
+    kendi kodları (OPEN_ITEMS).
 *   [ ] **Faz 7: Kalan biçimler.** NDJSON, XML, TOML, properties ve INI: kayıpsız okuyucu, yazıcı ve ağaç.
 *   [ ] **Faz 8: Ağaç ve tablo.** Ağaçta arama, bir düzeye kadar açma, yolu JSONPath, JSON Pointer ya da jq olarak
     kopyalama; sütun türleri; tabloyu kaydetme ve kopyalama menüsü; renk ve resim önizlemesi; Summary (sahibinin

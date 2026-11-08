@@ -248,3 +248,9 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Nerede: MCP `get_api TabsStyle`, `get_api TabsColors`, `get_component tabs`.
     *   Öneri: `TabsStyle`'da çizgiyi kapatan bir alan, ya da sayfada "bir çubuğun içinde: `TabsColors(divider = Color.Transparent)`".
     *   Durum: açık. Formatico (2026-11-03) üst çubukta `TabsColors(divider = Color.Transparent)` veriyor.
+*   [ ] **CodeEditor'ın işaretinin iletisinde düğme yok (2026-11-04).**
+    *   Ne: Invalid panoları, imleç bir problemin üstündeyken metnin içinde bir kutu çiziyor: problemin iletisi ve altında iki düğme, onarım ("Add the comma") ve "Next problem". `CodeRangeMark`'ın `CodeMark`'ı yalnızca bir ileti ve bir kaynak alıyor (`message`, `source`); iletinin yanına bir eylem konamıyor. Formatico problemleri işaretleyip iletilerini gösteriyor, onarımı ve sonraki problemi problemler bölmesinden veriyor.
+    *   Nerede: MCP `get_component PantrixCodeEditor` ("Marks", `CodeRangeMark`); `get_api CodeMark`.
+    *   Öneri: `CodeMark`'a bir ya da iki eylem (`actions: List<CodeMarkAction>`: etiket ve `onClick`), iletinin altında küçük düğmeler olarak; klavyeyle de ulaşılan (bir kısayolla, ör. ⌘.).
+    *   Durum: açık.
+

@@ -2,6 +2,7 @@ package com.developersancho.formatico.feature.workspace
 
 import androidx.lifecycle.viewModelScope
 import com.developersancho.formatico.core.base.MviViewModel
+import com.developersancho.formatico.core.format.Repairs
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -39,7 +40,10 @@ internal class WorkspaceViewModel(
                     val (reading, stats) = readings.of(documentId, text, format)
                         ?: withContext(reader) { readDocument(text, format) to TextStats.of(text) }
                             .also { readings.keep(documentId, text, format, it) }
-                    setState { copy(reading = reading, stats = stats).arranged() }
+                    // Only a JSON document with errors is read again, as JSON5, to say what that would leave out.
+                    val invalid = reading is Reading.Read && reading.errors > 0
+                    val allows = if (invalid) withContext(reader) { json5Allows(text, format, reading) } else 0
+                    setState { copy(reading = reading, stats = stats, json5Allows = allows).arranged() }
                 }
         }
     }
@@ -68,7 +72,22 @@ internal class WorkspaceViewModel(
 
             is WorkspaceIntent.Write -> workbench.write(documentId, intent.text)
 
+            is WorkspaceIntent.Repair -> state.value.document?.let { document ->
+                Repairs.of(intent.problem, document.text)?.let { workbench.repair(documentId, it.edits) }
+            }
+
+            WorkspaceIntent.RepairAll -> repairAll()
+
             WorkspaceIntent.Close -> workbench.close(documentId)
+        }
+    }
+
+    /** Repairs every problem of the document Formatico repairs, reading it again after each round, off the main thread. */
+    private fun repairAll() {
+        val document = state.value.document ?: return
+        viewModelScope.launch {
+            val repaired = withContext(reader) { Repairs.all(document.text) { problemsOf(it, document.format) } }
+            workbench.write(documentId, repaired)
         }
     }
 
@@ -92,8 +111,12 @@ internal fun WorkspaceState.arranged(): WorkspaceState {
 }
 
 /** The workspace of [document] once it is read: what its view model comes to, at once, for a preview or a test. */
-internal fun readState(document: OpenDocument): WorkspaceState = WorkspaceState(
-    document = document,
-    reading = readDocument(document.text, document.format),
-    stats = TextStats.of(document.text)
-).arranged()
+internal fun readState(document: OpenDocument): WorkspaceState {
+    val reading = readDocument(document.text, document.format)
+    return WorkspaceState(
+        document = document,
+        reading = reading,
+        stats = TextStats.of(document.text),
+        json5Allows = json5Allows(document.text, document.format, reading)
+    ).arranged()
+}

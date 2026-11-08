@@ -161,4 +161,65 @@
     <string name="workspace_no_table_title">No list to show as a table</string>
     <string name="workspace_no_table_body">The table shows an array, and this document has none.</string>
     <string name="workspace_no_rows">No row holds “%1$s”</string>
+    <string name="problem_comment_not_allowed">Take out the comment: %1$s has none. Or read the document as JSONC.</string>
+    <string name="problem_expected_comma_or_end">Add a comma after the value on line %1$d.</string>
+    <string name="problem_unquoted_property_name">Put this key in double quotes: "%1$s".</string>
+    <string name="problem_trailing_comma">Take out the comma after the last member.</string>
+    <string name="problem_unexpected_character">Take out this character: no value starts with it.</string>
+    <string name="problem_unexpected_token">This cannot stand here.</string>
+    <string name="problem_unterminated_string">Close the string: its quote is missing.</string>
+    <string name="problem_unterminated_comment">Close the comment with */.</string>
+    <string name="problem_invalid_escape">Write the backslash as two, or as an escape %1$s knows.</string>
+    <string name="problem_control_character_in_string">Write the tab or the line break in the string as an escape.</string>
+    <string name="problem_single_quoted_string">Put the string in double quotes: %1$s has no single ones.</string>
+    <string name="problem_invalid_number">Write the number as %1$s spells it.</string>
+    <string name="problem_expected_value">A value is missing here.</string>
+    <string name="problem_expected_property_name">A key is missing here.</string>
+    <string name="problem_expected_colon">Put a colon after the key.</string>
+    <string name="problem_unclosed">What is opened here is never closed.</string>
+    <string name="problem_trailing_content">Take out what follows the document’s value.</string>
+    <string name="problem_too_deep">The values nest deeper here than Formatico reads.</string>
+    <string name="problem_duplicate_key">This key is given twice: the later value wins.</string>
+    <string name="problem_yaml_syntax">Formatico cannot read this as YAML.</string>
+    <string name="problem_undefined_alias">No anchor is given for this alias before it.</string>
+    <string name="problem_unclosed_quote">Close the field’s quote.</string>
+    <string name="problem_text_after_quote">Put this text inside the field’s quotes.</string>
+    <string name="problem_stray_quote">Write the quote inside the field as two.</string>
+    <string name="problem_field_count">This row has another number of fields than the header.</string>
+    <string name="repair_remove_comment">Remove the comment</string>
+    <string name="repair_add_comma">Add the comma</string>
+    <string name="repair_quote_key">Quote the key</string>
+    <string name="repair_remove_comma">Remove the comma</string>
+    <string name="repair_use_double_quotes">Use double quotes</string>
+    <string name="repair_close">Close it</string>
+    <string name="repair_add_colon">Add the colon</string>
+    <string name="repair_remove">Remove it</string>
+    <string name="repair_escape">Escape it</string>
+    <string name="repair_fix_number">Fix the number</string>
+    <string name="repair_double_the_quote">Double the quote</string>
+    <string name="workspace_repair">Repair</string>
+    <string name="workspace_repair_all">Repair all</string>
+    <string name="workspace_read_as_json5">Read as JSON5</string>
+    <string name="workspace_invalid_title">This is not valid %1$s</string>
+    <string name="workspace_problem_where">Line %1$d, column %2$d</string>
+    <string name="workspace_next_problem">Next problem</string>
+    <string name="workspace_previous_problem">Previous problem</string>
+    <string name="workspace_view_problems">Problems (%1$d)</string>
+    <string name="workspace_view_problems_short">Problems</string>
+    <plurals name="workspace_invalid_body">
+        <item quantity="one">Formatico read what it could: the tree and the table show it. Repair fixes the problem.</item>
+        <item quantity="other">Formatico read what it could: the tree and the table show it. Repair fixes all %1$d problems at once.</item>
+    </plurals>
+    <plurals name="workspace_json5_allows">
+        <item quantity="one">JSON5 allows %1$d of the %2$d.</item>
+        <item quantity="other">JSON5 allows %1$d of the %2$d.</item>
+    </plurals>
+    <plurals name="workspace_not_valid_count">
+        <item quantity="one">Not valid %2$s: %1$d problem</item>
+        <item quantity="other">Not valid %2$s: %1$d problems</item>
+    </plurals>
+    <plurals name="workspace_problem_of">
+        <item quantity="one">Problem %1$d of %2$d · line %3$d, column %4$d</item>
+        <item quantity="other">Problem %1$d of %2$d · line %3$d, column %4$d</item>
+    </plurals>
 </resources>

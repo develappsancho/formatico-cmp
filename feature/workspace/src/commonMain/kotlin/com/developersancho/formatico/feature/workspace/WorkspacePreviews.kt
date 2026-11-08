@@ -82,13 +82,27 @@ private val PreviewCountries =
     AI,AIA,660,Anguilla,Americas,Latin America and the Caribbean
     """.trimIndent() + "\n"
 
-/** An order with two mistakes: a missing comma and a value cut short. */
+/** The Invalid boards' settings: a comment, a missing comma, a key in no quotes and a trailing comma. */
 private val PreviewInvalid =
     """
     {
-      "id": "ord_8842"
-      "status": "shipped",
-      "total": 129.
+      "name": "formatico-web",
+      "version": "1.4.0",
+      "port": 8080,
+      "debug": true,
+      // turn off before the release
+      "hosts": [
+        "formatico.pantrixui.com",
+        "localhost"
+        "127.0.0.1"
+      ],
+      timeout: 30,
+      "retries": 3,
+      "features": {
+        "share": false,
+        "ai": false,
+      },
+      "theme": "teal"
     }
     """.trimIndent() + "\n"
 
@@ -114,7 +128,8 @@ private val OrderItems = previewState(
     Format.Json,
     DocumentView(selected = "$.items[1].price", pane = DocumentPane.Table, tableSort = TableSort("price", descending = true))
 )
-private val Invalid = previewState("order.json", PreviewInvalid, Format.Json)
+private val Invalid = previewState("settings.json", PreviewInvalid, Format.Json)
+private val InvalidProblems = previewState("settings.json", PreviewInvalid, Format.Json, DocumentView(pane = DocumentPane.Problems))
 private val Feed = previewState("feed.xml", PREVIEW_FEED, Format.Xml)
 private val BeingRead = WorkspaceState(document = OpenDocument(id = 1, name = "order.json", text = PreviewOrder, format = Format.Json))
 private val Empty = previewState(null, "", null)
@@ -122,7 +137,7 @@ private val PlainText = previewState("notes.txt", "Things to check before the re
 
 /**
  * The workspace's cases: a JSON document with its value previews, a YAML one with anchors, a CSV and a JSON array as
- * tables, a document with mistakes, one in a format not read yet, one being read, and a new, empty one.
+ * tables, a document with mistakes and its problems, one in a format not read yet, one being read, and a new, empty one.
  */
 internal class WorkspaceScreenCases :
     PreviewCases<WorkspaceState>(
@@ -131,6 +146,7 @@ internal class WorkspaceScreenCases :
         "csv table" to Countries,
         "json table" to OrderItems,
         "invalid" to Invalid,
+        "problems" to InvalidProblems,
         "not read yet" to Feed,
         "reading" to BeingRead,
         "empty" to Empty

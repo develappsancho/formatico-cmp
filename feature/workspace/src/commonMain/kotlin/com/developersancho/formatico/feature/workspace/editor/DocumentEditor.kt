@@ -12,12 +12,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.unit.dp
+import com.developersancho.formatico.core.format.Problem
+import com.developersancho.formatico.core.format.Severity
 import com.developersancho.formatico.core.format.text.Indentation
 import com.developersancho.formatico.feature.workspace.OpenDocument
 import com.developersancho.formatico.feature.workspace.ValueNode
 import com.developersancho.formatico.feature.workspace.nodeAt
+import com.developersancho.formatico.feature.workspace.problemMessage
+import com.pantrixui.components.data.codeblock.CodeMark
+import com.pantrixui.components.data.codeblock.CodeTone
 import com.pantrixui.components.data.codeeditor.CodeEditorState
 import com.pantrixui.components.data.codeeditor.CodeEditorStyle
+import com.pantrixui.components.data.codeeditor.CodeRangeMark
 import com.pantrixui.components.data.codeeditor.PantrixCodeEditor
 import com.pantrixui.foundation.token.shape.ShapeSpec
 import formatico.feature.workspace.generated.resources.Res
@@ -63,7 +69,8 @@ internal fun DocumentEditor(
     selected: ValueNode?,
     onWrite: (String) -> Unit,
     onSelect: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    problems: List<Problem> = emptyList()
 ) {
     val language = editorLanguage(document.format)
     // The text the editor last wrote to the document, or took from it: a document's text that is another came from
@@ -90,6 +97,7 @@ internal fun DocumentEditor(
         state = editor,
         modifier = modifier,
         highlighter = language.highlighter,
+        rangeMarks = problemMarks(problems, document),
         syntax = language.syntax,
         indent = editorIndent(indentation),
         style = PaneEditorStyle,
@@ -131,5 +139,26 @@ private fun FollowTheTree(editor: CodeEditorState, root: ValueNode?, selected: V
                 select(node.key)
             }
         }
+    }
+}
+
+/**
+ * The [problems] as marks on the text: a wavy line under each, in the colour of an error or a warning, a dot before its
+ * line, and what to do about it while the caret is there. A problem at a place, with no text of its own, marks the
+ * character there.
+ */
+@Composable
+private fun problemMarks(problems: List<Problem>, document: OpenDocument): List<CodeRangeMark> {
+    val format = document.format ?: return emptyList()
+    return problems.map { problem ->
+        val end = if (problem.range.end > problem.range.start) problem.range.end else minOf(problem.range.start + 1, document.text.length)
+        CodeRangeMark(
+            start = problem.range.start,
+            end = end,
+            mark = CodeMark(
+                tone = if (problem.severity == Severity.Error) CodeTone.Danger else CodeTone.Warning,
+                message = problemMessage(problem, document.text, format)
+            )
+        )
     }
 }

@@ -40,6 +40,7 @@ import formatico.feature.workspace.generated.resources.workspace_copy_value
 import formatico.feature.workspace.generated.resources.workspace_format
 import formatico.feature.workspace.generated.resources.workspace_go_to_anchor
 import formatico.feature.workspace.generated.resources.workspace_minify
+import formatico.feature.workspace.generated.resources.workspace_repair
 import formatico.feature.workspace.generated.resources.workspace_save_file
 import formatico.feature.workspace.generated.resources.workspace_show_in_text
 import org.jetbrains.compose.resources.stringResource
@@ -60,10 +61,13 @@ internal fun PhoneWorkspace(
     val spacing = PantrixTheme.spacing
     val pane = document.view.pane
     Column(modifier = modifier.fillMaxSize().background(PantrixTheme.colors.surface)) {
+        // A phone has room for three views: an invalid document's problems take the table's place, where it has none.
         ViewChoice(
             selected = pane,
             withText = true,
             onSelect = { onIntent(WorkspaceIntent.ShowPane(it)) },
+            problems = state.problems.size,
+            withTable = state.problems.isEmpty() || state.table != null,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = spacing.lg, end = spacing.lg, top = spacing.md, bottom = spacing.sm)
@@ -119,8 +123,13 @@ private fun PhonePane(
             selected = state.selected,
             onWrite = { onIntent(WorkspaceIntent.Write(it)) },
             onSelect = { onIntent(WorkspaceIntent.Select(it)) },
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
+            problems = state.problems
         )
+        return
+    }
+    if (pane == DocumentPane.Problems && state.problems.isNotEmpty()) {
+        ProblemsList(state = state, editor = editor, layout = WorkspaceLayout.Phone, onIntent = onIntent)
         return
     }
     if (state.root == null) {
@@ -157,6 +166,14 @@ private fun PhoneToolbar(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(spacing.sm)
     ) {
+        if (state.repairable > 0) {
+            PantrixButton(
+                text = stringResource(Res.string.workspace_repair),
+                onClick = { onIntent(WorkspaceIntent.RepairAll) },
+                size = ButtonSize.Large,
+                tagKey = "repair"
+            )
+        }
         PantrixButton(
             text = stringResource(Res.string.workspace_format),
             onClick = { onIntent(WorkspaceIntent.Edit(DocumentEdit.Format)) },

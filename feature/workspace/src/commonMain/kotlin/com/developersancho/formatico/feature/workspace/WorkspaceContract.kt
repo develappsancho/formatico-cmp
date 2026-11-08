@@ -1,6 +1,8 @@
 package com.developersancho.formatico.feature.workspace
 
 import com.developersancho.formatico.core.format.Format
+import com.developersancho.formatico.core.format.Problem
+import com.developersancho.formatico.core.format.Repairs
 
 /**
  * What a workspace draws: one open document, what was read of it, and how its tree is left.
@@ -10,6 +12,8 @@ import com.developersancho.formatico.core.format.Format
  * @property stats how its text is laid out, once it is read.
  * @property expanded the keys of the tree's open branches.
  * @property trail the values from the root down to the chosen one, or nothing where none is chosen.
+ * @property table the table of the array the choice is in, or of the document's first array.
+ * @property json5Allows how many of a JSON document's errors JSON5 allows: what reading it as JSON5 would leave out.
  */
 internal data class WorkspaceState(
     val document: OpenDocument? = null,
@@ -17,8 +21,15 @@ internal data class WorkspaceState(
     val stats: TextStats? = null,
     val expanded: Set<String> = emptySet(),
     val trail: List<ValueNode> = emptyList(),
-    val table: TableModel? = null
+    val table: TableModel? = null,
+    val json5Allows: Int = 0
 ) {
+    /** What is wrong in the document, where it was read: its errors, and the warnings it is valid with. */
+    val problems: List<Problem> get() = (reading as? Reading.Read)?.problems.orEmpty()
+
+    /** How many of the [problems] Formatico repairs. */
+    val repairable: Int get() = document?.text?.let { text -> problems.count { Repairs.of(it, text) != null } } ?: 0
+
     /** The value chosen in the tree, or null. */
     val selected: ValueNode? get() = trail.lastOrNull()
 
@@ -68,6 +79,12 @@ internal sealed interface WorkspaceIntent {
 
     /** The document's text is now [text], as its editor wrote it. */
     data class Write(val text: String) : WorkspaceIntent
+
+    /** Repair [problem] as Formatico repairs it. */
+    data class Repair(val problem: Problem) : WorkspaceIntent
+
+    /** Repair every problem Formatico repairs, until none is left. */
+    data object RepairAll : WorkspaceIntent
 
     /** Close the document. */
     data object Close : WorkspaceIntent

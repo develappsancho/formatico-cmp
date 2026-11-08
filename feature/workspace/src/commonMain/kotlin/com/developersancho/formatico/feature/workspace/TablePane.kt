@@ -204,9 +204,13 @@ private fun TableToolbar(toolbar: TableToolbarState, layout: WorkspaceLayout, on
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(spacing.md)
     ) {
-        ViewChoice(selected = DocumentPane.Table, withText = !wide, onSelect = {
-            onIntent(WorkspaceIntent.ShowPane(it))
-        }, fullWidth = false)
+        ViewChoice(
+            selected = DocumentPane.Table,
+            withText = !wide,
+            onSelect = { onIntent(WorkspaceIntent.ShowPane(it)) },
+            fullWidth = false,
+            problems = toolbar.state.problems.size
+        )
         // The trail gives way first where the window is narrow, so that the tools at the end keep their room.
         Row(
             modifier = Modifier.weight(1f),

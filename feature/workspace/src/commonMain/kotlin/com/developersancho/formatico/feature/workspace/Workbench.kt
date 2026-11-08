@@ -2,6 +2,8 @@ package com.developersancho.formatico.feature.workspace
 
 import com.developersancho.formatico.core.format.Format
 import com.developersancho.formatico.core.format.ProblemCode
+import com.developersancho.formatico.core.format.Repairs
+import com.developersancho.formatico.core.format.TextEdit
 import com.developersancho.formatico.core.format.csv.CsvDocument
 import com.developersancho.formatico.core.format.csv.formatted
 import com.developersancho.formatico.core.format.json.JsonDialect
@@ -61,8 +63,10 @@ data class DocumentView(
     val tableFilter: String = ""
 )
 
-/** What is shown of a document: on a phone one at a time, elsewhere the tree or the table beside the text. */
-enum class DocumentPane { Text, Tree, Table }
+/**
+ * What is shown of a document: on a phone one at a time, elsewhere the tree, the table or its problems beside the text.
+ */
+enum class DocumentPane { Text, Tree, Table, Problems }
 
 /** The column a table's rows are ordered by, [column], the largest first where [descending] says so. */
 data class TableSort(val column: String, val descending: Boolean)
@@ -311,3 +315,6 @@ private fun editedYaml(text: String, edit: DocumentEdit, indentation: Indentatio
 
 /** The text of the document whose id is [id] is now [text], as its editor wrote it: changed, not saved to its file. */
 fun Workbench.write(id: Long, text: String) = change(id) { if (it.text == text) it else it.copy(text = text, edited = true) }
+
+/** The document whose id is [id] with [edits] made to its text, as a repair makes them: changed, not saved to its file. */
+fun Workbench.repair(id: Long, edits: List<TextEdit>) = change(id) { it.copy(text = Repairs.applied(it.text, edits), edited = true) }

@@ -50,6 +50,7 @@ import formatico.feature.workspace.generated.resources.workspace_format_menu
 import formatico.feature.workspace.generated.resources.workspace_minify
 import formatico.feature.workspace.generated.resources.workspace_plain_text
 import formatico.feature.workspace.generated.resources.workspace_query
+import formatico.feature.workspace.generated.resources.workspace_repair
 import formatico.feature.workspace.generated.resources.workspace_save_file
 import formatico.feature.workspace.generated.resources.workspace_sort_keys
 import org.jetbrains.compose.resources.stringResource
@@ -106,18 +107,12 @@ internal fun WorkspaceScreen(
     val text = editor ?: remember(document.id) { CodeEditorState(document.text) }
     val layout = workspaceLayout()
     if (layout == WorkspaceLayout.Phone) {
-        PhoneWorkspace(
-            state = state,
-            document = document,
-            editor = text,
-            onIntent = onIntent,
-            commands = commands,
-            modifier = modifier
-        )
+        PhoneWorkspace(state = state, document = document, editor = text, onIntent = onIntent, commands = commands, modifier = modifier)
         return
     }
     val wide = layout == WorkspaceLayout.Wide
     val table = document.view.pane == DocumentPane.Table
+    val problems = document.view.pane == DocumentPane.Problems && state.problems.isNotEmpty()
     Column(modifier = modifier.fillMaxSize().background(PantrixTheme.colors.surface)) {
         Toolbar(state = state, document = document, layout = layout, onIntent = onIntent, commands = commands)
         PantrixHorizontalDivider()
@@ -142,10 +137,10 @@ internal fun WorkspaceScreen(
                 }
             },
             second = {
-                if (table) {
-                    TablePane(state, layout, onIntent, commands)
-                } else {
-                    TreePane(state = state, layout = layout, onIntent = onIntent)
+                when {
+                    table -> TablePane(state, layout, onIntent, commands)
+                    problems -> ProblemsPane(state = state, editor = text, layout = layout, onIntent = onIntent)
+                    else -> TreePane(state = state, layout = layout, onIntent = onIntent)
                 }
             },
             modifier = Modifier.weight(1f).fillMaxWidth(),
@@ -221,10 +216,19 @@ private fun Toolbar(
     }
 }
 
-/** Format, Minify, and in a wide window Sort keys: what changes the whole document. */
+/** Repair where there is something to repair, Format, Minify, and in a wide window Sort keys: what changes the whole document. */
 @Composable
 private fun EditButtons(state: WorkspaceState, layout: WorkspaceLayout, onIntent: (WorkspaceIntent) -> Unit) {
     val size = layout.buttons
+    // An invalid document is repaired before it is formatted: the Invalid boards put Repair first.
+    if (state.repairable > 0) {
+        PantrixButton(
+            text = stringResource(Res.string.workspace_repair),
+            onClick = { onIntent(WorkspaceIntent.RepairAll) },
+            size = size,
+            tagKey = "repair"
+        )
+    }
     PantrixButton(
         text = stringResource(Res.string.workspace_format),
         onClick = { onIntent(WorkspaceIntent.Edit(DocumentEdit.Format)) },
@@ -354,6 +358,7 @@ private fun TextPane(
         selected = state.selected,
         onWrite = { onIntent(WorkspaceIntent.Write(it)) },
         onSelect = { onIntent(WorkspaceIntent.Select(it)) },
-        modifier = modifier
+        modifier = modifier,
+        problems = state.problems
     )
 }

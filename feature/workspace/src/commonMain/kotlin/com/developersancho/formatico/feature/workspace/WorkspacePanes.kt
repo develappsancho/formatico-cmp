@@ -65,6 +65,8 @@ import formatico.feature.workspace.generated.resources.workspace_status_reading
 import formatico.feature.workspace.generated.resources.workspace_status_valid
 import formatico.feature.workspace.generated.resources.workspace_unread_body
 import formatico.feature.workspace.generated.resources.workspace_unread_title
+import formatico.feature.workspace.generated.resources.workspace_view_problems
+import formatico.feature.workspace.generated.resources.workspace_view_problems_short
 import formatico.feature.workspace.generated.resources.workspace_view_table
 import formatico.feature.workspace.generated.resources.workspace_view_text
 import formatico.feature.workspace.generated.resources.workspace_view_tree
@@ -172,9 +174,12 @@ internal fun TreePane(state: WorkspaceState, layout: WorkspaceLayout, onIntent: 
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(spacing.sm)
         ) {
-            ViewChoice(selected = DocumentPane.Tree, withText = false, onSelect = {
-                onIntent(WorkspaceIntent.ShowPane(it))
-            })
+            ViewChoice(
+                selected = DocumentPane.Tree,
+                withText = false,
+                onSelect = { onIntent(WorkspaceIntent.ShowPane(it)) },
+                problems = state.problems.size
+            )
             if (!wide && message == null) {
                 PathTrail(state = state, onIntent = onIntent, modifier = Modifier.padding(start = spacing.sm))
             }
@@ -215,8 +220,9 @@ internal fun TreePane(state: WorkspaceState, layout: WorkspaceLayout, onIntent: 
 }
 
 /**
- * The views of a document: its text where [withText] says so, its tree, and its table. It fills its place's width
- * where [fullWidth] says so, by default where it shows the text: on a row of its own.
+ * The views of a document: its text where [withText] says so, its tree, its table where [withTable] says so, and its
+ * [problems] where it has any. It fills its place's width where [fullWidth] says so, by default where it shows the
+ * text: on a row of its own.
  */
 @Composable
 internal fun ViewChoice(
@@ -224,7 +230,9 @@ internal fun ViewChoice(
     withText: Boolean,
     onSelect: (DocumentPane) -> Unit,
     modifier: Modifier = Modifier,
-    fullWidth: Boolean = withText
+    fullWidth: Boolean = withText,
+    problems: Int = 0,
+    withTable: Boolean = true
 ) {
     val textLabel = stringResource(Res.string.workspace_view_text)
     val treeLabel = stringResource(Res.string.workspace_view_tree)
@@ -232,8 +240,15 @@ internal fun ViewChoice(
     val tree = SegmentOption<DocumentPane?>(value = DocumentPane.Tree, label = treeLabel, tagKey = "tree")
     val tableLabel = stringResource(Res.string.workspace_view_table)
     val table = SegmentOption<DocumentPane?>(value = DocumentPane.Table, label = tableLabel, tagKey = "table")
+    // A phone has no room for the count beside its three views.
+    val problemsLabel = if (withText) {
+        stringResource(Res.string.workspace_view_problems_short)
+    } else {
+        stringResource(Res.string.workspace_view_problems, problems)
+    }
+    val problemList = SegmentOption<DocumentPane?>(value = DocumentPane.Problems, label = problemsLabel, tagKey = "problems")
     PantrixSegmentButton(
-        options = listOfNotNull(text.takeIf { withText }, tree, table),
+        options = listOfNotNull(text.takeIf { withText }, tree, table.takeIf { withTable }, problemList.takeIf { problems > 0 }),
         selected = selected,
         onSelect = { pane -> pane?.let(onSelect) },
         modifier = modifier,

@@ -1,7 +1,6 @@
 package com.developersancho.formatico.feature.workspace
 
 import com.developersancho.formatico.core.format.Format
-import com.developersancho.formatico.core.format.Severity
 import com.developersancho.formatico.core.format.json.PathStep
 import com.developersancho.formatico.core.format.text.TextRange
 import com.developersancho.formatico.core.format.yaml.YamlAlias
@@ -29,7 +28,7 @@ internal fun readYaml(text: String): Reading {
     return Reading.Read(
         format = Format.Yaml,
         root = root,
-        errors = document.problems.count { it.severity == Severity.Error }
+        problems = document.problems
     )
 }
 

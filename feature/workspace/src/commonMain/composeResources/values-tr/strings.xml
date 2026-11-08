@@ -161,4 +161,65 @@
     <string name="workspace_no_table_title">Tablo olarak gösterilecek bir liste yok</string>
     <string name="workspace_no_table_body">Tablo bir diziyi gösterir; bu belgede dizi yok.</string>
     <string name="workspace_no_rows">“%1$s” geçen bir satır yok</string>
+    <string name="problem_comment_not_allowed">Yorumu çıkar: %1$s yorum almaz. Ya da belgeyi JSONC olarak oku.</string>
+    <string name="problem_expected_comma_or_end">%1$d. satırdaki değerden sonra virgül koy.</string>
+    <string name="problem_unquoted_property_name">Bu anahtarı çift tırnağa al: "%1$s".</string>
+    <string name="problem_trailing_comma">Son üyeden sonraki virgülü çıkar.</string>
+    <string name="problem_unexpected_character">Bu karakteri çıkar: hiçbir değer onunla başlamaz.</string>
+    <string name="problem_unexpected_token">Bu burada duramaz.</string>
+    <string name="problem_unterminated_string">Dizgiyi kapat: tırnağı eksik.</string>
+    <string name="problem_unterminated_comment">Yorumu */ ile kapat.</string>
+    <string name="problem_invalid_escape">Ters eğik çizgiyi iki kez ya da %1$s biçiminin bildiği bir kaçışla yaz.</string>
+    <string name="problem_control_character_in_string">Dizgideki sekmeyi ya da satır sonunu kaçışla yaz.</string>
+    <string name="problem_single_quoted_string">Dizgiyi çift tırnağa al: %1$s tek tırnak almaz.</string>
+    <string name="problem_invalid_number">Sayıyı %1$s biçiminin yazdığı gibi yaz.</string>
+    <string name="problem_expected_value">Burada bir değer eksik.</string>
+    <string name="problem_expected_property_name">Burada bir anahtar eksik.</string>
+    <string name="problem_expected_colon">Anahtardan sonra iki nokta koy.</string>
+    <string name="problem_unclosed">Burada açılan hiç kapanmıyor.</string>
+    <string name="problem_trailing_content">Belgenin değerinden sonra geleni çıkar.</string>
+    <string name="problem_too_deep">Değerler burada Formatico’nun okuduğundan derin.</string>
+    <string name="problem_duplicate_key">Bu anahtar iki kez verilmiş: sonraki değer geçerli.</string>
+    <string name="problem_yaml_syntax">Formatico burayı YAML olarak okuyamıyor.</string>
+    <string name="problem_undefined_alias">Bu alias’ın anchor’ı ondan önce verilmemiş.</string>
+    <string name="problem_unclosed_quote">Alanın tırnağını kapat.</string>
+    <string name="problem_text_after_quote">Bu metni alanın tırnaklarının içine al.</string>
+    <string name="problem_stray_quote">Alanın içindeki tırnağı iki tırnak olarak yaz.</string>
+    <string name="problem_field_count">Bu satırın alan sayısı başlığınkinden farklı.</string>
+    <string name="repair_remove_comment">Yorumu çıkar</string>
+    <string name="repair_add_comma">Virgülü koy</string>
+    <string name="repair_quote_key">Anahtarı tırnağa al</string>
+    <string name="repair_remove_comma">Virgülü çıkar</string>
+    <string name="repair_use_double_quotes">Çift tırnak kullan</string>
+    <string name="repair_close">Kapat</string>
+    <string name="repair_add_colon">İki noktayı koy</string>
+    <string name="repair_remove">Çıkar</string>
+    <string name="repair_escape">Kaçışla yaz</string>
+    <string name="repair_fix_number">Sayıyı düzelt</string>
+    <string name="repair_double_the_quote">Tırnağı iki yap</string>
+    <string name="workspace_repair">Onar</string>
+    <string name="workspace_repair_all">Hepsini onar</string>
+    <string name="workspace_read_as_json5">JSON5 olarak oku</string>
+    <string name="workspace_invalid_title">Bu geçerli bir %1$s değil</string>
+    <string name="workspace_problem_where">Satır %1$d, sütun %2$d</string>
+    <string name="workspace_next_problem">Sonraki problem</string>
+    <string name="workspace_previous_problem">Önceki problem</string>
+    <string name="workspace_view_problems">Problemler (%1$d)</string>
+    <string name="workspace_view_problems_short">Problemler</string>
+    <plurals name="workspace_invalid_body">
+        <item quantity="one">Formatico okuyabildiğini okudu: ağaç ve tablo onu gösteriyor. Onar problemi düzeltir.</item>
+        <item quantity="other">Formatico okuyabildiğini okudu: ağaç ve tablo onu gösteriyor. Onar %1$d problemin hepsini birden düzeltir.</item>
+    </plurals>
+    <plurals name="workspace_json5_allows">
+        <item quantity="one">JSON5 %2$d problemin %1$d tanesine izin veriyor.</item>
+        <item quantity="other">JSON5 %2$d problemin %1$d tanesine izin veriyor.</item>
+    </plurals>
+    <plurals name="workspace_not_valid_count">
+        <item quantity="one">Geçerli %2$s değil: %1$d problem</item>
+        <item quantity="other">Geçerli %2$s değil: %1$d problem</item>
+    </plurals>
+    <plurals name="workspace_problem_of">
+        <item quantity="one">Problem %1$d / %2$d · satır %3$d, sütun %4$d</item>
+        <item quantity="other">Problem %1$d / %2$d · satır %3$d, sütun %4$d</item>
+    </plurals>
 </resources>

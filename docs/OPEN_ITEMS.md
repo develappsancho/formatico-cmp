@@ -267,3 +267,8 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Ne: Bu biçimler henüz okunmuyor (Faz 7). Editör onları bir satırda gördüğü kadarıyla renklendiriyor: bölüm adı, anahtar, değer, yorum, etiket ve öznitelik. TOML'un birkaç satıra yayılan dizgisi ve dizisi, XML'in CDATA'sı satır satır renkleniyor.
     *   Öneri: Faz 7'de her biçimin okuyucusuyla birlikte renklendiricisini de tamamlamak.
     *   Durum: açık, Faz 7'yle.
+*   [ ] **Telefonun Invalid panosundaki şerit ve problem kartı yok (2026-11-04).**
+    *   Ne: Invalid-390 metnin üstünde "Not valid JSON: 4 problems" şeridini ve "Repair all"u, altında da bir problem kartını çiziyor ("Problem 2 of 4 · line 10, column 5", önceki ve sonraki, onarım). Kodda telefonun Problems görünümü problemlerin listesi; metinde problemler işaretli, imleç üstündeyken iletisi görünüyor; Repair alttaki araç çubuğunda.
+    *   Öneri: şeridi ve kartı Text görünümüne eklemek; kart Pantrix'te bir bileşen değil, Formatico'nun Pantrix'in parçalarıyla kurduğu bir kart olur.
+    *   Durum: açık.
+
