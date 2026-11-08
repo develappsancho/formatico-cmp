@@ -12,16 +12,16 @@ ve bir commit mesajı. Bir fazı `tıkıyor` diye işaretlenmiş bir bulgu durdu
 
 *   [x] **Faz 0: Kurulum.** Sihirbazın projesi Pantrix'e taşındı: Teal preset, Geist ve Geist Mono, convention
     eklentileri, `core:base`, `core:designsystem`, `core:format`, Koin, navigation3, detekt ve Kotlinter; web Wasm'da,
-    JavaScript'e dönüşüyle. `53ee107`.
+    JavaScript'e dönüşüyle. `efe4dcf`.
 *   [x] **Faz 1: Tasarım.** Kimlik panoları ve v1'in 11 ekranı 1440, 834 ve 390'da (33 pano); Summary düzen'den
-    sonra. `922a17f`, `b1a2619`, `419804d`, `236d4bd`, `6b783ac`.
+    sonra. `649667d`, `fa17a9e`, `c912b59`, `c34cf4e`, `c7369f5`.
 *   [x] **Faz 2: Start ve Workspace.** Start: aç, yapıştır, bırak, örnekler, Recent. Workspace: sekmeler, araç
-    çubuğu, ağaç, yol izi, durum çubuğu, sözcükle değer önizlemesi, Format, Minify, Sort keys ve Undo. `23292c8`,
-    `01b88d6`.
+    çubuğu, ağaç, yol izi, durum çubuğu, sözcükle değer önizlemesi, Format, Minify, Sort keys ve Undo. `27efaaa`,
+    `9ae728c`.
 *   [x] **Faz 3: İlk biçimler.** JSON, JSONC ve JSON5 kayıpsız okunup yazılıyor; YAML `snakeyaml-engine-kmp` ile
-    okunup Formatico'nun yazıcısıyla yazılıyor; CSV ve TSV okunuyor, Table'da açılıyor. `01b88d6`, `af5b894`, `be7a6e0`.
+    okunup Formatico'nun yazıcısıyla yazılıyor; CSV ve TSV okunuyor, Table'da açılıyor. `9ae728c`, `42ba6e3`, `d3b990c`.
 
-Pantrix 0.1.2-SNAPSHOT'a geçiş: `516f99d`, `c235d27`.
+Pantrix 0.1.2-SNAPSHOT'a geçiş: `69e8eb8`, `57e2007`.
 
 ### Faz 0–3'ün denetimi (2026-11-03)
 
@@ -160,7 +160,7 @@ eksikler Faz 4'te.
 
 Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
 
-*   [x] **Faz 16: Sunucu.** Spring Boot: uçtan uca şifreli paylaşım bağlantıları ve URL vekili (989b632, 65fe0a2;
+*   [x] **Faz 16: Sunucu.** Spring Boot: uçtan uca şifreli paylaşım bağlantıları ve URL vekili (5ba32d7, ebacb0e;
     yayını Faz 22'de). Sahibinin kararları
     (2026-11-06):
     *   **Yeri:** aynı depoda bir `server` modülü. Spring Boot, pantrix-ui-site'ın sunucusuyla aynı sürüm (4.1.2,
@@ -210,7 +210,7 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
         günde en çok 50 (`429`, UTC gece yarısında sıfırlanıyor); Share'de iki yeni uyarı. Web'in sayfası zorlayan bir
         CSP ile sunuluyor (`deploy/web/headers.conf`), tarayıcı testleri aynı başlıklarla. Kalan: yayın (GHCR,
         Coolify'da kaynak), Faz 22'de.
-*   [x] **Faz 17: Tip üretimi.** Kotlin, TypeScript, Swift ve Go (c798597). Panolar kanvasta (2026-11-07, sürüm 97–101):
+*   [x] **Faz 17: Tip üretimi.** Kotlin, TypeScript, Swift ve Go (1ad9a85). Panolar kanvasta (2026-11-07, sürüm 97–101):
     Types-1440, Types-834, Types-390 ve paletin dört komutu. Önerilen kararlar, sahibinin onayını bekliyor:
     *   **Yeri:** Types, Convert'in yanında bir bölme (`DocumentPane.Types`): masaüstünde ve tablette araç çubuğunda
         Convert'ten sonra, telefonda "more" menüsünde ve kendi sayfasında; komut paletinde "Generate Kotlin, TypeScript,
@@ -355,8 +355,8 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
     `OPEN_ITEMS.md` ve `PANTRIX_FINDINGS.md`. Eksik kalan her şey bu fazda kapanır.
     *   **Kapandı (2026-11-12),** sahibinin kararıyla ("Evet, kapat"): yayından önce yapılacaklar bitti, gerisi yayından
         sonraya alındı (aşağıda, "Yayına kadar kalan"). 5 iptal; 6'nın üç kararı kodda; 8'in son denetimi bütün
-        hedeflerde geçti. `939a90d`, `c1f1dec`, `b5fb888`, `74bde28`, `c21f2e6`, `1506f6a`, `c1480f1`, `ceec5f7`,
-        `6b0e719`, `a342878`, `de64179`, `6a36132`, `acd123e`, `bbe2dda`, `935e696`, `274ebf1`.
+        hedeflerde geçti. `e9a41af`, `9e3f83e`, `c477e62`, `7321aa0`, `bf51b6c`, `c07a5ce`, `fadaaf7`, `4016a94`,
+        `02d4f12`, `be3dbd5`, `7fb9db5`, `f1b9aad`, `4f8c932`, `4de981b`, `d00ccd6`, `3899c50`.
     *   **Yayından sonraya kalanlar:** `OPEN_ITEMS.md`'deki 34 açık madde, 4'ün Android kısmı, 7 (gerçek cihazda
         ekran okuyucu, tablette odak halkası, görüntülerin topluca yeniden kaydı) ve açık Pantrix bulgularının
         kütüphaneye iletilmesi: Compose kütüphanesinde 1, sitede 0, tasarım sisteminde 14 (2'si Compose'da kapalı),
@@ -418,7 +418,7 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
             *   Bütün hedeflerde testler; `verifyRoborazzi`, web testleri, lint ve detekt.
             *   Pantrix'e kalan bulgular kütüphanenin oturumuna toplu olarak iletilir (sahibinin onayıyla).
     *   **İlerleme (2026-11-10):**
-        *   1–3 bitti (`c1f1dec`).
+        *   1–3 bitti (`9e3f83e`).
         *   4 bitti, Android hariç. Her önizleme hâli her hedefte bir UI testinde geziliyor (`checkPreviewCases`). JS'nin
             testleri açıldı ve JavaScript yedeğinin kendi hataları düzeldi. Ortak testler Android'in ana makine
             ağacında koşmuyor; Pantrix'in rehberi de öyle diyor.
@@ -610,10 +610,10 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
         gibi. Yeni bir ekran: kodundan önce kanvasta 1440, 834 ve 390'da çizilir. Menünün yeri (sahibinin kararı,
         2026-11-09): hem Ayarlar'da hem Start ekranında.
     *   **İlerleme (2026-11-11):**
-        *   Pantrix 0.2.1 yayımlandı. Formatico onu GitHub Packages'tan alıyor (`pantrix = "0.2.1"`, `75e51ee`).
+        *   Pantrix 0.2.1 yayımlandı. Formatico onu GitHub Packages'tan alıyor (`pantrix = "0.2.1"`, `f276dab`).
             Settings'in About satırı sürümü yazdığı için sekiz görüntü yeniden kaydedildi: altısı JVM'de, ikisi iOS'ta.
         *   Yerel derleme yolu kapandı (sahibinin kararı): `mavenLocal` bloğu kalktı, CLAUDE.md "Pantrix comes from its
-            releases" diyor (`1ab716d`). `pantrix-ui-local` yok; `pantrix-ui@pantrix-ui` 0.2.1 yalnızca proje
+            releases" diyor (`a41e931`). `pantrix-ui-local` yok; `pantrix-ui@pantrix-ui` 0.2.1 yalnızca proje
             kapsamında, MCP'si `pantrixui.com/mcp`. Yerel kapsamda ikinci bir kurulum çıktı ve kaldırıldı.
         *   Bütün hedefler 0.2.1 ile derlendi, testleri geçti.
         *   Kalanlar: Formatico'nun deposu (`develappsancho/formatico-cmp`) açıldı ama boş, sahibi gönderecek;
