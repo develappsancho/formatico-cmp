@@ -61,6 +61,8 @@ internal object SettingsStringsTurkish : SettingsStrings {
     override fun builtWith(first: String) = "Pantrix UI $first ile yapıldı. Yazı tipleri: Geist ve Geist Mono."
 
     override val licences = "Açık kaynak lisansları"
+    override val getTheApp = "Uygulamayı indir"
+    override val getTheAppBody = "macOS, Windows ve Android için Formatico, GitHub'dan."
     override val licencesBody = "Formatico bunların üstüne kurulu; her biri kendi lisansıyla kullanılıyor. Okumak için birine bas."
     override val licencesBodyPhone = "Formatico bunların üstüne kurulu; her biri kendi lisansıyla kullanılıyor. Okumak için birine dokun."
 

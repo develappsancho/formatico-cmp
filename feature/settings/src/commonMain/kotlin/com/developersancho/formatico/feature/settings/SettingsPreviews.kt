@@ -68,6 +68,8 @@ internal class SettingsCases :
         "no history" to SettingsCase(SettingsState(preferences = Preferences(keepHistory = false))),
         "nothing yet" to SettingsCase(SettingsState()),
         "shortcuts" to SettingsCase(SettingsState(history = PreviewHistory), at = SettingsSection.Shortcuts),
+        // About at the page's foot, with the app's own download where the platform is not the app's: a desktop's.
+        "about" to SettingsCase(SettingsState(history = PreviewHistory), at = SettingsSection.About),
         "licences" to SettingsCase(SettingsState(history = PreviewHistory, page = SettingsPage.Licences)),
         "licence" to SettingsCase(SettingsState(history = PreviewHistory, page = SettingsPage.Licence(OpenSourceLibrary.NavigationBrowser)))
     )

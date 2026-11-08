@@ -21,6 +21,8 @@ kotlin {
                 api(projects.core.settings)
                 // A phone's Settings is a screen of its own, which the system's back leaves, a page at a time.
                 implementation(projects.core.navigation)
+                // About offers the app itself on the desktop and the web: the download menu's button.
+                implementation(projects.feature.download)
             }
         }
     }

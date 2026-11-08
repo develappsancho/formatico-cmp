@@ -71,6 +71,8 @@ internal object SettingsStringsEnglish : SettingsStrings {
     override fun builtWith(first: String) = "Built with Pantrix UI $first. Set in Geist and Geist Mono."
 
     override val licences = "Open-source licences"
+    override val getTheApp = "Get the app"
+    override val getTheAppBody = "Formatico for macOS, Windows and Android, from GitHub."
     override val licencesBody = "Formatico is built on these, each used under its licence. Press one to read it."
     override val licencesBodyPhone = "Formatico is built on these, each used under its licence. Tap one to read it."
 

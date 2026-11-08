@@ -62,6 +62,23 @@ class StartScreenTest {
     }
 
     @Test
+    fun theAppIsOfferedOnTheDesktopAndAPhonesBrowserNotInTheAndroidApp() = runComposeUiTest {
+        var platform by mutableStateOf(PlatformType.Desktop)
+        var window by mutableStateOf(desktop)
+        setContent {
+            PantrixTestTheme(platform = platform, window = window) { StartScreen(state = StartState(), onIntent = {}) }
+        }
+
+        awaitText("Get the app")
+        onPantrixNode("Button", "get_the_app").assertExists()
+        platform = PlatformType.Android
+        awaitUntil("No download in the Android app") { onAllNodesWithText("Get the app").fetchSemanticsNodes().isEmpty() }
+        platform = PlatformType.Web
+        window = phone
+        awaitText("Get the app")
+    }
+
+    @Test
     fun recentSaysTheFormatTheSizeAndWhenEachWasEditedOrOpened() = runComposeUiTest {
         val clock = TestClock(now)
         val edited = RecentDocument(

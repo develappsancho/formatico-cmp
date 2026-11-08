@@ -31,6 +31,9 @@ import com.developersancho.formatico.core.settings.SettingsStore
 import com.developersancho.formatico.core.settings.ThemeChoice
 import com.developersancho.formatico.core.settings.settingsModule
 import com.developersancho.formatico.core.storage.storageModule
+import com.developersancho.formatico.feature.download.AppDownloadMenu
+import com.developersancho.formatico.feature.download.LocalDownloadMenu
+import com.developersancho.formatico.feature.download.downloadModule
 import com.developersancho.formatico.feature.settings.SettingsRoute
 import com.developersancho.formatico.feature.settings.settingsFeatureModule
 import com.developersancho.formatico.feature.start.DocumentHistory
@@ -89,7 +92,9 @@ fun App() {
 @Composable
 internal fun App(systemDark: Boolean, storage: Module, followsBrowser: Boolean = false, network: Module = networkModule) {
     val configuration = remember(storage, network) {
-        koinConfiguration { modules(storage, network, settingsModule, startModule, workspaceModule, settingsFeatureModule, appModule) }
+        koinConfiguration {
+            modules(storage, network, settingsModule, startModule, workspaceModule, settingsFeatureModule, downloadModule, appModule)
+        }
     }
     KoinApplication(configuration = configuration, logLevel = Level.ERROR) {
         val settings = koinInject<SettingsStore>()
@@ -166,7 +171,12 @@ private fun AppContent(
             val schemaOpener = remember(documentOpening, workbench) { AppSchemaOpener(documentOpening, workbench) }
             // A file dropped on an open document opens in a new tab, as the palette opens one.
             val documentDrop = remember(documentOpening) { AppDocumentDrop(documentOpening) }
-            CompositionLocalProvider(LocalSchemaOpener provides schemaOpener, LocalDocumentDrop provides documentDrop) {
+            // Start's and Settings' download buttons open the menu of the latest release GitHub gives.
+            CompositionLocalProvider(
+                LocalSchemaOpener provides schemaOpener,
+                LocalDocumentDrop provides documentDrop,
+                LocalDownloadMenu provides AppDownloadMenu
+            ) {
                 AppScreens(
                     backStack = backStack,
                     workbench = workbench,

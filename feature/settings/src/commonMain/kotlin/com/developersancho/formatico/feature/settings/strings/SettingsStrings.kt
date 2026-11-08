@@ -75,6 +75,13 @@ internal interface SettingsStrings {
     fun builtWith(first: String): String
 
     val licences: String
+
+    /** About's row of the app's own download, on the desktop and the web. */
+    val getTheApp: String
+
+    /** What the download menu gives, under [getTheApp]. */
+    val getTheAppBody: String
+
     val licencesBody: String
     val licencesBodyPhone: String
 

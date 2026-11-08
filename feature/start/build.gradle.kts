@@ -16,6 +16,8 @@ kotlin {
             // address holds one too, both fetched through core:network.
             implementation(projects.core.share)
             implementation(projects.core.network)
+            // On the desktop and the web, Start offers the app itself: the download menu's button, at the foot.
+            implementation(projects.feature.download)
         }
     }
 }

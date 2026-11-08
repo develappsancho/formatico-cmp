@@ -18,6 +18,8 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.base.MviScreen
+import com.developersancho.formatico.feature.download.GetTheAppButton
+import com.developersancho.formatico.feature.download.offersDownloads
 import com.developersancho.formatico.feature.start.strings.startStrings
 import com.pantrixui.components.container.page.PageScaffoldStyle
 import com.pantrixui.components.container.page.PageTitlePlacement
@@ -159,15 +161,32 @@ internal fun StartScreen(state: StartState, onIntent: (StartIntent) -> Unit, mod
                 FileZone(refusal = state.refusal, onIntent = onIntent)
             }
             RecentAndSamples(recent = state.recent, samples = state.samples, layout = layout, onIntent = onIntent)
-            if (!phone) {
-                PantrixText(
-                    // On the web a web address is fetched through the server as well, which the apps fetch themselves.
-                    text = if (PantrixTheme.platform.type == PlatformType.Web) startStrings.privacyWeb else startStrings.privacy,
-                    style = PantrixTheme.typography.footnote,
-                    color = PantrixTheme.colors.textSecondary
-                )
-            }
+            Foot(layout = layout, gap = gap)
         }
+    }
+}
+
+/**
+ * The page's foot: the note on what stays on this device, and at its end the app's own download, where the app is not
+ * what runs this (Faz 22). A phone has no note: in its browser the download's button stands under the samples alone.
+ */
+@Composable
+private fun Foot(layout: StartLayout, gap: Dp) {
+    val platform = PantrixTheme.platform.type
+    val downloads = offersDownloads(platform)
+    if (layout != StartLayout.Phone) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(gap)) {
+            PantrixText(
+                // On the web a web address is fetched through the server as well, which the apps fetch themselves.
+                text = if (platform == PlatformType.Web) startStrings.privacyWeb else startStrings.privacy,
+                modifier = Modifier.weight(1f),
+                style = PantrixTheme.typography.footnote,
+                color = PantrixTheme.colors.textSecondary
+            )
+            if (downloads) GetTheAppButton(if (layout == StartLayout.Wide) ButtonSize.Small else ButtonSize.Medium)
+        }
+    } else if (downloads) {
+        GetTheAppButton(ButtonSize.Large)
     }
 }
 

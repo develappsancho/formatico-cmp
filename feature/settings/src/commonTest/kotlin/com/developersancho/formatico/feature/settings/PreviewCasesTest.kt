@@ -30,6 +30,17 @@ class PreviewCasesTest {
             // A phone has no keyboard's shortcuts: it opens at the history instead.
             "shortcuts" -> awaitTexts(if (board == Board.Phone) "Clear history" else "Keyboard shortcuts")
 
+            // The download is the desktop's and the web's: a tablet and a phone are drawn as the Android app.
+            "about" -> awaitTexts(
+                *if (board ==
+                    Board.Desktop
+                ) {
+                    arrayOf("Formatico 1.0.0", "Get the app", "Download")
+                } else {
+                    arrayOf("Formatico 1.0.0")
+                }
+            )
+
             "licences" -> awaitTexts("Open-source licences", "Compose Multiplatform", "Ktor", "OkHttp")
 
             else -> awaitTexts("navigation3-browser")

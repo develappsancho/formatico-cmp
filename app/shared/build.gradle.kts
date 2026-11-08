@@ -31,6 +31,7 @@ kotlin {
             implementation(projects.core.network)
             implementation(projects.core.settings)
             implementation(projects.core.storage)
+            implementation(projects.feature.download)
             implementation(projects.feature.settings)
             implementation(projects.feature.start)
             implementation(projects.feature.workspace)

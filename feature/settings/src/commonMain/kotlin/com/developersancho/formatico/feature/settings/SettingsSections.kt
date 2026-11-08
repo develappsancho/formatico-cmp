@@ -9,6 +9,8 @@ import com.developersancho.formatico.core.settings.HistoryKeep
 import com.developersancho.formatico.core.settings.IndentChoice
 import com.developersancho.formatico.core.settings.ThemeChoice
 import com.developersancho.formatico.core.settings.UnknownFormat
+import com.developersancho.formatico.feature.download.DownloadAppButton
+import com.developersancho.formatico.feature.download.offersDownloads
 import com.developersancho.formatico.feature.settings.strings.settingsStrings
 import com.pantrixui.components.elements.button.ButtonSize
 import com.pantrixui.components.elements.button.ButtonVariant
@@ -229,6 +231,24 @@ internal fun AboutSection(layout: SettingsLayout, onIntent: (SettingsIntent) -> 
                 style = PantrixTheme.typography.label,
                 tagKey = "licences"
             )
+        }
+        // The app's own download, on the desktop and the web: what runs the Android app has it already.
+        if (offersDownloads(PantrixTheme.platform.type)) {
+            RowDivider()
+            SettingRow(
+                settingsStrings.getTheApp,
+                layout,
+                settingsStrings.getTheAppBody,
+                stacked = layout == SettingsLayout.Phone
+            ) {
+                DownloadAppButton(
+                    when (layout) {
+                        SettingsLayout.Wide -> ButtonSize.Small
+                        SettingsLayout.Tablet -> ButtonSize.Medium
+                        SettingsLayout.Phone -> ButtonSize.Large
+                    }
+                )
+            }
         }
     }
 }

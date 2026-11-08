@@ -6,21 +6,23 @@ import org.koin.core.module.Module
 import org.koin.dsl.module
 
 /**
- * Formatico's server, the documents at web addresses and the pictures at them, in Koin, on the platform's own HTTP
- * client.
+ * Formatico's server, the documents at web addresses and the pictures at them, and Formatico's releases on GitHub, in
+ * Koin, on the platform's own HTTP client.
  */
 val networkModule: Module = networkModule(pictures = null)
 
 /**
- * [networkModule], its pictures read by [pictures] where it is given: a test's, which has them on the machine it runs on,
- * since a document's picture values would otherwise ask the network for theirs.
+ * [networkModule], its pictures read by [pictures] and its releases by [releases] where they are given: a test's, which
+ * has them on the machine it runs on, since a document's picture values and the download menu would otherwise ask the
+ * network for theirs.
  */
-fun networkModule(pictures: WebPictures?): Module = module {
+fun networkModule(pictures: WebPictures?, releases: Releases? = null): Module = module {
     single { formaticoClient() }
     single { FormaticoServer(get(), platformServer()) }
     single<EncryptedShares> { ServerShares(get()) }
     single<WebAddresses> { HttpWebAddresses(get(), get()) }
     single<WebPictures> { pictures ?: HttpWebPictures(get()) }
+    single<Releases> { releases ?: GitHubReleases(get()) }
     single { Online(get(), get()) }
 }
 

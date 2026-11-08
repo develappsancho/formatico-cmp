@@ -12,6 +12,8 @@ import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isSelected
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -20,7 +22,9 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.settings.AppLanguage
 import com.developersancho.formatico.core.settings.ThemeChoice
+import com.developersancho.formatico.core.testing.awaitNode
 import com.developersancho.formatico.core.testing.awaitText
+import com.developersancho.formatico.core.testing.awaitUntil
 import com.pantrixui.components.overlay.commandpalette.PantrixCommand
 import com.pantrixui.foundation.adaptive.PantrixWindow
 import com.pantrixui.foundation.diagnostics.PantrixFindings
@@ -28,6 +32,7 @@ import com.pantrixui.foundation.platform.OperatingSystem
 import com.pantrixui.foundation.platform.PlatformType
 import com.pantrixui.testing.PantrixTestTheme
 import com.pantrixui.testing.assertNoFindings
+import com.pantrixui.testing.hasPantrixTag
 import com.pantrixui.testing.onPantrixNode
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -110,6 +115,42 @@ class SettingsScreenTest {
         onPantrixNode("Item", "shortcuts", scope = "Sidebar_settings").assertIsSelected()
         // A command with no shortcut is the palette's alone.
         onNodeWithText(Unbound.label).assertDoesNotExist()
+    }
+
+    @Test
+    fun aboutOffersTheAppOnTheDesktopAndTheWebNotInTheAndroidApp() = runComposeUiTest {
+        var platform by mutableStateOf(PlatformType.Desktop)
+        setContent {
+            PantrixTestTheme(platform = platform, window = desktop) {
+                SettingsScreen(state = state, onIntent = {}, shortcuts = PreviewShortcuts, at = SettingsSection.About)
+            }
+        }
+
+        awaitText("Formatico for macOS, Windows and Android, from GitHub.")
+        onPantrixNode("Button", "download_app").assert(hasText("Download"))
+        platform = PlatformType.Android
+        awaitUntil("No download in the Android app") { onAllNodesWithText("Get the app").fetchSemanticsNodes().isEmpty() }
+        platform = PlatformType.Web
+        awaitText("Get the app")
+    }
+
+    @Test
+    fun aboutIsChosenAtThePagesEndThoughItNeverComesUpToTheTop() = runComposeUiTest {
+        val about = hasPantrixTag("Item", "about", scope = "Sidebar_settings")
+        val general = hasPantrixTag("Item", "general", scope = "Sidebar_settings")
+        setContent {
+            PantrixTestTheme(platform = PlatformType.Desktop, window = desktop) {
+                SettingsScreen(state = state, onIntent = {}, shortcuts = PreviewShortcuts, at = SettingsSection.About)
+            }
+        }
+
+        awaitText("Formatico 1.0.0")
+        awaitNode(about and isSelected(), "About chosen, opened at it")
+        onNode(general).performClick()
+        awaitNode(general and isSelected(), "General chosen, gone to")
+        // Pressed, About is chosen though the page cannot bring it up to the top: the page's end is where it is.
+        onNode(about).performClick()
+        awaitNode(about and isSelected(), "About chosen, gone to")
     }
 
     @Test

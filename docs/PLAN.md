@@ -673,6 +673,25 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
             *   Durumlar (Tweak `download`): kapalı, açık, yükleniyor, GitHub'a ulaşılamadı (sürümler sayfasına
                 bağlantı), MSI'sız, indiriliyor; telefonda ayrıca `web`.
             *   Settings'in About satırı "Pantrix UI 0.2.1" diyor (0.1.2-SNAPSHOT'tan düzeltildi).
+        *   İndirme menüsü kodda (2026-11-12):
+            *   `core:network`'te `Releases`: GitHub'ın `releases/latest`'i; bulunan sürüm uygulama açık kaldıkça tutulur
+                (GitHub bir adrese saatte 60 kez yanıt verir), bulunamayan bir dahaki açılışta yeniden sorulur. 404
+                "henüz sürüm yok", öteki hatalar "GitHub'a ulaşılamadı".
+            *   Yeni modül `feature:download`: MVI view model'i, Pantrix'in `Menu`'süyle menü (dar pencerede alttan
+                açılan sayfa), Türkçe ve İngilizce sözcükleri. Start'ın ve Settings'in düğmeleri menüyü
+                `LocalDownloadMenu`'den bulur: uygulama GitHub'a soranı verir, önizleme ve testler açılmayan bir
+                düğme çizer.
+            *   Yalnızca masaüstünde ve web'de (`offersDownloads`); Android uygulamasında ve iOS'ta yok. Bir dosya
+                seçilince tarayıcı onu GitHub'dan indirir, snackbar SHA-256'sını verir, "Copy SHA-256" kopyalar.
+            *   Panolardan ayrılan: boyutlar uygulamanın her yerindeki gibi Pantrix'in `fileSize`'ıyla ("95 MB";
+                panolarda "94.7 MB"); panolarda olmayan bir durum daha var, "GitHub'da henüz sürüm yok".
+            *   Settings'in kenar çubuğunda About hiç seçilmiyordu (kısa ve sayfanın sonunda olduğu için en üste
+                çıkamıyor): basılan ya da açılan bölüm sayfa orada durdukça seçili kalır, sayfanın sonunda son bölüm
+                seçilir. Testi var.
+            *   Testler bütün hedeflerde geçti: JVM, iOS simülatörü, JS, Wasm, Android (Robolectric) ve Chrome'daki
+                tarayıcı testleri; yerel yığında web'den GitHub'ın API'sine gidildi, sürüm yok yanıtı menüde göründü.
+                Ekran görüntüleri: menünün 30'u yeni; Start'ın ve Settings'in 1440 görüntüleri yeniden kaydedildi
+                (834 ve 390 Android olduğu için değişmedi).
 
 ## Sahibinin kararını bekleyenler
 

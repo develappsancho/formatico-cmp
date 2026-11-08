@@ -1,5 +1,7 @@
 package com.developersancho.formatico
 
+import com.developersancho.formatico.core.network.LatestRelease
+import com.developersancho.formatico.core.network.Releases
 import com.developersancho.formatico.core.network.WebPictures
 import com.developersancho.formatico.core.network.networkModule
 import org.koin.core.module.Module
@@ -20,8 +22,11 @@ private object BoardPictures : WebPictures {
     override suspend fun read(address: String, maxBytes: Long): ByteArray = Portrait
 }
 
+/** Formatico's releases in the app's tests: none out, so that a download menu opened asks no one. */
+private val BoardReleases = Releases { LatestRelease.None }
+
 /**
  * The app's network in its tests: Formatico's own, but for the pictures at web addresses, which the order's avatar
- * would otherwise ask the network for as its workspace opens.
+ * would otherwise ask the network for as its workspace opens, and for the releases a download menu would ask GitHub for.
  */
-internal val boardNetworkModule: Module = networkModule(pictures = BoardPictures)
+internal val boardNetworkModule: Module = networkModule(pictures = BoardPictures, releases = BoardReleases)

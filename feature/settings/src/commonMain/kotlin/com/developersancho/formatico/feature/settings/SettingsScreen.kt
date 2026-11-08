@@ -15,9 +15,11 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -130,7 +132,14 @@ internal fun SettingsScreen(
     val placed = remember { mutableStateMapOf<SettingsSection, Int>() }
     val opened = at?.let { wanted -> sections.lastOrNull { it.ordinal <= wanted.ordinal } }
     val openedAt = opened?.let { placed[it] }
-    LaunchedEffect(openedAt) { openedAt?.let { scroll.scrollTo(it) } }
+    // The section gone to, by opening at it or by a press in the sidebar, and where the page stood once there.
+    val goneTo = remember { mutableStateOf<GoneTo?>(null) }
+    LaunchedEffect(openedAt) {
+        if (openedAt != null && opened != null) {
+            scroll.scrollTo(openedAt)
+            goneTo.value = GoneTo(opened, scroll.value)
+        }
+    }
     SystemBack { onIntent(SettingsIntent.Back) }
     val pages = @Composable { pagesModifier: Modifier ->
         Pages(state, layout, sections, shortcuts, onIntent, placed, backTo, pagesModifier)
@@ -138,7 +147,7 @@ internal fun SettingsScreen(
     Box(modifier = modifier.fillMaxSize().background(PantrixTheme.colors.background)) {
         when (layout) {
             SettingsLayout.Wide -> Row(modifier = Modifier.fillMaxSize()) {
-                SettingsSidebar(state.page, sections, scroll, placed)
+                SettingsSidebar(state.page, sections, scroll, placed, goneTo)
                 Box(modifier = Modifier.weight(1f).fillMaxHeight().pantrixVerticalScroll(scroll), contentAlignment = Alignment.TopCenter) {
                     pages(Modifier.padding(horizontal = 24.dp).widthIn(max = WideColumn).padding(vertical = 32.dp))
                 }
@@ -237,20 +246,35 @@ private fun SettingsTitle(backTo: String?, onIntent: (SettingsIntent) -> Unit) {
     }
 }
 
+/** A [section] gone to, and the page's scroll, [at], once it was there. */
+private data class GoneTo(val section: SettingsSection, val at: Int)
+
 /**
  * A wide window's sidebar: a destination for each of the [sections] shown, the one in view chosen; pressing one scrolls
  * to it. Over the licences, About is chosen.
+ *
+ * The section in view is the last whose top the page has scrolled to. A section near the page's end never comes up to
+ * the top: the one [goneTo], by a press or by opening at it, stays chosen while the page stands where that put it, and
+ * at the page's end the last is chosen, as About, short and at the foot.
  */
 @Composable
 private fun SettingsSidebar(
     page: SettingsPage,
     sections: List<SettingsSection>,
     scroll: ScrollState,
-    placed: Map<SettingsSection, Int>
+    placed: Map<SettingsSection, Int>,
+    goneTo: MutableState<GoneTo?>
 ) {
     val scope = rememberCoroutineScope()
-    val inView by remember(placed, sections) {
-        derivedStateOf { sections.lastOrNull { section -> (placed[section] ?: Int.MAX_VALUE) <= scroll.value + 1 } }
+    val inView by remember(placed, sections, goneTo) {
+        derivedStateOf {
+            val gone = goneTo.value
+            when {
+                gone != null && gone.at == scroll.value && gone.section in sections -> gone.section
+                scroll.maxValue in 1..scroll.value -> sections.lastOrNull()
+                else -> sections.lastOrNull { section -> (placed[section] ?: Int.MAX_VALUE) <= scroll.value + 1 }
+            }
+        }
     }
     val items = sections.map { SidebarItem(key = it.key, label = it.title(settingsStrings)) }
     PantrixSidebar(
@@ -258,7 +282,12 @@ private fun SettingsSidebar(
         selected = if (page == SettingsPage.Settings) (inView ?: SettingsSection.General).key else SettingsSection.About.key,
         onSelect = { key ->
             val section = SettingsSection.entries.first { it.key == key }
-            placed[section]?.let { scope.launch { scroll.animateScrollTo(it) } }
+            placed[section]?.let {
+                scope.launch {
+                    scroll.animateScrollTo(it)
+                    goneTo.value = GoneTo(section, scroll.value)
+                }
+            }
         },
         expanded = emptySet(),
         onExpandedChange = {},
