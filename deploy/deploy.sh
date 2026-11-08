@@ -12,7 +12,8 @@
 # stack another port.
 #
 # Coolify's address, its API token and Formatico's resource are read from ~/.gradle/gradle.properties: CoolifyUrl,
-# CoolifyToken, CoolifyFormaticoUuid. The token never leaves that file but for the request's header.
+# CoolifyToken, CoolifyFormaticoUuid. The token never leaves that file but for the request's header. The steps, the
+# one-time setup in Coolify among them, are in docs/DEPLOY_GUIDE.md.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"

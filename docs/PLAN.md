@@ -626,7 +626,8 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
         *   Lisans: Apache-2.0 (`LICENSE`, README'de; imajların etiketinde de).
     *   **İlerleme (2026-11-12):**
         *   `deploy.sh web`: imajlar iki mimari için GHCR'ye, Coolify kaynağı yeniden kuruyor, canlı adreste `check.sh`.
-            Kuru deneme geçti; Coolify'daki kaynağı sahibi kuracak (`CoolifyFormaticoUuid`).
+            Kuru deneme geçti; Coolify'daki kaynağı sahibi kuracak (`CoolifyFormaticoUuid`). Adımları
+            `docs/DEPLOY_GUIDE.md`'de, sitenin yayın rehberi gibi.
         *   APK'nın imzası: anahtarın dosyası ve parolaları `local.properties`'te (`storeFile`, `storePassword`,
             `keyAlias`, `keyPassword`), anahtar depoya girmiyor (`signing/` yok sayılıyor). `assembleRelease` imzalı
             APK veriyor (APK İmza Şeması v2), `versionCode` sürümden: 1.0.0 → 10000.
