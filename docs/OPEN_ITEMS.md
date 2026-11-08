@@ -168,3 +168,15 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Ne: Start'tan bir örnek açılırken bir an üst çubuk belgenin çubuğu ("countries.csv", sayaç, more) olurken içerik hâlâ Start'ı gösteriyor; geçiş bitince Table geliyor. Android'de gözle görülmedi.
     *   Öneri: çubuğu geri yığının o an gösterdiği hedefe göre değil, geçişin vardığı hedefe göre seçmek ya da çubuğu da geçişle birlikte değiştirmek.
     *   Durum: açık.
+*   [ ] **Panolar düzen'den alınanlarla genişledi, kod henüz değil (2026-11-03).**
+    *   Ne: Sahibinin yaptırdığı ayrı tasarımdan ("düzen") seçilenler tuvale çizildi (sürüm 59).
+        *   Workspace (1440, 834, 390): ağaçta arama, eşleşme sayısı ve önceki/sonraki (durum `search`); ağacı 1, 2, 3 ya da bütün düzeylere açma (1440, 834); seçili değerin yolunu JSONPath, JSON Pointer ya da jq olarak kopyalama (durum `path`).
+        *   Table (1440, 834): her sütunun türü adının altında. Kaydetme düğmesi bir menü: CSV olarak kaydet, CSV ya da Markdown tablosu olarak kopyala (durum `save`, 1440 ve 390).
+        *   Yeni Summary panoları (1440, 834, 390): belgenin boyutu, küçültülmüş ve sıkıştırılmış boyu, değer ve anahtar sayıları, en derin yol, türlerin dağılımı, değerlerde bulunan tarih, resim, bağlantı ve renkler, notlar. Durum çubuğundaki boyuttan açılıyor.
+        *   Kodda bunların hiçbiri yok; Table'ın kaydetme düğmesi hâlâ doğrudan "Save as CSV".
+    *   Nerede: tuval, Workspace, Table ve Summary satırları; CLAUDE.md'nin v1 kapsamı ve pano listesi Summary'yi anmıyor.
+    *   Öneri: sahibinin kararıyla v1 kapsamına ve pano listesine eklemek, sonra ekran ekran koda geçirmek.
+    *   Durum: açık.
+*   [x] **Workspace panolarının durum çubuğu belgenin boyunu yanlış yazıyordu (2026-11-03).**
+    *   Ne: Workspace panolarının (1440, 834, 390) editör hâli "30 lines · 742 B" diyordu; çizilen order.json 665 bayt, kodun durum çubuğu da 665 B diyor.
+    *   Durum: kapandı (2026-11-03). Panolarda 665 B'ye düzeltildi (tuval sürüm 59).

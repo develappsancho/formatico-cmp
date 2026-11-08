@@ -82,6 +82,11 @@ Her madde: **ne**, **nerede** (sitenin sayfası ya da aracı), **öneri**, **dur
     *   Nerede: tasarım sistemi, `project/components/index.d.ts` (`IconName`), `project/assets/Icons/README.md`.
     *   Öneri: web karşılıklarında `icon`'a bir SVG ya da bir düğüm de verilebilmesi; PantrixIcons'a sık kullanılanlar: ayarlar, güneş ve ay, pano, dış bağlantı, resim, geçmiş, çöp kutusu, paylaş.
     *   Durum: açık.
+*   [ ] **Menu ve Popover tuvalde açık çizilemiyor (2026-11-03).**
+    *   Ne: Workspace ve Table panolarına iki menü çizildi. Biri seçili değerin yolunu JSONPath, JSON Pointer ya da jq olarak kopyalıyor, öteki tabloyu kaydediyor ya da kopyalıyor. İkisi de açık gösterilmek istendi. Tasarım sistemindeki `Menu`'nün ve `Popover`'ın `anchor`'u bir React düğümü ya da düğüm döndüren bir işlev. Panodaki `x-import` bir bileşene yalnızca `renderVals()`'tan değer verebiliyor, düğüm veremiyor; öğenin içeriği de `anchor`'a değil `children`'a gidiyor. Masaüstündeki menüler bu yüzden işaretleme: yüzey, ayraç ve gölge belirteçleri, satırlar `role="menuitem"`. Telefonda aynı seçimler `Sheet` ile (`visible`, `contained`) gerçek bileşenle çizildi.
+    *   Nerede: tasarım sistemi, `project/components/index.d.ts` (`MenuProps`, `PopoverProps`); tasarım türünün `design-system-components.md`'si ("An overlay shown open").
+    *   Öneri: `Menu`'ye ve `Popover`'a çapasız açık çizilebilen bir biçim. Örneğin tetikleyiciyi `children` olarak almak ya da `visible` ile yerinde çizilen bir hâl. README'de bir panoda açık menünün nasıl gösterileceğini söyleyen bir cümle.
+    *   Durum: açık.
 
 ## 3. Detekt
 
@@ -204,3 +209,8 @@ Her madde: **ne**, **nerede** (sitenin sayfası ya da aracı), **öneri**, **dur
     *   Nerede: [Breadcrumb](https://pantrixui.com/components/breadcrumb); MCP `get_api PantrixBreadcrumb`.
     *   Öneri: izin kendi sınırında kırpılması ya da en kısa hâlinin genişliğini en küçük içsel genişlik olarak vermesi (satırın ağırlıkları onu gözetsin); belgede bu durumun bir cümlesi.
     *   Durum: açık. Formatico (2026-11-03) izi `clipToBounds()` ile kırpıyor: yer kalmayınca iz görünmüyor, sayı okunuyor.
+*   [ ] **PantrixIcons'ta ChevronUp yok; aramanın önceki ve sonraki eşleşmesi yukarı ve aşağı çizilemiyor (2026-11-03).**
+    *   Ne: Workspace panolarına ağaçta arama çizildi: bir alan, eşleşme sayısı ("1 of 4"), önceki ve sonraki eşleşme düğmeleri. Editörlerde ve tarayıcılarda bu iki düğme yukarı ve aşağı ok. PantrixIcons'ta `ChevronDown` var, `ChevronUp` yok; `ChevronBack` ve `ChevronForward` sayfalamanın simgeleri ve sağdan sola yazılan dillerde dönüyorlar. Panolarda önceki ve sonraki bu yüzden `ChevronBack` ve `ChevronForward`.
+    *   Nerede: MCP `search_icons "chevron up"`; tasarım sistemi, `project/components/index.d.ts` (`IconName`).
+    *   Öneri: dönmeyen bir `ChevronUp`.
+    *   Durum: açık.
