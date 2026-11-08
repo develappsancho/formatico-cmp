@@ -13,6 +13,8 @@ kotlin {
 }
 dependencies {
     implementation(projects.app.shared)
+    // The stores find the app's folders by its context, given before the first screen.
+    implementation(projects.core.storage)
 
     implementation(libs.androidx.activity.compose)
 }

@@ -1,6 +1,8 @@
 package com.developersancho.formatico.feature.start
 
 import com.developersancho.formatico.core.format.Format
+import com.developersancho.formatico.core.storage.MemorySmallStore
+import com.developersancho.formatico.core.storage.MemoryTextStore
 import com.pantrixui.foundation.files.PantrixFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -14,6 +16,7 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Clock
@@ -37,8 +40,8 @@ class StartViewModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun viewModel(samples: SampleSource = SampleSource { "{}" }) = StartViewModel(
-        history = SessionDocumentHistory(),
+    private fun TestScope.viewModel(samples: SampleSource = SampleSource { "{}" }) = StartViewModel(
+        history = StoredDocumentHistory(small = MemorySmallStore(), texts = MemoryTextStore(), scope = backgroundScope),
         samples = samples,
         clock = clock,
         maxFileSize = MAX_SIZE,
@@ -58,12 +61,13 @@ class StartViewModelTest {
 
         viewModel.dispatch(StartIntent.Paste("""{"a": 1}"""))
 
-        val document = OpenedDocument(name = null, text = """{"a": 1}""", format = Format.Json)
+        val document = OpenedDocument(name = null, text = """{"a": 1}""", format = Format.Json, historyId = 1)
         assertEquals(listOf<StartEffect>(StartEffect.OpenDocument(document)), effects)
         val recent = viewModel.state.value.recent.single()
         assertEquals(Format.Json, recent.format)
         assertEquals(8L, recent.size)
-        assertEquals(moment, recent.editedAt)
+        assertEquals(moment, recent.at)
+        assertFalse(recent.edited)
     }
 
     @Test
@@ -96,7 +100,7 @@ class StartViewModelTest {
 
         viewModel.dispatch(StartIntent.OpenFiles(listOf(PantrixFile("values.yaml", "a: 1\n".encodeToByteArray()))))
 
-        val document = OpenedDocument(name = "values.yaml", text = "a: 1\n", format = Format.Yaml)
+        val document = OpenedDocument(name = "values.yaml", text = "a: 1\n", format = Format.Yaml, historyId = 1)
         assertEquals(listOf<StartEffect>(StartEffect.OpenDocument(document)), effects)
         assertEquals("values.yaml", viewModel.state.value.recent.single().name)
     }
@@ -130,7 +134,8 @@ class StartViewModelTest {
 
         viewModel.dispatch(StartIntent.OpenSample(Sample.Manifest))
 
-        val document = OpenedDocument(name = "Cargo.toml", text = "text of Cargo.toml", format = Format.Toml)
+        val document =
+            OpenedDocument(name = "Cargo.toml", text = "text of Cargo.toml", format = Format.Toml, historyId = 1)
         assertEquals(listOf<StartEffect>(StartEffect.OpenDocument(document)), effects)
     }
 

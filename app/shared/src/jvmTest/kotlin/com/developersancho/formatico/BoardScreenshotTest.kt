@@ -10,6 +10,7 @@ import androidx.compose.ui.test.waitUntilAtLeastOneExists
 import androidx.compose.ui.test.waitUntilExactlyOneExists
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import com.developersancho.formatico.core.storage.memoryStorageModule
 import com.pantrixui.foundation.adaptive.PantrixWindow
 import com.pantrixui.foundation.platform.PlatformType
 import com.pantrixui.testing.PantrixTestTheme
@@ -73,7 +74,7 @@ class BoardScreenshotTest {
                     platform = board.platform,
                     window = PantrixWindow(DpSize(board.width.dp, board.height.dp))
                 ) {
-                    App(systemDark = false)
+                    App(systemDark = false, storage = memoryStorageModule)
                 }
             }
             waitUntilExactlyOneExists(hasText("Paste anything"), timeoutMillis = 10_000)

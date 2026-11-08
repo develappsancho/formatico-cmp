@@ -83,15 +83,19 @@ class WorkspaceScreenTest {
      * Where the screen has had to wait for its words, what the diagnostics found on it meanwhile is [forgetting]'s to
      * forget: a row is nameless until its words come (PANTRIX_FINDINGS: "MissingName, kelimeler yüklenirken").
      */
-    private suspend fun ComposeUiTest.awaitText(text: String, forgetting: PantrixFindings? = null) {
+    private suspend fun ComposeUiTest.awaitText(
+        text: String,
+        forgetting: PantrixFindings? = null,
+        substring: Boolean = false
+    ) {
         val waited = TimeSource.Monotonic.markNow()
-        var shown = onAllNodes(hasText(text)).fetchSemanticsNodes().size == 1
+        var shown = onAllNodes(hasText(text, substring = substring)).fetchSemanticsNodes().size == 1
         if (shown) return
         while (!shown) {
             check(waited.elapsedNow() < 10.seconds) { "\"$text\" was not shown in 10 seconds" }
             withContext(Dispatchers.Default) { delay(20.milliseconds) }
             awaitIdle()
-            shown = onAllNodes(hasText(text)).fetchSemanticsNodes().size == 1
+            shown = onAllNodes(hasText(text, substring = substring)).fetchSemanticsNodes().size == 1
         }
         forgetting?.clear()
     }
@@ -111,9 +115,9 @@ class WorkspaceScreenTest {
         }
 
         awaitText("Text editing is on its way", forgetting = findings)
-        onNodeWithText("Valid JSON").assertExists()
-        onNodeWithText("5 lines · ", substring = true).assertExists()
-        onNodeWithText("UTF-8 · LF · 2 spaces").assertExists()
+        awaitText("Valid JSON")
+        awaitText("5 lines · ", substring = true)
+        awaitText("UTF-8 · LF · 2 spaces")
         onPantrixNode("Node", "id", scope = "TreeView_document").assertExists()
         onPantrixNode("Button", "sort_keys").assertIsEnabled()
         onPantrixNode("Button", "format").performClick()
@@ -139,7 +143,7 @@ class WorkspaceScreenTest {
         }
 
         awaitText("TOML isn’t read yet")
-        onNodeWithText("TOML, not checked").assertExists()
+        awaitText("TOML, not checked")
         onPantrixNode("Button", "format").assertIsNotEnabled()
         onPantrixNode("Button", "minify").assertIsNotEnabled()
         onPantrixNode("TreeView", "document").assertDoesNotExist()
@@ -160,7 +164,7 @@ class WorkspaceScreenTest {
         }
 
         awaitText("Valid JSON", forgetting = findings)
-        onNodeWithText("$.customer.name").assertExists()
+        awaitText("$.customer.name")
         onPantrixNode("Button", "sort_keys").assertDoesNotExist()
         onPantrixNode("Item", "customer", scope = "Breadcrumb_path").performClick()
 
@@ -184,7 +188,7 @@ class WorkspaceScreenTest {
 
         awaitText("Copy the value", forgetting = findings)
         onPantrixNode("Tag", "kind").assertExists()
-        onNodeWithText("Date").assertExists()
+        awaitText("Date")
         onPantrixNode("Button", "show_in_text").assertIsNotEnabled()
         onPantrixNode("Segment", "text", scope = "SegmentButton_view").performClick()
 
@@ -211,7 +215,7 @@ class WorkspaceScreenTest {
         }
 
         awaitText("Valid YAML", forgetting = findings)
-        onNodeWithText("matchLabels: *labels").assertExists()
+        awaitText("matchLabels: *labels")
         onPantrixNode("Button", "format").assertIsEnabled()
         onPantrixNode("Button", "sort_keys").assertIsEnabled()
         assertNoFindings(findings)
@@ -289,8 +293,8 @@ class WorkspaceScreenTest {
         }
 
         awaitText("3 rows · 3 columns", forgetting = findings)
-        onNodeWithText("3 numbers").assertExists()
-        onNodeWithText("1,250.00").assertExists()
+        awaitText("3 numbers")
+        awaitText("1,250.00")
         onPantrixNode("Header", "total", scope = "DataTable_table").performClick()
         onNodeWithText("AUTUMN").performClick()
         onPantrixNode("TextField", "filter").performTextInput("autumn")
@@ -329,7 +333,7 @@ class WorkspaceScreenTest {
         }
 
         awaitText("2 rows")
-        onNodeWithText("numeric: 008").assertExists()
+        awaitText("numeric: 008")
         onNodeWithText("Albania").performClick()
         assertEquals(listOf<WorkspaceIntent>(WorkspaceIntent.Select("$[1]")), intents)
         onPantrixNode("Button", "minify").assertDoesNotExist()

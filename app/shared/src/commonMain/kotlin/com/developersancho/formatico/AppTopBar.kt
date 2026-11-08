@@ -63,6 +63,7 @@ import formatico.app.shared.generated.resources.open_documents
 import formatico.app.shared.generated.resources.search_or_run_a_command
 import formatico.app.shared.generated.resources.settings
 import formatico.app.shared.generated.resources.switch_documents
+import formatico.app.shared.generated.resources.switch_documents_from_new_tab
 import formatico.app.shared.generated.resources.untitled
 import formatico.app.shared.generated.resources.use_dark_theme
 import formatico.app.shared.generated.resources.use_light_theme
@@ -114,22 +115,12 @@ internal fun AppTopBar(
             horizontalArrangement = Arrangement.spacedBy(spacing.xs)
         ) {
             when {
-                phone && shown != null -> PhoneDocumentBar(
+                phone -> PhoneBar(
                     workbench = workbench,
-                    shown = shown,
-                    onSelectTab = onSelectTab
+                    onSelectTab = onSelectTab,
+                    darkTheme = darkTheme,
+                    onToggleTheme = onToggleTheme
                 )
-
-                phone -> {
-                    Brand(phone = true, modifier = Modifier.padding(start = spacing.sm).weight(1f))
-                    BarActions(
-                        phone = true,
-                        wide = false,
-                        withTheme = false,
-                        darkTheme = darkTheme,
-                        onToggleTheme = onToggleTheme
-                    )
-                }
 
                 else -> {
                     // A tablet over a document keeps the mark, the tabs and two buttons, as its boards draw it.
@@ -152,6 +143,58 @@ internal fun AppTopBar(
             }
         }
         PantrixHorizontalDivider()
+    }
+}
+
+/**
+ * A phone's bar: over a document, the way between the tabs, the launcher and the document's "more" menu; over a new
+ * tab beside open documents, the way back to them, as Start-390 draws it; over Start alone, the mark and the name.
+ */
+@Composable
+private fun RowScope.PhoneBar(
+    workbench: WorkbenchState,
+    onSelectTab: (Long?) -> Unit,
+    darkTheme: Boolean,
+    onToggleTheme: () -> Unit
+) {
+    val shown = workbench.selected
+    when {
+        shown != null -> {
+            DocumentSwitcher(workbench = workbench, shown = shown, onSelectTab = onSelectTab)
+            Spacer(modifier = Modifier.weight(1f))
+            PantrixIconButton(
+                imageVector = PantrixIcons.Search,
+                contentDescription = stringResource(Res.string.search_or_run_a_command),
+                onClick = {},
+                size = ButtonSize.Large,
+                enabled = false,
+                tagKey = "launcher"
+            )
+            DocumentMoreMenu(documentId = shown.id)
+        }
+
+        workbench.documents.isNotEmpty() -> {
+            DocumentSwitcher(workbench = workbench, shown = null, onSelectTab = onSelectTab)
+            Spacer(modifier = Modifier.weight(1f))
+            BarActions(
+                phone = true,
+                wide = false,
+                withTheme = false,
+                darkTheme = darkTheme,
+                onToggleTheme = onToggleTheme
+            )
+        }
+
+        else -> {
+            Brand(phone = true, modifier = Modifier.padding(start = PantrixTheme.spacing.sm).weight(1f))
+            BarActions(
+                phone = true,
+                wide = false,
+                withTheme = false,
+                darkTheme = darkTheme,
+                onToggleTheme = onToggleTheme
+            )
+        }
     }
 }
 
@@ -210,14 +253,14 @@ private fun DocumentTabs(
 }
 
 /**
- * A phone's bar over a document: its name, which opens the list of the open documents and a new tab, how many are
- * open, the launcher's button and the document's "more" menu.
+ * A phone's way between its tabs: the name of the document [shown], or "New tab" where none is, which opens the list
+ * of the open documents and a new tab, and how many are open.
  */
 @Composable
-private fun RowScope.PhoneDocumentBar(workbench: WorkbenchState, shown: OpenDocument, onSelectTab: (Long?) -> Unit) {
+private fun DocumentSwitcher(workbench: WorkbenchState, shown: OpenDocument?, onSelectTab: (Long?) -> Unit) {
     var open by rememberSaveable { mutableStateOf(false) }
     val count = workbench.documents.size
-    val name = shown.label()
+    val name = shown?.label() ?: stringResource(Res.string.new_tab)
     PantrixMenu(
         visible = open,
         onDismissRequest = { open = false },
@@ -234,7 +277,11 @@ private fun RowScope.PhoneDocumentBar(workbench: WorkbenchState, shown: OpenDocu
                     content = PantrixTheme.colors.textPrimary,
                     border = Color.Transparent
                 ),
-                contentDescription = stringResource(Res.string.switch_documents, name, count),
+                contentDescription = if (shown != null) {
+                    stringResource(Res.string.switch_documents, name, count)
+                } else {
+                    pluralStringResource(Res.plurals.switch_documents_from_new_tab, count, count)
+                },
                 tagKey = "switch_documents"
             )
         },
@@ -244,7 +291,7 @@ private fun RowScope.PhoneDocumentBar(workbench: WorkbenchState, shown: OpenDocu
             PantrixMenuItem(
                 text = document.label(),
                 onClick = { onSelectTab(document.id) },
-                selected = document.id == shown.id,
+                selected = document.id == shown?.id,
                 tagKey = "document_${document.id}"
             )
         }
@@ -253,6 +300,7 @@ private fun RowScope.PhoneDocumentBar(workbench: WorkbenchState, shown: OpenDocu
             text = stringResource(Res.string.new_tab),
             onClick = { onSelectTab(null) },
             icon = PantrixIcons.Plus,
+            selected = shown == null,
             tagKey = "new"
         )
     }
@@ -262,16 +310,6 @@ private fun RowScope.PhoneDocumentBar(workbench: WorkbenchState, shown: OpenDocu
         contentDescription = pluralStringResource(Res.plurals.open_documents, count, count),
         tagKey = "open_documents"
     )
-    Spacer(modifier = Modifier.weight(1f))
-    PantrixIconButton(
-        imageVector = PantrixIcons.Search,
-        contentDescription = stringResource(Res.string.search_or_run_a_command),
-        onClick = {},
-        size = ButtonSize.Large,
-        enabled = false,
-        tagKey = "launcher"
-    )
-    DocumentMoreMenu(documentId = shown.id)
 }
 
 /** The launcher, the theme's switch where there is room for it ([withTheme]), and the settings. */

@@ -1,0 +1,23 @@
+# What is open stays open: the app closed and opened again shows the document it was showing.
+appId: ${APP_ID}
+name: An open document is there again after the app is closed
+tags:
+  - smoke
+---
+- launchApp:
+    clearState: true
+    stopApp: true
+- runFlow:
+    file: ../subflows/open_sample.yaml
+    env:
+      SAMPLE: order
+- assertVisible: "createdAt: .*"
+# A moment for the open tabs to be written, which follows a change by less than half a second.
+- waitForAnimationToEnd:
+    timeout: 2000
+- stopApp
+- launchApp:
+    stopApp: false
+- extendedWaitUntil:
+    visible: "createdAt: .*"
+    timeout: 10000

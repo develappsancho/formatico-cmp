@@ -8,6 +8,10 @@
     <string name="untitled">Untitled</string>
     <string name="changes_not_saved">changes not saved to its file</string>
     <string name="switch_documents">%1$s, one of %2$d open documents. Switch documents</string>
+    <plurals name="switch_documents_from_new_tab">
+        <item quantity="one">New tab, beside %1$d open document. Switch documents</item>
+        <item quantity="other">New tab, beside %1$d open documents. Switch documents</item>
+    </plurals>
     <plurals name="open_documents">
         <item quantity="one">%1$d open document</item>
         <item quantity="other">%1$d open documents</item>

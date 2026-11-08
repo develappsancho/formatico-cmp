@@ -32,6 +32,14 @@
     <string name="start_edited_today_at">son düzenleme: bugün %1$s</string>
     <string name="start_edited_yesterday">son düzenleme: dün</string>
     <string name="start_edited_on">son düzenleme: %1$s</string>
+    <string name="start_opened_just_now">son açılış: az önce</string>
+    <plurals name="start_opened_minutes_ago">
+        <item quantity="one">son açılış: %1$d dakika önce</item>
+        <item quantity="other">son açılış: %1$d dakika önce</item>
+    </plurals>
+    <string name="start_opened_today_at">son açılış: bugün %1$s</string>
+    <string name="start_opened_yesterday">son açılış: dün</string>
+    <string name="start_opened_on">son açılış: %1$s</string>
     <string name="start_just_now">az önce</string>
     <plurals name="start_minutes_ago">
         <item quantity="one">%1$d dakika önce</item>

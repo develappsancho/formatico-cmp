@@ -32,6 +32,14 @@
     <string name="start_edited_today_at">edited today at %1$s</string>
     <string name="start_edited_yesterday">edited yesterday</string>
     <string name="start_edited_on">edited on %1$s</string>
+    <string name="start_opened_just_now">opened just now</string>
+    <plurals name="start_opened_minutes_ago">
+        <item quantity="one">opened %1$d minute ago</item>
+        <item quantity="other">opened %1$d minutes ago</item>
+    </plurals>
+    <string name="start_opened_today_at">opened today at %1$s</string>
+    <string name="start_opened_yesterday">opened yesterday</string>
+    <string name="start_opened_on">opened on %1$s</string>
     <string name="start_just_now">just now</string>
     <plurals name="start_minutes_ago">
         <item quantity="one">%1$d minute ago</item>

@@ -40,6 +40,11 @@ import formatico.feature.start.generated.resources.start_edited_today_at
 import formatico.feature.start.generated.resources.start_edited_yesterday
 import formatico.feature.start.generated.resources.start_just_now
 import formatico.feature.start.generated.resources.start_minutes_ago
+import formatico.feature.start.generated.resources.start_opened_just_now
+import formatico.feature.start.generated.resources.start_opened_minutes_ago
+import formatico.feature.start.generated.resources.start_opened_on
+import formatico.feature.start.generated.resources.start_opened_today_at
+import formatico.feature.start.generated.resources.start_opened_yesterday
 import formatico.feature.start.generated.resources.start_plain_text
 import formatico.feature.start.generated.resources.start_recent
 import formatico.feature.start.generated.resources.start_recent_empty_text
@@ -246,24 +251,35 @@ private fun EmptyRecent(modifier: Modifier = Modifier) {
     }
 }
 
-/** `JSON · 742 B · edited 2 minutes ago`; [short], on a phone, without "edited". */
+/** `JSON · 665 B · edited 2 minutes ago`, or `opened` where it was not changed; [short], on a phone, without either. */
 @Composable
 private fun recentMeta(document: RecentDocument, short: Boolean): String = stringResource(
     Res.string.start_recent_meta,
     document.format?.displayName ?: stringResource(Res.string.start_plain_text),
     PantrixTheme.strings.fileSize(document.size),
-    edited(document.editedAt, short)
+    lastTouched(document.at, edited = document.edited, short = short)
 )
 
+/** When a document was last opened, or [edited], as Recent says it. */
 @Composable
-private fun edited(at: Instant, short: Boolean): String {
+private fun lastTouched(at: Instant, edited: Boolean, short: Boolean): String {
     val clock = LocalPantrixClock.current
     val strings = PantrixTheme.strings
     return when (val recency = recency(then = at, now = clock.clock.now(), utcOffset = clock.utcOffset)) {
-        Recency.JustNow -> stringResource(if (short) Res.string.start_just_now else Res.string.start_edited_just_now)
+        Recency.JustNow -> stringResource(
+            when {
+                short -> Res.string.start_just_now
+                edited -> Res.string.start_edited_just_now
+                else -> Res.string.start_opened_just_now
+            }
+        )
 
         is Recency.MinutesAgo -> pluralStringResource(
-            if (short) Res.plurals.start_minutes_ago else Res.plurals.start_edited_minutes_ago,
+            when {
+                short -> Res.plurals.start_minutes_ago
+                edited -> Res.plurals.start_edited_minutes_ago
+                else -> Res.plurals.start_opened_minutes_ago
+            },
             recency.minutes,
             recency.minutes
         )
@@ -272,11 +288,18 @@ private fun edited(at: Instant, short: Boolean): String {
             if (short) {
                 stringResource(Res.string.start_today)
             } else {
-                stringResource(Res.string.start_edited_today_at, strings.clock(recency.hour, recency.minute))
+                stringResource(
+                    if (edited) Res.string.start_edited_today_at else Res.string.start_opened_today_at,
+                    strings.clock(recency.hour, recency.minute)
+                )
             }
 
         Recency.Yesterday -> stringResource(
-            if (short) Res.string.start_yesterday else Res.string.start_edited_yesterday
+            when {
+                short -> Res.string.start_yesterday
+                edited -> Res.string.start_edited_yesterday
+                else -> Res.string.start_opened_yesterday
+            }
         )
 
         is Recency.OnDate -> {
@@ -286,7 +309,14 @@ private fun edited(at: Instant, short: Boolean): String {
             } else {
                 strings.date(date.day, date.month, date.year)
             }
-            if (short) day else stringResource(Res.string.start_edited_on, day)
+            if (short) {
+                day
+            } else {
+                stringResource(
+                    if (edited) Res.string.start_edited_on else Res.string.start_opened_on,
+                    day
+                )
+            }
         }
     }
 }

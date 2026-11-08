@@ -30,6 +30,7 @@ import kotlinx.coroutines.withContext
  * @property format the format it is read as, or null for plain text.
  * @property edited whether its text was changed since it was opened.
  * @property view how its tree was left, to be found so again when its tab is chosen.
+ * @property historyId its place in Start's history, which is told of its changes; null for a document not there.
  */
 data class OpenDocument(
     val id: Long,
@@ -37,7 +38,8 @@ data class OpenDocument(
     val text: String,
     val format: Format?,
     val edited: Boolean = false,
-    val view: DocumentView = DocumentView()
+    val view: DocumentView = DocumentView(),
+    val historyId: Long? = null
 )
 
 /**
@@ -134,9 +136,10 @@ class Workbench(private val worker: CoroutineDispatcher = Dispatchers.Default) {
      * Opens a document in a tab of its own and chooses it, in the place of the new tab it was opened from. A document
      * open already with the same name and text is chosen instead of opened twice.
      *
+     * @param historyId the document's place in Start's history, where it has one.
      * @return the document's id.
      */
-    fun open(name: String?, text: String, format: Format?): Long {
+    fun open(name: String?, text: String, format: Format?, historyId: Long? = null): Long {
         val open = mutableState.value.documents.firstOrNull { it.name == name && it.text == text }
         if (open != null) {
             select(open.id)
@@ -144,10 +147,41 @@ class Workbench(private val worker: CoroutineDispatcher = Dispatchers.Default) {
         }
         // A table opens on its table.
         val pane = if (format == Format.Csv || format == Format.Tsv) DocumentPane.Table else DocumentPane.Tree
-        val document =
-            OpenDocument(id = nextId++, name = name, text = text, format = format, view = DocumentView(pane = pane))
+        val document = OpenDocument(
+            id = nextId++,
+            name = name,
+            text = text,
+            format = format,
+            view = DocumentView(pane = pane),
+            historyId = historyId
+        )
         mutableState.update { it.copy(documents = it.documents + document, selectedId = document.id) }
         return document.id
+    }
+
+    /**
+     * Gives back the [documents] the app had open when it last closed, before those opened since, and chooses
+     * [selectedId] where nothing has been chosen since. A document whose id is taken already takes a new one.
+     */
+    fun reopen(documents: List<OpenDocument>, selectedId: Long?) {
+        mutableState.update { state ->
+            val taken = state.documents.map { it.id }.toMutableSet()
+            var next = maxOf(nextId, (documents.maxOfOrNull { it.id } ?: 0L) + 1)
+            val renumbered = mutableMapOf<Long, Long>()
+            val restored = documents.map { document ->
+                if (taken.add(document.id)) {
+                    document
+                } else {
+                    val id = next++
+                    renumbered[document.id] = id
+                    taken += id
+                    document.copy(id = id)
+                }
+            }
+            nextId = next
+            val chosen = state.selectedId ?: selectedId?.let { renumbered[it] ?: it }?.takeIf { it in taken }
+            state.copy(documents = restored + state.documents, selectedId = chosen)
+        }
     }
 
     /** Chooses the tab of the document whose id is [id], or a new tab where it is null. */

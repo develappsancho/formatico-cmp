@@ -1,0 +1,86 @@
+package com.developersancho.formatico.feature.workspace
+
+import com.developersancho.formatico.core.format.Format
+import com.developersancho.formatico.core.storage.MemorySmallStore
+import com.developersancho.formatico.core.storage.MemoryTextStore
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.runTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.seconds
+
+@OptIn(ExperimentalCoroutinesApi::class)
+class WorkbenchKeeperTest {
+    private val small = MemorySmallStore()
+    private val texts = MemoryTextStore()
+
+    /** Lets what runs in the background, the keeper and its pause before it writes among it, run its course. */
+    private fun TestScope.settle() {
+        advanceTimeBy(1.seconds)
+        runCurrent()
+    }
+
+    /** A workbench as the app opens it: given back what was kept, and kept from then on. */
+    private fun TestScope.opened(): Workbench {
+        val workbench = Workbench(worker = StandardTestDispatcher(testScheduler))
+        WorkbenchKeeper(workbench = workbench, small = small, texts = texts, scope = backgroundScope).start()
+        settle()
+        return workbench
+    }
+
+    @Test
+    fun theOpenDocumentsComeBackInTheirTabsWithTheOneChosen() = runTest {
+        val before = opened()
+        val order = before.open("order.json", "{\"a\": 1}", Format.Json, historyId = 4)
+        before.open("countries.csv", "code,name\nAF,Afghanistan\n", Format.Csv)
+        before.select(order)
+        settle()
+
+        val after = opened().state.value
+
+        assertEquals(listOf("order.json", "countries.csv"), after.documents.map { it.name })
+        assertEquals(order, after.selectedId)
+        val restored = after.documents.first()
+        assertEquals("{\"a\": 1}", restored.text)
+        assertEquals(4L, restored.historyId)
+        assertEquals(DocumentPane.Table, after.documents.last().view.pane)
+    }
+
+    @Test
+    fun aChangedTextIsKeptAndAClosedDocumentIsForgotten() = runTest {
+        val before = opened()
+        val order = before.open("order.json", "{\"a\":1}", Format.Json)
+        val other = before.open("other.json", "[]", Format.Json)
+        settle()
+
+        before.edit(order, DocumentEdit.Format)
+        before.close(other)
+        settle()
+
+        val after = opened().state.value.documents.single()
+        assertEquals("{\n  \"a\": 1\n}", after.text.trimEnd())
+        assertTrue(after.edited)
+        assertEquals(setOf("open-$order"), texts.names())
+    }
+
+    @Test
+    fun whatWasOpenedBeforeTheKeptOnesCameBackStaysBesideThem() = runTest {
+        opened().open("order.json", "{}", Format.Json)
+        settle()
+
+        val workbench = Workbench(worker = StandardTestDispatcher(testScheduler))
+        val pasted = workbench.open(null, "a: 1", Format.Yaml)
+        WorkbenchKeeper(workbench = workbench, small = small, texts = texts, scope = backgroundScope).start()
+        settle()
+
+        val state = workbench.state.value
+        assertEquals(listOf("order.json", null), state.documents.map { it.name })
+        assertEquals(pasted, state.selectedId)
+        assertEquals(state.documents.size, state.documents.map { it.id }.toSet().size)
+    }
+}

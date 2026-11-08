@@ -77,21 +77,29 @@ class StartScreenTest {
     }
 
     @Test
-    fun recentSaysTheFormatTheSizeAndWhenEachWasEdited() = runComposeUiTest {
+    fun recentSaysTheFormatTheSizeAndWhenEachWasEditedOrOpened() = runComposeUiTest {
         val clock = TestClock(now)
-        val recent = RecentDocument(
+        val edited = RecentDocument(
             id = 7,
             name = "order.json",
             format = Format.Json,
-            size = 742,
-            editedAt =
-            now - 2.minutes
+            size = 665,
+            at = now - 2.minutes,
+            edited = true
+        )
+        val opened = RecentDocument(
+            id = 8,
+            name = "deployment.yaml",
+            format = Format.Yaml,
+            size = 1946,
+            at =
+            now - 5.minutes
         )
         val intents = mutableListOf<StartIntent>()
         setContent {
             PantrixTestTheme(window = desktop, clock = clock) {
                 StartScreen(
-                    state = StartState(recent = listOf(recent)),
+                    state = StartState(recent = listOf(edited, opened)),
                     onIntent = { intents += it },
                     onPaste = {},
                     readsClipboard = true
@@ -99,7 +107,8 @@ class StartScreenTest {
             }
         }
 
-        awaitText("JSON · 742 B · edited 2 minutes ago")
+        awaitText("JSON · 665 B · edited 2 minutes ago")
+        awaitText("YAML · 1.9 KB · opened 5 minutes ago")
         onPantrixNode("ListItem", "recent_7").performClick()
         onPantrixNode("Link", "clear_history").performClick()
 

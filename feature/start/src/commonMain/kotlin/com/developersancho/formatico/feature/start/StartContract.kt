@@ -24,9 +24,17 @@ data class StartState(
  * @property name its file's name, or null for a text that was pasted.
  * @property format the format it is written in, or null for plain text.
  * @property size how many bytes its text has, in UTF-8.
- * @property editedAt when it was last opened or changed.
+ * @property at when it was last opened, or changed where [edited] says so.
+ * @property edited whether the last thing done to it was a change, not an opening.
  */
-data class RecentDocument(val id: Long, val name: String?, val format: Format?, val size: Long, val editedAt: Instant)
+data class RecentDocument(
+    val id: Long,
+    val name: String?,
+    val format: Format?,
+    val size: Long,
+    val at: Instant,
+    val edited: Boolean = false
+)
 
 /**
  * A document the Start screen hands on, to be shown in a workspace.
@@ -34,8 +42,9 @@ data class RecentDocument(val id: Long, val name: String?, val format: Format?, 
  * @property name its file's name, or null for a new document or a text that was pasted.
  * @property text what it says.
  * @property format the format it is written in, or null for plain text and an empty document.
+ * @property historyId its place in the history, once it is there: what a change made to it in its workspace is told by.
  */
-data class OpenedDocument(val name: String?, val text: String, val format: Format?)
+data class OpenedDocument(val name: String?, val text: String, val format: Format?, val historyId: Long? = null)
 
 /** A document that comes with Formatico, in `files/samples/` of this module's resources. */
 enum class Sample(val fileName: String, val format: Format) {

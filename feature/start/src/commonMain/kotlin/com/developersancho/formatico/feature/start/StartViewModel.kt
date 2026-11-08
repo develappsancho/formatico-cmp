@@ -36,12 +36,20 @@ class StartViewModel(
     override fun handle(intent: StartIntent) {
         when (intent) {
             is StartIntent.Paste -> paste(intent.text)
-            StartIntent.NewDocument -> open(OpenedDocument(name = null, text = "", format = null))
+
+            StartIntent.NewDocument -> viewModelScope.launch {
+                open(OpenedDocument(name = null, text = "", format = null))
+            }
+
             is StartIntent.OpenFiles -> intent.files.firstOrNull()?.let(::openFile)
+
             is StartIntent.RefuseFile -> setState { copy(refusal = intent.refusal) }
-            is StartIntent.OpenRecent -> history.document(intent.id)?.let(::open)
+
+            is StartIntent.OpenRecent -> viewModelScope.launch { history.document(intent.id)?.let { open(it) } }
+
             is StartIntent.OpenSample -> openSample(intent.sample)
-            StartIntent.ClearHistory -> history.clear()
+
+            StartIntent.ClearHistory -> viewModelScope.launch { history.clear() }
         }
     }
 
@@ -87,10 +95,10 @@ class StartViewModel(
         }
     }
 
-    /** Hands [document] on; one that holds text goes to the top of the history first. */
-    private fun open(document: OpenedDocument) {
+    /** Hands [document] on: one that holds text goes to the top of the history first, and on with its place there. */
+    private suspend fun open(document: OpenedDocument) {
         setState { copy(refusal = null) }
-        if (document.text.isNotEmpty()) history.record(document, clock.now())
-        sendEffect(StartEffect.OpenDocument(document))
+        val historyId = if (document.text.isNotEmpty()) history.record(document, clock.now()) else null
+        sendEffect(StartEffect.OpenDocument(document.copy(historyId = historyId)))
     }
 }

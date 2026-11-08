@@ -70,22 +70,22 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Ne: Start panoları "Drop a file here" ve "Choose a file" diyor, destek metni ("JSON, JSONC, … up to 50 MB") alanın içinde. Kodda `PantrixFileDrop` kendi sözcüklerini yazıyor: "Drop files here", "or choose files" (tek dosya alırken de çoğul); destek metni alanın altında. Masaüstünün ekran görüntüsünde görüldü (`app/shared/screenshots/Start-1440.png`).
     *   Öneri: Pantrix'in bulgusu kapanınca panodaki sözcükler; o zamana kadar ya pano koda uyar ya `label` panonun ilk satırını alır. Bkz. `PANTRIX_FINDINGS.md`.
     *   Durum: açık.
-*   [ ] **Recent yalnızca uygulama açıkken tutuluyor (2026-11-03).**
+*   [x] **Recent yalnızca uygulama açıkken tutuluyor (2026-11-03).**
     *   Ne: `SessionDocumentHistory` bellekte; uygulama kapanınca geçmiş gidiyor. Her açılışta Recent'in boş hâli görünüyor. Tasarım "History stays on this device" diyor.
     *   Öneri: cihazda bir depo: üst bilgiler için küçük bir anahtar-değer deposu, içerik için dosyalar (web'de tarayıcının deposu). 50 MB'lık bir belgenin içeriği bir ayar deposuna sığmaz; ayrı bir tasarım kararı.
-    *   Durum: açık.
+    *   Durum: kapandı (2026-11-04). Yeni `core:storage`: Recent'in listesi KSafe'te (sahibinin kararı, 2026-11-04), her belgenin metni kendi deposunda (`history-<id>`): Android, iOS ve masaüstünde uygulamanın klasöründe dosya, web'de IndexedDB. Android'de ikisi de `noBackupFilesDir`'de, iOS'ta metinlerin klasörü yedeğin dışında: belge bu cihazda kalıyor. Metin, belge Recent'ten yeniden açılınca okunuyor; yazmalar arka planda, sırayla.
 *   [ ] **Üst çubuğun bazı düğmeleri basılmıyor (2026-11-03).**
     *   Ne: Başlatıcı (komut paleti) ve Ayarlar kendi ekranları gelene kadar `enabled = false`; tek sekme var ve yeni sekme düğmesi çizilmiyor.
     *   Öneri: Palette, Settings ve sekmeler yazıldıkça bağlamak.
     *   Durum: açık. Sekmeler ve yeni sekme düğmesi Workspace'le bağlandı (2026-11-03); başlatıcı ve Ayarlar hâlâ basılmıyor. Workspace'in Query, Convert, Compare, ağaçta arama ve Table görünümü de kendi ekranlarını bekliyor.
-*   [ ] **Temanın seçimi saklanmıyor (2026-11-03).**
+*   [x] **Temanın seçimi saklanmıyor (2026-11-03).**
     *   Ne: Çubuğun tema düğmesi seçimi `rememberSaveable` ile tutuyor; uygulama yeniden açılınca sistemin teması geri geliyor.
     *   Öneri: Settings ekranıyla birlikte cihazda saklamak.
-    *   Durum: açık.
-*   [ ] **Recent "edited" diyor, belge yalnızca açılmış (2026-11-03).**
+    *   Durum: kapandı (2026-11-04). Çubuğun düğmesiyle seçilen tema KSafe'te (`theme`); uygulama açılınca okunuyor. Settings gelince aynı değeri yazacak.
+*   [x] **Recent "edited" diyor, belge yalnızca açılmış (2026-11-03).**
     *   Ne: Tasarımın metni "edited 2 minutes ago". Workspace olmadığı için bir belge düzenlenemiyor; Recent'teki zaman açıldığı an.
     *   Öneri: Workspace düzenlemeleri geçmişe yazınca zaman kendiliğinden doğru olur; o zamana kadar bilinçli bir sapma.
-    *   Durum: açık. Workspace'te Format, Minify ve Sort keys belgeyi değiştiriyor (2026-11-03), ama değişiklik Recent'e yazılmıyor: geçmiş açılan metni ve açıldığı anı tutuyor. Kalıcı geçmişle birlikte ele alınmalı.
+    *   Durum: kapandı (2026-11-04). Recent açılan belgeye "opened …", Workspace'te değişen belgeye "edited …" diyor (Türkçesi "son açılış", "son düzenleme"). Açık belge history'deki yerini (`historyId`) taşıyor; uygulama bir belgenin metni değişince history'ye söylüyor (`followEdits`), belge başa geçiyor. Start panoları da öyle çizildi (tuval sürüm 70).
 *   [x] **Ülkeler örneği 249 satır (2026-11-03).**
     *   Ne: Panolar "250 rows" diyordu; ISO 3166-1'de 249 kayıt var. Panolar ve metin 249'a düzeltildi.
     *   Durum: kapandı (2026-11-03).
@@ -115,13 +115,29 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Ne: Format, Minify ve Sort keys bir "Undo" bildirimi gösteriyor; bildirim kapanınca önceki metin gidiyor. Minify yorumları siliyor: bildirim kapandıktan sonra JSONC'nin ve YAML'ın yorumları geri gelmez. Telefonda eylemli bildirim, kapatılana kadar alttaki araç çubuğunun üstünde duruyor (Pantrix'in kuralı: eylemli bildirim kendiliğinden kapanmaz).
     *   Öneri: editörle birlikte belge başına bir geri alma geçmişi (`⌘Z`); o zamana kadar yorumu olan bir belgeyi küçültmeden önce uyarmak ya da yorumlar silinecekse bildirimde söylemek.
     *   Durum: açık.
-*   [ ] **Açık belgeler uygulama kapanınca gidiyor (2026-11-03).**
+*   [x] **Açık belgeler uygulama kapanınca gidiyor (2026-11-03).**
     *   Ne: `Workbench` belgeleri bellekte tutuyor; uygulama kapanınca sekmeler de içerikleri de gidiyor. Android süreci öldürülürse geri yığını `Workspace(id)`'yi geri getiriyor, `Workbench` boş olduğu için Start'a dönülüyor.
     *   Öneri: kalıcı geçmişle aynı depo: açık sekmelerin listesi ve içerikleri cihazda.
-    *   Durum: açık.
-*   [ ] **Telefonda Start'tan açık belgelere dönülemiyor (2026-11-03).**
+    *   Durum: kapandı (2026-11-04). `WorkbenchKeeper` açık sekmeleri KSafe'te, metinleri `open-<id>` olarak tutuyor ve uygulama açılınca geri veriyor; seçili sekme de geliyor. Bir değişiklikten yarım saniye sonra yazıyor, yalnızca değişen metni. Maestro'nun `kept` akışı Android'de ve iOS'ta uygulamayı kapatıp açarak sınıyor.
+*   [x] **Telefonda Start'tan açık belgelere dönülemiyor (2026-11-03).**
     *   Ne: Telefonda geri tuşu belgeyi açık bırakıp Start'a dönüyor. Start'ın çubuğunda belge değiştirici yok (panoda da yok); açık belgeye ancak Recent'ten ya da aynı örnekten dönülüyor (aynı ad ve metin, açık sekmeyi seçiyor).
     *   Öneri: telefonda Start'ın çubuğunda, açık belge varken değiştiriciyi ve sayısını göstermek; önce tuvalde Start-390'a çizilmeli.
+    *   Durum: kapandı (2026-11-04). Start-390'a çizildi (durum `documents: open`, tuval sürüm 70): açık belge varken çubuk Workspace-390'daki değiştirici, "New tab" ve açık belgelerin sayısıyla. Kodda aynısı; `AppTest` telefonda sınıyor.
+*   [ ] **Açılışta Start bir an görünüyor, sonra geri gelen belgeye geçiliyor (2026-11-04).**
+    *   Ne: Açık belgeler depodan okunurken uygulama Start'ı gösteriyor; okuma bitince seçili belgeye geçiyor. Web'de (yerel dağıtım, tarayıcıda yeniden yükleme) bir iki saniye görülüyor, çünkü önce kelimeler ve KSafe'in önbelleği geliyor.
+    *   Öneri: depo okunana kadar ilk ekranı göstermemek (Start'ın iskeleti ya da boş bir zemin), ya da geri gelen belgeyi beklemek.
+    *   Durum: açık.
+*   [ ] **Açık bir belgenin metni iki kez saklanıyor (2026-11-04).**
+    *   Ne: Recent'teki ve açık sekmedeki aynı belge, metnini iki ayrı adla tutuyor (`history-<id>`, `open-<id>`): 10 MB'lık bir belge web'de 20 MB yer tutuyor.
+    *   Öneri: açık sekme history'deki metne bağlansın (`historyId` varken ayrı metin yazmasın), değişince ikisi birlikte yazılsın.
+    *   Durum: açık.
+*   [ ] **Bir belgenin ağacının hâli saklanmıyor (2026-11-04).**
+    *   Ne: Uygulama yeniden açılınca açık belgeler ve metinleri geliyor, ama ağacın açık dalları, seçili değer, tablonun sıralaması ve gizli sütunları gelmiyor; belge ağacında ya da tablosunda, açıldığı gibi açılıyor.
+    *   Öneri: `DocumentView`'ın kalanını da `WorkbenchKeeper`'ın sekme kaydına yazmak.
+    *   Durum: açık.
+*   [ ] **Belgelerin metni cihazda şifresiz (2026-11-04).**
+    *   Ne: Recent'in ve açık sekmelerin listesi KSafe'te şifreli, metinler ise uygulamanın klasöründe (web'de IndexedDB'de) düz metin. Yapıştırılan bir belge bir anahtar ya da parola taşıyabilir.
+    *   Öneri: sahibinin kararı: metinleri de şifrelemek (KSafe'in anahtarıyla) ya da Settings'e "geçmişi tutma" seçeneği.
     *   Durum: açık.
 *   [ ] **Biçimlendirme sondaki virgülü siliyor, anahtarla değer arasındaki yorumu öne alıyor (2026-11-03).**
     *   Ne: `JsonDocument.formatted` JSONC ve JSON5'te sondaki virgülü yazmıyor; bir üyenin anahtarıyla değeri arasındaki yorum (`"b": /* not */ 2`) üyenin önüne kendi satırına geçiyor. İkisi de belgeyi geçerli bırakıyor, ama yazanın biçimi değil.
