@@ -5,6 +5,7 @@
     <string name="settings_editor">Editör</string>
     <string name="settings_formats">Biçimler</string>
     <string name="settings_history">Geçmiş</string>
+    <string name="settings_shortcuts">Klavye kısayolları</string>
     <string name="settings_about">Formatico hakkında</string>
     <string name="settings_theme">Tema</string>
     <string name="settings_theme_body">Açık ya da koyu, ya da sistem nasılsa.</string>
@@ -49,6 +50,7 @@
     <string name="settings_clear_body">Her belgeyi geçmişten çıkarır. Açık sekmeler kalır.</string>
     <string name="settings_clear_body_phone">Açık belgeler kalır.</string>
     <string name="settings_clear_short">Temizle</string>
+    <string name="settings_shortcuts_body">Her biri, komut paletinde aynı adı taşıyan komutu çalıştırır. Windows'ta ve Linux'ta ⌘'nin yerini Ctrl alır.</string>
     <string name="settings_version">Formatico %1$s</string>
     <string name="settings_built_with">Pantrix UI %1$s ile yapıldı. Geist ve Geist Mono ile dizildi.</string>
     <string name="settings_licences">Açık kaynak lisansları</string>

@@ -42,6 +42,37 @@ class DocumentPaletteTest {
         return commands
     }
 
+    /** The document's commands Settings lists the keys of, drawn in [window] on [platform], once their words are read. */
+    private suspend fun ComposeUiTest.shortcutsOf(
+        window: PantrixWindow = desktop,
+        platform: PlatformType = PlatformType.Desktop
+    ): List<PantrixCommand> {
+        var commands: List<PantrixCommand>? = null
+        setContent { PantrixTestTheme(platform = platform, window = window) { commands = documentShortcutCommands() } }
+        awaitUntil("the shortcuts' words are read") { commands?.all { it.label.isNotEmpty() } == true }
+        return commands.orEmpty()
+    }
+
+    @Test
+    fun settingsListsTheKeysOfAJsonDocumentsCommands() = runComposeUiTest {
+        val commands = shortcutsOf()
+
+        assertEquals(listOf("format", "minify", "copy", "save", "tree", "table", "query"), commands.map { it.key })
+        assertEquals(listOf("Document", "View"), commands.mapNotNull { it.group }.distinct())
+        assertEquals("Query with JSONPath", commands.last().label)
+        assertEquals(DocumentShortcuts.Query, commands.last().shortcut)
+    }
+
+    @Test
+    fun aBrowserListsNoKeysItKeepsForItself() = runComposeUiTest {
+        assertEquals(listOf("format", "minify", "copy", "save", "query"), shortcutsOf(platform = PlatformType.Web).map { it.key })
+    }
+
+    @Test
+    fun aPhoneListsNoKeys() = runComposeUiTest {
+        assertEquals(emptyList(), shortcutsOf(window = phone))
+    }
+
     @Test
     fun aWideWindowListsTheBoardsCommandsUnderTheirGroupsWithTheirKeys() = runComposeUiTest {
         val commands = commandsOf(order).single()

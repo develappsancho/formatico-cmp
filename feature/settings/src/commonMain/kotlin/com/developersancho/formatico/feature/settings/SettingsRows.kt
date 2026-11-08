@@ -119,7 +119,7 @@ private fun SettingText(label: String, description: String?, layout: SettingsLay
 
 /** A setting's name, a step larger on a tablet and a phone, where a finger reads it. */
 @Composable
-private fun SettingsLayout.labelStyle() = when (this) {
+internal fun SettingsLayout.labelStyle() = when (this) {
     SettingsLayout.Wide -> PantrixTheme.typography.label.copy(fontWeight = FontWeight.Medium)
     else -> PantrixTheme.typography.body.copy(fontWeight = FontWeight.Medium)
 }

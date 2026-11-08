@@ -36,7 +36,6 @@ import com.pantrixui.foundation.files.rememberFilePicker
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.keyboard.PantrixShortcut
 import com.pantrixui.foundation.keyboard.shortcutRoot
-import com.pantrixui.foundation.platform.LocalOperatingSystem
 import com.pantrixui.foundation.platform.onPaste
 import com.pantrixui.foundation.platform.rememberPantrixClipboard
 import com.pantrixui.foundation.theme.PantrixTheme
@@ -53,7 +52,6 @@ import formatico.feature.start.generated.resources.start_new_document
 import formatico.feature.start.generated.resources.start_new_empty_document
 import formatico.feature.start.generated.resources.start_open_file
 import formatico.feature.start.generated.resources.start_paste
-import formatico.feature.start.generated.resources.start_paste_hint
 import formatico.feature.start.generated.resources.start_privacy
 import formatico.feature.start.generated.resources.start_title
 import kotlinx.coroutines.launch
@@ -140,7 +138,7 @@ internal fun StartScreen(state: StartState, onIntent: (StartIntent) -> Unit, mod
                 layout = layout,
                 onIntent = onIntent,
                 onPaste = clipboardPaste(onIntent),
-                pasteHint = pasteShortcut.writtenOn(LocalOperatingSystem.current)
+                pasteShortcut = pasteShortcut
             )
             if (layout == StartLayout.Phone) {
                 RefusalMessage(state.refusal)
@@ -206,9 +204,9 @@ private fun clipboardPaste(onIntent: (StartIntent) -> Unit): () -> Unit {
     }
 }
 
-/** Paste, a new document, and on a phone the picker in place of the drop zone; [pasteHint] is the paste's keys. */
+/** Paste, a new document, and on a phone the picker in place of the drop zone; [pasteShortcut] is the paste's keys. */
 @Composable
-private fun Actions(layout: StartLayout, onIntent: (StartIntent) -> Unit, onPaste: () -> Unit, pasteHint: String) {
+private fun Actions(layout: StartLayout, onIntent: (StartIntent) -> Unit, onPaste: () -> Unit, pasteShortcut: PantrixShortcut) {
     val spacing = PantrixTheme.spacing
     val size = if (layout == StartLayout.Wide) ButtonSize.Medium else ButtonSize.Large
     val paste = @Composable {
@@ -233,11 +231,7 @@ private fun Actions(layout: StartLayout, onIntent: (StartIntent) -> Unit, onPast
         ) {
             paste()
             newDocument()
-            PantrixText(
-                text = stringResource(Res.string.start_paste_hint, pasteHint),
-                modifier = Modifier.padding(start = spacing.xs),
-                color = PantrixTheme.colors.textSecondary
-            )
+            PasteHint(pasteShortcut, Modifier.padding(start = spacing.xs))
         }
 
         StartLayout.Tablet -> FlowRow(

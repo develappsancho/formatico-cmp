@@ -112,7 +112,7 @@ eksikler Faz 4'te.
     bandında, olukta `~ + −`, değişen değer dolgusuyla; gösterilen fark birincil çubukla ve imleç taşınmadan ekrana
     geliyor (Pantrix'in üç `tıkıyor` bulgusu kapandı). Panodan kalan, tıkamayan bir ayrım bulgularda: işaretsiz ilk
     satırın imleç bandı.
-*   [ ] **Faz 12: Komut paleti, kısayollar ve Settings.** Faz 4'ün cihazda saklamasının üstünde. Tuvalde eksikler çizildi
+*   [x] **Faz 12: Komut paleti, kısayollar ve Settings.** Faz 4'ün cihazda saklamasının üstünde. Tuvalde eksikler çizildi
     (2026-11-05, sürüm 76): Settings'in Keyboard shortcuts bölümü ve Open-source licences sayfası, telefonda alt kısım,
     Start'ta biçimi anlaşılmayan metnin sorusu ("Ask me"). Komut paleti ve kısayollar yapıldı (2026-11-05): palet
     başlatıcıdan ve Command ya da Control ve K ile açılıyor; belgenin komutları (Document, View, Convert) ve
@@ -121,8 +121,10 @@ eksikler Faz 4'te.
     ve `feature:settings`; geniş pencerede kenar çubuğuyla bir sekme, tablette sekme, telefonda kendi ekranı. Tema,
     dil (uygulamanın ve Pantrix'in sözcükleri, anında), Format'ın girintisi ve anahtar sıralaması, biçimi anlaşılmayan
     metnin sorusu, geçmişin tutulması, süresi ve temizlenmesi, About (sürüm derlemeden) ve açık kaynak lisansları.
-    "Wrap long lines" Pantrix'in satır kaydırmasıyla bağlandı (2026-11-05). Kalan, Keyboard shortcuts bölümü: Pantrix'in
-    tuş kapağını bekliyor, bulgusu `tıkıyor` (sahibinin kararı, 2026-11-05).
+    "Wrap long lines" Pantrix'in satır kaydırmasıyla bağlandı (2026-11-05). Keyboard shortcuts bölümü Pantrix'in
+    `PantrixKeycaps`'iyle yapıldı (2026-11-06): paletin kısayollu komutları, gruplarıyla, uygulamanın çalıştığı yerin
+    tuşlarıyla (telefonda bölüm yok, tarayıcıda kendi tuttuğu kısayollar yok); başlatıcının ve Start'ın ipucunun
+    tuşları da kapaklarda. Masaüstünde ve web'de Escape artık ekrandan çıkarmıyor (2026-11-06).
 *   [ ] **Faz 13: Paylaşım.** Küçük bir belge sıkıştırılıp bağlantının fragment'ında; sunucu yok.
 *   [ ] **Faz 14: Büyük dosyalar.** Masaüstünde 50 MB, telefonda ve web'de 10 MB, ölçülerek.
 *   [ ] **Faz 15: v1'in testi.** Roborazzi her panoyla, Maestro akışları Android ve iOS'ta, tarayıcı testleri;

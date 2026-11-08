@@ -469,6 +469,9 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
         *   Biçimi anlaşılmayan metin, soru sorulmadan önce geçmişe "Text" olarak yazılıyor; sonra JSON olarak açılsa da Recent'te "Text".
         *   Dil değişince uygulamanın bileşimi baştan kuruluyor (`key`): geri yığını ve Settings'in açıklığı korunuyor; ekranların kaydırma yeri gibi kalıcı olmayan hâller gidiyor.
         *   Lisans listesi elle tutuluyor (`OpenSourceLibrary`): bir bağımlılık eklenince ya da çıkınca güncellenmeli.
+        *   Keyboard shortcuts, paletin kısayolu olan komutlarını uygulamanın çalıştığı yerde listeliyor: tarayıcıda New tab, Show the tree ve Show the table yok (⌘T, ⌘1, ⌘2 tarayıcının); panolar web'i çizmiyor. Girişteki cümle ("On Windows and Linux, Ctrl takes the place of ⌘") panodaki gibi her sistemde aynı; Windows'ta kapaklar zaten Ctrl diyor.
+        *   Panoların "shortcuts" hâli sayfanın aşağısı; önizleme Settings'i o bölüme kaydırılmış açıyor (`at`), önceki bölümün alt kenarı üstte görünüyor. Telefonda bölüm yok, orada History'ye kaydırılıyor.
+        *   Başlatıcının `⌘K`'sı ve Start'ın `⌘V` ipucu panolarda tek kapak; `PantrixKeycaps` her tuşa bir kapak veriyor (`Ctrl` `K`), paletin ve Settings panosunun yaptığı gibi. Panolar tuş başına kapağa çekilebilir, ya da Pantrix'ten tek kapaklı bir biçim istenebilir.
     *   Öneri: sahibinin onayı; geçmişin "Text" yazılması için kayıt sorunun cevabından sonraya alınabilir.
     *   Durum: açık.
 

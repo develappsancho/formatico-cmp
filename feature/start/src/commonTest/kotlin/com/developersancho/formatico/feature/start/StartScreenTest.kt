@@ -167,6 +167,8 @@ class StartScreenTest {
 
         awaitText("Paste from clipboard")
         onAllNodes(hasText("anywhere on this screen", substring = true)).assertCountEquals(1)
+        // The keys stand on keycaps; a screen reader hears the hint as one sentence, as the system writes the keys.
+        onAllNodes(hasText("or press Ctrl+V anywhere on this screen")).assertCountEquals(1)
         // On the web the browser's own paste follows the key, as a reader's does.
         onRoot().performPaste("a: 1\n", clipboard, OperatingSystem.Android)
 

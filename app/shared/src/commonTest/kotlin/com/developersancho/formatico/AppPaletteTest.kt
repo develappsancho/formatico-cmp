@@ -113,7 +113,8 @@ class AppPaletteTest {
 
         awaitText("Keep a history of documents")
         onPantrixNode("Button", "launcher").performClick()
-        awaitText("Open a file")
+        // Settings' Keyboard shortcuts names it too: the palette's own row is waited for.
+        awaitNode(hasPantrixTag("Command", "open", scope = "CommandPalette_commands"), "The palette's Open a file")
         command("format").assertDoesNotExist()
         command("settings").assertIsNotEnabled()
         command("new").assertIsEnabled()

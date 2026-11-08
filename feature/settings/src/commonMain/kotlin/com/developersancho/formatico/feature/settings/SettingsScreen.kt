@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
@@ -36,6 +37,7 @@ import com.pantrixui.components.elements.text.TextRole
 import com.pantrixui.components.navigation.sidebar.PantrixSidebar
 import com.pantrixui.components.navigation.sidebar.SidebarGroup
 import com.pantrixui.components.navigation.sidebar.SidebarItem
+import com.pantrixui.components.overlay.commandpalette.PantrixCommand
 import com.pantrixui.foundation.adaptive.WindowWidthClass
 import com.pantrixui.foundation.adaptive.isNarrow
 import com.pantrixui.foundation.theme.PantrixTheme
@@ -46,6 +48,7 @@ import formatico.feature.settings.generated.resources.settings_formats
 import formatico.feature.settings.generated.resources.settings_general
 import formatico.feature.settings.generated.resources.settings_history
 import formatico.feature.settings.generated.resources.settings_licences
+import formatico.feature.settings.generated.resources.settings_shortcuts
 import formatico.feature.settings.generated.resources.settings_title
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
@@ -68,20 +71,33 @@ internal fun settingsLayout(): SettingsLayout {
 
 /**
  * The sections of Settings, in order, by their [key]: what a wide window's sidebar goes to. A phone has neither
- * Formats nor how long the history keeps a document, as its board has them not. The keyboard's shortcuts wait for
- * Pantrix's keycaps (PANTRIX_FINDINGS, "Kısayolun tuşlarını çizen bir öğe yok").
+ * Formats, nor how long the history keeps a document, nor the keyboard's shortcuts, as its board has them not.
  */
 internal enum class SettingsSection(val key: String, val title: StringResource) {
     General("general", Res.string.settings_general),
     Editor("editor", Res.string.settings_editor),
     Formats("formats", Res.string.settings_formats),
     History("history", Res.string.settings_history),
+    Shortcuts("shortcuts", Res.string.settings_shortcuts),
     About("about", Res.string.settings_about)
 }
 
-/** Settings with its view model: back from its sections leaves it, by [onClose]. */
+/** The sections [layout] shows: Formats and the keyboard's shortcuts not on a phone, and the shortcuts where there are. */
+internal fun shownSections(layout: SettingsLayout, shortcuts: List<PantrixCommand>): List<SettingsSection> =
+    SettingsSection.entries.filter { section ->
+        when (section) {
+            SettingsSection.Formats -> layout != SettingsLayout.Phone
+            SettingsSection.Shortcuts -> layout != SettingsLayout.Phone && shortcuts.any { it.shortcut != null }
+            else -> true
+        }
+    }
+
+/**
+ * Settings with its view model: back from its sections leaves it, by [onClose]. [shortcuts] are the palette's commands
+ * whose keys Keyboard shortcuts lists.
+ */
 @Composable
-fun SettingsRoute(onClose: () -> Unit, modifier: Modifier = Modifier) {
+fun SettingsRoute(onClose: () -> Unit, shortcuts: List<PantrixCommand>, modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<SettingsViewModel>()
     MviScreen(
         viewModel = viewModel,
@@ -91,50 +107,52 @@ fun SettingsRoute(onClose: () -> Unit, modifier: Modifier = Modifier) {
             }
         }
     ) { state, dispatch ->
-        SettingsScreen(state = state, onIntent = dispatch, modifier = modifier)
+        SettingsScreen(state = state, onIntent = dispatch, modifier = modifier, shortcuts = shortcuts)
     }
 }
 
 /**
  * Settings, drawn from [state] for the window's width: a wide window's sections beside a sidebar that goes to each, a
  * tablet's under one another, and a phone's under a bar of their own whose back leaves a page. The system's back goes
- * back a page too, and leaves Settings from its sections.
+ * back a page too, and leaves Settings from its sections. Keyboard shortcuts lists [shortcuts]' keys.
+ *
+ * [at] is the section it opens scrolled to, as a board draws one further down; where the window does not show that
+ * section, the one shown before it.
  */
 @Composable
-internal fun SettingsScreen(state: SettingsState, onIntent: (SettingsIntent) -> Unit, modifier: Modifier = Modifier) {
+internal fun SettingsScreen(
+    state: SettingsState,
+    onIntent: (SettingsIntent) -> Unit,
+    modifier: Modifier = Modifier,
+    shortcuts: List<PantrixCommand> = emptyList(),
+    at: SettingsSection? = null
+) {
     val layout = settingsLayout()
+    val sections = shownSections(layout, shortcuts)
     val scroll = rememberScrollState()
     val placed = remember { mutableStateMapOf<SettingsSection, Int>() }
+    val opened = at?.let { wanted -> sections.lastOrNull { it.ordinal <= wanted.ordinal } }
+    val openedAt = opened?.let { placed[it] }
+    LaunchedEffect(openedAt) { openedAt?.let { scroll.scrollTo(it) } }
     SystemBack { onIntent(SettingsIntent.Back) }
+    val pages = @Composable { pagesModifier: Modifier -> Pages(state, layout, sections, shortcuts, onIntent, placed, pagesModifier) }
     Box(modifier = modifier.fillMaxSize().background(PantrixTheme.colors.background)) {
         when (layout) {
             SettingsLayout.Wide -> Row(modifier = Modifier.fillMaxSize()) {
-                SettingsSidebar(state.page, scroll, placed)
+                SettingsSidebar(state.page, sections, scroll, placed)
                 Box(modifier = Modifier.weight(1f).fillMaxHeight().pantrixVerticalScroll(scroll), contentAlignment = Alignment.TopCenter) {
-                    Pages(
-                        state,
-                        layout,
-                        onIntent,
-                        placed,
-                        Modifier.padding(horizontal = 24.dp).widthIn(max = WideColumn).padding(vertical = 32.dp)
-                    )
+                    pages(Modifier.padding(horizontal = 24.dp).widthIn(max = WideColumn).padding(vertical = 32.dp))
                 }
             }
 
             SettingsLayout.Tablet -> Box(modifier = Modifier.fillMaxSize().pantrixVerticalScroll(scroll)) {
-                Pages(state, layout, onIntent, placed, Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 32.dp))
+                pages(Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 32.dp))
             }
 
             SettingsLayout.Phone -> Column(modifier = Modifier.fillMaxSize()) {
                 PhoneSettingsBar(state.page, onIntent)
                 Box(modifier = Modifier.weight(1f).pantrixVerticalScroll(scroll)) {
-                    Pages(
-                        state,
-                        layout,
-                        onIntent,
-                        placed,
-                        Modifier.fillMaxWidth().padding(horizontal = PantrixTheme.spacing.md, vertical = PantrixTheme.spacing.lg)
-                    )
+                    pages(Modifier.fillMaxWidth().padding(horizontal = PantrixTheme.spacing.md, vertical = PantrixTheme.spacing.lg))
                 }
             }
         }
@@ -147,29 +165,33 @@ internal fun SettingsScreen(state: SettingsState, onIntent: (SettingsIntent) -> 
  */
 private val WideColumn = 720.dp
 
-/** The page Settings is at; its sections tell [placed] where each stands, for the sidebar to go to. */
+/** The page Settings is at; its [sections] tell [placed] where each stands, for the sidebar to go to. */
 @Composable
 private fun Pages(
     state: SettingsState,
     layout: SettingsLayout,
+    sections: List<SettingsSection>,
+    shortcuts: List<PantrixCommand>,
     onIntent: (SettingsIntent) -> Unit,
     placed: MutableMap<SettingsSection, Int>,
     modifier: Modifier
 ) {
     Box(modifier = modifier) {
         when (val page = state.page) {
-            SettingsPage.Settings -> Sections(state, layout, onIntent, placed)
+            SettingsPage.Settings -> Sections(state, layout, sections, shortcuts, onIntent, placed)
             SettingsPage.Licences -> LicencesPage(layout, onIntent)
             is SettingsPage.Licence -> LicencePage(page.library, layout, onIntent)
         }
     }
 }
 
-/** The sections, under Settings' title where there is no bar to hold it. */
+/** The [sections] shown, under Settings' title where there is no bar to hold it. */
 @Composable
 private fun Sections(
     state: SettingsState,
     layout: SettingsLayout,
+    sections: List<SettingsSection>,
+    shortcuts: List<PantrixCommand>,
     onIntent: (SettingsIntent) -> Unit,
     placed: MutableMap<SettingsSection, Int>
 ) {
@@ -184,26 +206,37 @@ private fun Sections(
                 role = TextRole.Heading(level = 1)
             )
         }
-        val at: (SettingsSection) -> Modifier = { section -> Modifier.onPlaced { placed[section] = it.positionInParent().y.toInt() } }
-        Box(at(SettingsSection.General)) { GeneralSection(state, language, layout, onIntent) }
-        Box(at(SettingsSection.Editor)) { EditorSection(state, layout, onIntent) }
-        if (!phone) Box(at(SettingsSection.Formats)) { FormatsSection(state, layout, onIntent) }
-        Box(at(SettingsSection.History)) { HistorySection(state, layout, onIntent) }
-        Box(at(SettingsSection.About)) { AboutSection(layout, onIntent) }
+        sections.forEach { section ->
+            Box(Modifier.onPlaced { placed[section] = it.positionInParent().y.toInt() }) {
+                when (section) {
+                    SettingsSection.General -> GeneralSection(state, language, layout, onIntent)
+                    SettingsSection.Editor -> EditorSection(state, layout, onIntent)
+                    SettingsSection.Formats -> FormatsSection(state, layout, onIntent)
+                    SettingsSection.History -> HistorySection(state, layout, onIntent)
+                    SettingsSection.Shortcuts -> ShortcutsSection(shortcuts, layout)
+                    SettingsSection.About -> AboutSection(layout, onIntent)
+                }
+            }
+        }
     }
 }
 
 /**
- * A wide window's sidebar: a destination for each section, the one in view chosen; pressing one scrolls to it. Over
- * the licences, About is chosen.
+ * A wide window's sidebar: a destination for each of the [sections] shown, the one in view chosen; pressing one scrolls
+ * to it. Over the licences, About is chosen.
  */
 @Composable
-private fun SettingsSidebar(page: SettingsPage, scroll: ScrollState, placed: Map<SettingsSection, Int>) {
+private fun SettingsSidebar(
+    page: SettingsPage,
+    sections: List<SettingsSection>,
+    scroll: ScrollState,
+    placed: Map<SettingsSection, Int>
+) {
     val scope = rememberCoroutineScope()
-    val inView by remember(placed) {
-        derivedStateOf { SettingsSection.entries.lastOrNull { section -> (placed[section] ?: Int.MAX_VALUE) <= scroll.value + 1 } }
+    val inView by remember(placed, sections) {
+        derivedStateOf { sections.lastOrNull { section -> (placed[section] ?: Int.MAX_VALUE) <= scroll.value + 1 } }
     }
-    val items = SettingsSection.entries.map { SidebarItem(key = it.key, label = stringResource(it.title)) }
+    val items = sections.map { SidebarItem(key = it.key, label = stringResource(it.title)) }
     PantrixSidebar(
         groups = listOf(SidebarGroup(items = items)),
         selected = if (page == SettingsPage.Settings) (inView ?: SettingsSection.General).key else SettingsSection.About.key,

@@ -203,7 +203,7 @@ private fun AppScreens(
         entryProvider = entryProvider {
             entry<Destination.Start> { StartRoute(onOpenDocument = onOpen) }
             entry<Destination.Workspace> { destination -> WorkspaceRoute(documentId = destination.documentId) }
-            entry<Destination.Settings> { SettingsRoute(onClose = onCloseSettings) }
+            entry<Destination.Settings> { SettingsRoute(onClose = onCloseSettings, shortcuts = shortcutCommands()) }
         }
     )
 }

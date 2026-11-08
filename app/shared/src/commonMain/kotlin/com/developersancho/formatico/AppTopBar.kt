@@ -50,13 +50,15 @@ import com.pantrixui.components.elements.divider.PantrixDivider
 import com.pantrixui.components.elements.divider.PantrixHorizontalDivider
 import com.pantrixui.components.elements.icon.PantrixIcon
 import com.pantrixui.components.elements.iconbutton.PantrixIconButton
+import com.pantrixui.components.elements.keycaps.KeycapsColors
+import com.pantrixui.components.elements.keycaps.KeycapsSize
+import com.pantrixui.components.elements.keycaps.PantrixKeycaps
 import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.components.overlay.menu.PantrixMenu
 import com.pantrixui.components.overlay.menu.PantrixMenuItem
 import com.pantrixui.foundation.adaptive.WindowWidthClass
 import com.pantrixui.foundation.adaptive.isNarrow
 import com.pantrixui.foundation.icons.PantrixIcons
-import com.pantrixui.foundation.platform.LocalOperatingSystem
 import com.pantrixui.foundation.theme.PantrixTheme
 import formatico.app.shared.generated.resources.Res
 import formatico.app.shared.generated.resources.app_name
@@ -506,9 +508,10 @@ private fun Launcher(onOpenPalette: () -> Unit) {
     ) {
         PantrixIcon(imageVector = PantrixIcons.Search, contentDescription = null)
         PantrixText(text = label, modifier = Modifier.weight(1f).padding(horizontal = PantrixTheme.spacing.sm))
-        PantrixText(
-            text = AppShortcuts.Palette.writtenOn(LocalOperatingSystem.current),
-            style = PantrixTheme.typography.caption
+        PantrixKeycaps(
+            shortcut = AppShortcuts.Palette,
+            size = KeycapsSize.Small,
+            colors = KeycapsColors(container = colors.surface)
         )
     }
 }

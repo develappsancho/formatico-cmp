@@ -13,6 +13,7 @@ import com.developersancho.formatico.feature.workspace.DocumentPalette
 import com.developersancho.formatico.feature.workspace.Workbench
 import com.developersancho.formatico.feature.workspace.WorkbenchState
 import com.developersancho.formatico.feature.workspace.documentPaletteCommands
+import com.developersancho.formatico.feature.workspace.documentShortcutCommands
 import com.developersancho.formatico.feature.workspace.rememberDocumentPalette
 import com.pantrixui.components.overlay.commandpalette.PantrixCommand
 import com.pantrixui.components.overlay.commandpalette.PantrixCommandPalette
@@ -32,6 +33,7 @@ import formatico.app.shared.generated.resources.palette_new_document
 import formatico.app.shared.generated.resources.palette_open_file
 import formatico.app.shared.generated.resources.palette_paste
 import formatico.app.shared.generated.resources.palette_placeholder
+import formatico.app.shared.generated.resources.search_or_run_a_command
 import formatico.app.shared.generated.resources.settings
 import formatico.app.shared.generated.resources.use_dark_theme
 import formatico.app.shared.generated.resources.use_light_theme
@@ -39,6 +41,7 @@ import org.jetbrains.compose.resources.stringResource
 
 /** The keys of the palette's commands of the app itself, the same in every language. */
 internal object AppCommandKeys {
+    const val PALETTE = "palette"
     const val NEW = "new"
     const val OPEN = "open"
     const val PASTE = "paste"
@@ -117,6 +120,24 @@ internal fun appPaletteCommands(workbench: WorkbenchState, darkTheme: Boolean, s
             enabled = !settingsShown
         )
     )
+}
+
+/**
+ * What Settings' Keyboard shortcuts lists, as the palette has it where the app runs: the palette's own keys first, under
+ * Formatico's name, then the app's commands and a document's that have a shortcut. A phone writes none.
+ */
+@Composable
+internal fun shortcutCommands(): List<PantrixCommand> {
+    if (PantrixTheme.window.isNarrow) return emptyList()
+    val palette = PantrixCommand(
+        key = AppCommandKeys.PALETTE,
+        label = stringResource(Res.string.search_or_run_a_command),
+        group = stringResource(Res.string.app_name),
+        shortcut = AppShortcuts.Palette
+    )
+    // Which documents are open makes no command's name nor its keys: only whether it can run now, which a list does not.
+    val app = appPaletteCommands(WorkbenchState(), darkTheme = false, settingsShown = true)
+    return (listOf(palette) + app + documentShortcutCommands()).filter { it.shortcut != null }
 }
 
 /**

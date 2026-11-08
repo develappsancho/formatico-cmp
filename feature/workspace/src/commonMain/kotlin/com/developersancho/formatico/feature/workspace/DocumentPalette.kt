@@ -77,11 +77,24 @@ private val PaletteTargets = listOf(Format.Json, Format.Yaml, Format.Toml, Forma
  * no shortcuts; a command the document cannot take, as Sort keys for a CSV or a query of plain text, is listed faint.
  */
 @Composable
-fun documentPaletteCommands(document: OpenDocument): List<PantrixCommand> {
+fun documentPaletteCommands(document: OpenDocument): List<PantrixCommand> =
+    documentAndViewCommands(document.format) + convertGroup(document.format)
+
+/**
+ * The palette's commands of a document that have a shortcut where the app runs, under their groups, as Settings'
+ * Keyboard shortcuts lists them: those of a JSON document, whose query is JSONPath's. A phone writes none, and a
+ * browser none of the keys it keeps for itself.
+ */
+@Composable
+fun documentShortcutCommands(): List<PantrixCommand> = documentAndViewCommands(Format.Json).filter { it.shortcut != null }
+
+/** The Document and the View groups of a document of [format], with the keys the window and the platform give them. */
+@Composable
+private fun documentAndViewCommands(format: Format?): List<PantrixCommand> {
     val phone = workspaceLayout() == WorkspaceLayout.Phone
     val browser = PantrixTheme.platform.type == PlatformType.Web
     val keys: (PantrixShortcut) -> PantrixShortcut? = { if (phone) null else it }
-    return documentGroup(document.format, phone, keys) + viewGroup(document.format, phone, browser, keys) + convertGroup(document.format)
+    return documentGroup(format, phone, keys) + viewGroup(format, phone, browser, keys)
 }
 
 /** The Document group: Format, Minify, Sort keys (not on a phone), Copy, Save and Compare (not on a phone). */

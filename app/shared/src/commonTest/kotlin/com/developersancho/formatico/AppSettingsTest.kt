@@ -3,6 +3,7 @@ package com.developersancho.formatico
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.onRoot
@@ -75,6 +76,40 @@ class AppSettingsTest {
         onPantrixNode("IconButton", "new_tab").performClick()
         val light = "Use the light theme"
         awaitNode(hasPantrixTag("IconButton", "theme") and hasContentDescription(light), light)
+    }
+
+    @Test
+    fun settingsListsThePalettesShortcutsAsTheSystemWritesThem() = runComposeUiTest {
+        app()
+        awaitText("Paste anything")
+        onPantrixNode("IconButton", "settings").performClick()
+        awaitText("Keep a history of documents")
+
+        onPantrixNode("Item", "shortcuts", scope = "Sidebar_settings").performClick()
+        awaitNode(hasPantrixTag("Keycaps", "palette") and hasContentDescription("⌘K"), "The palette's keys")
+        onPantrixNode("Keycaps", "new").assert(hasContentDescription("⌘T"))
+        onPantrixNode("Keycaps", "settings").assert(hasContentDescription("⌘,"))
+        onPantrixNode("Keycaps", "format").assert(hasContentDescription("⌥⇧F"))
+        onPantrixNode("Keycaps", "query").assert(hasContentDescription("⇧⌘F"))
+        // The theme's command has no keys, and a list of them leaves it out.
+        onPantrixNode("Keycaps", "theme").assertDoesNotExist()
+    }
+
+    @Test
+    fun aBrowsersSettingsListsNoKeysTheBrowserKeeps() = runComposeUiTest {
+        setContent {
+            PantrixTestTheme(platform = PlatformType.Web, system = mac, window = desktop) {
+                App(systemDark = false, storage = memoryStorageModule)
+            }
+        }
+        awaitText("Paste anything")
+        onPantrixNode("IconButton", "settings").performClick()
+        awaitText("Keep a history of documents")
+
+        awaitNode(hasPantrixTag("Keycaps", "palette"), "The palette's keys")
+        onPantrixNode("Keycaps", "new").assertDoesNotExist()
+        onPantrixNode("Keycaps", "tree").assertDoesNotExist()
+        onPantrixNode("Keycaps", "query").assertExists()
     }
 
     @Test

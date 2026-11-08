@@ -6,8 +6,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.getBoundsInRoot
+import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.v2.runComposeUiTest
@@ -16,8 +20,11 @@ import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.settings.AppLanguage
 import com.developersancho.formatico.core.settings.ThemeChoice
 import com.developersancho.formatico.core.testing.awaitText
+import com.pantrixui.components.overlay.commandpalette.PantrixCommand
 import com.pantrixui.foundation.adaptive.PantrixWindow
 import com.pantrixui.foundation.diagnostics.PantrixFindings
+import com.pantrixui.foundation.platform.OperatingSystem
+import com.pantrixui.foundation.platform.PlatformType
 import com.pantrixui.testing.PantrixTestTheme
 import com.pantrixui.testing.assertNoFindings
 import com.pantrixui.testing.onPantrixNode
@@ -73,6 +80,60 @@ class SettingsScreenTest {
     }
 
     @Test
+    fun aWideWindowListsTheShortcutsUnderTheirGroupsOnTheirKeycaps() = runComposeUiTest {
+        setContent {
+            PantrixTestTheme(platform = PlatformType.Desktop, system = OperatingSystem.MacOs, window = desktop) {
+                SettingsScreen(state = state, onIntent = {}, shortcuts = PreviewShortcuts + Unbound)
+            }
+        }
+
+        // "Settings" is the page's title and a command's name too.
+        awaitText("Keep a history of documents")
+        onPantrixNode("Item", "shortcuts", scope = "Sidebar_settings").performClick()
+        awaitText("Each runs the command of the same name in the command palette", substring = true)
+        awaitText("View")
+        onPantrixNode("Keycaps", "palette").performScrollTo().assert(hasContentDescription("⌘K"))
+        onPantrixNode("Keycaps", "format").assert(hasContentDescription("⌥⇧F"))
+        onPantrixNode("Keycaps", "query").assertExists()
+        onPantrixNode("Item", "shortcuts", scope = "Sidebar_settings").assertIsSelected()
+        // A command with no shortcut is the palette's alone.
+        onNodeWithText(Unbound.label).assertDoesNotExist()
+    }
+
+    @Test
+    fun settingsOpensAtTheSectionItIsAskedFor() = runComposeUiTest {
+        setContent {
+            PantrixTestTheme(window = desktop) {
+                SettingsScreen(state = state, onIntent = {}, shortcuts = PreviewShortcuts, at = SettingsSection.Shortcuts)
+            }
+        }
+
+        awaitText("Each runs the command of the same name in the command palette", substring = true)
+        onPantrixNode("Item", "shortcuts", scope = "Sidebar_settings").assertIsSelected()
+    }
+
+    @Test
+    fun aPhoneListsNoShortcuts() = runComposeUiTest {
+        setContent { PantrixTestTheme(window = phone) { SettingsScreen(state = state, onIntent = {}, shortcuts = PreviewShortcuts) } }
+
+        awaitText("Keep a history")
+        onNodeWithText("Keyboard shortcuts").assertDoesNotExist()
+        onPantrixNode("Keycaps", "palette").assertDoesNotExist()
+    }
+
+    @Test
+    fun theSectionsAWindowShows() {
+        val all = SettingsSection.entries
+        assertEquals(all, shownSections(SettingsLayout.Wide, PreviewShortcuts))
+        assertEquals(all, shownSections(SettingsLayout.Tablet, PreviewShortcuts))
+        assertEquals(all - SettingsSection.Shortcuts, shownSections(SettingsLayout.Wide, listOf(Unbound)))
+        assertEquals(
+            all - SettingsSection.Formats - SettingsSection.Shortcuts,
+            shownSections(SettingsLayout.Phone, PreviewShortcuts)
+        )
+    }
+
+    @Test
     fun theLanguageIsTheSystemsWhereNoneIsChosen() = runComposeUiTest {
         val intents = mutableListOf<SettingsIntent>()
         setContent { PantrixTestTheme(window = desktop) { SettingsScreen(state = state, onIntent = { intents += it }) } }
@@ -116,3 +177,6 @@ class SettingsScreenTest {
         assertEquals(listOf<SettingsIntent>(SettingsIntent.Back), intents)
     }
 }
+
+/** A command of the palette with no shortcut. */
+private val Unbound = PantrixCommand("compare", "Compare with another document", "Document")
