@@ -45,6 +45,7 @@ import com.developersancho.formatico.feature.workspace.WorkbenchKeeper
 import com.developersancho.formatico.feature.workspace.WorkspaceRoute
 import com.developersancho.formatico.feature.workspace.editor.LocalWrapLines
 import com.developersancho.formatico.feature.workspace.workspaceModule
+import com.developersancho.formatico.strings.appStrings
 import com.pantrixui.components.container.scaffold.PantrixScaffold
 import com.pantrixui.components.overlay.snackbar.LocalPantrixSnackbars
 import com.pantrixui.components.overlay.snackbar.rememberPantrixSnackbarState
@@ -220,7 +221,12 @@ private fun AppScreens(
         entryProvider = entryProvider {
             entry<Destination.Start> { StartRoute(onOpenDocument = onOpen, onOpenAddress = onOpenAddress) }
             entry<Destination.Workspace> { destination -> WorkspaceRoute(documentId = destination.documentId) }
-            entry<Destination.Settings> { SettingsRoute(onClose = onCloseSettings, shortcuts = shortcutCommands()) }
+            entry<Destination.Settings> {
+                // A wide window and a tablet go back from Settings to the tab it was opened over, by its name.
+                val open by workbench.state.collectAsState()
+                val behind = open.selected?.let { it.name ?: appStrings.untitled } ?: appStrings.newTab
+                SettingsRoute(onClose = onCloseSettings, shortcuts = shortcutCommands(), backTo = behind)
+            }
         }
     )
 }

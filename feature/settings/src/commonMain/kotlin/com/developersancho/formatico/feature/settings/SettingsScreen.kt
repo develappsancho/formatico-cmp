@@ -31,7 +31,11 @@ import com.developersancho.formatico.core.navigation.SystemBack
 import com.developersancho.formatico.feature.settings.strings.SettingsStrings
 import com.developersancho.formatico.feature.settings.strings.settingsStrings
 import com.pantrixui.components.container.topbar.PantrixBackButton
+import com.pantrixui.components.elements.button.ButtonSize
+import com.pantrixui.components.elements.button.ButtonVariant
+import com.pantrixui.components.elements.button.PantrixButton
 import com.pantrixui.components.elements.divider.PantrixHorizontalDivider
+import com.pantrixui.components.elements.icon.PantrixIcon
 import com.pantrixui.components.elements.scrollbar.pantrixVerticalScroll
 import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.components.elements.text.TextRole
@@ -41,6 +45,7 @@ import com.pantrixui.components.navigation.sidebar.SidebarItem
 import com.pantrixui.components.overlay.commandpalette.PantrixCommand
 import com.pantrixui.foundation.adaptive.WindowWidthClass
 import com.pantrixui.foundation.adaptive.isNarrow
+import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.theme.PantrixTheme
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
@@ -83,11 +88,11 @@ internal fun shownSections(layout: SettingsLayout, shortcuts: List<PantrixComman
     }
 
 /**
- * Settings with its view model: back from its sections leaves it, by [onClose]. [shortcuts] are the palette's commands
- * whose keys Keyboard shortcuts lists.
+ * Settings with its view model: back from its sections leaves it, by [onClose], for the tab it was opened over, whose
+ * name is [backTo]. [shortcuts] are the palette's commands whose keys Keyboard shortcuts lists.
  */
 @Composable
-fun SettingsRoute(onClose: () -> Unit, shortcuts: List<PantrixCommand>, modifier: Modifier = Modifier) {
+fun SettingsRoute(onClose: () -> Unit, shortcuts: List<PantrixCommand>, backTo: String? = null, modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<SettingsViewModel>()
     MviScreen(
         viewModel = viewModel,
@@ -97,7 +102,7 @@ fun SettingsRoute(onClose: () -> Unit, shortcuts: List<PantrixCommand>, modifier
             }
         }
     ) { state, dispatch ->
-        SettingsScreen(state = state, onIntent = dispatch, modifier = modifier, shortcuts = shortcuts)
+        SettingsScreen(state = state, onIntent = dispatch, modifier = modifier, shortcuts = shortcuts, backTo = backTo)
     }
 }
 
@@ -107,7 +112,8 @@ fun SettingsRoute(onClose: () -> Unit, shortcuts: List<PantrixCommand>, modifier
  * back a page too, and leaves Settings from its sections. Keyboard shortcuts lists [shortcuts]' keys.
  *
  * [at] is the section it opens scrolled to, as a board draws one further down; where the window does not show that
- * section, the one shown before it.
+ * section, the one shown before it. [backTo] is the name of the tab Settings was opened over, which a wide window and a
+ * tablet go back to from over the title, as a phone's bar does; with none, there is no way back drawn.
  */
 @Composable
 internal fun SettingsScreen(
@@ -115,7 +121,8 @@ internal fun SettingsScreen(
     onIntent: (SettingsIntent) -> Unit,
     modifier: Modifier = Modifier,
     shortcuts: List<PantrixCommand> = emptyList(),
-    at: SettingsSection? = null
+    at: SettingsSection? = null,
+    backTo: String? = null
 ) {
     val layout = settingsLayout()
     val sections = shownSections(layout, shortcuts)
@@ -125,7 +132,9 @@ internal fun SettingsScreen(
     val openedAt = opened?.let { placed[it] }
     LaunchedEffect(openedAt) { openedAt?.let { scroll.scrollTo(it) } }
     SystemBack { onIntent(SettingsIntent.Back) }
-    val pages = @Composable { pagesModifier: Modifier -> Pages(state, layout, sections, shortcuts, onIntent, placed, pagesModifier) }
+    val pages = @Composable { pagesModifier: Modifier ->
+        Pages(state, layout, sections, shortcuts, onIntent, placed, backTo, pagesModifier)
+    }
     Box(modifier = modifier.fillMaxSize().background(PantrixTheme.colors.background)) {
         when (layout) {
             SettingsLayout.Wide -> Row(modifier = Modifier.fillMaxSize()) {
@@ -164,11 +173,12 @@ private fun Pages(
     shortcuts: List<PantrixCommand>,
     onIntent: (SettingsIntent) -> Unit,
     placed: MutableMap<SettingsSection, Int>,
+    backTo: String?,
     modifier: Modifier
 ) {
     Box(modifier = modifier) {
         when (val page = state.page) {
-            SettingsPage.Settings -> Sections(state, layout, sections, shortcuts, onIntent, placed)
+            SettingsPage.Settings -> Sections(state, layout, sections, shortcuts, onIntent, placed, backTo)
             SettingsPage.Licences -> LicencesPage(layout, onIntent)
             is SettingsPage.Licence -> LicencePage(page.library, layout, onIntent)
         }
@@ -183,17 +193,12 @@ private fun Sections(
     sections: List<SettingsSection>,
     shortcuts: List<PantrixCommand>,
     onIntent: (SettingsIntent) -> Unit,
-    placed: MutableMap<SettingsSection, Int>
+    placed: MutableMap<SettingsSection, Int>,
+    backTo: String?
 ) {
     val phone = layout == SettingsLayout.Phone
     Column(verticalArrangement = Arrangement.spacedBy(if (phone) 18.dp else 24.dp)) {
-        if (!phone) {
-            PantrixText(
-                text = settingsStrings.title,
-                style = PantrixTheme.typography.headline,
-                role = TextRole.Heading(level = 1)
-            )
-        }
+        if (!phone) SettingsTitle(backTo, onIntent)
         sections.forEach { section ->
             Box(Modifier.onPlaced { placed[section] = it.positionInParent().y.toInt() }) {
                 when (section) {
@@ -206,6 +211,29 @@ private fun Sections(
                 }
             }
         }
+    }
+}
+
+/**
+ * Settings' title on a wide window and a tablet, under the way back to the tab it was opened over, [backTo], as their
+ * boards draw it: the tab Settings has among the documents' cannot be closed (PANTRIX_FINDINGS, "Belge sekmeleri için
+ * kapatılabilen bir sekme yok"), and Escape leaves no screen there.
+ */
+@Composable
+private fun SettingsTitle(backTo: String?, onIntent: (SettingsIntent) -> Unit) {
+    Column(horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.spacedBy(PantrixTheme.spacing.sm)) {
+        if (backTo != null) {
+            PantrixButton(
+                text = backTo,
+                onClick = { onIntent(SettingsIntent.Back) },
+                variant = ButtonVariant.Text,
+                size = ButtonSize.Small,
+                leadingIcon = { PantrixIcon(imageVector = PantrixIcons.ChevronBack, contentDescription = null) },
+                contentDescription = settingsStrings.backTo(backTo),
+                tagKey = "back"
+            )
+        }
+        PantrixText(text = settingsStrings.title, style = PantrixTheme.typography.headline, role = TextRole.Heading(level = 1))
     }
 }
 

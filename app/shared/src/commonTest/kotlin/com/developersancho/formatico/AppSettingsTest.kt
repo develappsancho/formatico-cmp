@@ -65,6 +65,26 @@ class AppSettingsTest {
     }
 
     @Test
+    fun aWideWindowGoesBackFromSettingsToTheTabItWasOpenedOverByItsName() = runComposeUiTest {
+        app()
+        awaitText("Paste anything")
+        // Opened over a new tab, it goes back to it.
+        onPantrixNode("IconButton", "settings").performClick()
+        awaitText("Keep a history of documents")
+        onPantrixNode("Button", "back").assert(hasContentDescription("Back to New tab")).performClick()
+        awaitText("Paste anything")
+
+        onPantrixNode("ListItem", "sample_order").performClick()
+        awaitText("Valid JSON")
+        onPantrixNode("IconButton", "settings").performClick()
+        awaitText("Keep a history of documents")
+        onPantrixNode("Button", "back").assert(hasContentDescription("Back to order.json")).performClick()
+        awaitText("Valid JSON")
+        onPantrixNode("Tab", "settings", scope = "Tabs_documents").assertDoesNotExist()
+        onPantrixNode("Tab", "document_1", scope = "Tabs_documents").assertIsSelected()
+    }
+
+    @Test
     fun commandAndCommaOpensSettingsAndItsThemeIsTheAppsOwn() = runComposeUiTest {
         app()
         awaitText("Paste anything")

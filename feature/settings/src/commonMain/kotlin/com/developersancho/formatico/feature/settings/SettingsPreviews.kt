@@ -75,6 +75,7 @@ internal class SettingsCases :
 @Composable
 internal fun SettingsPreview(@PreviewParameter(SettingsCases::class) case: PreviewCase<SettingsCase>) {
     FormaticoPreview(case, Modifier.fillMaxSize()) { (state, at) ->
-        SettingsScreen(state = state, onIntent = {}, shortcuts = PreviewShortcuts, at = at)
+        // Opened over the order, as the boards draw it.
+        SettingsScreen(state = state, onIntent = {}, shortcuts = PreviewShortcuts, at = at, backTo = "order.json")
     }
 }

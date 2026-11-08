@@ -536,6 +536,13 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Öneri: gerçek bir tablette dokunarak denemek; orada da görünürse Pantrix'in bulgusu (PantrixMenu odağı geri
         verirken menünün dokunmayla kullanıldığını hesaba katmıyor), görünmezse testin ortamına özgü.
     *   Durum: açık.
+*   [ ] **Android'in Invalid-834 panosunda imleç bazen 1. satırda kalıyor (2026-11-09).**
+    *   Ne: `recordRoborazziAndroidHostTest` aynı kodla iki koşuda Invalid-834-dark'ı farklı çizdi: birinde imlecin
+        satırı 1, ötekinde panodaki gibi 10. Tur metni seçip problemi gösteriyor; Robolectric'te imlecin yerine
+        oturması görüntüden sonraya kalabiliyor. Doğrulama koşusu (`verify…`) bu yüzden ara sıra düşebilir.
+    *   Nerede: `app/shared/screenshots/android/Invalid-834-dark.png`; turu `BoardTour.invalid()`.
+    *   Öneri: tur, görüntüden önce durum çubuğunun "Ln 10, Col 5"ini beklesin.
+    *   Durum: açık.
 
 ## Üst çubuk
 

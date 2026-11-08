@@ -13,6 +13,10 @@ import com.developersancho.formatico.core.designsystem.inTheLanguage
  */
 internal interface SettingsStrings {
     val title: String
+
+    /** "Back to {first}" */
+    fun backTo(first: String): String
+
     val general: String
     val editor: String
     val formats: String

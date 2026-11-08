@@ -3,6 +3,9 @@ package com.developersancho.formatico.feature.settings.strings
 /** [SettingsStrings] in Turkish. */
 internal object SettingsStringsTurkish : SettingsStrings {
     override val title = "Ayarlar"
+
+    override fun backTo(first: String) = "Geri dön: $first"
+
     override val general = "Genel"
     override val editor = "Editör"
     override val formats = "Biçimler"

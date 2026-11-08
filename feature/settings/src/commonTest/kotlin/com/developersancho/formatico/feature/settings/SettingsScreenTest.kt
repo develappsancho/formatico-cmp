@@ -67,6 +67,17 @@ class SettingsScreenTest {
     }
 
     @Test
+    fun aWideWindowGoesBackOverTheTitleToTheTabItWasOpenedOver() = runComposeUiTest {
+        val intents = mutableListOf<SettingsIntent>()
+        setContent {
+            PantrixTestTheme(window = desktop) { SettingsScreen(state = state, onIntent = { intents += it }, backTo = "order.json") }
+        }
+
+        onPantrixNode("Button", "back").assert(hasContentDescription("Back to order.json")).performClick()
+        assertEquals(listOf<SettingsIntent>(SettingsIntent.Back), intents)
+    }
+
+    @Test
     fun aWindowJustWiderThanATabletLeavesRoomBesideTheColumn() = runComposeUiTest {
         val size = DpSize(860.dp, 700.dp)
         setContent {

@@ -3,6 +3,9 @@ package com.developersancho.formatico.feature.settings.strings
 /** [SettingsStrings] in English. */
 internal object SettingsStringsEnglish : SettingsStrings {
     override val title = "Settings"
+
+    override fun backTo(first: String) = "Back to $first"
+
     override val general = "General"
     override val editor = "Editor"
     override val formats = "Formats"
