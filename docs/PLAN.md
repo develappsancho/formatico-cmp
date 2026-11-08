@@ -631,6 +631,10 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
             GHCR'de herkese açık, sahibi Coolify'da kaynağı kurdu; `deploy.sh web` yayımladı ve `check.sh`'ın yedi
             denetimi canlıda geçti. Sertifika Let's Encrypt'ten; pantrixui.com yanında çalışmaya devam ediyor.
             Tarayıcıda Start açıldı, bir örnek metinde ve ağaçta çizildi.
+        *   HSTS (sahibinin onayı, 2026-11-12): nginx yalnızca HTTPS ile gelen isteğe (Traefik'in
+            `X-Forwarded-Proto`'su) `Strict-Transport-Security: max-age=31536000` gönderir, alt alan adları olmadan.
+            `check.sh` HTTPS'te başlığı, düz HTTP'de yokluğunu ve vekilin HTTPS dediği istekte varlığını dener;
+            tarayıcı testleri düz HTTP'de sunduğu için başlığı göndermez.
         *   APK'nın imzası: anahtarın dosyası ve parolaları `local.properties`'te (`storeFile`, `storePassword`,
             `keyAlias`, `keyPassword`), anahtar depoya girmiyor (`signing/` yok sayılıyor). `assembleRelease` imzalı
             APK veriyor (APK İmza Şeması v2), `versionCode` sürümden: 1.0.0 → 10000.

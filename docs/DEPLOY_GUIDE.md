@@ -84,6 +84,7 @@ başarısız döner.
 | :--- | :--- |
 | Uygulamanın sayfası | Ana sayfa Formatico'nunki |
 | Başlıklar | Sayfada `default-src 'none'` ile başlayan içerik güvenliği politikası; API'nin yanıtlarında da politika ve `nosniff` (`deploy/web/headers.conf`) |
+| HTTPS'e bağlılık | HTTPS'te sayfa ve API `Strict-Transport-Security` gönderiyor; düz HTTP'de göndermiyor, ama önündeki vekil `X-Forwarded-Proto: https` derse gönderiyor |
 | Sunucunun sağlığı | `/api/health` `ok` diyor |
 | Paylaşım | Şifreli bir paylaşım kaydediliyor, olduğu gibi geri veriliyor; başka bir anahtarla silinemiyor, kendi anahtarıyla siliniyor, sonra yok |
 | Vekil | Sunucu kendi makinesine (`127.0.0.1`) ve bulutun bilgi adresine (`169.254.169.254`) gitmiyor: 400 |
@@ -97,7 +98,9 @@ deploy/check.sh https://formatico.pantrixui.com
 ## 5. Coolify'da yayın
 
 İmajlar bu makinede derlenir ve GHCR'ye gönderilir. Coolify depodaki `deploy/compose.yaml`'ı okur, imajları çeker ve
-yığını kaldırır; orada hiçbir şey derlenmez. Önlerinde Coolify'ın Traefik'i durur: HTTPS ve alan adı.
+yığını kaldırır; orada hiçbir şey derlenmez. Önlerinde Coolify'ın Traefik'i durur: HTTPS ve alan adı. Traefik isteğin
+HTTPS ile geldiğini `X-Forwarded-Proto`'da söyler; nginx o zaman `Strict-Transport-Security: max-age=31536000`
+gönderir, tarayıcı da bir yıl boyunca adrese yalnızca HTTPS ile gider (`deploy/web/default.conf`).
 
 ### 5.1 Bir kerelik kurulum
 

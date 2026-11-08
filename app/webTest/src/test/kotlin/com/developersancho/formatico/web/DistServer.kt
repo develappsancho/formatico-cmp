@@ -62,7 +62,14 @@ class DistServer(private val root: File, private val headers: Map<String, String
 /** An `add_header` line of nginx's: its name, and its value, quoted or not. */
 private val AddHeader = Regex("""^\s*add_header\s+(\S+)\s+(?:"([^"]*)"|(\S+))\s+always;""")
 
-/** The headers [file], nginx's `deploy/web/headers.conf`, adds to every answer, by name. */
-fun nginxHeadersOf(file: File): Map<String, String> = file.readLines().mapNotNull { line ->
+/**
+ * The headers [file], nginx's `deploy/web/headers.conf`, adds to every answer over plain HTTP, by name. A header whose
+ * value is one of nginx's variables, as Strict-Transport-Security's, is decided by nginx for each request, and is empty
+ * over plain HTTP, where the tests serve the app: nginx sends no header then, and neither do the tests.
+ */
+fun nginxHeadersOf(file: File): Map<String, String> = nginxHeadersOf(file.readLines())
+
+/** The headers [lines] of nginx's add, by name; one whose value is a variable of nginx's is left out. */
+fun nginxHeadersOf(lines: List<String>): Map<String, String> = lines.mapNotNull { line ->
     AddHeader.find(line)?.let { it.groupValues[1] to it.groupValues[2].ifEmpty { it.groupValues[3] } }
-}.toMap()
+}.filterNot { (_, value) -> value.startsWith('$') }.toMap()

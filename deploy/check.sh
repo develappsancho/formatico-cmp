@@ -36,6 +36,24 @@ headers "$BASE/api/health" | grep -qi '^x-content-type-options: nosniff' || fail
 headers "$BASE/api/health" | grep -qi '^content-security-policy:' || fail "the API answers without a Content-Security-Policy"
 ok "the page's and the API's headers"
 
+# Strict-Transport-Security, over HTTPS alone (deploy/web/default.conf): the host's answers, the page's and the API's,
+# carry it; over plain HTTP, on this machine, none does, but for a proxy in front that says the request came over HTTPS.
+HSTS='^strict-transport-security: max-age='
+case "$BASE" in
+    https://*)
+        headers "$BASE/" | grep -qi "$HSTS" || fail "the page has no Strict-Transport-Security"
+        headers "$BASE/api/health" | grep -qi "$HSTS" || fail "the API answers without Strict-Transport-Security"
+        ok "a browser told to come back over HTTPS alone"
+        ;;
+    *)
+        ! headers "$BASE/" | grep -qi '^strict-transport-security:' ||
+            fail "a browser is told to keep to HTTPS over plain HTTP"
+        curl -fsS -D - -o /dev/null -H 'X-Forwarded-Proto: https' "$BASE/api/health" | tr -d '\r' | grep -qi "$HSTS" ||
+            fail "no Strict-Transport-Security behind a proxy that says HTTPS"
+        ok "no Strict-Transport-Security over plain HTTP, and one behind a proxy that says HTTPS"
+        ;;
+esac
+
 [ "$(curl -fsS "$BASE/api/health")" = ok ] || fail "the server is not up at $BASE/api/health"
 ok "the server's health"
 
