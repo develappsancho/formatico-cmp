@@ -31,6 +31,13 @@ kotlin {
 // The large documents' measure (Faz 14) runs only when asked for, `-Pformatico.measure`, with the heap a document of
 // 50 MB needs; `-Pformatico.measure.sizes` and `-Pformatico.measure.formats` narrow it.
 tasks.withType<Test>().matching { it.name == "jvmTest" }.configureEach {
+    // The samples written as files, `-Pformatico.measure.samples=<folder>`, for the measures of the app's whole screen.
+    providers.gradleProperty("formatico.measure.samples").orNull?.let { folder ->
+        systemProperty("formatico.measure.samples", folder)
+        providers.gradleProperty("formatico.measure.sizes").orNull?.let { systemProperty("formatico.measure.sizes", it) }
+        providers.gradleProperty("formatico.measure.formats").orNull?.let { systemProperty("formatico.measure.formats", it) }
+        outputs.upToDateWhen { false }
+    }
     val measure = providers.gradleProperty("formatico.measure")
     if (measure.isPresent) {
         systemProperty("formatico.measure", "true")

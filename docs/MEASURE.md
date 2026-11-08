@@ -82,6 +82,71 @@ bitiyor; ekran görüntüsüyle ölçüldü, yarım saniye kadar şaşar.
 *   **Web:** Wasm'da arka plan iş parçacığı yok (`Dispatchers.Default` ana iş parçacığı); okuma sürerken sayfa donuyor,
     en uzun donma 2,3 s. Dosya, sayfanın seçicisine bu sekmede verilerek açıldı (uygulamanın tarayıcı bölmesi işletim
     sisteminin dosya seçicisini süremiyor).
-*   **Masaüstü:** 50 MB yalnızca JVM ölçümüyle; masaüstü uygulamasının penceresinde 50 MB'lık bir dosya açılmadı. 50
-    MB'lık bir CSV okunmuşuyla ve ağacıyla 2 GB'ı geçtiği için uygulama makinenin belleğinin yarısını alıyor
-    (`-XX:MaxRAMPercentage=50`); JVM'in varsayılanı dörtte biri, 8 GB'lık bir makinede 2 GB.
+*   **Masaüstü:** 50 MB'lık bir CSV okunmuşuyla ve ağacıyla 2 GB'ı geçtiği için uygulama makinenin belleğinin yarısını
+    alıyor (`-XX:MaxRAMPercentage=50`); JVM'in varsayılanı dörtte biri, 8 GB'lık bir makinede 2 GB. Uygulamanın bütünüyle
+    ölçümü aşağıda, "Uygulamanın bütünü".
+
+## Uygulamanın bütünü (Faz 21, 2026-11-10)
+
+Faz 14'ün JVM ölçümü okumayı ve ağacın satırlarını ölçüyordu; bu ölçüm ekranın bütününü: Start'ın bırakma alanına
+dosya verilir, belge okunup durum çubuğu "Valid JSON" ya da "Valid CSV" diyene kadar geçen süre ve yol boyunca tutulan
+bellek. Örnekler Faz 14'ünkiler, sınırın hemen altında: JSON 9.998.824 ve 49.998.891 bayt, CSV 9.998.703 ve 49.997.437
+bayt.
+
+```bash
+./gradlew :feature:workspace:jvmTest --tests '*LargeDocumentsMeasure.samples' -Pformatico.measure.samples=$PWD/build/measure/samples -Pformatico.measure.formats=json,csv
+```
+
+```bash
+./gradlew :app:shared:jvmTest --tests '*AppLargeDocumentsMeasure*' -Pformatico.measure -Pformatico.measure.samples=$PWD/build/measure/samples
+```
+
+```bash
+./gradlew :app:webTest:test --tests '*WebLargeDocumentsMeasure*' -Pformatico.measure -Pformatico.measure.samples=$PWD/build/measure/samples
+```
+
+Makine: Apple M5 Max, 128 GB, JDK 21, Chrome 157 (başsız).
+
+### Masaüstü: 1440×900'lük pencerede
+
+`AppLargeDocumentsMeasure` (`app/shared/src/jvmTest`) uygulamanın kendisini (`App`) masaüstünün penceresinde,
+1440×900'de ve masaüstü platformunda çiziyor; Compose'un test penceresi ekran dışında çizer. Testin yığını 4 GB: masaüstü
+uygulamasının 8 GB'lık bir makinede aldığı (`-XX:MaxRAMPercentage=50`). Süre bırakma alanına basıldığında, dosya elde
+başlıyor; bellek çöp toplanmadan en çok ve belge görününce toplanmış hâliyle.
+
+| Dosya | Görünene dek | Yığın en çok | Yığın görününce |
+| :--- | ---: | ---: | ---: |
+| JSON, 10 MB | 0,7 s | 697 MB | 242 MB |
+| CSV, 10 MB | 1,9 s | 1.006 MB | 416 MB |
+| CSV, 50 MB | 5,9 s | 3.351 MB | 1.969 MB |
+| JSON, 50 MB | açılmıyor | — | — |
+
+*   **JSON, 50 MB:** Pantrix'in kod editörü bir milyonu aşkın satırlık metinde çöküyor: satırları parçalara bölerken
+    sınırı `Int`'te hesaplıyor ve taşıyor (`PANTRIX_FINDINGS.md`, "Kod editörü bir milyonu aşkın satırlık bir metinde
+    çöküyor", tıkıyor). Örnek 1.741.784 satır; sınır yaklaşık 1.048.000 satır. 954.935 satırlık CSV altında kaldı.
+    Düzeltme yerel pakete gelince bu satır yeniden ölçülecek.
+*   **CSV, 50 MB:** 4 GB'ın 3,35 GB'ına çıkıyor; açıldıktan sonra 2 GB. 8 GB'lık bir makinede sığıyor ama payı az.
+*   **Denenmeyen:** işletim sisteminin gerçek penceresi ve dosya seçicisi. Uygulama bir dosyayı yalnızca kendi
+    denetimleriyle (seçici, bırakma, yapıştırma) alıyor; bunları bu makinede sürmek sahibinin klavyesini ve panosunu
+    kullanmak demek. Ölçülen, aynı uygulamanın aynı JVM'de ve aynı yığında, aynı boyda çizdiği ekran.
+
+### Web: JavaScript yedeği
+
+`WebLargeDocumentsMeasure` (`app/webTest`) yayın dağıtımını, sunucunun başlıklarıyla, makinenin Chrome'unda açıyor. JS
+yedeği yükleyiciye `WebAssembly.validate`'in `false` demesiyle seçiliyor (eski bir tarayıcıya verilen cevap); dosya
+sayfanın dosya seçicisine DevTools'la veriliyor. Bellek V8'in yığını: Wasm'ın nesneleri de onda (çöp toplaması
+tarayıcının), Skia'nın kendi belleği değil.
+
+| Yapı | Dosya | Görünene dek | JS yığını en çok | JS yığını görününce |
+| :--- | :--- | ---: | ---: | ---: |
+| JavaScript | JSON, 10 MB | 2,4 s | 767 MB | 205 MB |
+| JavaScript | CSV, 10 MB | 3,0 s | 746 MB | 344 MB |
+| Wasm | JSON, 10 MB | 3,1 s | 975 MB | 259 MB |
+| Wasm | CSV, 10 MB | 5,0 s | 958 MB | 473 MB |
+
+*   **JS yedeği hedefi karşılıyor:** 10 MB'lık JSON 2,4 s'de, CSV 3 s'de açılıyor; JS yığını en çok 770 MB.
+*   **Wasm burada JS'ten yavaş:** başsız Chrome'da Wasm yapısı her iki örnekte de daha uzun sürdü ve daha çok tuttu.
+    Faz 14'ün Wasm ölçümü (uygulamanın tarayıcı bölmesinde, ekran görüntüleriyle: JSON 2,0 s, CSV 10 s) başka bir
+    yoldan alındı; iki tablo birbiriyle karşılaştırılmıyor. Okuma iki yapıda da ana iş parçacığında, sayfa o sürece donuyor
+    (`OPEN_ITEMS.md`, "Büyük belgelerde ölçülüp bırakılanlar").
+

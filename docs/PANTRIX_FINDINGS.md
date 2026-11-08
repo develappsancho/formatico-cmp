@@ -772,3 +772,18 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
         dp, iki yanındaki boşluğun yarısıyla 48 dp. Durum çubuğunun önizleme hâli 390'a geri döndü ("yaml on a phone");
         Pantrix'in tanılaması onda bir şey bulmuyor. Önceki durum: açık. Formatico'yu tıkamıyor: uygulamada telefonun
         durum çubuğu yok. Durum çubuğunun telefondaki önizleme hâli bu yüzden tablete taşındı ("yaml on a tablet").
+*   [ ] **Kod editörü bir milyonu aşkın satırlık bir metinde çöküyor (2026-11-10).**
+    *   Ne: Masaüstü penceresinin ölçümünde (Faz 21) 50 MB'lık JSON açılırken uygulama düştü:
+        `IllegalArgumentException: fromIndex(630769) > toIndex(-631201)`, `CodeEditorState(text)` kurulurken
+        `CodeDocument.inChunks`'tan. Satırlar 512'lik parçalara bölünürken sınırlar `size * index / count` ile `Int`'te
+        hesaplanıyor; çarpım 2³¹'i aşınca eksiye dönüyor. Bu, satır sayısı √(2³¹ × 512) ≈ 1.048.000'i aşan her metinde
+        oluyor: 50 MB'lık JSON örneği 1.741.784 satır (son parçada 1.741.784 × 3.401 ≈ 5,9 milyar). 954.935 satırlık 50
+        MB'lık CSV sınırın hemen altında kaldığı için açıldı. Formatico'nun hedefi masaüstünde 50 MB; biçimlendirilmiş
+        bir JSON, YAML ya da NDJSON o boyda bir milyon satırı rahatça geçiyor.
+    *   Nerede: kaynak jar'da `components/data/codeeditor/CodeDocument.kt` (`inChunks`, `CHUNK_LINES = 512`);
+        Formatico'da `Editors.of` → `CodeEditorState(document.text)`, `AppLargeDocumentsMeasure`.
+    *   Öneri: sınırları `Long`'da hesaplamak (`(size.toLong() * index / count).toInt()`) ve bir testi iki milyon satırlık
+        bir metinle; ya da parçaları sırayla `CHUNK_LINES`'lık kesmek.
+    *   Durum: açık, tıkıyor. 50 MB'lık JSON masaüstünde açılmıyor; Formatico'da geçici bir yol yok (parçalama editörün
+        içinde). Kütüphane oturumuna iletildi.
+

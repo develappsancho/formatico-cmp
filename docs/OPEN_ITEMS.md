@@ -616,7 +616,7 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Öneri: gerçek bir tablette dokunarak denemek; orada da görünürse Pantrix'in bulgusu (PantrixMenu odağı geri
         verirken menünün dokunmayla kullanıldığını hesaba katmıyor), görünmezse testin ortamına özgü.
     *   Durum: açık.
-*   [ ] **Android'in Invalid-834 panosunda imleç bazen 1. satırda kalıyor (2026-11-09).**
+*   [x] **Android'in Invalid-834 panosunda imleç bazen 1. satırda kalıyor (2026-11-09).**
     *   Ne: `recordRoborazziAndroidHostTest` aynı kodla iki koşuda Invalid-834-dark'ı farklı çizdi: birinde imlecin
         satırı 1, ötekinde panodaki gibi 10. Tur metni seçip problemi gösteriyor; Robolectric'te imlecin yerine
         oturması görüntüden sonraya kalabiliyor. Doğrulama koşusu (`verify…`) bu yüzden ara sıra düşebilir.
@@ -627,7 +627,11 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
         turları `BoardTour.invalid()`, `settings()`, `query()`.
     *   Öneri: tur, görüntüden önce panonun durumunu beklesin: durum çubuğunun "Ln 10, Col 5"ini, geçmişin satırını,
         seçili eşleşmeyi.
-    *   Durum: açık.
+    *   Durum: kapandı (2026-11-10, Faz 21). Tur artık resimden önce panonun durumunu bekliyor: Invalid'de durum
+        çubuğunun imleci 10. satırda, Settings'te geçmişin düğmesi basılabilir (belge geçmişe yazıldı), Query'de ilk
+        eşleşme seçili. Kaydedilmiş Android resimlerinden ikisi (Invalid-834, Invalid-834-dark) zaten kararsız hâli
+        tutuyordu: imleç 1. satırda; yeniden kaydedildiler, imleç panodaki gibi 10. satırda. Android'in doğrulaması
+        üst üste beş koşuda geçti; JVM'de ve iOS'ta resimler değişmedi.
 *   [x] **Büyük bir dizinin grafiğinde kök kart görünmeden açılıyor (2026-11-09).**
     *   Ne: Faz 18'in Graph görünümü, hiçbir değer seçili değilken grafiği sol üstünden gösteriyor. 150 kişilik bir
         dizide (`GraphCases`'in "large" durumu) `PantrixGraph` kök kartı çocuklarının ortasına koyuyor: ekranda

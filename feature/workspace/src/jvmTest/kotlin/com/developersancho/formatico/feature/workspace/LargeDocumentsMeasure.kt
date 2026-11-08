@@ -27,6 +27,23 @@ class LargeDocumentsMeasure {
     private val inks = RowInks(SyntaxColors.Light, Color.Gray, Color.Yellow, Color.Cyan, Color.Black)
     private val rows = mutableListOf<String>()
 
+    /**
+     * Writes the samples of [formats] at [sizes] as files into the folder `-Pformatico.measure.samples` names, for the
+     * measures of the app's whole screen: in the desktop's window (`AppLargeDocumentsMeasure`) and in a browser
+     * (`WebLargeDocumentsMeasure`). Each is `<format>-<size>MB.<extension>`, the same bytes every time.
+     */
+    @Test
+    fun samples() {
+        val folder = System.getProperty("formatico.measure.samples")?.let(::File) ?: return
+        folder.mkdirs()
+        for (size in sizes) {
+            for (format in formats) {
+                val name = "${format.name.lowercase()}-${size}MB.${format.extensions.first()}"
+                File(folder, name).writeText(sampleUnder(format, size * MB))
+            }
+        }
+    }
+
     @Test
     fun largeDocuments() {
         if (!asked) return
@@ -149,6 +166,20 @@ class LargeDocumentsMeasure {
         return largest
     }
 
+    /**
+     * A sample of [format] as large as it can be within [limit] bytes, as a file the app takes at its limit: a sample
+     * asked for a size ends its last record past it.
+     */
+    private fun sampleUnder(format: Format, limit: Int): String {
+        var asked = limit
+        var text = LargeSamples.of(format, asked)
+        while (text.encodeToByteArray().size > limit) {
+            asked -= text.encodeToByteArray().size - limit + SAMPLE_MARGIN
+            text = LargeSamples.of(format, asked)
+        }
+        return text
+    }
+
     private val Duration.ms: String get() = inWholeMilliseconds.toString()
 
     /** How much of the heap is used once what nothing holds is collected. */
@@ -166,6 +197,9 @@ class LargeDocumentsMeasure {
         const val MB = 1_000_000
         const val GC_ROUNDS = 3
         const val GC_PAUSE = 50L
+
+        // What a sample is asked for less than its limit, each time it ends past it.
+        const val SAMPLE_MARGIN = 1_000
 
         // A name every sample writes, and another as long.
         const val CHANGED = "Grace Hopper"

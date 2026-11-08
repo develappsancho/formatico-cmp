@@ -1,8 +1,10 @@
 package com.developersancho.formatico.web
 
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonArray
@@ -20,6 +22,7 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration
@@ -52,6 +55,12 @@ class Chrome(vararg flags: String) : AutoCloseable {
 
     /** What the page wrote to its console as an error, and what it threw and did not catch, in order. */
     val errors: MutableList<String> = CopyOnWriteArrayList()
+
+    /**
+     * The file choosers the page opened since [chooseFiles] took them over: each one's input, as DevTools knows the
+     * element, which [pick] hands the files.
+     */
+    private val choosers = LinkedBlockingQueue<Int>()
 
     init {
         val port = awaitPort()
@@ -97,6 +106,23 @@ class Chrome(vararg flags: String) : AutoCloseable {
         )
         result["exceptionDetails"]?.let { error("The page threw evaluating $expression: $it") }
         return result["result"]?.jsonObject?.get("value")
+    }
+
+    /** From now on, the page's file choosers open no window of the system: [pick] gives each its files. */
+    fun chooseFiles() {
+        send("Page.setInterceptFileChooserDialog", buildJsonObject { put("enabled", true) })
+    }
+
+    /** Hands [files], paths on this machine, to the file chooser the page opens next, once it opens. */
+    fun pick(vararg files: File) {
+        val input = checkNotNull(choosers.poll(ANSWER, TimeUnit.SECONDS)) { "The page opened no file chooser in $ANSWER seconds" }
+        send(
+            "DOM.setFileInputFiles",
+            buildJsonObject {
+                put("files", JsonArray(files.map { JsonPrimitive(it.absolutePath) }))
+                put("backendNodeId", input)
+            }
+        )
     }
 
     /** Waits, for [within] at most, until [done] says so, looking every tenth of a second; [what] is what did not. */
@@ -146,6 +172,7 @@ class Chrome(vararg flags: String) : AutoCloseable {
             when (message.text("method")) {
                 "Runtime.exceptionThrown" -> errors += params.toString()
                 "Runtime.consoleAPICalled" -> if (params.text("type") == "error") errors += params["args"].toString()
+                "Page.fileChooserOpened" -> params["backendNodeId"]?.jsonPrimitive?.int?.let(choosers::add)
             }
         }
     }

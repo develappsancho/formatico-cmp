@@ -11,6 +11,7 @@ import androidx.compose.ui.test.click
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isEnabled
 import androidx.compose.ui.test.isSelected
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performImeAction
@@ -222,6 +223,9 @@ private class Trip(
                 if (phone) newTab()
                 press("IconButton", "settings")
                 awaitShown(words.indentation)
+                // The order goes into the history a moment after it opens: the history's line says so once its
+                // button can clear it.
+                test.awaitNode(hasPantrixTag("Button", "clear_history") and isEnabled(), "the order in the history")
             }
 
             AppBoard.Ask -> {
@@ -256,6 +260,11 @@ private class Trip(
         val second = hasClickAction() and hasText(words.secondProblemAt, substring = true)
         test.awaitNode(second, "the second problem")
         test.onNode(second).performSemanticsAction(SemanticsActions.OnClick)
+        // The caret reaches the problem's line a frame or more later; the status bar says so where there is one.
+        if (!phone) {
+            val caret = hasPantrixTag("Item", "caret", "StatusBar_document") and hasText(" 10, ", substring = true)
+            test.awaitNode(caret, "the caret at the second problem")
+        }
     }
 
     /**
@@ -287,6 +296,8 @@ private class Trip(
         test.awaitUntil("the recent queries were offered") {
             test.onAllNodes(hasPantrixTag("Chip", "recent${USED_QUERIES - 1}")).fetchSemanticsNodes().isNotEmpty()
         }
+        // The last query's first match is chosen a moment after its matches are shown.
+        test.awaitNode(hasKeyEnding("match0") and isSelected(), "the first match chosen")
     }
 
     /** The two orders, compared by meaning, the first difference shown. */

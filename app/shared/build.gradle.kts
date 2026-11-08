@@ -68,6 +68,17 @@ dependencies {
     androidRuntimeClasspath(libs.compose.uiTooling)
 }
 
+// The whole app's measure on large documents (Faz 21) runs only when asked for, `-Pformatico.measure`, on the samples
+// `-Pformatico.measure.samples` names, in the heap the desktop app takes of a machine of 8 GB.
+tasks.withType<Test>().matching { it.name == "jvmTest" }.configureEach {
+    if (providers.gradleProperty("formatico.measure").isPresent) {
+        systemProperty("formatico.measure", "true")
+        providers.gradleProperty("formatico.measure.samples").orNull?.let { systemProperty("formatico.measure.samples", it) }
+        maxHeapSize = "4g"
+        outputs.upToDateWhen { false }
+    }
+}
+
 tasks.withType<Test>().matching { it.name == "testAndroidHostTest" }.configureEach {
     filter { includeTestsMatching("com.developersancho.formatico.BoardScreenshotAndroidTest") }
     // Robolectric's Android 17 sets a file descriptor's fields through the JDK's own access, which JDK 21 keeps closed
