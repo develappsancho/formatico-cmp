@@ -247,7 +247,7 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Ne: Table panoları her sütunun adının altına türünü yazıyor ("text", "date", "number", "text, null"). `DataTableColumn`'un `header`'ı bir `String`; başlığa ikinci bir satır, bir yuva ya da bir alt yazı konamıyor.
     *   Nerede: MCP `get_api DataTableColumn`; kaynak jar'da `DataTableColumn.kt` ve `DataTableHeader.kt`.
     *   Öneri: `DataTableColumn`'a başlığın altında duran bir `subtitle` (ekran okuyucuya başlıktan sonra okunan), ya da başlık için bir `@Composable` yuva.
-    *   Durum: açık. Formatico'yu tıkamıyor; Faz 8'in "sütun türleri" maddesi buna bağlı ve kodda yok.
+    *   Durum: açık, tıkıyor (sahibinin kararı, 2026-11-05). Faz 8'in "sütun türleri" maddesi buna bağlı ve kodda yok; Faz 8 bu bulgu kapanana kadar kapanmıyor. Önceki durum: açık, Formatico'yu tıkamıyor.
 *   [ ] **Menünün bir başlığı, satırın sonunda bir yazısı yok (2026-11-04).**
     *   Ne: Workspace-1440 panosunun "Copy path" menüsü "Copy the path of createdAt as" diye bir başlıkla açılıyor; her satır biçimin adını solda, verdiği yolu sağda eş aralıklı yazıyor. Workspace-390'da aynı menü başlıklı bir sayfa. `PantrixMenu`'nün başlığı yok, dar pencerede açılan sayfasının da yok; `PantrixMenuItem` bir `shortcut` (yalnızca kısayol için, dokunmatikte yazılmıyor) ve etiketin altında bir `supportingText` alıyor.
     *   Nerede: MCP `get_api PantrixMenu`, `PantrixMenuItem`.
@@ -257,7 +257,7 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Ne: `PantrixIcons` 37 simge taşıyor; bir resmin ya da bir bağlantının (dışarıya açılan) simgesi yok. Panolarda ağacın değer önizlemesi ve Summary'nin "Found in the values" satırları ikisini de çiziyor; tasarım sistemi de onları kendi `<svg>`'siyle çiziyor.
     *   Nerede: MCP `search_icons "image picture photo link external"`; kaynak jar'da `PantrixIcons.kt`.
     *   Öneri: `PantrixIcons.Image` ve `PantrixIcons.ExternalLink` (sağdan sola dillerde aynalanmayan); tasarım sisteminde karşılıkları.
-    *   Durum: açık. Summary'de tarihin satırı takvimle, rengin satırı rengin kendisiyle açılıyor; resmin ve bağlantının satırında simgenin yeri boş.
+    *   Durum: açık, tıkıyor (sahibinin kararı, 2026-11-05). Faz 8'in değer önizlemesi buna bağlı: ağaçta bağlantının yerinde şimdilik "Link" sözcüğü, resmin yerinde simgesiz bir kutu; Summary'de tarihin satırı takvimle, rengin satırı rengin kendisiyle açılıyor, resmin ve bağlantının satırında simgenin yeri boş. Faz 8 bu bulgu kapanana kadar kapanmıyor. Önceki durum: açık.
 *   [x] **Bir adresten resim yükleyen bir şey yok (2026-11-04).**
     *   Ne: Ağacın değer önizlemesi bir resmin adresini tanıyor ("https://images.example.com/u/elif.png"). CLAUDE.md değerlerin önizlenmesini istiyor, resimler de içinde. `PantrixImage` yalnızca bir `Painter`, bir `ImageVector` ya da bir `ImageBitmap` alıyor: ağdan indirmiyor, önbelleğe almıyor, yüklenirken ya da yüklenemeyince ne göstereceğini bilmiyor. Panolar şimdilik gerçek bir küçük resim değil, 24×24'lük bir yer tutucu çiziyor: `neutral-container` zeminli, 4 piksel köşeli bir kutu ve içinde bir resim simgesi ("Picture at this address").
     *   Nerede: MCP `get_api PantrixImage`; Pantrix ekibinin yanıtı (2026-11-04).
