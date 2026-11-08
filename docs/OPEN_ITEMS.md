@@ -57,10 +57,10 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Öneri: kuralın neden susduğuna bakılsın (kural kümesi, `.editorconfig`, Kotlinter'in ayarı); olmazsa detekt'in `style.UnusedImports`'u açılsın. Ardından bütün modüllerde bir tarama.
     *   Durum: kapandı (2026-11-04). ktlint 1.8 kuralı 2.0'da kaldırılacak diye işaretlemiş ("Marked for removal in Ktlint 2.0.0": kullanılan bir importu kullanılmıyor sanabiliyor) ve açıkça açılmadıkça koşturmuyor. `.editorconfig`'de `ktlint_standard_no-unused-imports = enabled` ile açıldı; yorumu nedenini ve ktlint 2.0'da ne yapılacağını söylüyor (detekt'in `UnusedImports`'u açılır ve testler detekt'e verilir; detekt bugün testlere bakmıyor). Açılınca 9 dosyada 56 kullanılmayan import çıktı: çoğu bekleme yardımcıları `core:testing`'e taşınırken testlerde, 19'u `WorkspacePanes.kt`'de, parçaları başka dosyalara taşınırken kalmış. `formatKotlin` ile silindi; yalnızca import satırları gitti, her hedef derleniyor ve testleri geçiyor.
 
-*   [ ] **Tam denetimde Kotlin daemon'ının belleği yetmeyebiliyor (2026-11-06).**
+*   [x] **Tam denetimde Kotlin daemon'ının belleği yetmeyebiliyor (2026-11-06).**
     *   Ne: Bütün hedeflerin testleri birlikte koşunca (`jvmTest … wasmJsBrowserTest … --continue`) Wasm'ın test yürütülebilirlerinin derlemesi iki kez `OutOfMemoryError: Java heap space` ile düştü (`feature:workspace`, `feature:settings`, bir kez de `core:navigation`); aynı görev tek başına yeniden koşunca geçti. `gradle.properties`'te `kotlin.daemon.jvmargs=-Xmx3072M`.
     *   Öneri: `kotlin.daemon.jvmargs`'ı 6 GB'a çıkarmak (makinede 128 GB var), ya da Wasm testlerini ayrı bir koşuda.
-    *   Durum: açık. Sahibinin kararı: makinenin ayarı.
+    *   Durum: kapandı (2026-11-06, sahibinin kararı). `kotlin.daemon.jvmargs=-Xmx6144M`. Tam denetim (`jvmTest verifyRoborazziJvm iosSimulatorArm64Test wasmJsBrowserTest lintKotlin detekt`) `--rerun-tasks` ile, bütün derlemeler baştan, bellek hatası olmadan geçti: JVM'de 734, iOS'ta 704, Wasm'da 693 test. `build-logic`'in derlemesi (Gradle'ın kendi Kotlin'i, 2.4.10) bu ayarı almıyor, Gradle daemon'ının 4 GB'ıyla koşuyor; küçük bir derleme, yetiyor.
 
 *   [ ] **build-logic'e lint ve detekt bakmıyor (2026-11-04).**
     *   Ne: `QualityConventionPlugin` (Kotlinter ve detekt) uygulamanın modüllerine uygulanıyor; `build-logic/convention`'ın kendi `build.gradle.kts`'inde ikisi de yok. Convention eklentilerinin kodu biçim ve kural denetiminden geçmiyor.
