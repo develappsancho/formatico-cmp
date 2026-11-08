@@ -1,7 +1,7 @@
 # The stack on this machine: both images built from what Gradle made here, and Formatico at http://localhost:4005
 # (FORMATICO_PORT changes it), open to this machine alone. deploy/deploy.sh local runs it.
 services:
-  web:
+  formatico-web:
     # Built here from what Gradle made, never pulled from the registry.
     pull_policy: build
     build:
@@ -13,7 +13,7 @@ services:
     ports:
       - "127.0.0.1:${FORMATICO_PORT:-4005}:80"
 
-  server:
+  formatico-server:
     pull_policy: build
     # The browser calls the API from the stack's own address, which the server, behind nginx, takes for another origin.
     environment:

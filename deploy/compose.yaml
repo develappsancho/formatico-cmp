@@ -1,18 +1,19 @@
-# Formatico on a host (Faz 16): its web app behind nginx (`web`), and beside it Formatico's server (`server`), which
-# only nginx reaches, at /api. The same stack runs on this machine (with compose.local.yaml) and, through Coolify, on
-# the host.
+# Formatico on a host (Faz 16): its web app behind nginx (`formatico-web`), and beside it Formatico's server
+# (`formatico-server`), which only nginx reaches, at /api. The same stack runs on this machine (with compose.local.yaml)
+# and, through Coolify, on the host. The services' names are Formatico's own: another stack on the same host, with its
+# own `web` and `server`, never answers for them, whichever networks the host puts the two on.
 name: formatico
 
 services:
-  web:
+  formatico-web:
     image: ghcr.io/develappsancho/formatico-web:${FORMATICO_TAG:-latest}
     # Pulled at each deploy: latest is the last release's, and FORMATICO_TAG pins one.
     pull_policy: always
     restart: unless-stopped
     depends_on:
-      - server
+      - formatico-server
 
-  server:
+  formatico-server:
     image: ghcr.io/develappsancho/formatico-server:${FORMATICO_TAG:-latest}
     pull_policy: always
     restart: unless-stopped

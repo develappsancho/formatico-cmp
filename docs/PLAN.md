@@ -173,13 +173,13 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
     *   **Barındırma:** sitenin kurulduğu gibi: Coolify'da ayrı bir Docker Compose kaynağı
         (`formatico`), önünde Coolify'ın Traefik'i (HTTPS, alan adı). Sitenin yayın düzenine sahibinin izniyle bakıldı,
         yalnızca `deploy/` ve `docs/deploy/` klasörlerine.
-        *   `web`: `nginx:alpine` ve web dağıtımı (Wasm, JS yedeği, imaj yapılırken sıkıştırılmış `.gz`'ler).
+        *   `formatico-web`: `nginx:alpine` ve web dağıtımı (Wasm, JS yedeği, imaj yapılırken sıkıştırılmış `.gz`'ler).
             Uygulama gezinirken adresi değiştirdiği için bilinmeyen her adreste `index.html` verir. `/api/`'yi
-            `server`'a aktarır. Yüklemeye yaklaşık 11 MB sınır, paylaşıma ve vekile ayrı istek sınırı; ziyaretçinin
+            `formatico-server`'a aktarır. Yüklemeye yaklaşık 11 MB sınır, paylaşıma ve vekile ayrı istek sınırı; ziyaretçinin
             adresi Traefik'in `X-Forwarded-For`'undan okunur.
-        *   `server`: `eclipse-temurin:21-jre-alpine` ve sunucunun jar'ı. Dışarıya port açmaz, ona yalnızca nginx
+        *   `formatico-server`: `eclipse-temurin:21-jre-alpine` ve sunucunun jar'ı. Dışarıya port açmaz, ona yalnızca nginx
             ulaşır; 512 MB bellek sınırı, hakları olmayan bir kullanıcı, sağlık denetimi `/api/health`.
-        *   Disk birimi `shares` (`server`'da `/data`): her paylaşım bir dosya ve küçük bir bilgi kaydı (oluşturulma,
+        *   Disk birimi `shares` (`formatico-server`'da `/data`): her paylaşım bir dosya ve küçük bir bilgi kaydı (oluşturulma,
             son gün, boyut, silme anahtarının özeti). Süresi dolanları sunucu her gün siler. Ayrı bir veritabanı ve
             yedek yok: paylaşımlar en çok 30 gün yaşar.
         *   Yayın: imajlar bu Mac'te iki mimari için (amd64, arm64) derlenir, GHCR'ye gönderilir, Coolify'ın API'siyle
