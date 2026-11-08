@@ -31,6 +31,7 @@ import com.pantrixui.components.elements.button.ButtonSize
 import com.pantrixui.components.overlay.snackbar.LocalPantrixSnackbars
 import com.pantrixui.components.overlay.snackbar.PantrixSnackbarHost
 import com.pantrixui.components.overlay.snackbar.PantrixSnackbarState
+import com.pantrixui.components.overlay.snackbar.SnackbarDuration
 import com.pantrixui.foundation.adaptive.PantrixWindow
 import com.pantrixui.foundation.diagnostics.PantrixFindings
 import com.pantrixui.foundation.platform.PlatformType
@@ -209,6 +210,9 @@ class DownloadMenuTest {
         awaitUntil("The DMG opened") { links.opened == listOf(dmg.address) }
         awaitUntil("The snackbar") { snackbars.current?.tagKey == "downloading" }
         assertEquals("Formatico-macOS.dmg is downloading from GitHub. Its SHA-256 is 403d521e…a0a983.", snackbars.current?.message)
+        // It leaves by itself, its action with it, and can be closed before that.
+        assertEquals(SnackbarDuration.Short, snackbars.current?.duration)
+        assertTrue(snackbars.current?.closeButton == true)
         onNodeWithText("Copy SHA-256").performClick()
         awaitUntil("The checksum copied") { clipboard.entries.isNotEmpty() }
         assertEquals(dmg.sha256, clipboard.text())

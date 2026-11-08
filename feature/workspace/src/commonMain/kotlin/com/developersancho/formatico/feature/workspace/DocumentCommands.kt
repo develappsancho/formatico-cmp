@@ -25,6 +25,7 @@ import com.pantrixui.components.overlay.menu.PantrixMenuItem
 import com.pantrixui.components.overlay.popover.PopoverAlignment
 import com.pantrixui.components.overlay.snackbar.LocalPantrixSnackbars
 import com.pantrixui.components.overlay.snackbar.PantrixSnackbarState
+import com.pantrixui.components.overlay.snackbar.SnackbarDuration
 import com.pantrixui.components.overlay.snackbar.SnackbarResult
 import com.pantrixui.components.overlay.snackbar.SnackbarTone
 import com.pantrixui.foundation.files.FileSaveResult
@@ -228,6 +229,10 @@ private suspend fun reportEdit(
                     words.done.getValue(edit)
                 },
                 actionLabel = words.undo,
+                // It leaves by itself, its undo with it, in Pantrix's short time (the owner's decision, 2026-11-13):
+                // the editor's own undo still takes the edit back.
+                duration = SnackbarDuration.Short,
+                closeButton = true,
                 tagKey = "edited"
             )
             if (answer == SnackbarResult.ActionPerformed) workbench.restore(result.previous)

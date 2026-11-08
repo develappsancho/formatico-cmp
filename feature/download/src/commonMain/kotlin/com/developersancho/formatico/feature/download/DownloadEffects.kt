@@ -8,6 +8,7 @@ import com.developersancho.formatico.core.network.ReleaseFile
 import com.developersancho.formatico.feature.download.strings.DownloadStrings
 import com.developersancho.formatico.feature.download.strings.downloadStrings
 import com.pantrixui.components.overlay.snackbar.LocalPantrixSnackbars
+import com.pantrixui.components.overlay.snackbar.SnackbarDuration
 import com.pantrixui.components.overlay.snackbar.SnackbarResult
 import com.pantrixui.components.overlay.snackbar.SnackbarTone
 import com.pantrixui.foundation.platform.rememberPantrixClipboard
@@ -36,6 +37,10 @@ internal fun rememberDownloadEffects(): suspend (DownloadEffect) -> Unit {
                     val result = snackbars?.show(
                         message = downloadingMessage(effect.file, words),
                         actionLabel = words.copySha.takeIf { sha != null },
+                        // It leaves by itself, its action with it, in Pantrix's short time (the owner's decision,
+                        // 2026-11-13): the checksum stays on the release's page.
+                        duration = SnackbarDuration.Short,
+                        closeButton = true,
                         tone = SnackbarTone.Info,
                         tagKey = "downloading"
                     )

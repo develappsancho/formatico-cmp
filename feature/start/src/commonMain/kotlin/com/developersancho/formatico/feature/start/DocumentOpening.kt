@@ -260,7 +260,17 @@ internal suspend fun PantrixSnackbarState.showSharedLinkGone(message: String) {
     show(message = message, duration = SnackbarDuration.Long, closeButton = true, tone = SnackbarTone.Danger, tagKey = "shared_link_gone")
 }
 
-/** Says an encrypted link could not be opened, with [tryAgain] to open it again: true where it was pressed. */
+/**
+ * Says an encrypted link could not be opened, with [tryAgain] to open it again: true where it was pressed. It leaves by
+ * itself, its action with it, in Pantrix's short time (the owner's decision, 2026-11-13): the link can be followed
+ * again.
+ */
 internal suspend fun PantrixSnackbarState.showSharedLinkUnreachable(message: String, tryAgain: String): Boolean =
-    show(message = message, actionLabel = tryAgain, tone = SnackbarTone.Danger, tagKey = "shared_link_unreachable") ==
-        SnackbarResult.ActionPerformed
+    show(
+        message = message,
+        actionLabel = tryAgain,
+        duration = SnackbarDuration.Short,
+        closeButton = true,
+        tone = SnackbarTone.Danger,
+        tagKey = "shared_link_unreachable"
+    ) == SnackbarResult.ActionPerformed
