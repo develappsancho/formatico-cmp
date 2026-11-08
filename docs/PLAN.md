@@ -351,8 +351,16 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
 
 ## Kapanış
 
-*   [ ] **Faz 21: Tam denetim.** Faz 0'dan 19'a her şey yeniden denetlenir: CLAUDE.md, bütün panolar,
+*   [x] **Faz 21: Tam denetim.** Faz 0'dan 19'a her şey yeniden denetlenir: CLAUDE.md, bütün panolar,
     `OPEN_ITEMS.md` ve `PANTRIX_FINDINGS.md`. Eksik kalan her şey bu fazda kapanır.
+    *   **Kapandı (2026-11-12),** sahibinin kararıyla ("Evet, kapat"): yayından önce yapılacaklar bitti, gerisi yayından
+        sonraya alındı (aşağıda, "Yayına kadar kalan"). 5 iptal; 6'nın üç kararı kodda; 8'in son denetimi bütün
+        hedeflerde geçti. `939a90d`, `c1f1dec`, `b5fb888`, `74bde28`, `c21f2e6`, `1506f6a`, `c1480f1`, `ceec5f7`,
+        `6b0e719`, `a342878`, `de64179`, `6a36132`, `acd123e`, `bbe2dda`, `935e696`, `274ebf1`.
+    *   **Yayından sonraya kalanlar:** `OPEN_ITEMS.md`'deki 34 açık madde, 4'ün Android kısmı, 7 (gerçek cihazda
+        ekran okuyucu, tablette odak halkası, görüntülerin topluca yeniden kaydı) ve açık Pantrix bulgularının
+        kütüphaneye iletilmesi: Compose kütüphanesinde 1, sitede 0, tasarım sisteminde 14 (2'si Compose'da kapalı),
+        Compose'un kendi web sınırı 1.
     *   **Döküm (2026-11-09):** derleme ve test koşturulmadan, dosyalar ve kod okunarak çıkarıldı.
         *   **Açık maddeler:** `OPEN_ITEMS.md`'de 56, `PANTRIX_FINDINGS.md`'de 70. Hiçbiri Formatico'yu tıkamıyor.
         *   **Kodda düzelmiş görünenler:** üç Formatico maddesi (değer önizlemeleri, ağacın seçilen satıra
