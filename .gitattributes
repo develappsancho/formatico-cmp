@@ -1,0 +1,6 @@
+# Line endings on every machine, Windows' too. Git for Windows writes a text file with CRLF by default
+# (core.autocrlf), and bash cannot run a script whose lines end so: the shell scripts and Gradle's wrapper keep LF,
+# the wrapper's batch file keeps CRLF. deploy/windows.sh is run in Git Bash (docs/DEPLOY_GUIDE.md).
+*.sh        text eol=lf
+gradlew     text eol=lf
+*.bat       text eol=crlf

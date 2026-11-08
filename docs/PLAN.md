@@ -132,7 +132,7 @@ eksikler Faz 4'te.
     belgenin "More actions" menüsünden: genişte ve tablette pencere, telefonda sayfa ve platformun paylaşma sayfası;
     çok büyük belge dosya olarak kaydediliyor. Bağlantıyı web açıyor (adres sonra gezintiye kalıyor), uygulamada
     herhangi bir yere yapıştırınca da açılıyor; bozuk bağlantı bir uyarıyla söyleniyor (sahibinin kararları,
-    2026-11-06). App Links ve Universal Links Faz 22'de.
+    2026-11-06). App Links ve Universal Links Faz 22'de; yapılmadı (sahibinin kararı, 2026-11-12).
 *   [x] **Faz 14: Büyük dosyalar.** Masaüstünde 50 MB, telefonda ve web'de 10 MB, ölçülerek. Yapıldı (2026-11-06):
     `LargeDocumentsMeasure` altı biçimi 10 ve 50 MB'ta ölçüyor; sonuçlar ve Android, iOS, web'deki denemeler
     [`MEASURE.md`](MEASURE.md)'de. Düzeltilenler: okumanın belleği (yollar, adlar ve adımlar paylaşılıyor, %20–30 az),
@@ -618,7 +618,8 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
         *   Bütün hedefler 0.2.1 ile derlendi, testleri geçti.
         *   Depo herkese açık ve gönderildi (2026-11-12): `github.com/develappsancho/formatico-cmp`, dal `main`.
     *   **Sahibinin kararları (2026-11-12):**
-        *   Windows şimdilik yok: 1.0.0 macOS DMG'si ve Android APK'sıyla çıkar.
+        *   Windows şimdilik yok: 1.0.0 macOS DMG'si ve Android APK'sıyla çıkar. Değişti (2026-11-12, aşağıda): MSI bir
+            arkadaşın Windows makinesinde yapılır.
         *   Android'in APK'sı sahibinin var olan yayın anahtarıyla imzalanır; anahtar ve parolaları depoda değil.
         *   İndirme menüsünün panolarını bu oturum çizer, sonra kodu.
         *   Sıra: web ve sunucu (`deploy.sh web`, GHCR, Coolify) → APK ve DMG'nin imzası → indirme menüsü →
@@ -638,6 +639,25 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
         *   APK'nın imzası: anahtarın dosyası ve parolaları `local.properties`'te (`storeFile`, `storePassword`,
             `keyAlias`, `keyPassword`), anahtar depoya girmiyor (`signing/` yok sayılıyor). `assembleRelease` imzalı
             APK veriyor (APK İmza Şeması v2), `versionCode` sürümden: 1.0.0 → 10000.
+    *   **Sahibinin kararları (2026-11-12, ikinci):**
+        *   Windows'un MSI'ı da 1.0.0'da: sahibinin Windows makinesi yok; depoya ortak (Write) eklenen bir arkadaş
+            MSI'ı kendi Windows makinesinde yapar ve sürüme koyar. Ona yalnızca bir betiği çalıştırmak kalır
+            (`deploy/windows.sh`, Git Bash'te). MSI imzasız: SmartScreen ilk açılışta uyarır.
+        *   App Links (ve iOS yayımlanmadığı için Universal Links) yok: APK sürümde doğrudan bir bağlantıyla verilir;
+            paylaşılan bir bağlantı web'de açılır.
+        *   Sıra: DMG'nin hattı → indirme menüsü (Windows'la birlikte) → sürüm. Sürümün dosyaları menü kodlandıktan
+            sonra, aynı commit'ten yapılır.
+    *   **İlerleme (2026-11-12, ikinci):**
+        *   `deploy.sh`'a dört kip: `desktop` (Developer ID ile imzalı, Apple'ın onayından geçmiş DMG; sitenin
+            `macos-dmg.sh`'ı ve JVM'in hakları uyarlandı), `android` (imzalı APK, sürümü ve imzası denetli),
+            `release` (GitHub'da taslak sürüm, DMG ve APK ile), `publish` (üç dosya da taslaktaysa yayımlar). Dosyalar
+            `build/release`'te, sabit adlarla: `Formatico-macOS.dmg`, `Formatico-Android.apk`, `Formatico-Windows.msi`.
+        *   Windows: `deploy/windows.sh` MSI'ı taslağın commit'inden yapar, taslağa koyar, notlara SHA-256'sını yazar.
+            `app/desktopApp`'in Windows ayarları: sabit `upgradeUuid`, kullanıcıya kurulum (yönetici istemez), menü
+            ve kısayol. `.gitattributes` betiklerin satır sonlarını Windows'ta da LF tutar. Masaüstü uygulaması
+            Android SDK'sız derleniyor (bu Mac'te SDK'sız bir kopyada denendi). Betik, Gradle dışında, sahte bir
+            Windows'ta sahte bir `gh` ile denendi; gerçek bir Windows'ta denenmedi.
+        *   Adımlar `docs/DEPLOY_GUIDE.md`'nin 6–9. bölümlerinde.
 
 ## Sahibinin kararını bekleyenler
 
@@ -651,4 +671,5 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
         Windows'ta yapabiliyor, Mac'te yapamıyor. Yol, deponun GitHub Actions'ında bir Windows makinesi: sürüm
         çıkınca JVM testlerini Windows'ta koşturur, MSI'ı yapıp sürüme ekler. İmzasız bir MSI'da Windows ilk açılışta
         "Windows bilgisayarınızı korudu" uyarısı verir; imza için ücretli bir kod imzalama sertifikası gerekir.
-        Karara bağlandı (2026-11-12): şimdilik yok.
+        Karara bağlandı (2026-11-12): şimdilik yok. Aynı gün değişti: MSI, bir arkadaşın Windows makinesinde
+        (`deploy/windows.sh`), imzasız.

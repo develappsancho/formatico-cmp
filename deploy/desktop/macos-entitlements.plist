@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  The three rights the JVM needs to run under the hardened runtime.
+
+  Without this file the signed app passes notarization, but does not open on the machine of whoever downloads it,
+  and that never shows on the machine that built it, which keeps no quarantine. The only place the fault shows is the
+  user's computer, and the only way back is a new release.
+
+  All three are the JVM's own, not a loosening for its own sake:
+    allow-jit                        → the JIT compiler writes executable memory
+    allow-unsigned-executable-memory → the code the JIT makes is not signed, and cannot be
+    disable-library-validation       → the JDK's libraries in the bundle are not signed by this team
+-->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+    <dict>
+        <key>com.apple.security.cs.allow-jit</key>
+        <true/>
+        <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
+        <true/>
+        <key>com.apple.security.cs.disable-library-validation</key>
+        <true/>
+    </dict>
+</plist>

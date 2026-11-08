@@ -22,7 +22,7 @@ properties. It is a Compose Multiplatform app for Android, iOS, the desktop and 
 | [`feature/start`](feature/start) | The Start screen: paste, open, drop, recent documents and samples |
 | [`feature/workspace`](feature/workspace) | The open documents and their workspace: the toolbar, the tree with its value previews, the table of an array or a CSV (sorting, filtering, columns, a column summed up, saved as CSV), the graph of its objects and arrays as cards and links (Pantrix's `PantrixGraph`), the status bar; a document's types (Kotlin, TypeScript, Swift, Go, JSON Schema) and its validation against a schema |
 | [`server`](server) | Formatico's server, Spring Boot on WebFlux: the encrypted shares it keeps and cannot read, and web addresses fetched for a browser, public ones alone |
-| [`deploy`](deploy) | The stack: nginx with the web app and the server beside it, in Docker; `deploy/deploy.sh local` runs it on this machine at `localhost:4005`, `deploy/check.sh` checks it, `deploy/deploy.sh web` puts it up through Coolify ([the guide](docs/DEPLOY_GUIDE.md), in Turkish) |
+| [`deploy`](deploy) | The stack: nginx with the web app and the server beside it, in Docker; `deploy/deploy.sh local` runs it on this machine at `localhost:4005`, `deploy/check.sh` checks it, `deploy/deploy.sh web` puts it up through Coolify; `desktop`, `android`, `release` and `deploy/windows.sh` make the release's DMG, APK and MSI ([the guide](docs/DEPLOY_GUIDE.md), in Turkish) |
 | [`build-logic`](build-logic) | The convention plugins, as Kotlin classes: `formatico.kmp.library`, `formatico.kmp.compose`, `formatico.feature`, `formatico.quality`, `formatico.web.application` |
 
 ## Setting up

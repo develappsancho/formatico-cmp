@@ -2,8 +2,8 @@
 
 Formatico'nun web uygulaması ve sunucusu böyle yayına alınır: önce bu makinede Docker Compose ile, sonra Coolify'da.
 Düzen pantrixui.com'un sitesininkiyle aynıdır; neyin nerede çalıştığı ve neden böyle kurulduğu PLAN.md'nin Faz 16'sında,
-"Barındırma" maddesindedir. Android'in APK'sı ve macOS'un DMG'si deponun GitHub'daki sürümünde yayımlanır (Bölüm 6
-ve 7).
+"Barındırma" maddesindedir. Android'in APK'sı, macOS'un DMG'si ve Windows'un MSI'ı deponun GitHub'daki sürümünde
+yayımlanır (Bölüm 6–9); MSI, bir Windows makinesinde yapılır.
 
 ## 1. Özet
 
@@ -14,6 +14,11 @@ ve 7).
 | `deploy/deploy.sh stop` | Yığını durdurur ve konteynerlerini kaldırır; imajlar ve paylaşımların diski kalır |
 | `deploy/check.sh <adres>` | Denetimleri bir adreste çalıştırır: lokalde ya da canlıda |
 | `deploy/deploy.sh web` | İki imajı iki mimari için GHCR'ye gönderir, Coolify'a yayını başlatır ve canlı adresi denetler |
+| `deploy/deploy.sh desktop` | macOS uygulamasını derler, Developer ID ile imzalar, Apple'ın onayından geçirir: `build/release/Formatico-macOS.dmg` |
+| `deploy/deploy.sh android` | Android uygulamasını yayın anahtarıyla imzalı derler, imzasını denetler: `build/release/Formatico-Android.apk` |
+| `deploy/deploy.sh release` | GitHub'da taslak bir sürüm açar, DMG'yi ve APK'yı koyar; taslağı yalnızca deponun ortakları görür |
+| `deploy/windows.sh` | Windows'ta, Git Bash'te: MSI'ı derler ve taslak sürüme koyar (Bölüm 8) |
+| `deploy/deploy.sh publish` | Üç dosya da taslaktaysa sürümü yayımlar, son sürüm yapar |
 
 `web`'in seçenekleri:
 
@@ -21,8 +26,10 @@ ve 7).
 *   `--no-gradle` Gradle'ın son çıktısını alır.
 *   `--no-coolify` imajları gönderir ve Coolify'a dokunmaz; ilk gönderim böyle yapılır (Bölüm 5.1).
 
+`desktop`'ta `--dry-run` DMG'yi imzalar ve Apple'a göndermez; `release`'te notları yazar ve hiçbir şey açmaz.
+
 Sürüm, `gradle.properties`'teki `formatico.version`'dır (`1.0.0`). Uygulama onu Ayarlar'ın About satırında yazar;
-imajların etiketi de odur.
+imajların etiketi, sürümün adı (`v1.0.0`) ve üç uygulamanın sürümü de odur.
 
 ## 2. Gerekenler
 
@@ -246,24 +253,152 @@ dört satırdır.
 `.gitignore`, `signing/`, `*.jks` ve `*.keystore`'u yok sayar. Yok sayma yalnızca izlenmeyen dosyalara işler: bir kez
 `git add` edilmiş bir anahtar dosyası commit'ten önce `git rm --cached <dosya>` ile çıkarılır.
 
-İmzalı APK:
+İmzalı APK, `build/release/Formatico-Android.apk` olarak:
 
 ```bash
-./gradlew :app:androidApp:assembleRelease
+deploy/deploy.sh android
 ```
 
-Çıktı `app/androidApp/build/outputs/apk/release/androidApp-release.apk`'tır. `local.properties`'te `storeFile`
-yoksa APK imzasız çıkar (`androidApp-release-unsigned.apk`). `versionCode` sürümden hesaplanır: `1.0.0` → `10000`.
+Betik `:app:androidApp:assembleRelease`'i çalıştırır, APK'nın sürümüne ve imzasına bakar (`aapt2`, `apksigner`,
+Android SDK'nın `build-tools`'undan) ve hangi commit'ten derlendiğini yanına yazar. `local.properties`'te
+`storeFile` yoksa Gradle APK'yı imzasız yapar (`androidApp-release-unsigned.apk`) ve betik durur. `versionCode`
+sürümden hesaplanır: `1.0.0` → `10000`. Android 11 ve sonrası içindir (`minSdk` 30).
 
-İmzayı denetlemek (Android SDK'nın `build-tools`'unda):
+İmzanın sertifikası elle:
 
 ```bash
-apksigner verify --print-certs app/androidApp/build/outputs/apk/release/androidApp-release.apk
+apksigner verify --print-certs build/release/Formatico-Android.apk
 ```
 
-## 7. macOS'un DMG'si ve GitHub'daki sürüm
+## 7. macOS'un DMG'si
 
-Henüz betikte yok: `deploy.sh desktop` eklenecek. Uygulamayı Developer ID ile imzalayacak, Apple'ın onayından
-(notarization) geçirecek ve DMG'yi sürümün GitHub sayfasına koyacak. Bu bölüm o zaman yazılacak.
+```bash
+deploy/deploy.sh desktop
+```
 
-GitHub'da bir sürüm, sahibinin onayıyla yayımlanır.
+Gerekenler, bu Mac'te bir kez:
+
+*   Anahtar zincirinde ekibin (`FN6T94F922`) **Developer ID Application** sertifikası.
+*   Apple'ın onayı için bilgiler, anahtar zincirinde `pantrix-notary` adıyla; sitenin yayını da aynısını kullanır.
+    Yoksa: `xcrun notarytool store-credentials pantrix-notary`.
+
+Betik şunları yapar (`deploy/desktop/macos-dmg.sh`, sitenin betiğinin Formatico'ya uyarlanmışı):
+
+1.  Gradle `:app:desktopApp:createDistributable` ile `Formatico.app`'i yapar; sürümüne bakar.
+2.  Uygulamayı sertifikanın karmasıyla imzalar: jar'ların içindeki yerel kütüphaneler, Java'nın çalışma ortamının
+    kütüphaneleri ve çalıştırılabilirleri, ortamın kendisi, sonra uygulama, JVM'in üç hakkıyla
+    (`deploy/desktop/macos-entitlements.plist`). Compose'un kendi imzası sertifikayı adıyla arar; adında ASCII dışı
+    bir harf olunca bulamaz.
+3.  DMG'yi yapar ve imzalar, Apple'a onaya gönderir (birkaç dakika), onayı DMG'ye ekler ve Gatekeeper'a sorar.
+4.  `build/release/Formatico-macOS.dmg`'yi, boyutunu, SHA-256'sını ve commit'ini yazar.
+
+DMG Apple silikonlu Mac'ler içindir: içindeki Java ortamı bu Mac'inkidir (arm64). `--dry-run` imzalar, Apple'a
+göndermez; böyle bir DMG sürüme konmaz (Gatekeeper durdurur) ve `release` onu kabul etmez.
+
+## 8. Windows'un MSI'ı
+
+Compose bir MSI'ı yalnızca Windows'ta yapar. MSI, deponun ortağı olan bir arkadaşın Windows makinesinde, sahibinin
+Mac'te açtığı taslak sürümün commit'inden yapılır ve o taslağa konur. MSI imzasızdır: Windows ilk açılışta "Windows
+bilgisayarınızı korudu" der (SmartScreen); **Ek bilgi** → **Yine de çalıştır**. Kurulum yalnızca kullanıcı içindir,
+yönetici izni istemez; bir sonraki sürüm aynı yükseltme koduyla (`app/desktopApp/build.gradle.kts`, `upgradeUuid`)
+eskisinin yerine kurulur.
+
+### 8.1 Bir kerelik: sahibi
+
+GitHub'da depo → **Settings** → **Collaborators** → **Add people**: arkadaşın hesabı, **Write** yetkisiyle. Taslak
+sürümü yalnızca ortaklar görür ve yalnızca yazma yetkisi olan ona dosya koyabilir.
+
+### 8.2 Bir kerelik: arkadaşın makinesi
+
+1.  **Araçlar** (PowerShell'de):
+
+    ```powershell
+    winget install Git.Git
+    winget install EclipseAdoptium.Temurin.21.JDK
+    winget install GitHub.cli
+    ```
+
+    Git, Git Bash'i getirir; betik orada çalışır. JDK Gradle'ı başlatmak içindir: derlemenin JDK'sını (Azul Zulu 21)
+    ve MSI'ın araçlarını (WiX) Gradle ilk derlemede kendisi indirir. Android SDK ya da Xcode gerekmez.
+2.  **GitHub'a giriş** (Git Bash'te): `gh auth login`, ortak yapılan hesapla.
+3.  **Pantrix UI'ın paketleri:** GitHub Packages, herkese açık bir paket için bile bir token ister. GitHub'da
+    **Settings** → **Developer settings** → **Personal access tokens** → **Tokens (classic)** → yalnızca
+    `read:packages` yetkili bir token. Kullanıcının klasöründeki `.gradle\gradle.properties`'e (Git Bash'te
+    `~/.gradle/gradle.properties`) iki satır; depoya girmez:
+
+    ```properties
+    GitHubPackagesUsername=<GitHub kullanıcı adı>
+    GitHubPackagesPassword=<read:packages yetkili token>
+    ```
+
+4.  **Depo** (Git Bash'te):
+
+    ```bash
+    git clone https://github.com/develappsancho/formatico-cmp.git
+    ```
+
+`.gitattributes` betiklerin ve Gradle'ın sarmalayıcısının satır sonlarını Windows'ta da LF tutar; yoksa Git for Windows
+onları CRLF yazar ve bash çalıştıramaz.
+
+### 8.3 Her sürüm: arkadaş
+
+Sahibi taslak sürümü açtığında (Bölüm 9), Git Bash'te deponun kökünde:
+
+```bash
+git fetch origin
+deploy/windows.sh
+```
+
+Betik önce bakar: Windows mı, `formatico.version`, Java, iki `GitHubPackages` satırı, temiz ağaç, `gh`'nin hesabının
+depoya yazabilmesi, `v<sürüm>` taslağı. Ağaç taslağın commit'inde değilse durur ve hangi commit'e geçileceğini söyler
+(`git checkout <commit>`). Sonra Gradle `:app:desktopApp:packageMsi` ile MSI'ı yapar (ilk derleme JDK'yı ve WiX'i
+indirdiği için uzun sürer), `build/release/Formatico-Windows.msi` olarak taslağa koyar ve notların Windows bölümünü
+SHA-256'sıyla yazar. Yeniden çalıştırılırsa MSI'ı ve bölümü yenisiyle değiştirir.
+
+`deploy/windows.sh --dry-run` MSI'ı bulunulan commit'ten yapar ve hiçbir yere göndermez: makinenin hazır olduğunu
+denemek için.
+
+## 9. GitHub'daki sürüm
+
+Bir sürüm GitHub'daki bir commit'ten, sırayla yapılır:
+
+1.  **Sahibi, Mac'te:** commit ve push, sonra
+
+    ```bash
+    deploy/deploy.sh desktop
+    deploy/deploy.sh android
+    deploy/deploy.sh release
+    ```
+
+    `release`, iki dosyanın bu commit'ten derlendiğine bakar ve GitHub'da `v<sürüm>` adıyla **taslak** bir sürüm açar:
+    hedefi bu commit, dosyaları DMG ve APK, notları her dosyanın platformu ve SHA-256'sı. Taslak zaten varsa
+    dosyalarını ve notlarını yeniler; sürüm yayımlanmışsa durur: yeni bir sürüm yeni bir `formatico.version` ister.
+    `deploy/deploy.sh release --dry-run` yalnızca notları yazar.
+2.  **Arkadaş, Windows'ta:** `deploy/windows.sh` (Bölüm 8.3).
+3.  **Sahibi:** sürüm, sahibinin onayıyla yayımlanır:
+
+    ```bash
+    deploy/deploy.sh publish
+    ```
+
+    Taslakta üç dosya da yoksa durur; varsa sürümü yayımlar ve son sürüm yapar.
+
+Dosyaların adı her sürümde aynıdır; bu yüzden `releases/latest/download/<ad>` hep son sürümün dosyasını verir:
+
+*   `https://github.com/develappsancho/formatico-cmp/releases/latest/download/Formatico-macOS.dmg`
+*   `https://github.com/develappsancho/formatico-cmp/releases/latest/download/Formatico-Android.apk`
+*   `https://github.com/develappsancho/formatico-cmp/releases/latest/download/Formatico-Windows.msi`
+
+### 9.1 Sorun giderme
+
+| Belirti | Neden ve çözüm |
+| :--- | :--- |
+| `The keychain has no Developer ID Application certificate` | Sertifika bu Mac'in anahtar zincirinde değil |
+| `Apple did not notarize the DMG` | Betik Apple'ın günlüğünü yazar; çoğu zaman imzasız kalmış bir kütüphane |
+| `no signed APK` | `local.properties`'te anahtarın satırları yok (Bölüm 6) |
+| `… was built from …, not from …` | Dosya başka bir commit'ten: `desktop` ya da `android` yeniden |
+| `gh's account may not write` | `gh` başka bir hesapla açık, ya da hesap deponun ortağı değil (8.1) |
+| `is no draft release` | Taslak henüz açılmadı (`release`), ya da sürüm yayımlandı |
+| `this is not the release's commit` | Arkadaşın ağacı başka bir commit'te: betiğin söylediği `git checkout` |
+| `GitHubPackagesPassword is not in …` | 8.2, adım 3 |
+| Windows'ta `bash\r: No such file or directory` | Depo `.gitattributes`'tan önce klonlanmış: yeniden klonlamak |

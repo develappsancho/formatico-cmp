@@ -777,7 +777,7 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
         *   Bağlantı hazırlanırken alan boş, Copy the link kapalı; anahtar değişince önceki bağlantı yenisi gelene kadar kalıyor.
         *   Biçimlendirme anahtarı düz metinde ve hatalı bir belgede kapalı (Format onları yazamıyor); belgenin kendisi değişmiyor, yalnızca bağlantıdaki metin biçimlendiriliyor. Anahtar her açılışta kapalı başlıyor.
         *   Bağlantının sıkıştırması Formatico'nun kendi saf Kotlin deflate'i (`core:share`), zlib biçiminde: her platformda aynı bağlantı. 2 MB'tan büyük bir metin sıkıştırılmadan "çok büyük" sayılıyor.
-        *   Bağlantı Android ve iOS uygulamasını açmıyor (sahibinin kararı): web açıyor, uygulamada herhangi bir yere yapıştırılınca da açılıyor. App Links ve Universal Links site yayına girince (Faz 22).
+        *   Bağlantı Android ve iOS uygulamasını açmıyor (sahibinin kararı): web açıyor, uygulamada herhangi bir yere yapıştırılınca da açılıyor. App Links ve Universal Links yok (sahibinin kararı, 2026-11-12): APK sürümde doğrudan bir bağlantıyla verilir, bağlantı web'de açılır.
     *   Öneri: sahibinin onayı.
     *   Durum: açık.
 
