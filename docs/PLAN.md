@@ -626,8 +626,11 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
         *   Lisans: Apache-2.0 (`LICENSE`, README'de; imajların etiketinde de).
     *   **İlerleme (2026-11-12):**
         *   `deploy.sh web`: imajlar iki mimari için GHCR'ye, Coolify kaynağı yeniden kuruyor, canlı adreste `check.sh`.
-            Kuru deneme geçti; Coolify'daki kaynağı sahibi kuracak (`CoolifyFormaticoUuid`). Adımları
-            `docs/DEPLOY_GUIDE.md`'de, sitenin yayın rehberi gibi.
+            Adımları `docs/DEPLOY_GUIDE.md`'de, sitenin yayın rehberi gibi.
+        *   Web ve sunucu yayında (2026-11-12): `https://formatico.pantrixui.com`, 1.0.0 (`2a27520`). İki paket
+            GHCR'de herkese açık, sahibi Coolify'da kaynağı kurdu; `deploy.sh web` yayımladı ve `check.sh`'ın yedi
+            denetimi canlıda geçti. Sertifika Let's Encrypt'ten; pantrixui.com yanında çalışmaya devam ediyor.
+            Tarayıcıda Start açıldı, bir örnek metinde ve ağaçta çizildi.
         *   APK'nın imzası: anahtarın dosyası ve parolaları `local.properties`'te (`storeFile`, `storePassword`,
             `keyAlias`, `keyPassword`), anahtar depoya girmiyor (`signing/` yok sayılıyor). `assembleRelease` imzalı
             APK veriyor (APK İmza Şeması v2), `versionCode` sürümden: 1.0.0 → 10000.
