@@ -9,6 +9,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.format.Format
+import com.developersancho.formatico.core.testing.awaitStatus
 import com.developersancho.formatico.core.testing.awaitText
 import com.developersancho.formatico.core.testing.awaitUntil
 import com.pantrixui.components.data.codeeditor.CodeEditorState
@@ -122,7 +123,7 @@ class PhoneProblemsTest {
                 WorkspaceScreen(stateOf("{\"a\": 1}\n"), {}, rememberDocumentCommands(Workbench()))
             }
         }
-        awaitText("Valid JSON")
+        awaitStatus("Valid JSON")
 
         onPantrixNode("Tag", "invalid").assertDoesNotExist()
         onPantrixNode("Card", "problem").assertDoesNotExist()

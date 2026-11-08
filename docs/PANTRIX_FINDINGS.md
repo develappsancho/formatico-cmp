@@ -141,6 +141,9 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
 *   [ ] **Tasarım sistemindeki DataTable, Compose'dakinin gerisinde (2026-11-02).**
     *   Ne: Compose'un `PantrixDataTable`'ı `onRowClick`, `rowTone` (bir satırı bir rolün yumuşak dolgusuna yatırır), tek seçim, sabitlenen sütunlar, `toolbar` ve `footer` yuvaları ve yükseklik verilince yalnızca görünen satırları kuran bir kaydırma sunuyor. Tasarım sistemindeki `DataTable`'da bunların hiçbiri yok: `columns`, `rows`, `sort`, onay kutulu seçim, `striped`, `bordered`, `renderDetail`. Formatico'nun Table panolarında metindeki imlecin satırı (`$[2]`) `rowTone` ile işaretlenebilirdi; tuvalde işaretlenemedi, filtre ve sayfalama tablonun dışına kondu.
     *   Ne (ek, 2026-11-02): Table panoları yeniden çizilince eksik büyüdü. Compose'da bir sütunun `cell`'i bir `@Composable`: bir değer türüne göre yazılır (sayı, `true`/`false`, `null`, olmayan anahtar), iç içe bir dizi açılan bir düğme olur. Tasarım sistemindeki sütunun `render`'ı ise bir JavaScript işlevi; tuvaldeki bir pano işaretlemeden ibaret olduğu için ona öğe veremiyor. Bunlar da yok: `DataTableVariant.Grid` (sütunların arasında çizgi), genişliği sürüklenen sütunlar, `headerTextStyle` ve `DataTableColors.headerContainer`, yükseklik verilen tabloda yerinde kalan başlık, dar ekranda kayıtların listesi (`DataTableLayout.Auto`), listenin üstünde sıralama şeridi ve `listContent`. Table panoları (1440, 834, 390) bu yüzden tabloyu bileşenle değil işaretlemeyle çiziyor; kodda karşılığı `PantrixDataTable`.
+    *   Ne (ek, 2026-11-11): Compose'a sonradan gelen sütun alt yazısı (`DataTableColumn.subtitle`) ve seçili hücre
+        (`selectedCell`) de tasarım sisteminde yok; tuval Table-834'ün tablosunu bu yüzden hâlâ elle çiziyor: ızgara
+        görünümü, sütunların türü, sabit sıra sütunu ve alt bilgi tasarım sisteminin `DataTable`'ıyla çizilemiyor.
     *   Nerede: tasarım sistemi, `project/components/index.d.ts` (`DataTableProps`); MCP `get_api PantrixDataTable`, `DataTableColumn`, `DataTableStyle`, `DataTableColors`.
     *   Öneri: web karşılığına `rowTone`, `onRowClick`, `toolbar`, `footer`, sabitlenen ve sürüklenen sütunlar, `Grid`, başlığın yazısı ve dolgusu, dar ekranın listesi; bir hücreye işaretlemeden içerik verilebilmesi (örneğin sütun başına bir yuva adı); tasarım sisteminin bileşenleri Compose API'sinden üretiliyorsa ayrılığı gösteren bir denetim.
     *   Durum: açık.
@@ -189,12 +192,38 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Ne: Faz 21'de panolar koda göre yeniden çizilirken (2026-11-10) beş yerde uygulamanın Pantrix'e verdiği seçenek tasarım sisteminde bulunamadı. Hepsi işaretleme ya da yaklaşık kaldı:
         *   **`SwitchButton`:** destekleyen metin almıyor, anahtarı satırın sonuna koyamıyor. Settings'in anahtarlı satırları ("Wrap long lines", "Keep a history") bu yüzden işaretleme; uygulama Pantrix'in anahtar satırını çiziyor (en az 68 piksel, etiket 4 piksel içeride).
         *   **`Select` ve `SegmentButton`:** dokunmatik boyları yok. Uygulamada seçim kutusu tablette ve telefonda 48, telefonun seçenekleri 40 civarı; tuval 40 ve 34 çiziyor.
+        *   **`IconButton` (ek, 2026-11-11):** boyları 24/16, 32/20, 40/24, 48/28 (düğme/simge); dokunma hedefi yok. Uygulamada
+            tablette sekmelerin "+" düğmesi 48 dp'lik hedefte 24'lük simge; tuval onu elle çizilmiş bir düğmede
+            `Pantrix.Icon` ile çiziyor.
         *   **`ListItem`:** destekleyen metnin biçimi verilemiyor (Compose'da `supportingTextStyle`); başlığın biçimi, renkleri ve satırın boyu da verilemiyor. Web'deki satır 56 piksel, uygulamanın masaüstündeki 52. Summary'nin bulunanları `ListItem`; Query'nin eşleşme satırları bu yüzden işaretleme.
         *   **`Sheet`:** `fullScreen` yok. Uygulama Compare'in telefondaki "Show" sayfasını `fullScreen = true` ile açıyor; panoda içerik 690 piksele çekilerek yaklaşıldı.
         *   **`Menu`:** seçili öğenin işareti satırın başında; uygulamanın `FormatMenu`'sünde sonunda. Menünün kendi genişliği de yok ("Menu ve Popover tuvalde açık çizilemiyor").
     *   Nerede: tuvalin kopyası (`1794246052-74f6`), `project/ds/pantrix/components/index.d.ts` (`SwitchButtonProps`, `SelectProps`, `SegmentButtonProps`, `ListItemProps`, `SheetProps`, `MenuProps`); panolar Settings ×3, Summary ×3, Query ×3, Compare-390, Workspace-390.
     *   Öneri: web karşılıklarına Compose'daki seçenekler: `SwitchButton`'a `supportingText` ve anahtarın yeri; `Select` ile `SegmentButton`'a boy (ya da dokunmatik ön ayar); `ListItem`'a başlığın ve destekleyen metnin biçimi, renkler, satırın boyu; `Sheet`'e `fullScreen`; `Menu`'de işaretin yeri Compose'daki gibi.
     *   Durum: açık. Formatico'yu tıkamıyor.
+
+*   [ ] **Tasarım sisteminin DiffView'u uygulamanın satırlarını almıyor (2026-11-11).**
+    *   Ne: Compare panoları (tuval, 2026-11-11) tasarım sisteminin `DiffView`'uyla çizildi. `DiffView` iki metni
+        kendisi karşılaştırıyor; Compose'daki `PantrixDiffView(lines: List<DiffLine>)` gibi uygulamanın kendi farkını
+        almıyor. Bu yüzden anlamca karşılaştırmada da anahtarların yer değiştirmesi (`id`, `status`) ve sayının yazılışı
+        (`129.90`, `129.9`) değişiklik olarak işaretleniyor; listenin altındaki kutu bunların fark sayılmadığını
+        söylüyor. Aynı nedenle bir JSON'la YAML'ı anlamca karşılaştırırken satırlar karşılaştırılamıyor: Compare-834'ün
+        "same" hâli iki tarafta da A'nın metnini çiziyor. Tuval bir şey daha gördü: en benzer satırlar her zaman karşı
+        karşıya gelmiyor, A'nın `total` satırı B'nin `deliveredAt` satırının karşısında; Compose'da da öyle olup olmadığı
+        doğrulanacak.
+    *   Nerede: Claude Design'daki tasarım sistemi, `DiffView`'un özellikleri (`before`, `after`, `layout`, `context`,
+        `shownChange`); tuvalde Compare-1440, Compare-834, Compare-390.
+    *   Öneri: `DiffView`'a Compose'daki gibi bir `lines` özelliği (her satırın türü, iki taraftaki metni ve numarası,
+        değişen parçaları); satırları eşlerken en benzerini karşısına koymak.
+    *   Durum: açık. Formatico'nun Compare'i `PantrixDiffView`'a geçerken anlamca karşılaştırmanın neyi işaretleyeceği
+        sahibinin kararını bekliyor.
+*   [ ] **Tasarım sisteminin CodeEditor'ünde şimdiki eşleşmenin stili yok (2026-11-11).**
+    *   Ne: Compose'da `CodeRangeStyle.Current` geldi: bir eşleşmenin şimdikini vurgu ve tonunun çerçevesiyle çiziyor;
+        Formatico'nun Query'si onu kullanıyor. Tasarım sisteminin `CodeEditor`'ünde `rangeMarks`'ın stilleri yalnızca
+        `underline` ve `highlight`; Query panoları şimdiki eşleşmeyi çerçevesiz çiziyor.
+    *   Nerede: tasarım sisteminin `CodeEditor`'ü, `rangeMarks`'ın `style`'ı; tuvalde Query panoları.
+    *   Öneri: `rangeMarks`'a `style: 'current'`.
+    *   Durum: açık. Formatico'yu tıkamıyor; Query panoları bekliyor.
 
 ## 3. Detekt
 
@@ -258,7 +287,7 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Öneri: test rehberine "bir genişlikteki düzeni sınamak için ekranı o boyda bir `PantrixWindowFrame`'e koyun" cümlesi ve örneği; ya da `PantrixTestTheme`'in `window` verildiğinde içeriği o boyda çizmesi.
     *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-10 20:50). Test rehberinin 3.3'ü: pencere ekranın söylendiği boy, çizildiği boy değil; masaüstünde `runDesktopComposeUiTest(width, height)`, iOS'ta ve web'de `runSkikoComposeUiTest(size)`, ortak testte temanın içinde o boyda bir kutu; testin odasının dışında kalan çizilmiyor, oraya basılmıyor. Formatico `core:testing`'e `AtWindowSize`'ı koydu (kutu odanın sol üstünden); tabletteki dört test (Query, Convert, Schema, Types) artık tanılamayı da soruyor. Odanın dışında kalan bir menü satırına ekran okuyucusunun bastığı gibi basan beş test kalıyor; yorumları artık rehberi anıyor. Rehberin örneği kutuyu `requiredSize` ile veriyor: yeni bulgu, "Test rehberinin pencere boyundaki kutusu ekranı odanın ortasına koyuyor". Önceki durum: açık. Formatico (2026-11-03) araç çubuğunu dar genişlikte de sığacak biçimde düzeltti (yol izi önce daralıyor); testler 1024'te koşmaya devam ediyor. Faz 15'te (2026-11-06) iki yol bulundu: ortak testte ekran panonun boyunda bir `PantrixWindowFrame`'e (`requiredSize`) konuyor; iOS'ta ve web'de Compose'un `runSkikoComposeUiTest(size = …)`'su testi o boyda çiziyor (iOS'un pano resimleri böyle). Rehber ikisini de anmıyor.
 
-*   [ ] **Test rehberinin pencere boyundaki kutusu ekranı odanın ortasına koyuyor (2026-11-10).**
+*   [x] **Test rehberinin pencere boyundaki kutusu ekranı odanın ortasına koyuyor (2026-11-10).**
     *   Ne: Test rehberinin 3.3'ü bir ortak testte ekranı penceresinin boyunda çizmek için
         `Box(Modifier.requiredSize(window.size))` veriyor. `requiredSize` odadan büyük bir kutuyu odanın ortasına
         koyuyor (Compose'un belgesi: "the position of the content will be automatically offset to be centered"):
@@ -269,8 +298,7 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Öneri: örnek kutuyu odanın sol üstüne koysun:
         `Modifier.wrapContentSize(Alignment.TopStart, unbounded = true).size(window.size)`; ya da
         `requiredSize`'ın ortaladığını bir cümleyle söylesin.
-    *   Durum: açık. Formatico'yu tıkamıyor. Formatico `core:testing`'in `AtWindowSize`'ında kutuyu sol üstten veriyor.
-        Rehberin örneği Formatico'da denenmedi; Compose'un `requiredSize` belgesinden.
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-11). Test rehberinin 3.3'ü kutuyu `Box(Modifier.wrapContentSize(Alignment.TopStart, unbounded = true).size(window.size))` ile odanın sol üstüne koyuyor ve `requiredSize`'ın neden ortaladığını söylüyor, İngilizcede ve Türkçede (yerel eklentinin MCP jar'ındaki `guides/testing.md`). Formatico'nun `core:testing`'deki `AtWindowSize`'ı aynı kutu; değişen yok. Önceki durum: açık. Formatico'yu tıkamıyor. Formatico `core:testing`'in `AtWindowSize`'ında kutuyu sol üstten veriyor. Rehberin örneği Formatico'da denenmedi; Compose'un `requiredSize` belgesinden.
 *   [x] **Ekran görüntüsü testinin kurulumu sitede yok; Maestro görevleri yayımlanmıyor (2026-11-03).**
     *   Ne: Test rehberi Roborazzi için "Pantrix's own setup is in the Roborazzi guide" diyor ve deponun bir dosyasına bağlıyor; dışarıdan biri o depoyu okuyamıyor, sitede ve MCP'de o rehber yok. Kurulum özetin üç maddesinden çıkarıldı (eklenti, `roborazzi-compose-desktop`, `captureRoboImage`, `runDesktopComposeUiTest(width, height)`). Maestro'da rehber `maestroTest` ve `maestroIosTest` görevlerini anlatıyor; görevler Pantrix'in kendi `build-logic`'inde (`pantrix.demo.maestro`), bir uygulamaya verilmiyor. Formatico akışlarını `maestro test` ile koşturuyor.
     *   Nerede: MCP `get_documentation_page guide/testing`, bölüm 3.6 ve 3.7.
@@ -281,11 +309,11 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Nerede: MCP `search_documentation "preview"`, `search_api "preview"`; `guide/testing`.
     *   Öneri: `guide/previews`: bir ekranın önizlemesi uygulamanın temasında, bir `PreviewParameterProvider`'la hâlleri, `@Preview(widthDp, heightDp)` ile pencereleri; ve `foundation`'da `PantrixTestTheme`'in önizlemeye uyan bir eşi (`PantrixPreviewTheme(platform, dark, window, clock)`), aynı hâller hem önizlemede hem ekran görüntüsünde çizilsin diye.
     *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-10 20:50). Yeni API `PantrixPreviewTheme(platform, dark, window, clock)` (`com.pantrixui.foundation.theme`) ve yeni rehber `guides/previews`. Formatico'nun `FormaticoPreview`'ü artık onun içinde çiziyor: bir panonun boyundaki önizleme o panonun platformunda ve penceresinde (IDE'de telefonun ve tabletin dokunma hedefleri), başka boydaki önizleme çevresindeki temanınkinde; saat `PreviewNow`. Ekran görüntüleri değişmedi (`verifyRoborazziJvm`); `FormaticoPreviewTest` iki durumu sınıyor. Önceki durum: açık. Formatico kendisi yazdı (`core:designsystem`'de `FormaticoPreview`, `PreviewCases`, `BoardPreviews`, `Board`): önizleme Formatico'nun temasında, saat sabit; ekran görüntüsü aynı önizlemeyi `PantrixTestTheme`'in içinde çiziyor.
-*   [ ] **Bir bileşen, içinde durduğu temanın koyu olup olmadığını okuyamıyor (2026-11-04).**
+*   [x] **Bir bileşen, içinde durduğu temanın koyu olup olmadığını okuyamıyor (2026-11-04).**
     *   Ne: `PantrixTheme`'in koyu temayı dıştaki temadan alan varsayılanı `inheritedDarkThemeOrSystem()`; API'de yok, uygulama çağıramıyor. Formatico'nun teması (`FormaticoTheme`) kendi sözdizimi renklerini koyu ya da açık seçiyor; dışında koyu bir tema varken onu bilemiyor, `isSystemInDarkTheme()`'e bakıyor. Bir testte `PantrixTestTheme(dark = true)` içine konan `FormaticoTheme()` sistemin moduna göre açık çiziliyor; önizlemede de aynı.
     *   Nerede: MCP `get_api com.pantrixui.foundation.theme.PantrixTheme` (`darkTheme`'in `defaultNote`'u), `search_api "isDark"`.
     *   Öneri: `inheritedDarkThemeOrSystem()`'i açmak ya da `PantrixTheme.isDark` (renklerin koyu takımdan olup olmadığı).
-    *   Durum: açık. Formatico'nun önizleme hâlleri koyu ya da açık olduklarını kendileri taşıyor ve temayı açıkça veriyor.
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-11). `PantrixTheme.isDark`. `FormaticoTheme`'in `darkTheme`'i artık varsayılan olarak onu alıyor: koyu bir test ya da önizleme temasının içindeki Formatico teması da, sözdizimi renkleri de koyu (`FormaticoThemeTest`). Uygulama okurun seçimini, önizleme hâlleri kendi koyuluklarını vermeye devam ediyor; yorumdaki bulgu atfı kalktı. Denendi: JVM, iOS simülatörü, Wasm ve JS testleri, tarayıcı testleri; JVM'in, Android'in ve iOS'un ekran görüntüleri yeniden kaydedildi. Önceki durum: açık. Formatico'nun önizleme hâlleri koyu ya da açık olduklarını kendileri taşıyor ve temayı açıkça veriyor.
 
 *   [x] **Yerel derleme yenilenince oturumun MCP sunucusu eski jar'la cevap vermeye devam ediyor (2026-11-06).**
     *   Ne: Bu oturumun Pantrix MCP'si `PantrixLazyTreeView`'i tanımıyor (`get_api`: "The library declares nothing called `PantrixLazyTreeView`"; `search_components` de bulmuyor), değişiklik günlüğünün Unreleased'ında 4–6 Kasım'da gelenler (`PantrixLazyTreeView`, `TreeRowAction`, `PantrixKeycaps`) yok. Sunucu `~/.pantrix/marketplace/plugins/pantrix-ui/server/mcp-0.1.2-SNAPSHOT-all.jar`'ı çalıştırıyor (`claude plugin update pantrix-ui@pantrix-ui-local --scope local`: "read from its folder… nothing to update"). O jar 6 Kasım 00:23'te yenilendi ve ikisini de biliyor (`pages/lazy-tree-view.md`, değişiklik günlüğünde 102. ve 103. bileşen). Ama oturumun sunucu süreci 3 Kasım 23:10'da başlamış ve o zamandan beri açık: ilk yüklediği jar'la cevap veriyor. Arada yapılan `/reload-plugins` onu yeniden başlatmadı; CLAUDE.md'deki "yeni bir yerel derleme: eklentileri yeniden yükle" adımı MCP sunucusu için yetmiyor. 3 Kasım'dan beri MCP'nin verdiği her şey o günün belgeleri; ağacın ve tuş kapaklarının API'si kaynak jar'dan okundu. (İlk yazıldığında önbellekteki bir kopyaya yoruldu; `claude plugin update`'in çıktısı ve sürecin başlama zamanı bunun yanlış olduğunu gösterdi.)
@@ -331,11 +359,11 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
 
 ## 6. Bileşenler
 
-*   [ ] **Metni başka bir uygulamaya göndermenin bir hizmeti yok (2026-11-06).**
+*   [x] **Metni başka bir uygulamaya göndermenin bir hizmeti yok (2026-11-06).**
     *   Ne: Share-390 bağlantıyı "Send with another app" ile platformun paylaşma sayfasına veriyor. Pantrix panoyu (`PantrixClipboard`), dosya seçmeyi ve kaydetmeyi veriyor, paylaşma sayfasını vermiyor; grafik dışa aktarma rehberi bunun uygulamaya kaldığını söylüyor ve Android'le iOS için parçalar veriyor. Formatico kendi `expect`/`actual`'ını yazdı: Android'de `Intent.ACTION_SEND` seçicisi, iOS'ta `UIActivityViewController` (iPad'de bir popover), web'de `navigator.share`, masaüstünde yok.
     *   Nerede: [Chart export](https://pantrixui.com/docs/guides/chart-export), bölüm 3 ("the share sheet is the app's"); MCP `search_api "share sheet"`.
     *   Öneri: platform hizmetlerine `rememberShareSheet()` (bir metin ya da bağlantı için; olmayan yerde null), `TestShareSheet` ile birlikte; dosya için `FileProvider` gerektiren kısım ayrı kalabilir.
-    *   Durum: açık. Formatico'yu tıkamıyor.
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-11). `rememberShareSheet()` (`com.pantrixui.foundation.platform`). Formatico'nun kendi `expect`/`actual`'ı (`TextSharing*.kt`, yedi dosya) silindi. Share-390'ın "Send with another app"ı bağlantıyı Pantrix'in sayfasına belgenin adıyla (bir postanın konusu) veriyor; okur sayfayı göndermeden kapatırsa ya da sayfa açılamazsa (`Cancelled`, `Failed`) paylaşım açık kalıyor, Android'in `Started`'ında kapanıyor. Testler `TestShareSheet` ile (`ShareScreenTest`); önizleme hiçbir şey göndermeyen bir sayfa veriyor. Bir fark: Formatico web'de `navigator.share({ url })` gönderiyordu, Pantrix `{ text, title }` gönderiyor; bağlantı metin olarak gidiyor. Denendi: JVM, iOS simülatörü, Wasm ve JS testleri, tarayıcı testleri; JVM'in, Android'in ve iOS'un ekran görüntüleri yeniden kaydedildi. Cihazda (Android'in seçicisi, iOS'un sayfası) denenmedi; kütüphane üçünde de elle denedi. Önceki durum: açık. Formatico'yu tıkamıyor.
 
 *   [x] **Pencere verilen test temasında boş bir içeriğin üstündeki dialog 0×0 ölçülüyor (2026-11-06).**
     *   Ne: `PantrixTestTheme(window = …)` içinde yalnızca bir `PantrixDialog` (ya da `PantrixSheet`) çizilince, altındaki içerik boyutsuzken, dialog'un içi 0×0 ölçülüyor: metinleri bulunuyor ama düğmelerinin yeri (0, 0), `performClick` arka plana düşüyor ve dialog kapatılmak isteniyor. Pencere verilmeyince ya da içerik pencereyi doldurunca doğru ölçülüyor. Uygulamada dialog hep bir ekranın üstünde, etkisi testte.
@@ -343,11 +371,11 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Öneri: dialog'un katmanı, verilen pencerenin boyutunu (ya da kökün boyutunu) alsın; olmuyorsa rehberde "bir overlay'i içeriği olan bir ekranın üstünde sınayın" notu.
     *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-10 18:58). `PantrixTestTheme(window = …)`'da pencerenin çerçevesi testin bütün yerini dolduruyor; boyutsuz bir içeriğin üstünde tek başına çizilen dialog ve sheet bütün ölçülüyor ve basılıyor. Formatico'nun testlerinde dialog'u ekranı dolduran bir kutunun içinde çizen geçici yol kaldırıldı (`ShareScreenTest`, `WebAddressDialogTest`, `SharedLinkWaitTest`); testler JVM, iOS, Wasm ve JS'te geçiyor. Önceki durum: açık. Formatico'nun paylaşım testi dialog'u ekranı dolduran bir kutunun içinde çiziyor; yorumda bu bulgu anılıyor.
 
-*   [ ] **Belge sekmeleri için kapatılabilen bir sekme yok (2026-11-02).**
+*   [x] **Belge sekmeleri için kapatılabilen bir sekme yok (2026-11-02).**
     *   Ne: Workspace açık belgeleri sekmelerde tutuyor: her sekmenin bir kapatma düğmesi ve kaydedilmemiş değişiklik işareti var. `PantrixTabs`'ın `TabItem`'ı etiket, simge, rozet, `enabled` ve `tagKey` alıyor; kapatma ya da sekmenin sonuna bir düğme koyma yolu yok. Panolarda belge sekmeleri işaretleme.
     *   Nerede: [Tabs](https://pantrixui.com/components/tabs); MCP `get_api TabItem`.
     *   Öneri: `TabItem`'a `onClose` (ve okuyucuya "Kapat {label}") ya da sekmenin sonu için bir yuva; kaydedilmemiş işareti için `TabBadge`'in noktası yeterli olabilir.
-    *   Durum: açık. Kodda (2026-11-03) üst çubuk tek sekmeyi `PantrixTabs` ile çiziyor, kapatma düğmesi yok. `PantrixTabs` kendisine verilen genişliği dolduruyor; sekmelerin hemen ardından gelecek "+" düğmesi için bir yuva da yok, düğme şimdilik çizilmiyor. Workspace'le (2026-11-03) sekmeler açık belgeler oldu: kaydedilmemiş değişiklik `TabBadge`'in noktasıyla gösteriliyor, kapatmak belgenin "more" menüsünde ("Close the document"). "+" düğmesi sekmelerin hemen ardında değil, sekme şeridinin sonunda duruyor: `PantrixTabs`, `Modifier.weight(1f, fill = false)` verilince de kendisine kalan genişliğin tamamını alıyor. Ayarlar'ın sekmesi de bu yüzden kapatılamıyor (2026-11-09): panoda × var, kodda yok; sahibi masaüstünde Ayarlar'dan dönemediğini söyledi. Geniş pencerede ve tablette Ayarlar'dan dönüş artık başlığın üstünde, açıldığı sekmenin adıyla bir geri düğmesi ("‹ order.json"), lisanslar sayfasındaki "‹ Settings" gibi; panolar da öyle çizildi. `TabItem`'a `onClose` gelince sekmenin × düğmesi de eklenir.
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-11). `TabItem.onClose` ve `PantrixTabs(trailing)`. Her belgenin sekmesinin sonunda bir çarpı (belgeyi kapatıyor, `Workbench.close`), Settings'in sekmesinde de (Settings'ten çıkıyor: sahibinin masaüstünde Ayarlar'dan dönemediği yer), seçili yeni sekmede de açık bir belge varken (son belgeye dönüyor); tek başına kalan yeni sekme kapanmıyor, dönecek bir yer yok. Odaktaki sekme Delete ile, ekran okuyucuda "Close" eylemiyle kapanıyor (`AppTopBarTest`). "+" artık son sekmenin hemen ardında, satırla kayıyor; şeridin sonundaki geçici yer kalktı. Panolardan iki ayrılık: Start panolarında tek yeni sekmenin çarpısı var, kodda yok; kaydedilmemiş bir belgenin noktası panoda çarpının yerinde, Pantrix ikisini birden çiziyor (yeni bulgu: "Kaydedilmemiş bir sekmenin noktası çarpının yerinde durmuyor"). Denendi: JVM, iOS simülatörü, Wasm ve JS testleri, tarayıcı testleri; JVM'in, Android'in ve iOS'un ekran görüntüleri yeniden kaydedildi. Önceki durum: açık. Kodda (2026-11-03) üst çubuk tek sekmeyi `PantrixTabs` ile çiziyor, kapatma düğmesi yok. `PantrixTabs` kendisine verilen genişliği dolduruyor; sekmelerin hemen ardından gelecek "+" düğmesi için bir yuva da yok, düğme şimdilik çizilmiyor. Workspace'le (2026-11-03) sekmeler açık belgeler oldu: kaydedilmemiş değişiklik `TabBadge`'in noktasıyla gösteriliyor, kapatmak belgenin "more" menüsünde ("Close the document"). "+" düğmesi sekmelerin hemen ardında değil, sekme şeridinin sonunda duruyor: `PantrixTabs`, `Modifier.weight(1f, fill = false)` verilince de kendisine kalan genişliğin tamamını alıyor. Ayarlar'ın sekmesi de bu yüzden kapatılamıyor (2026-11-09): panoda × var, kodda yok; sahibi masaüstünde Ayarlar'dan dönemediğini söyledi. Geniş pencerede ve tablette Ayarlar'dan dönüş artık başlığın üstünde, açıldığı sekmenin adıyla bir geri düğmesi ("‹ order.json"), lisanslar sayfasındaki "‹ Settings" gibi; panolar da öyle çizildi. `TabItem`'a `onClose` gelince sekmenin × düğmesi de eklenir.
 *   [x] **TreeView satırının sonunda yalnızca bir metin var; büyük ağaçta her açık satır oluşturuluyor (2026-11-02).**
     *   Ne: Formatico'nun ağacı değerleri önizliyor: tarih bir etiketle, renk bir örnekle, adres bir bağlantı simgesiyle, resim bir küçük resimle. `TreeNode.trailing` yalnızca `String`; satıra bir öğe konamıyor. Ayrıca `PantrixTreeView` kaydırmıyor ve her açık satırı oluşturuyor ("binlerce açık satır kendi listesini ister"); masaüstünde 50 MB'lık belge hedefi için yetmez. Panolarda ağaç işaretleme.
     *   Nerede: [Tree View](https://pantrixui.com/components/tree-view); MCP `get_api PantrixTreeView`, `TreeNode`.
@@ -378,11 +406,11 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Nerede: kütüphanenin bileşenleri; tasarım sisteminin `Data` bölümü.
     *   Öneri: `PantrixCodeEditor`'ın yanına iki belgeyi hizalayan bir karşılaştırma görünümü; ya da kütüphanenin rehberlerinde iki `PantrixCodeBlock`'la nasıl kurulacağı.
     *   Durum: kütüphanede geldi (0.1.2-SNAPSHOT, 2026-11-10 16:30). Sahibinin kararı (2026-11-10): Compare panolarıyla birlikte ona geçiyor ("Yes, move it"). Sıra şöyle: önce tasarım sisteminin `DiffView`'i yayımlanır, Compare panoları onunla çizilir, sonra kod. Kod geçince bulgu kapanır. Denendi (JVM): uygulamanın verdiği satırlarda değişmeyen bir satırın karşısı boş kalabiliyor (taralı); iki metin başka biçimde yazılmış olsa da anlamsal karşılaştırma hizalı durabiliyor. `PantrixDiffView(before, after, …)` iki metni satır satır karşılaştırıyor (`diffLines`, Myers): çıkan ve eklenen satırlar dolgulu ve −/+ işaretli, değişen sözcükler daha koyu. `layout` ile yan yana ya da tek sütun (`Adaptive` görünümün genişliğine göre). `context` değişmeyen satırları katlıyor. `state` farkları (`changes`), `scrollToChange` ve gösterilen farkın çubuğunu (`shownChange`) veriyor. Uygulamanın kendi farkı için `PantrixDiffView(lines: List<DiffLine>, …)`; Formatico'nun anlamsal karşılaştırması buradan girebilir. Denendi: Formatico yeni paketle derleniyor; workspace'in ve app'in JVM testleri geçiyor. Formatico bileşeni henüz kullanmıyor. Tasarım sisteminin `DiffView`'i kütüphanede hazır ama yayımlanmadı; sahibinin onayını bekliyor. Compare panoları onunla çizilecekse önce o yayımlanmalı. Önceki durum: kütüphanede yazılacak (2026-11-10, sahibinin kararı); ondan önce açık. Faz 11'de (2026-11-05) Compare iki salt okunur `PantrixCodeEditor`'la kuruldu: farkların satırları `lineMarks`'la değişenin, eklenenin ve çıkarılanın tonunda, gösterilen fark seçili. İki metin hizalanmıyor (panolarda da hizalı değil); eksikler "Kod editöründe imlecin satırı, satırın işaretini örtüyor" ve "Kod editörünün oluğuna bir işaret konamıyor" bulgularında. O ikisi kapandı (2026-11-05): gösterilen fark bandında ve birincil çubukla, olukta değişikliğin işareti, değişen değer dolgusuyla.
-*   [ ] **DataTable'da bir hücre seçilemiyor ya da işaretlenemiyor (2026-11-02).**
+*   [x] **DataTable'da bir hücre seçilemiyor ya da işaretlenemiyor (2026-11-02).**
     *   Ne: Formatico'da metindeki imleç tabloda bir hücreyi gösteriyor (`$.orders[2].total`): satırı seçili, hücresi çerçeveli. `PantrixDataTable` satırları seçiyor (`selected`, `rowTone`), ama hücre düzeyinde bir seçim, odak ya da işaret yok. `cell` yalnızca hücrenin iç dolgusunun içini çiziyor; hücrenin tamamını çevreleyen bir çerçeveyi uygulama çizemez. Table panolarında (1440, 834) seçili hücre bu yüzden işaretleme.
     *   Nerede: [Data Table](https://pantrixui.com/components/data-table); MCP `get_api PantrixDataTable`, `DataTableColumn`.
     *   Öneri: `selectedCell` (satırın anahtarı ve sütunun anahtarı) ya da hücre başına bir ton; klavyeyle hücreden hücreye gidiş istenmiyorsa yalnızca çizim yeterli.
-    *   Durum: açık. Kodda (2026-11-03) seçili satır `selected` ile çiziliyor: kutular olmadan da (`onSelectionChange` verilmeden) `primary`'nin soluk dolgusu geliyor, panodaki gibi. Belge bunu söylemiyor ("Null leaves the table without boxes"); denenerek görüldü. Seçili hücrenin çerçevesini Formatico hücrenin içeriğine kendisi çiziyor: çerçeve hücrenin iç dolgusunun içinde kalıyor ve yalnızca yazının yüksekliğinde, panodaki gibi hücrenin tamamında değil.
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-11). `PantrixDataTable(selectedCell = DataTableCell(row, column))`: metindeki imlecin hücresi tablonun kendi çerçevesiyle, hücrenin tamamında ve satırının boyunda; Formatico'nun hücrenin içine çizdiği çerçeve kalktı (`TablePane.kt`). Çerçevenin rengi temanın birincil rengi; Table panoları onu odak halkasının renginde çiziyor (`#0D9488`), `DataTableColors` çerçevenin rengini almıyor: panolar tasarım sisteminin tablosuyla yeniden çizilince ona uyar. Telefonun kaydı Formatico'nun kendi satırı (`listContent`, `TableRecord`), değişmedi. Denendi: JVM, iOS simülatörü, Wasm ve JS testleri, tarayıcı testleri; JVM'in, Android'in ve iOS'un ekran görüntüleri yeniden kaydedildi. Önceki durum: açık. Kodda (2026-11-03) seçili satır `selected` ile çiziliyor: kutular olmadan da (`onSelectionChange` verilmeden) `primary`'nin soluk dolgusu geliyor, panodaki gibi. Belge bunu söylemiyor ("Null leaves the table without boxes"); denenerek görüldü. Seçili hücrenin çerçevesini Formatico hücrenin içeriğine kendisi çiziyor: çerçeve hücrenin iç dolgusunun içinde kalıyor ve yalnızca yazının yüksekliğinde, panodaki gibi hücrenin tamamında değil.
 *   [x] **Pano okunamıyor; Pantrix yalnızca yazıyor (2026-11-03).**
     *   Ne: Start'ın "Panodan yapıştır" düğmesi ve `⌘V` kısayolu panodaki metni okumalı. `PantrixClipboard` yalnızca `copyText` veriyor; okuma yolu yok. Compose'un ortak `Clipboard`'ı bir `ClipEntry` veriyor, ama `ClipEntry` her platformda başka bir tür ve ortak kodda metni okumanın yolu yok. Formatico bu yüzden Compose'un artık önerilmeyen `LocalClipboardManager`'ının `getText()`'ini kullanıyor: masaüstünde, Android'de ve iOS'ta çalışıyor; web'de her zaman `null` dönüyor (`WasmPlatformClipboardManager`: "Clipboard.readText() is async; no synchronous access on Web"). Web'de düğme bunu söyleyen bir ileti gösteriyor, kısayolun ipucu gösterilmiyor.
     *   Nerede: belgelerin `clipboard` sayfası; MCP `get_api PantrixClipboard`; `skill/platform` ("Clipboard").
@@ -398,16 +426,16 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Nerede: kaynak jar'da `OnPaste.kt` (`armed`), KDoc'u ("the browser's paste that follows the key").
     *   Öneri: tuşla gelmeyen bir yapıştırmayı da, düğüm ya da içindeki bir şey odağı tutarken almak; ya da bunun neden alınmadığını KDoc'ta söylemek.
     *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-10 18:58). `onPaste` web'de tuşsuz yapıştırmayı da duyuyor (tarayıcının menüsü, sağ tık): odağın içinde olduğu en içteki düğüm; pencere kökü odağı kendisi tutarken kökün altındaki en dıştaki. Başka bir sistemin tuşuyla gelen yapıştırma (macOS'ta Ctrl+V) yine duyulmuyor. Formatico'da geçici bir yol yoktu. Formatico'nun Start ekranı tuşsuz yapıştırmayı Wasm'da ve JS'te alıyor: `StartBrowserPasteTest` eskiden onun duyulmadığını sınıyordu, artık duyulduğunu sınıyor. Önceki durum: açık. Formatico'yu tıkamıyor: düğme ve kısayol çalışıyor.
-*   [ ] **PageScaffold'un başlığı her genişlikte içerikte duramıyor (2026-11-03).**
+*   [x] **PageScaffold'un başlığı her genişlikte içerikte duramıyor (2026-11-03).**
     *   Ne: Formatico'nun bir uygulama çubuğu var (marka, belge sekmeleri, başlatıcı); ekranların kendi çubuğu yok, başlıkları içerikte. Start'ın başlığı ("Paste anything") her genişlikte içerikte bir `display` başlığı. `PantrixPageScaffold`'un `PageTitlePlacement`'ı `Bar` ya da `Adaptive`: `Adaptive` dar pencerede başlığı yine kendi çubuğuna koyuyor, uygulamanın çubuğunun altına ikinci bir çubuk çiziliyor. Start bu yüzden `PantrixPageScaffold` değil, `pantrixVerticalScroll`'lu bir sütun; sayfanın verdiği pencere başlığı, `show` olayı ve klavyeden kaçış elle kalıyor.
     *   Nerede: [Page Scaffold](https://pantrixui.com/components/page-scaffold); MCP `get_component_metadata PageScaffold`; `skill/layout` ("A screen inside the shell").
     *   Öneri: başlığı her genişlikte içerikte tutan bir `PageTitlePlacement.Content` (ya da çubuğu hiç çizmeyen bir seçenek); rehberde, sekmeleri ya da kendi çubuğu olan bir kabuğun ekranlarının nasıl kurulacağı.
-    *   Durum: açık.
-*   [ ] **Boş bir listenin hâlini çizen bir bileşen yok (2026-11-03).**
+    *   Durum: kütüphanede kapandı (0.1.2-SNAPSHOT, 2026-11-11): `PageTitlePlacement.Content`, başlık her genişlikte içeriğin başında, çubuk yok. Formatico'da kullanılamadı: içerikteki başlık `headline` yazısında, alt yazı `body`'de çiziliyor; Start panoları başlığı `display`'de (36/42), cümleyi `callout`'ta ve 720 genişlikte çiziyor. Start sütun olarak kalıyor; yeni bulgu: "PageScaffold'un içerikteki başlığı uygulamanın yazısıyla çizilemiyor". Önceki durum: açık.
+*   [x] **Boş bir listenin hâlini çizen bir bileşen yok (2026-11-03).**
     *   Ne: Start'ın Recent kartı ilk açılışta boş: bir simge, bir başlık ve bir açıklama ("Nothing opened yet"). Pantrix'te bunu çizen bir bileşen yok; `search_components "empty state"` yalnızca `DataTable`'ın kendi boş hâlini buluyor. Formatico bunu `PantrixIcon` ve iki `PantrixText` ile kuruyor. Tipografi belgesi `callout`'u "an empty state's description" diye anıyor, yani tasarım sistemi bu hâli biliyor.
     *   Nerede: [Components](https://pantrixui.com/components); MCP `search_components`.
     *   Öneri: simge, başlık, açıklama ve isteğe bağlı bir eylem alan bir `PantrixEmptyState`; tasarım sisteminde karşılığı.
-    *   Durum: açık. Workspace (2026-11-03) aynı hâli beş yerde kendi çiziyor (`PaneMessage`): editörü bekleyen metin bölmesi, okunmayan bir biçim, düz metin, boş belge ve hiçbir değeri okunamayan belge.
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-11). `PantrixEmptyState`. Start'ın boş Recent kartı ve Workspace'in bölme iletileri (`PaneMessage`: metni bekleyen bölme, okunmayan biçim, düz metin, boş belge, değeri okunmayan belge; Schema, Compare, Convert, Types ve Table'ın iletileri) artık onunla: simge temanın nötr dolgulu bir dairesinde, açıklama `callout` yazısında, en çok 360 dp. Panolar eski elle çizilmiş görünümü (dairesiz simge, 14/20 başlık, 12/16 açıklama) tutuyor; tasarım sisteminin EmptyState'i yayımlanınca tuval ona göre çizecek (tuval oturumuna iletildi). Denendi: JVM, iOS simülatörü, Wasm ve JS testleri, tarayıcı testleri; JVM'in, Android'in ve iOS'un ekran görüntüleri yeniden kaydedildi. Önceki durum: açık. Workspace (2026-11-03) aynı hâli beş yerde kendi çiziyor (`PaneMessage`): editörü bekleyen metin bölmesi, okunmayan bir biçim, düz metin, boş belge ve hiçbir değeri okunamayan belge.
 *   [x] **İki bölmenin arasındaki ayırıcı sürüklenmiyor (2026-11-03).**
     *   Ne: Workspace-834 panosunda metin ile ağaç üst üste; aralarındaki ayırıcının bir tutamacı var ("Resize the text and the tree"): sürüklenince bölmelerin payı değişiyor. `PantrixTwoPane` iki bölmeyi `firstSize` (pay ya da sabit boy) ve `gap` ile ayırıyor, katlanan ekranın menteşesine uyuyor; ama ayırıcıyı sürükleyip `firstSize`'ı değiştirmenin yolu yok, `search_components "resizable split pane divider drag"` de başka bir bileşen bulmuyor.
     *   Nerede: [Two Pane](https://pantrixui.com/components/adaptive-two-pane); MCP `get_api PantrixTwoPane`, `search_components`.
@@ -423,11 +451,11 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Nerede: MCP `get_api DataTableColumn`; kaynak jar'da `DataTableColumn.kt` ve `DataTableHeader.kt`.
     *   Öneri: `DataTableColumn`'a başlığın altında duran bir `subtitle` (ekran okuyucuya başlıktan sonra okunan), ya da başlık için bir `@Composable` yuva.
     *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-05). Önerildiği gibi geldi: `DataTableColumn`'un ve `DataTableColumn.text`'in `subtitle`'ı başlığın altında, `caption` yazısıyla ikinci bir satır; ekran okuyucu onu başlıktan sonra okuyor, dar tablonun listesinde yazılmıyor. Formatico'nun tablosu her sütunun altına değerlerinin türlerini yazıyor, panolardaki sözcüklerle: `text`, `date`, `number`, `boolean`, `array`, `object`, bir null en sonda (`text, null`); telefonun kayıtlarında, panodaki gibi, tür yok. Denendi: JVM, iOS simülatörü ve Wasm testleri; ekran görüntüleri. Önceki durum: açık, tıkıyor (sahibinin kararı, 2026-11-05).
-*   [ ] **Menünün bir başlığı, satırın sonunda bir yazısı yok (2026-11-04).**
+*   [x] **Menünün bir başlığı, satırın sonunda bir yazısı yok (2026-11-04).**
     *   Ne: Workspace-1440 panosunun "Copy path" menüsü "Copy the path of createdAt as" diye bir başlıkla açılıyor; her satır biçimin adını solda, verdiği yolu sağda eş aralıklı yazıyor. Workspace-390'da aynı menü başlıklı bir sayfa. `PantrixMenu`'nün başlığı yok, dar pencerede açılan sayfasının da yok; `PantrixMenuItem` bir `shortcut` (yalnızca kısayol için, dokunmatikte yazılmıyor) ve etiketin altında bir `supportingText` alıyor.
     *   Nerede: MCP `get_api PantrixMenu`, `PantrixMenuItem`.
     *   Öneri: `PantrixMenu`'ye bir `title` (panelde başlık satırı, sayfada sayfanın başlığı); `PantrixMenuItem`'a satırın sonunda bir `trailingText`.
-    *   Durum: açık. Kodda başlık menünün içinde bir `PantrixText`, yol satırın altında (`supportingText`, kodun yazı biçimiyle).
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-11). `PantrixMenu(title)` ve `PantrixMenuItem(trailingText)`. "Copy path" menüsü Workspace-1440 gibi: başlığı "Copy the path of createdAt as", her yol satırın sonunda kodun yazısıyla; telefonda Workspace-390 gibi bir sayfa, başlığı "Copy the path of createdAt", yol adın altında. Menünün içine konan başlık metni kalktı. Denendi: JVM, iOS simülatörü, Wasm ve JS testleri, tarayıcı testleri; JVM'in, Android'in ve iOS'un ekran görüntüleri yeniden kaydedildi. Önceki durum: açık. Kodda başlık menünün içinde bir `PantrixText`, yol satırın altında (`supportingText`, kodun yazı biçimiyle).
 *   [x] **Resmin ve bağlantının simgesi yok (2026-11-04).**
     *   Ne: `PantrixIcons` 37 simge taşıyor; bir resmin ya da bir bağlantının (dışarıya açılan) simgesi yok. Panolarda ağacın değer önizlemesi ve Summary'nin "Found in the values" satırları ikisini de çiziyor; tasarım sistemi de onları kendi `<svg>`'siyle çiziyor.
     *   Nerede: MCP `search_icons "image picture photo link external"`; kaynak jar'da `PantrixIcons.kt`.
@@ -455,21 +483,21 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
         simülatörü, Wasm ve JS testleri; ekran görüntüleri. Ondan doğan bir bulgu: "Durum çubuğunun "…" düğmesi
         telefonda dokunma hedefini tutturamıyor". Önceki durum: açık. Kodda çubuk düğmeye yetecek kadar uzuyordu:
         masaüstünde 32, tablette platformun hedefi kadar.
-*   [ ] **Temanın diline göre küçük harfe çevirme dışarıya açık değil (2026-11-04).**
+*   [x] **Temanın diline göre küçük harfe çevirme dışarıya açık değil (2026-11-04).**
     *   Ne: Pantrix aramalarında harfleri temanın dilinde küçültüyor (`PantrixSelect`, `PantrixJsonView`: Türkçede "i" "İzmir"i buluyor). Ağaçta arama için aynısı gerekti; bunu yapan işlev dışarıya açık değil. Formatico Türkçe ve Azerice için I ile İ'yi kendisi çeviriyor (`folded`).
     *   Nerede: MCP `search_api "lowercase language compare"`; `textOrder` sıralıyor, küçültmüyor.
     *   Öneri: `PantrixLocale.lowercase(text)` ya da bir metnin başka bir metni dilin harfleriyle içerip içermediğini söyleyen bir işlev.
-    *   Durum: açık. Formatico'yu tıkamıyor.
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-11). `PantrixLocale.fold` ve `contains`. Ağaçtaki arama artık temanın diliyle (`PantrixTheme.locale`) Pantrix'in katlamasını kullanıyor; Formatico'nun `folded`'ı silindi. Katlanan metin kendisi kadar uzun olduğu için bulunan yer metindeki yer: `placesOf` her harfin nereden geldiğini tutmayı bıraktı. Bir değişiklik: Türkçe dışında "İ" artık "i" oluyor (Kotlin'in `lowercase`'i iki harfe büyütüyordu). Denendi: JVM, iOS simülatörü, Wasm ve JS testleri, tarayıcı testleri; JVM'in, Android'in ve iOS'un ekran görüntüleri yeniden kaydedildi. Önceki durum: açık. Formatico'yu tıkamıyor.
 *   [x] **Bölme tutamacı tasarım sistemindekinden başka çiziliyor (2026-11-04).**
     *   Ne: Tasarım sisteminin `.ptx-pane-handle`'ı 4×32 px'lik bir çubuk, `--border-strong` renginde (açıkta slate-500); odakta şeridin çevresine `--focus-ring` çiziyor. Kütüphanenin tutamacı çubuğu `textSecondary`'nin %40'ında çiziyor (bir sayfanın tutamacının rengi), işaretçinin altında ve sürüklenirken koyulaştırıyor, odakta çubuğu odak rengine boyuyor. Android'de ve iOS'ta çubuk 48 dp uzun. Panolar tasarım sistemine uyuyor: Workspace-834'te çubuk koyu ve 32 px, kodda açık; dokunmatikte 48 dp. `PantrixTwoPane` renk almıyor, `ListDetailScaffoldStyle` yalnızca boyları alıyor.
     *   Nerede: Claude Design'daki tasarım sistemi, `components/bundle.css` (`.ptx-pane-handle`); MCP `get_api ListDetailScaffoldStyle`; kaynak jar'da `PaneHandle.kt` (`barColor`).
     *   Öneri: iki taraftan biri ötekine uysun: kütüphane çubuğu `borderStrong` ile çizsin, ya da tasarım sistemi `text-secondary`'nin %40'ını ve dokunmatikte 48'i alsın. Tutamacın rengi bir stilde ya da `colors`'ta verilebilsin.
     *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-10 18:58). Kütüphanede tutamacın rengi verilebiliyor (`PaneHandleColors`, `handleColors`); tasarım sistemi kütüphanenin varsayılan renklerine uydu. Kodda kütüphanenin çizdiği kalıyor; Workspace-834 panosunun tutamacı panolar tasarım sisteminin sürümüyle yeniden çizilirken ona göre çizilir. Önceki durum: açık. Formatico'yu tıkamıyor. Kodda kütüphanenin çizdiği. Pantrix'te kapanıyor (2026-11-04, Pantrix oturumu): tasarım sistemi kütüphaneye uydu (henüz yayımlanmadı), kütüphanenin varsayılan renkleri aynı kaldı (dururken `textSecondary`'nin %40'ı, işaretçinin altında `textSecondary`, odakta `focusRing`); rengi vermek için `PaneHandleColors(bar, hoveredBar, focusedBar)`, `PantrixTwoPane`, `PantrixListDetailScaffold` ve `PantrixSupportingPaneScaffold`'da son parametre `handleColors`. Yeni yerel paketle ve tasarım sisteminin yayımıyla doğrulanacak; Workspace-834 panosunun tutamacı o zaman tasarım sistemine göre yeniden çizilir.
-*   [ ] **Ayın adıyla yazılan, haftanın günü olmayan bir tarih yok (2026-11-03).**
+*   [x] **Ayın adıyla yazılan, haftanın günü olmayan bir tarih yok (2026-11-03).**
     *   Ne: Workspace-390 panosunun seçili değer kartı bir tarihi "28 October 2026, 14:32 UTC" diye, haftanın gününü alt satırda yazıyor. `PantrixStrings`'in `date` kısa biçimi veriyor ("Oct 28, 2026"); `longDate` ayın adını yazıyor ama haftanın gününü de katıyor ("Wednesday, October 28, 2026"), çünkü ekran okuyucunun bir takvim gününü duyduğu biçim (`longDateTemplate`). Haftanın günü olmadan ayın adıyla yazan bir biçim yok.
     *   Nerede: MCP `get_api PantrixStrings` (`date`, `longDate`, `longDateTemplate`); MCP `get_documentation_page guide/date-time`.
     *   Öneri: `fullDate(day, month, year)` ve bir `fullDateTemplate` ("{month} {day}, {year}", "{day} {month} {year}").
-    *   Durum: açık. Kodda (2026-11-03) kartın başlığı `longDate`, haftanın günü başlıkta; alt satır yalnızca ne kadar önce olduğunu ve okuyucunun saatini söylüyor.
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-11). `PantrixStrings.fullDate`. Telefonun değer kartının başlığı haftanın günü olmadan tarih ve saat ("October 28, 2026, 14:32 UTC"), haftanın günü alt satırda: "A Wednesday, 5 days ago · 17:32 in your time zone", Workspace-390 gibi (Türkçede "Çarşamba, 5 gün önce · …"). Bir ayrılık: pano İngilizcede günü önce yazıyor ("28 October 2026"), Pantrix'in İngilizcesi ayı (`fullDateTemplate`); ağacın tarih etiketinde de böyleydi. Tuval Pantrix'in sırasını alacak. Denendi: JVM, iOS simülatörü, Wasm ve JS testleri, tarayıcı testleri; JVM'in, Android'in ve iOS'un ekran görüntüleri yeniden kaydedildi. Önceki durum: açık. Kodda (2026-11-03) kartın başlığı `longDate`, haftanın günü başlıkta; alt satır yalnızca ne kadar önce olduğunu ve okuyucunun saatini söylüyor.
 *   [x] **Breadcrumb, kısa bir sayfaya yetmeyen yerde sınırının dışına taşıyor (2026-11-03).**
     *   Ne: Table'ın araç çubuğunda yol izi (`$ › orders`) dar pencerede önce daralsın diye `Modifier.weight(1f, fill = false)` alıyor. 800 piksellik bir tarayıcı penceresinde ona "$"dan az yer kaldı; `PantrixBreadcrumb` "$"ı yine de çizdi ve yanındaki sayının üstüne bindi ("$249 rows"). Belge "a short one keeps all of its own" diyor, yani kısa sayfa kesilmiyor; ama tek bir kısa sayfa bile sığmadığında ne olduğunu söylemiyor ve bileşen kendi sınırını kırpmıyor.
     *   Nerede: [Breadcrumb](https://pantrixui.com/components/breadcrumb); MCP `get_api PantrixBreadcrumb`.
@@ -485,16 +513,16 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Nerede: MCP `get_component_metadata PantrixFileDrop`; tasarım sistemi, `FileDrop`'un özellikleri.
     *   Öneri: tek dosya alan bir alanın sözcükleri tekil; eylemin sözcükleri için bir parametre; tasarım sistemi ile Compose aynı yerleşimde.
     *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-10). `PantrixFileDrop`'a `actionLabel` ve `dragOverLabel` geldi; `label` ile birlikte alanın üç sözü de uygulamanın. Varsayılanlar değişmedi (tek dosyada kendiliğinden tekile geçmiyor). Formatico'nun bırakma alanı Start panolarının sözlerini veriyor: "Drop a file here" ve "Choose a file" (Türkçesi "Bir dosyayı buraya bırakın", "Bir dosya seçin"). Önceki durum: açık.
-*   [ ] **PantrixTabs'ın altındaki çizgi yalnızca saydam bir renkle gizleniyor (2026-11-03).**
+*   [x] **PantrixTabs'ın altındaki çizgi yalnızca saydam bir renkle gizleniyor (2026-11-03).**
     *   Ne: Formatico'nun belge sekmeleri üst çubuğun içinde bir `PantrixTabs` (kaydırılabilir). Sekmelerin altında satır boyunca bir çizgi çiziliyor; çubuğun kendi alt kenarıyla iki çizgi oluyordu. `TabsStyle`'da bu çizgi için bir alan yok; `TabsColors.divider` "the hairline under the row" diyor, çizgi ancak ona `Color.Transparent` verilerek gizleniyor. Sayfası bir çubuğun içindeki sekmeleri anmıyor.
     *   Nerede: MCP `get_api TabsStyle`, `get_api TabsColors`, `get_component tabs`.
     *   Öneri: `TabsStyle`'da çizgiyi kapatan bir alan, ya da sayfada "bir çubuğun içinde: `TabsColors(divider = Color.Transparent)`".
-    *   Durum: açık. Formatico (2026-11-03) üst çubukta `TabsColors(divider = Color.Transparent)` veriyor.
-*   [ ] **CodeEditor'ın işaretinin iletisinde düğme yok (2026-11-04).**
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-11). `TabsStyle(dividerWidth = 0.dp)`; üst çubuktaki saydam renk kalktı. Denendi: JVM, iOS simülatörü, Wasm ve JS testleri, tarayıcı testleri; JVM'in, Android'in ve iOS'un ekran görüntüleri yeniden kaydedildi. Önceki durum: açık. Formatico (2026-11-03) üst çubukta `TabsColors(divider = Color.Transparent)` veriyor.
+*   [x] **CodeEditor'ın işaretinin iletisinde düğme yok (2026-11-04).**
     *   Ne: Invalid panoları, imleç bir problemin üstündeyken metnin içinde bir kutu çiziyor: problemin iletisi ve altında iki düğme, onarım ("Add the comma") ve "Next problem". `CodeRangeMark`'ın `CodeMark`'ı yalnızca bir ileti ve bir kaynak alıyor (`message`, `source`); iletinin yanına bir eylem konamıyor. Formatico problemleri işaretleyip iletilerini gösteriyor, onarımı ve sonraki problemi problemler bölmesinden veriyor.
     *   Nerede: MCP `get_component PantrixCodeEditor` ("Marks", `CodeRangeMark`); `get_api CodeMark`.
     *   Öneri: `CodeMark`'a bir ya da iki eylem (`actions: List<CodeMarkAction>`: etiket ve `onClick`), iletinin altında küçük düğmeler olarak; klavyeyle de ulaşılan (bir kısayolla, ör. ⌘.).
-    *   Durum: açık. Tasarım sisteminin `CodeEditor`'ünde de (`1794244829-b310`) aynı: `CodeMark` ton, ileti, kaynak, çubuk ve oluk işareti alıyor, eylem almıyor. Invalid panoları 2026-11-09'da `Pantrix.CodeEditor`'e geçince kart işaretleme kaldı: editörün üstüne, problemin altına yerleştirildi (1440, 834); telefonun kartı zaten editörün dışında.
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-11). `CodeMark.actions` ve `CodeMarkAction`. Invalid'in notu, geniş pencerede ve tablette, Invalid-1440 gibi: problemin iletisi, altında onarımı ("Add the comma") ve "Next problem" (son problemde yok); Ctrl+. ya da ⌘+. odağı ilk düğmeye götürüyor. Telefonda notun düğmesi yok: Invalid-390'ın kartı editörün dışında, kendi düğmeleriyle. Denendi: JVM, iOS simülatörü, Wasm ve JS testleri, tarayıcı testleri; JVM'in, Android'in ve iOS'un ekran görüntüleri yeniden kaydedildi. Önceki durum: açık. Tasarım sisteminin `CodeEditor`'ünde de (`1794244829-b310`) aynı: `CodeMark` ton, ileti, kaynak, çubuk ve oluk işareti alıyor, eylem almıyor. Invalid panoları 2026-11-09'da `Pantrix.CodeEditor`'e geçince kart işaretleme kaldı: editörün üstüne, problemin altına yerleştirildi (1440, 834); telefonun kartı zaten editörün dışında.
 
 *   [x] **CodeEditor, imlecin satırındaki işareti çizmiyor (2026-11-04).**
     *   Ne: Bir `CodeRangeMark`, imleç onun satırına gelince görünmez oluyor: altındaki dalgalı çizgi de satır numarasının yanındaki nokta da gidiyor; satır yalnızca imlecin satırının dolgusuyla çiziliyor. İmleç başka satıra geçince işaret geri geliyor. Belge tersini söylüyor: işaret çizilir, iletisi de "while the caret is in it" gösterilir. Invalid panolarının üçü de imleci ikinci problemin üstünde (10. satır) ve o satırı işaretli çiziyor; Formatico'nun önizlemelerinde 10. satır bu yüzden işaretsiz. Masaüstünde (JVM, `PantrixTestTheme`) üç satırlık bir JSON'da görüldü: imleç başta iken 3. satır işaretli, imleç 3. satırdayken işaretsiz. Odak editörde değilken iletinin `CodeEditor_<tagKey>.Note_<number>` düğümü de yok; odakla gösterilip gösterilmediği doğrulanacak.
@@ -502,17 +530,17 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Öneri: imlecin satırında da işaretin çizgisi ve noktası; imlecin satırının dolgusu işaretin altında kalsın. Bir ekran resmi testi: imleç işaretin içindeyken çizgi ve nokta çiziliyor.
     *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-10 18:58). İmlecin satırının bandı işaretlerin altında çiziliyor; dalgalı çizgi ve nokta imleç o satırdayken de görünüyor. Invalid'in ekran görüntülerinde 10. satır (imlecin satırı) artık panolardaki gibi işaretli. Query'de de görülüyor: seçili eşleşmenin vurgusu artık bandın altında kaybolmuyor, seçim onun üstünde çiziliyor (Query-1440). Önceki durum: açık. Formatico'da geçici bir çözüm yok; telefonun problem kartı imlecin problemini ayrıca söylüyor. Tasarım sisteminin `CodeEditor`'ü (`1794244829-b310`) doğru çiziyor: Invalid panolarında (2026-11-09) 10. satır hem imlecin bandında hem dalgalı çizgisi ve noktasıyla işaretli. Uygulamanın Invalid ekran görüntülerinde o satır hâlâ işaretsiz; ayrılık Compose'da.
 
-*   [ ] **CodeEditor, bir uygulamanın verdiği aralıkları vurgulayamıyor (2026-11-05).**
+*   [x] **CodeEditor, bir uygulamanın verdiği aralıkları vurgulayamıyor (2026-11-05).**
     *   Ne: Query panoları sorgunun eşleşmelerini metinde işaretliyor: her eşleşme `warning-container` zeminde, şimdiki eşleşme ayrıca `warning-color` bir çerçeveyle; altında "A match is marked in the text; choosing one moves the cursor to it." yazıyor. `PantrixCodeEditor`'ın dışarıdan aldığı tek işaret `rangeMarks`: bir tonun dalgalı çizgisi, satırın başında bir nokta ve bir ileti. Bir eşleşme problem değil; ne çizgisi ne iletisi var. Editörün kendi bul'u eşleşmeleri vurguluyor, ama bu vurgu `CodeFind`'ın içinde, bir uygulamanın kendi aralıklarına açık değil.
     *   Nerede: kaynak jar'da `CodeEditor.kt` (`PantrixCodeEditor`'ın parametreleri), `CodeEditorMarks.kt` (`CodeRangeMark`), `CodeFind.kt` ve `CodeSearch.kt`.
     *   Öneri: `PantrixCodeEditor`'a `highlights: List<CodeHighlight>` gibi bir parametre: aralık ve vurgusu (eşleşme, şimdiki eşleşme), bul'un çizdiğiyle aynı zemin ve çerçeve, iletisiz ve noktasız. Ekran okuyucuya bir şey söylemesi gerekmiyor.
-    *   Durum: açık. Formatico'yu tıkamıyor. Seçilen eşleşme metinde seçiliyor ve imleç ona gidiyor; öteki eşleşmeler işaretlenmiyor. Kodda ipucu bu yüzden "Choosing a match moves the cursor to it." (`query_choose_hint`); bulgu kapanınca panodaki ilk yarısı geri gelir. Yarısı geldi: `CodeRangeStyle.Highlight` (Compose'da 0.1.2-SNAPSHOT, 2026-11-05) ve tasarım sisteminde `rangeMarks`'ın `style: 'highlight'`'ı (`1794244829-b310`) bir aralığın arkasını tonun %28'iyle boyuyor, noktasız ve iletisiz. Şimdiki eşleşmenin çerçevesi yok. Query panoları 2026-11-09'da `Pantrix.CodeEditor`'e geçti: eşleşmeler uyarı tonunda `highlight`, şimdiki eşleşme seçili; panodaki çerçeve düştü. Formatico'nun kodu da 2026-11-10'dan beri bütün eşleşmeleri `Highlight`'la, uyarı tonunda işaretliyor ve ipucu panodaki cümle; açık kalan şimdiki eşleşmenin çerçevesi.
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-11). `CodeRangeStyle.Current`. Query'de seçili eşleşme uyarı tonunda vurgulu ve çerçeveli, ötekiler yalnızca vurgulu: panonun ilk çizdiği gibi. Query panoları 2026-11-09'dan beri şimdiki eşleşmeyi yalnızca seçili çiziyor, tasarım sisteminin CodeEditor'ünde bu stil yok: tuval oturumuna iletildi. Denendi: JVM, iOS simülatörü, Wasm ve JS testleri, tarayıcı testleri; JVM'in, Android'in ve iOS'un ekran görüntüleri yeniden kaydedildi. Önceki durum: açık. Formatico'yu tıkamıyor. Seçilen eşleşme metinde seçiliyor ve imleç ona gidiyor; öteki eşleşmeler işaretlenmiyor. Kodda ipucu bu yüzden "Choosing a match moves the cursor to it." (`query_choose_hint`); bulgu kapanınca panodaki ilk yarısı geri gelir. Yarısı geldi: `CodeRangeStyle.Highlight` (Compose'da 0.1.2-SNAPSHOT, 2026-11-05) ve tasarım sisteminde `rangeMarks`'ın `style: 'highlight'`'ı (`1794244829-b310`) bir aralığın arkasını tonun %28'iyle boyuyor, noktasız ve iletisiz. Şimdiki eşleşmenin çerçevesi yok. Query panoları 2026-11-09'da `Pantrix.CodeEditor`'e geçti: eşleşmeler uyarı tonunda `highlight`, şimdiki eşleşme seçili; panodaki çerçeve düştü. Formatico'nun kodu da 2026-11-10'dan beri bütün eşleşmeleri `Highlight`'la, uyarı tonunda işaretliyor ve ipucu panodaki cümle; açık kalan şimdiki eşleşmenin çerçevesi.
 
-*   [ ] **SegmentButton'a grubun adı verilemiyor (2026-11-05).**
+*   [x] **SegmentButton'a grubun adı verilemiyor (2026-11-05).**
     *   Ne: Panolar her segment grubuna bir ad veriyor: görünümlerin seçimi `label="View"`, Query'nin dili `label="Query language"`, Convert'te girintinin seçimi (`2 spaces`, `4 spaces`) "Indentation", null'ın seçimi (`Leave it out`, `Write an empty string`) "What a null value becomes". `PantrixSegmentButton` bir `contentDescription` ya da etiket almıyor; ekran okuyucu grubu adsız, yalnızca seçenekleriyle okuyor. Null'ın seçiminin yanında görünen bir etiket var ("A null value"), girintininkinin yok.
     *   Nerede: kaynak jar'da `PantrixSegmentButton`'ın imzası: `options`, `selected`, `onSelect`, `modifier`, `enabled`, `fullWidth`, `style`, `colors`, `tagKey`, `labelStyle`; MCP `get_component_metadata SegmentButton`, [segment-button](https://pantrixui.com/docs/components/segment-button).
     *   Öneri: `PantrixSegmentButton(label = …)` ya da `contentDescription`: grubun anlamında (radio group gibi) okunan bir ad, tasarım sisteminin `label`'ı gibi; görünen bir etiketin yanında olan bir seçim için onunla aynı.
-    *   Durum: açık. Formatico'yu tıkamıyor; görünümlerin, Query'nin dilinin ve girintinin seçimi adsız. Aynı bulgunun Convert'ten yazılan ikinci kaydı buraya birleştirildi (2026-11-10).
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-11). `PantrixSegmentButton(contentDescription)`. Her grubun adı var: görünümlerinki "View", Query'nin dili "Query language", Convert'in girintisi "Indentation", null'ın seçimi görünen etiketiyle aynı ("A null value"), Compare'inki "Compare by", Settings'inkiler satırlarının adıyla ("Theme", "Indentation"); Türkçesi de var. Denendi: JVM, iOS simülatörü, Wasm ve JS testleri, tarayıcı testleri; JVM'in, Android'in ve iOS'un ekran görüntüleri yeniden kaydedildi. Önceki durum: açık. Formatico'yu tıkamıyor; görünümlerin, Query'nin dilinin ve girintinin seçimi adsız. Aynı bulgunun Convert'ten yazılan ikinci kaydı buraya birleştirildi (2026-11-10).
 
 *   [x] **Ağacın satırının sonu basılamıyor (2026-11-04).**
     *   Ne: Workspace panolarında bir adresin satırı bağlantı simgesiyle bitiyor ve o simge bağlantıyı açıyor ("Open the link"). `PantrixLazyTreeView`'in `trailing`'i satırla okunuyor ve kendi basışı yok; satırın içine konan ikinci bir basılan şey ekran okuyucuda ve klavyede satırı ikiye bölerdi. Formatico simgeyi yalnızca gösteriyordu (bkz. OPEN_ITEMS "Panoda ağaçtaki bağlantı simgesi bir bağlantı").
@@ -553,11 +581,11 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Öneri: çubuğu kapatmanın bir yolu: `bar`'ın yanında `showBar: Boolean = true`, ya da çubuksuzluğu söyleyen bir değer (`CodeMarkBar.None` gibi bir tür).
     *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-05). Önerildiği gibi geldi: `CodeMark`'ın `showBar`'ı (varsayılanı `true`); `false`'ken satır yalnızca bandında, `bar` verilmiş olsa da çubuksuz; `PantrixCodeEditor` ve `PantrixCodeBlock` ikisi de böyle çiziyor. Compare'in iki metninde gösterilmeyen farkların satırları yalnızca bantta, gösterilen farkınkiler birincil çubukla, panodaki gibi; `sideMarks`'ın bu bulguyu anan yorumu silindi. Denendi: JVM, iOS simülatörü ve Wasm testleri; ekran görüntüleri. Önceki durum: açık, tıkıyor (sahibinin kararı, 2026-11-05).
 
-*   [ ] **Kod editörünün işaretli satırı ekran okuyucuya, görünen bir ileti olmadan, söylenemiyor (2026-11-05).**
+*   [x] **Kod editörünün işaretli satırı ekran okuyucuya, görünen bir ileti olmadan, söylenemiyor (2026-11-05).**
     *   Ne: Compare'in iki metninde bir farkın satırı bandıyla ve oluğundaki `~`, `+`, `−` ile işaretli. `CodeMark`'ın KDoc'una göre ekran okuyucu oluğun işaretini okumuyor; satırın ne olduğu `message`'da söyleniyor, ama `message` satırın altına yazılıyor. Panolarda satırın altında ileti yok; Formatico işaretli satırı ekran okuyucuya söyleyemiyor. Farkların listesi her farkı adıyla söylüyor ("Changed", "Added", "Removed"); eksik olan, metnin içinde dolaşan birinin satırda bunu duyması.
     *   Nerede: `CodeMark`'ın KDoc'u (0.1.2-SNAPSHOT'un kaynak jar'ı), `gutter`: "A screen reader does not read it ... what the line is stands in the [message], as words".
     *   Öneri: `CodeMark`'a görünmeyen, yalnızca ekran okuyucunun okuduğu bir açıklama (`description: String?`); ya da `gutter`'a bir ad.
-    *   Durum: açık. Formatico'yu tıkamıyor.
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-11). `CodeMark.description`. Compare'in iki metninde her farkın satırı ekran okuyucuya değişikliğin adını söylüyor ("Changed", "Added", "Removed"; `CompareMarksTest`). Denendi: JVM, iOS simülatörü, Wasm ve JS testleri, tarayıcı testleri; JVM'in, Android'in ve iOS'un ekran görüntüleri yeniden kaydedildi. Önceki durum: açık. Formatico'yu tıkamıyor.
 
 *   [x] **Kod editöründe uzun satır alttan devam ettirilemiyor (2026-11-05).**
     *   Ne: Settings panolarının Editor bölümünde "Wrap long lines" ("A line too long for the window goes on under itself"), açık olarak çizili. `PantrixCodeEditor`'ın parametrelerinde satırı kaydırmanın yolu yok (`indent`, `closesPairs`, `keyRow`, `lineNumbers`, `readOnly`, `textStyle`, `style`); uzun satır yana kayıyor. Formatico'nun Settings'i bu satırı bağlayamıyor.
@@ -603,17 +631,17 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
         tıkamıyor. Formatico seçili satırdaki şimdiki eşleşmeyi yumuşak işaretle (`warning.container`) çiziyor; satırın
         yazı rengi onun üstünde okunuyor, ama şimdiki eşleşme seçili satırda ötekilerden ayrılmıyor. Bunun için arama
         açıkken seçim iki satırı yeniden kuruyor; arama yokken kurmuyor.
-*   [ ] **Tembel ağaç, açık her satırın `TreeNode`'unu baştan istiyor (2026-11-06).**
+*   [x] **Tembel ağaç, açık her satırın `TreeNode`'unu baştan istiyor (2026-11-06).**
     *   Ne: `PantrixLazyTreeView` yalnızca görünen satırları oluşturuyor, ama `nodes` açık her satırın `TreeNode`'unu, etiketi ve biçimli etiketiyle, baştan istiyor: ağacın şekli açık dalların bütün çocuklarını dolaşıyor, anahtarların tekliği bütün ağaçta sınanıyor. 10 MB'lık bir NDJSON'un kökü açıkken 112 bin satır (47 MB), 10 MB'lık bir CSV'ninki açıkken 194 bin satır (81 MB), 50 MB'lık CSV'de 960 bin satır; ekranda otuzu görünüyor. Telefonun yığını 10 MB'lık bir belgeyle zaten sınıra yakın.
     *   Nerede: kaynak jar'da `data/common/TreeShape.kt` (`lay`), `data/treeview/TreeNode.kt` (`requireOneKeyEach`).
     *   Öneri: bir dalın çocuklarının istendikçe verildiği bir biçim: dalın kaç çocuğu olduğu ve `index`'teki çocuğu veren bir sağlayıcı; ağaç yalnızca görünen satırların düğümünü istesin.
-    *   Durum: açık. Formatico'yu tıkamıyor. Formatico kapalı dalların satırlarını kurmuyor (`hasChildren`), açılışta da en çok 500 satırlık dalı açıyor; kökü kayıtlarla dolu bir belgenin satırları kök açıldıkça kuruluyor.
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-11). `PantrixLazyTreeView(source)` ve `TreeSource`. Workspace'in ağacı artık bir kaynak (`DocumentSource`): ağaç bir dalın kaç çocuğu olduğunu ve sıradaki çocuğunu, satır görünmek üzereyken istiyor; `indexOf` anahtarı değerlerin arasında satır kurmadan buluyor. Formatico'nun `RowMaker`'ı, açık her satırı kuran ve değişmeyenleri saklayan yapı, silindi; arama başka bir kaynak, seçim değil. Ölçüm (`MEASURE.md`, "Ağacın kaynağı"): açılışta her biçimde, 10 ve 50 MB'ta, bir ekranın 60 satırı kuruluyor, 0–12 ms, tutulan bellek ölçülemeyecek kadar az; önceden 50 MB'lık CSV'de 960.321 satır, 404 MB. Uygulamanın bütünü masaüstü penceresinde 50 MB'lık JSON'u açıldıktan sonra 1.049 MB ile tutuyor. Denendi: JVM, iOS simülatörü, Wasm ve JS testleri, tarayıcı testleri; JVM'in, Android'in ve iOS'un ekran görüntüleri yeniden kaydedildi. Önceki durum: açık. Formatico'yu tıkamıyor. Formatico kapalı dalların satırlarını kurmuyor (`hasChildren`), açılışta da en çok 500 satırlık dalı açıyor; kökü kayıtlarla dolu bir belgenin satırları kök açıldıkça kuruluyor.
 
-*   [ ] **Yüklenmemiş bir dalın kaç çocuğu olduğu söylenemiyor (2026-11-06).**
+*   [x] **Yüklenmemiş bir dalın kaç çocuğu olduğu söylenemiyor (2026-11-06).**
     *   Ne: Formatico büyük belgede kapalı dalların satırlarını kurmuyor: `hasChildren = true`, `children` boş. Ağaç kapalı bir dalın çocuk sayısını ekran okuyucuya çocuklarının sayısından söylüyor; boş olduğu için söylemiyor. Formatico'nun etiketinde sayı var (`{6}`, `[26795]`), ama başka bir uygulamanın etiketinde olmayabilir.
     *   Nerede: kaynak jar'da `data/common/TreeRow.kt` (`val count = tree.shape.childrenOf(node).size.takeIf { node.hasChildren && !open && it > 0 }`).
     *   Öneri: `TreeNode.childCount: Int?`, yüklenmemiş bir dalın kaç çocuğu olacağı; ekran okuyucu onu söylesin.
-    *   Durum: açık. Formatico'yu tıkamıyor.
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-11). `TreeNode.childCount`. Formatico'nun ağacı artık bir kaynaktan (`TreeSource`) okuyor: kapalı bir dalın çocuk sayısını ağaç kaynağın `childCount`'undan alıp ekran okuyucuya söylüyor; Formatico'nun `childCount` vermesine gerek kalmadı. Denendi: JVM, iOS simülatörü, Wasm ve JS testleri, tarayıcı testleri; JVM'in, Android'in ve iOS'un ekran görüntüleri yeniden kaydedildi. Önceki durum: açık. Formatico'yu tıkamıyor.
 
 *   [x] **Komut paletinin arama alanının adı yok (2026-11-06).**
     *   Ne: `PantrixCommandPalette`'in alanı (`CommandPalette_<tagKey>.TextField_query`) ekran okuyucuya boş adla gidiyor: teşhisler her panoda `MissingName TextField … has a blank name` buluyor. Palet alana bir `placeholder` veriyor ("Type a command or a format"), ama yer tutucu ad değil; paletin alanın adını vermek için bir parametresi (`label`, `contentDescription`) yok. Pantrix'in kendi metin alanı adsız bir arama alanı için `contentDescription`'ı öneriyor, palet onu kullanmıyor.
@@ -627,14 +655,14 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Nerede: MCP `search_icons` ("code", "brackets"); tasarım sistemi, `IconName`.
     *   Öneri: PantrixIcons'a bir kod simgesi (`Code`), "Simgeler kapalı bir liste" bulgusunun listesine.
     *   Durum: kapandı (0.1.2-SNAPSHOT ve tasarım sistemi `1794307114-8e1c`, 2026-11-10). `PantrixIcons.Code` geldi. Types düğmesi bugün, panolardaki gibi, yalnızca sözcükle; simgeyi alıp almayacağı, panolarıyla birlikte, sahibinin kararı. Önceki durum: açık.
-*   [ ] **Adları bir cümlede birleştiren bir yardımcı yok (2026-11-07).**
+*   [x] **Adları bir cümlede birleştiren bir yardımcı yok (2026-11-07).**
     *   Ne: Formatico'nun uyarıları alan adlarını cümlede sayıyor ("createdAt and eta stay strings", Türkçede "createdAt
         ve eta"). `PantrixStrings`'te bir listeyi dilin kuralıyla birleştiren bir yardımcı ("a, b and c", "a, b ve c")
         yok; Formatico her dil için kendi "{first} and {second}" ve "{first} and {second} more" sözcüklerini yazıyor.
     *   Nerede: MCP `search_api` ("join a list of names with and"); `PantrixTheme.strings`.
     *   Öneri: `PantrixStrings`'e dile göre liste birleştirme (`list(items)`, `listOf(first, more)`), Unicode CLDR'ın
         "list patterns"i gibi.
-    *   Durum: açık.
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-11). `PantrixStrings.list`. Types'ın notlarında bir ya da iki ad onunla birleşiyor; Formatico'nun `twoNames`'i silindi. İkiden çok adda "a ve N tane daha" Formatico'nun kalıyor (önerilen `listOf(first, more)` gelmedi). Schema'nın cümleleri kendi `either` ve `both` çiftini tutuyor: Pantrix adları yalnızca "ve" ile birleştiriyor (yeni bulgu: "Adları \"ya da\" ile birleştiren bir liste yok"). Denendi: JVM, iOS simülatörü, Wasm ve JS testleri, tarayıcı testleri; JVM'in, Android'in ve iOS'un ekran görüntüleri yeniden kaydedildi. Önceki durum: açık.
 *   [x] **Düğümleri ve bağları çizen bir grafik bileşeni yok (2026-11-09).**
     *   Ne: Faz 18'in Graph görünümü belgenin yapısını kartlar ve bağlar olarak gösteriyor: her nesne ve dizi bir
         düğüm, içindeki nesne ve dizi bir çocuk düğüm, bağ anahtarıyla ya da sırasıyla etiketli; masaüstünde ve
@@ -709,7 +737,7 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Öneri: `rowHeight`'ın belgesinde dokunma hedefine çıkarıldığını söylemek (ve hangi platformda kaç), ya da
         istenen boyu çizip basılan alanı ayrıca büyütmek; uygulama gerçekten aldığı boyu isteyebilsin.
     *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-10 18:58). `TreeViewStyle.rowHeight`'ın belgesi dokunma hedefine çıkarıldığını söylüyor: 36 dp istenen satır Android'de ve dokunmayla kullanılan sayfada 48 dp, iOS'ta 44 pt, işaretçinin altında 36 dp (MCP `get_api TreeViewStyle`, yerel eklentinin jar'ı). Önceki durum: açık. Formatico'yu tıkamıyor.
-*   [ ] **Bir menü açan durum etiketi yok (2026-11-10).**
+*   [x] **Bir menü açan durum etiketi yok (2026-11-10).**
     *   Ne: Workspace-390'ın `format` hâlinde telefonun durumu ("Plain text", "Valid JSON") basılınca biçim menüsünü
         açıyor: tonlu, noktalı bir etiket ve yanında aşağı bakan bir ok. Pantrix'te bunu karşılayan bileşen yok:
         *   `PantrixTag` okunmak için, basılmıyor.
@@ -723,8 +751,8 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
         *   `PantrixChip`'e ton, nokta ve sonda bir simge.
 
         İkisinde de basılınca bir menü açılabilmeli, tasarım sisteminde de karşılığı olmalı.
-    *   Durum: açık. Formatico'yu tıkamıyor.
-*   [ ] **Araç çubuğunun menü düğmesine ayrı bir ad verilemiyor (2026-11-10).**
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-11). `PantrixTag(onClick, trailingIcon)`. Telefonun durumu artık basılabilen bir etiket, sonunda `ChevronDown`; Formatico'nun basılan satırı kalktı. Ekran okuyucu onu tek bir düğme olarak duyuyor: "Plain text. Change the format", Workspace-390'ın adıyla; söz iki kez okunmuyor. Bir ayrılık: panoda ok `text-secondary`, Pantrix'te etiketin renginde. Denendi: JVM, iOS simülatörü, Wasm ve JS testleri, tarayıcı testleri; JVM'in, Android'in ve iOS'un ekran görüntüleri yeniden kaydedildi. Önceki durum: açık. Formatico'yu tıkamıyor.
+*   [x] **Araç çubuğunun menü düğmesine ayrı bir ad verilemiyor (2026-11-10).**
     *   Ne: Workspace'in biçim düğmesi seçili biçimin adını yazıyor ("JSON", "Plain text") ve biçimlerin menüsünü açıyor.
         Eski düğmenin ekran okuyucuya adı "Format: JSON. Change the format" idi. `ToolbarItem.Menu`'nün yalnızca
         `label`'ı var, `contentDescription`'ı yok. Okuyucu düğmeyi yalnızca "JSON" diye duyuyor; neyi seçtiği
@@ -733,8 +761,7 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Nerede: kaynak jar'da `ToolbarItem.kt` (`Menu`, `Button`); `get_api ToolbarItem`.
     *   Öneri: `ToolbarItem.Menu`'ye ve `Button`'a isteğe bağlı bir `contentDescription`. Bu ad hem barda hem "…"
         menüsündeki satırda okunsun.
-    *   Durum: açık. Formatico'yu tıkamıyor. Kodda düğme yalnızca biçimin adını taşıyor; yorum bu bulguyu anıyor
-        (`WorkspaceToolbar.kt`).
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-11). `ToolbarItem.Menu(contentDescription)`. Biçim düğmesi panodaki adla okunuyor, barda ve "…" menüsünde: "Format: JSON. Change the format" (Türkçesi "Biçim: JSON. Biçimi değiştir"); yorumdaki bulgu atfı kalktı. Denendi: JVM, iOS simülatörü, Wasm ve JS testleri, tarayıcı testleri; JVM'in, Android'in ve iOS'un ekran görüntüleri yeniden kaydedildi. Önceki durum: açık. Formatico'yu tıkamıyor. Kodda düğme yalnızca biçimin adını taşıyor; yorum bu bulguyu anıyor (`WorkspaceToolbar.kt`).
 *   [x] **Araç çubuğu bir düğmeyi simgesine çevirirken önceliğe bakmıyor (2026-11-10).**
     *   Ne: `PantrixToolbar` yer daralınca simgesi olan her düğmeyi önce simgesine çeviriyor, ancak ondan sonra bir
         düğmeyi menüye alıyor. Öncelik yalnızca her adımın kendi içinde gözetiliyor. Bu yüzden simgesi olmayan ve önceliği
@@ -772,7 +799,7 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
         dp, iki yanındaki boşluğun yarısıyla 48 dp. Durum çubuğunun önizleme hâli 390'a geri döndü ("yaml on a phone");
         Pantrix'in tanılaması onda bir şey bulmuyor. Önceki durum: açık. Formatico'yu tıkamıyor: uygulamada telefonun
         durum çubuğu yok. Durum çubuğunun telefondaki önizleme hâli bu yüzden tablete taşındı ("yaml on a tablet").
-*   [ ] **Kod editörü bir milyonu aşkın satırlık bir metinde çöküyor (2026-11-10).**
+*   [x] **Kod editörü bir milyonu aşkın satırlık bir metinde çöküyor (2026-11-10).**
     *   Ne: Masaüstü penceresinin ölçümünde (Faz 21) 50 MB'lık JSON açılırken uygulama düştü:
         `IllegalArgumentException: fromIndex(630769) > toIndex(-631201)`, `CodeEditorState(text)` kurulurken
         `CodeDocument.inChunks`'tan. Satırlar 512'lik parçalara bölünürken sınırlar `size * index / count` ile `Int`'te
@@ -784,6 +811,67 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
         Formatico'da `Editors.of` → `CodeEditorState(document.text)`, `AppLargeDocumentsMeasure`.
     *   Öneri: sınırları `Long`'da hesaplamak (`(size.toLong() * index / count).toInt()`) ve bir testi iki milyon satırlık
         bir metinle; ya da parçaları sırayla `CHUNK_LINES`'lık kesmek.
-    *   Durum: açık, tıkıyor. 50 MB'lık JSON masaüstünde açılmıyor; Formatico'da geçici bir yol yok (parçalama editörün
-        içinde). Kütüphane oturumuna iletildi.
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-11). Kütüphane parçaların sınırlarını `Long`'la hesaplıyor; 1.100.000 satırlık bir metnin okunduğu bir testle sabit. Formatico'da yeniden ölçüldü (`AppLargeDocumentsMeasure`, `MEASURE.md`): 1.741.784 satırlık 50 MB'lık JSON masaüstü penceresinde 2,0 s'de açılıyor, yığın en çok 2.769 MB, açıldıktan sonra 1.049 MB. Önceki durum: açık, tıkıyor. 50 MB'lık JSON masaüstünde açılmıyor; Formatico'da geçici bir yol yok (parçalama editörün içinde). Kütüphane oturumuna iletildi.
 
+*   [ ] **Kaydedilmemiş bir sekmenin noktası çarpının yerinde durmuyor (2026-11-11).**
+    *   Ne: Workspace panoları kaydedilmemiş bir belgenin sekmesinde çarpının yerine bir nokta çiziyor
+        (`deployment.yaml •`), adı da "Close deployment.yaml, which has changes not saved to its file"; öteki sekmeler
+        çarpıyla bitiyor. `TabItem.onClose` gelince Formatico'nun sekmesi `TabBadge`'in noktasını adın ardına, çarpıyı da
+        onun ardına çiziyor: kaydedilmemiş sekme hem nokta hem çarpı taşıyor. Masaüstü düzenleyicilerinde nokta çarpının
+        yerinde durur ve işaretçi üstüne gelince çarpıya döner.
+    *   Nerede: kaynak jar'da `container/tab/Tab.kt` (`TabBadge`, `CloseCross`); Formatico'da `AppTopBar.kt`
+        (`DocumentTabs`); tuvalde Workspace-1440, `tabs`.
+    *   Öneri: `TabItem`'a kaydedilmemiş bir hâl (`unsaved: Boolean` ya da `TabBadge`'in çarpının yerinde durması):
+        nokta çarpının yerinde, işaretçinin altında ve odakta çarpı; ekran okuyucuya kaydedilmediği söylenir.
+    *   Durum: açık. Formatico'yu tıkamıyor. Kodda nokta ve çarpı birlikte.
+*   [ ] **Adları "ya da" ile birleştiren bir liste yok (2026-11-11).**
+    *   Ne: `PantrixStrings.list(items)` adları dilin "ve"siyle birleştiriyor ("a, b, and c"). Formatico'nun şema
+        cümleleri bir de "ya da" ile birleştiriyor: "coupon must be a string, an integer or null, and is true". Pantrix'te
+        bunun karşılığı yok; Formatico iki birleştirmeyi de kendisi yazıyor (`SchemaWords.kt`, `either` ve `both`),
+        birini Pantrix'e taşırsa ikisi farklı noktalanır ("a, b, and c" ile "a, b or c").
+    *   Nerede: MCP jar'ının `api/foundation.md`'si, `PantrixStrings.list`, `listPairTemplate`, `listEndTemplate`.
+    *   Öneri: `list(items, conjunction = ListConjunction.And)` ve `Or`, CLDR'ın "or" liste kalıplarıyla; ve önerilen
+        `listOf(first, more)` ("a ve 3 tane daha").
+    *   Durum: açık. Formatico'yu tıkamıyor.
+*   [ ] **PageScaffold'un içerikteki başlığı uygulamanın yazısıyla çizilemiyor (2026-11-11).**
+    *   Ne: `PageTitlePlacement.Content` başlığı her genişlikte içerikte tutuyor, ama `headline` yazısında, alt yazıyı
+        `body`'de çiziyor. Start panoları başlığı ("Paste anything") geniş pencerede ve tablette `display`'de (36/42),
+        altındaki cümleyi `callout`'ta ve 720 genişlikte, telefonda `headline` ve `body`'de çiziyor. `PageScaffoldStyle`
+        başlığın yazısını almıyor. Start bu yüzden sayfa iskeletine geçemiyor; pencere başlığı, `show` olayı ve klavyeden
+        kaçış elle kalıyor.
+    *   Nerede: kaynak jar'da `container/page/PageFrame.kt` (`PageHeading`), `PageScaffoldStyle.kt`.
+    *   Öneri: `PageScaffoldStyle`'a `titleStyle` ve `subtitleStyle` (ya da `PantrixPageScaffold`'a `heading` yuvası:
+        uygulamanın başlığı, sayfanın başlık olarak tanıdığı).
+    *   Durum: açık. Formatico'yu tıkamıyor.
+*   [ ] **Basılabilen etiket dokunma hedefini yerleşimde ayırıyor (2026-11-11).**
+    *   Ne: `PantrixTag(onClick)` "a button in the platform's touch target": `minTouchTarget` ile yerleşimde 48 dp
+        (Android) ayırıyor. Workspace-390'ın yol satırı 44 dp ve telefonun durumu (`Tag_status`) onun içinde; Pantrix'in
+        tanılaması Android'de "Tag is given 106x44dp of room, less than the 48dp touch target" buluyor. `PantrixStatusBar`'ın
+        düğmeleri aynı durumda çizdiklerinin dışına basılıyor, çubuk boyunu koruyor; etiket öyle değil.
+    *   Nerede: kaynak jar'da `data/tag/Tag.kt` (`pressedAsAButton`, `minTouchTarget`);
+        `container/statusbar/PressReach.kt`; Formatico'da `PhoneWorkspace.kt`, `StatusFormatMenu.kt`.
+    *   Öneri: basılabilen etiketin basma alanı, sıkışık bir satırda, çizdiğinin dışına platformun hedefine kadar uzansın
+        (durum çubuğundaki gibi); ya da belgesi satırın en az hedef kadar olması gerektiğini söylesin.
+    *   Durum: açık. Formatico'yu tıkamıyor. Formatico yol satırını hedefe kadar uzatıyor (`heightIn(min = 44.dp)`):
+        Android'de 48, iOS'ta 44; Android'in telefon panoları 4 dp aşağı kayıyor.
+*   [ ] **Tablonun seçili hücresinin çerçevesi üstte 1 piksel (2026-11-11).**
+    *   Ne: `PantrixDataTable(selectedCell)`'in çerçevesi hücrenin üç kenarında 2 piksel, üst kenarında 1: üstteki
+        satırın çizgisi çerçevenin ilk pikselinin üstüne çiziliyor. Formatico'nun `TablePane/sorted-light-1440.png`'inde
+        (yoğunluk 1) çerçeve 142. satırda başlıyor, 141. satır `divider` renginde; altta 175 ve 176, yanlarda 320–321
+        ve 447–448 çerçevenin renginde.
+    *   Nerede: kaynak jar'da `data/datatable/DataTableRow.kt` ve `DataTableBody.kt` (hücrenin çerçevesi ve satırların
+        çizgileri); tuval oturumu da Table panolarına bakarken gördü.
+    *   Öneri: çerçeve satırın çizgilerinden sonra çizilsin, ya da çizginin içinden başlasın; bir ekran resmi testi
+        çerçevenin dört kenarını ölçsün.
+    *   Durum: açık. Formatico'yu tıkamıyor.
+*   [ ] **Araç çubuğunun düğmesi açık olduğunu söyleyemiyor (2026-11-11).**
+    *   Ne: Workspace'in araç çubuğunda gösterilen görünümün düğmesi (Query, Convert, Types, Schema) basılı çiziliyor:
+        Formatico onu `ButtonVariant.Soft` ile veriyor, ötekiler `Text`. `ToolbarItem.Button`'da basılı ya da seçili bir
+        alan yok; ekran okuyucu düğmenin açık olduğunu duymuyor, yalnızca görünüşü değişiyor. Tasarım sisteminin
+        `ToolbarItem`'ında da yok (tuval, 2026-11-11): basılı hâl yalnızca `soft` varyantıyla çiziliyor.
+    *   Nerede: kaynak jar'da `container/toolbar/ToolbarItem.kt` (`Button`); Formatico'da `WorkspaceToolbar.kt`
+        (`pane`); tasarım sisteminin `Toolbar`'ı.
+    *   Öneri: `ToolbarItem.Button(selected: Boolean)` (ya da `pressed`): basılı çizim ve ekran okuyucuya açık olduğu
+        (`aria-pressed`, Compose'da `selected` ya da `toggleableState`); "…" menüsündeki satırda da bir işaret. Tasarım
+        sisteminde karşılığı.
+    *   Durum: açık. Formatico'yu tıkamıyor.

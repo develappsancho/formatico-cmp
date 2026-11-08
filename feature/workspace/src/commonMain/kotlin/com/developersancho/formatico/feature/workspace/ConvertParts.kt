@@ -89,6 +89,7 @@ internal fun IndentChoice(choice: ConvertChoice, onIntent: (WorkspaceIntent) -> 
         selected = choice.indent,
         onSelect = { onIntent(WorkspaceIntent.Convert(choice.copy(indent = it))) },
         fullWidth = false,
+        contentDescription = convertStrings.indentation,
         tagKey = "indent"
     )
 }
@@ -120,6 +121,7 @@ internal fun NullChoice(choice: ConvertChoice, onIntent: (WorkspaceIntent) -> Un
         selected = choice.nulls,
         onSelect = { onIntent(WorkspaceIntent.Convert(choice.copy(nulls = it))) },
         fullWidth = false,
+        contentDescription = convertStrings.nulls,
         tagKey = "nulls"
     )
 }

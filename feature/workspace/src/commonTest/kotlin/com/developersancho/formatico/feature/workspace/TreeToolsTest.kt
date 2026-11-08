@@ -1,6 +1,7 @@
 package com.developersancho.formatico.feature.workspace
 
 import com.developersancho.formatico.core.format.Format
+import com.pantrixui.foundation.l10n.PantrixLocale
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -35,20 +36,21 @@ class TreeToolsTest {
 
     @Test
     fun aSearchFindsKeysAndValuesInTheTreesOrder() {
-        val found = matchesOf(root, "elif", "en").map { it.key }
+        val found = matchesOf(root, "elif", PantrixLocale.English).map { it.key }
 
         assertEquals(listOf("$.customer.name", "$.customer.email", "$.customer.avatar", "$.customer.website"), found)
         // A branch is found by its name; the root and a blank search find nothing.
-        assertEquals(listOf("$.customer"), matchesOf(root, "custom", "en").map { it.key })
-        assertTrue(matchesOf(root, "  ", "en").isEmpty())
-        assertTrue(matchesOf(root, "$", "en").isEmpty())
+        assertEquals(listOf("$.customer"), matchesOf(root, "custom", PantrixLocale.English).map { it.key })
+        assertTrue(matchesOf(root, "  ", PantrixLocale.English).isEmpty())
+        assertTrue(matchesOf(root, "$", PantrixLocale.English).isEmpty())
     }
 
     @Test
     fun turkishLettersAreMatchedSmallAsTurkishWritesThem() {
-        assertEquals(listOf("$.city"), matchesOf(root, "ısparta", "tr").map { it.key })
-        assertEquals(listOf("$.from"), matchesOf(root, "izmir", "tr").map { it.key })
-        assertEquals("ısparta izmir", folded("ISPARTA İZMİR", "tr"))
-        assertEquals("isparta", folded("ISPARTA", "en"))
+        val turkish = PantrixLocale.forLanguageTag("tr")
+        assertEquals(listOf("$.city"), matchesOf(root, "ısparta", turkish).map { it.key })
+        assertEquals(listOf("$.from"), matchesOf(root, "izmir", turkish).map { it.key })
+        // Elsewhere the small "I" is "i".
+        assertEquals(listOf("$.city"), matchesOf(root, "isparta", PantrixLocale.English).map { it.key })
     }
 }

@@ -1,6 +1,5 @@
 package com.developersancho.formatico.core.designsystem
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
@@ -11,16 +10,16 @@ import com.pantrixui.foundation.token.color.rememberPantrixColors
 /**
  * Formatico's theme: Pantrix's theme built on [FormaticoPreset], and the syntax colours that go with it.
  *
- * @param darkTheme whether it is dark; the system's dark mode unless the reader has chosen.
+ * @param darkTheme whether it is dark: the reader's choice where it is given, and otherwise the theme's around it, as a
+ *   preview's or a test's, or the system's dark mode outside every theme.
  * @param locale the language Pantrix's components speak, the one the reader chose in Settings; the system's where it
  *   is null.
  * @param content what the theme is in effect for: the app.
  */
 @Composable
-fun FormaticoTheme(darkTheme: Boolean = isSystemInDarkTheme(), locale: PantrixLocale? = null, content: @Composable () -> Unit) {
+fun FormaticoTheme(darkTheme: Boolean = PantrixTheme.isDark, locale: PantrixLocale? = null, content: @Composable () -> Unit) {
     val colors = rememberPantrixColors(FormaticoPreset, darkTheme = darkTheme)
-    // The syntax colours follow the darkTheme given here, as a component cannot read whether the theme around it is
-    // dark (PANTRIX_FINDINGS, "Bir bileşen, içinde durduğu temanın koyu olup olmadığını okuyamıyor").
+    // The syntax colours are the dark or the light ones as the theme's own colours are.
     val syntax = @Composable {
         CompositionLocalProvider(
             LocalSyntaxColors provides if (darkTheme) SyntaxColors.Dark else SyntaxColors.Light,

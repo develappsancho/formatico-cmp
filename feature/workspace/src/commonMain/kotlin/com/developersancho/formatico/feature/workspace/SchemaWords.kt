@@ -63,7 +63,10 @@ private fun SchemaStrings.kindOf(type: JsonType): String = when (type) {
     JsonType.Object -> anObject
 }
 
-/** [items] as one or another: "a", "a or b", "a, b or c". */
+/**
+ * [items] as one or another: "a", "a or b", "a, b or c". Pantrix joins names with "and" alone, so this and [bothOf], its
+ * pair, stay Formatico's (PANTRIX_FINDINGS, "Adları "ya da" ile birleştiren bir liste yok").
+ */
 private fun SchemaStrings.eitherOf(items: List<String>): String =
     if (items.size < 2) items.firstOrNull().orEmpty() else either(items.dropLast(1).joinToString(", "), items.last())
 

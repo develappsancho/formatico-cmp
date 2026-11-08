@@ -1,15 +1,22 @@
 package com.developersancho.formatico
 
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performCustomAccessibilityActionWithLabel
+import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.test.v2.runComposeUiTest
 import com.developersancho.formatico.core.designsystem.Board
 import com.developersancho.formatico.core.format.Format
@@ -32,15 +39,27 @@ class AppTopBarTest {
         OpenDocument(id = 3, name = null, text = "", format = null)
     )
 
-    /** Draws the bar over [workbench] on [board]; a tab chosen goes to [onSelectTab]. */
-    private fun ComposeUiTest.bar(workbench: WorkbenchState, board: Board, onSelectTab: (Long?) -> Unit = {}) {
+    /**
+     * Draws the bar over [workbench] on [board], over Settings where [settingsShown] says so; a tab chosen goes to
+     * [onSelectTab], a document's tab closed to [onCloseTab] and Settings' to [onCloseSettings].
+     */
+    private fun ComposeUiTest.bar(
+        workbench: WorkbenchState,
+        board: Board,
+        onSelectTab: (Long?) -> Unit = {},
+        settingsShown: Boolean = false,
+        onCloseTab: (Long) -> Unit = {},
+        onCloseSettings: () -> Unit = {}
+    ) {
         setContent {
             PantrixTestTheme(platform = board.platform, window = board.window) {
                 AppTopBar(
                     insets = PaddingValues(),
                     workbench = workbench,
-                    settingsShown = false,
+                    settingsShown = settingsShown,
                     onSelectTab = onSelectTab,
+                    onCloseTab = onCloseTab,
+                    onCloseSettings = onCloseSettings,
                     darkTheme = false,
                     onToggleTheme = {},
                     onOpenPalette = {},
@@ -76,6 +95,49 @@ class AppTopBarTest {
         onPantrixNode("IconButton", "new_tab").assertIsEnabled().performClick()
 
         assertEquals(listOf<Long?>(2, null), chosen)
+    }
+
+    @Test
+    fun aDocumentsTabClosesTheDocumentByTheScreenReadersActionAndByDelete() = runComposeUiTest {
+        val closed = mutableListOf<Long>()
+        bar(WorkbenchState(open, selectedId = 1), Board.Desktop, onCloseTab = { closed += it })
+        awaitNode(hasText("deployment.yaml"), "The second tab")
+
+        onPantrixNode("Tab", "document_2", scope = "Tabs_documents").performCustomAccessibilityActionWithLabel("Close")
+        onPantrixNode("Tab", "document_1", scope = "Tabs_documents").requestFocus().performKeyInput { pressKey(Key.Delete) }
+
+        assertEquals(listOf<Long>(2, 1), closed)
+    }
+
+    @Test
+    fun settingsTabLeavesSettings() = runComposeUiTest {
+        var left = 0
+        bar(WorkbenchState(open, selectedId = 1), Board.Desktop, settingsShown = true, onCloseSettings = { left++ })
+        awaitNode(hasText("Settings"), "Settings' tab")
+
+        onPantrixNode("Tab", "settings", scope = "Tabs_documents").performCustomAccessibilityActionWithLabel("Close")
+
+        assertEquals(1, left)
+    }
+
+    @Test
+    fun aNewTabGoesBackToTheLastDocument() = runComposeUiTest {
+        val chosen = mutableListOf<Long?>()
+        bar(WorkbenchState(open, selectedId = null), Board.Desktop, onSelectTab = { chosen += it })
+        awaitNode(hasText("New tab"), "The new tab")
+
+        onPantrixNode("Tab", "new", scope = "Tabs_documents").performCustomAccessibilityActionWithLabel("Close")
+
+        assertEquals(listOf<Long?>(3), chosen)
+    }
+
+    @Test
+    fun aNewTabAloneCannotBeClosed() = runComposeUiTest {
+        bar(WorkbenchState(), Board.Desktop)
+        awaitNode(hasText("New tab"), "The new tab")
+
+        // With nothing open there is nothing to go back to.
+        onPantrixNode("Tab", "new", scope = "Tabs_documents").assert(SemanticsMatcher.keyNotDefined(SemanticsActions.CustomActions))
     }
 
     @Test

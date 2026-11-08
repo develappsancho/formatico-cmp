@@ -37,6 +37,7 @@ internal val PreviewShortcuts = listOf(
     PantrixCommand("save", "Save as a file", "Document", shortcut = PantrixShortcut(Key.S, command = true)),
     PantrixCommand("tree", "Show the tree", "View", shortcut = PantrixShortcut(Key.One, command = true)),
     PantrixCommand("table", "Show the table", "View", shortcut = PantrixShortcut(Key.Two, command = true)),
+    PantrixCommand("graph", "Show the graph", "View", shortcut = PantrixShortcut(Key.Three, command = true)),
     PantrixCommand("query", "Query with JSONPath", "View", shortcut = PantrixShortcut(Key.F, command = true, shift = true))
 )
 

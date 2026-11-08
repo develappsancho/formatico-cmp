@@ -685,6 +685,28 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Öneri: şeridin başında ve sonunda bir solma (Pantrix'te `PantrixTabs`'ın kaydırılan kenarı için bir seçenek yoksa bulgu); ya da seçili sekme ortada değil görünür olduğu kadar kaydırılsın, ilk sekmeler sığdığı sürece başta kalsın.
     *   Durum: açık.
 
+*   [ ] **Workspace panolarının resminde seçili bir değer yok (2026-11-11).**
+    *   Ne: Workspace-1440 ve -834 panoları açılışta `createdAt`'i seçili çiziyor: ağaçta satır, metinde değer seçili,
+        durum çubuğunda `$.createdAt`. Metinle ağacın birlikte yürüdüğünü gösteren hâl bu. Kodun pano resimleri
+        (`Workspace-1440.png`, `-834.png`) belgeyi seçimsiz gösteriyor. Tuval panoyu öyle bıraktı.
+    *   Öneri: pano turu (`BoardTour`) Workspace'te `createdAt`'i seçsin; resimler panoyla aynı hâli göstersin.
+    *   Durum: açık.
+*   [ ] **Paylaşma diyaloğu tablette ilk seçeneği odak halkasıyla açılıyor (2026-11-11).**
+    *   Ne: `Share-834.png`'de diyalog açılınca "In the link" seçeneğinin çevresinde bir odak halkası var: diyalog
+        odağı ilk denetimine veriyor. Tuval panoya halkayı çizmedi. Dokunmayla kullanılan bir tablette, klavye yokken bir
+        halkanın görünmesi beklenmez.
+    *   Öneri: tablette ve telefonda diyalog açılırken halkanın görünüp görünmediğine cihazda bakılsın; görünüyorsa
+        Pantrix'in bulgusu (dokunmada odak halkası).
+    *   Durum: açık.
+*   [ ] **Compare panosunun resminde seçili sekmenin çevresinde odak halkası kalıyor (2026-11-11).**
+    *   Ne: `Compare-1440.png`'de ve `Compare-834.png`'de `order.json` sekmesinin çevresinde birincil renkte bir çerçeve var: pano turu iki
+        belgeyi açıp birinci sekmeye basıyor (`BoardTour.chooseTab`), odak sekmede kalıyor ve Pantrix odaktaki sekmeye
+        halkasını çiziyor. Panoda halka yok. C partisinden önce de böyleydi; tuval oturumu gördü.
+    *   Öneri: tur sekmeye bastıktan sonra odağı bıraksın, ya da sekmeyi bir basışla değil ekranın kendi yoluyla
+        seçsin. Uygulamada fareyle basılan bir sekmede halkanın görünüp görünmediğine bakılsın: görünüyorsa bu bir
+        Pantrix bulgusu.
+    *   Durum: açık.
+
 ## Paylaşım
 
 *   [ ] **Paylaşımın panolardan ayrıldığı yerler (2026-11-06).**

@@ -17,12 +17,14 @@ import com.developersancho.formatico.core.designsystem.SyntaxColors
 import com.developersancho.formatico.core.format.json.jsonPath
 import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.components.data.lazytreeview.PantrixLazyTreeView
+import com.pantrixui.components.data.lazytreeview.TreeSource
 import com.pantrixui.components.data.lazytreeview.rememberTreeViewState
 import com.pantrixui.components.data.treeview.TreeNode
 import com.pantrixui.components.data.treeview.TreeRowAction
 import com.pantrixui.components.data.treeview.TreeSelection
 import com.pantrixui.components.data.treeview.TreeViewStyle
 import com.pantrixui.foundation.icons.PantrixIcons
+import com.pantrixui.foundation.l10n.PantrixLocale
 import com.pantrixui.foundation.theme.PantrixTheme
 import com.pantrixui.foundation.token.typography.TypeRole
 
@@ -31,7 +33,7 @@ import com.pantrixui.foundation.token.typography.TypeRole
  * the [current] match.
  */
 @Immutable
-internal data class TreeMarks(val sought: String, val language: String, val current: String?)
+internal data class TreeMarks(val sought: String, val locale: PantrixLocale, val current: String?)
 
 /**
  * The colours a row's label is written in: the document's [syntax], an object's or an array's size in [size], a
@@ -73,67 +75,49 @@ private fun rowInks(): RowInks {
 @Immutable
 internal data class RowEnd(val preview: ValuePreview?, val written: String?, val anchor: String?, val target: String?)
 
-/** The tree's [nodes] for a document, and what each row draws at its end, by the node's key. */
-internal class DocumentRows(val nodes: List<TreeNode>, val ends: Map<String, RowEnd>)
-
 /**
- * The rows of [root] that the [expanded] branches show: each value as `name: value` in the document's colours, which
- * the tree writes a chosen row's in its own, and what a search [marks] marked in each. A closed branch's rows are made
- * as it opens: in a large document they are most of it, and the tree shows none of them.
+ * The tree of [root] as [PantrixLazyTreeView] asks for it, a row at a time: each value as `name: value` in the document's
+ * colours [inks], which the tree writes a chosen row's in its own, and what a search [marks] marked in it. A row is made
+ * only as it is about to be shown: in a large document the values are a hundred thousand, and the screen shows thirty.
+ * Another search is another source; the value chosen and the branches opened are the tree's, and make none.
  */
-internal fun documentRows(root: ValueNode, inks: RowInks, marks: TreeMarks?, expanded: Set<String>): DocumentRows =
-    RowMaker(root, inks).rows(marks, expanded)
+internal class DocumentSource(private val root: ValueNode, private val inks: RowInks, private val marks: TreeMarks?) : TreeSource {
+    // The values of the rows made, by their keys: a row the tree asks about is one it was given.
+    private val values = HashMap<String, ValueNode>()
 
-/**
- * Makes the rows of [root] in [inks], as [documentRows] says, again each time the search or the open branches change,
- * keeping every row that did not change: a branch opened makes that row again and the rows it stands in, not the
- * hundred thousand beside them. A new search makes them all again; a value chosen, none.
- */
-internal class RowMaker(private val root: ValueNode, private val inks: RowInks) {
-    private var made: TreeNode? = null
-    private var marks: TreeMarks? = null
-    private var expanded: Set<String> = emptySet()
+    // What each row made ends in, looked up for the rows shown alone.
+    private val ends = HashMap<String, RowEnd?>()
 
-    // What each row made ends in: the same for a key while the document is, and only looked up for the rows shown.
-    private val ends = HashMap<String, RowEnd>()
+    override fun childCount(parent: TreeNode?): Int = if (parent == null) 1 else valueOf(parent).children.size
 
-    /** The rows for [marks] and [expanded], the rows made last kept where nothing of theirs changed. */
-    fun rows(marks: TreeMarks?, expanded: Set<String>): DocumentRows {
-        val before = made.takeIf { marks == this.marks }
-        // The keys whose rows are made again: the branches opened or closed.
-        val changed = HashSet<String>()
-        expanded.filterTo(changed) { it !in this.expanded }
-        this.expanded.filterTo(changed) { it !in expanded }
-        val keeping = before.takeIf { changed.size <= MOST_CHANGED }
+    override fun childAt(parent: TreeNode?, index: Int): TreeNode = rowOf(if (parent == null) root else valueOf(parent).children[index])
 
-        fun nodeOf(node: ValueNode, old: TreeNode?): TreeNode {
-            // A row is kept where no key that changed is its own or one under it, as a key under it starts with its.
-            if (old != null && changed.none { it.startsWith(node.key) }) return old
-            endOf(node)?.let { ends[node.key] = it }
-            val label = rowLabel(node)
-            val open = node.key in expanded
-            // The rows under it made before stand in the same order as its children, where it was open.
-            val oldChildren = old?.children?.takeIf { it.size == node.children.size }
-            return TreeNode(
-                key = node.key,
-                label = label,
-                children = if (open) node.children.mapIndexed { index, child -> nodeOf(child, oldChildren?.get(index)) } else emptyList(),
-                hasChildren = node.children.isNotEmpty(),
-                tagKey = tagOf(node),
-                styledLabel = styledLabelOf(node, inks, marks = marks, label = label)
-            )
-        }
-        val top = nodeOf(root, keeping)
-        made = top
-        this.marks = marks
-        this.expanded = expanded
-        return DocumentRows(listOf(top), ends)
+    override fun indexOf(parent: TreeNode?, key: String): Int =
+        if (parent == null) (if (key == root.key) 0 else -1) else valueOf(parent).children.indexOfFirst { it.key == key }
+
+    /** What the row of [key] draws at its end, or null for nothing. */
+    fun endOf(key: String): RowEnd? = ends.getOrPut(key) { values[key]?.let(::endOf) }
+
+    /** The row of [node]: its label and its colours, and whether it is a branch, its children the tree's to ask for. */
+    fun rowOf(node: ValueNode): TreeNode {
+        values[node.key] = node
+        val label = rowLabel(node)
+        return TreeNode(
+            key = node.key,
+            label = label,
+            hasChildren = node.children.isNotEmpty(),
+            tagKey = tagOf(node),
+            styledLabel = styledLabelOf(node, inks, marks = marks, label = label)
+        )
     }
 
-    private companion object {
-        // Past so many changed keys, as "All" opens every branch, each row is made again rather than weighed.
-        const val MOST_CHANGED = 64
-    }
+    private fun valueOf(row: TreeNode): ValueNode = values.getOrPut(row.key) { trail(root, row.key).last() }
+
+    // Another search, or another document, is another source; one value chosen or another is not. A document is the
+    // same one by its identity: weighing its values would walk all of them.
+    override fun equals(other: Any?): Boolean = other is DocumentSource && other.root === root && other.inks == inks && other.marks == marks
+
+    override fun hashCode(): Int = 31 * inks.hashCode() + marks.hashCode()
 }
 
 /**
@@ -172,34 +156,26 @@ internal fun styledLabelOf(
         } else {
             SpanStyle(background = inks.match)
         }
-        if (nameHolds(node, marks.sought, marks.language)) {
-            placesOf(marks.sought, node.name, marks.language).forEach { addStyle(mark, it.first, it.last + 1) }
+        if (nameHolds(node, marks.sought, marks.locale)) {
+            placesOf(marks.sought, node.name, marks.locale).forEach { addStyle(mark, it.first, it.last + 1) }
         }
-        if (valueHolds(node, marks.sought, marks.language)) {
-            placesOf(marks.sought, node.text, marks.language).forEach { addStyle(mark, valueStart + it.first, valueStart + it.last + 1) }
+        if (valueHolds(node, marks.sought, marks.locale)) {
+            placesOf(marks.sought, node.text, marks.locale).forEach { addStyle(mark, valueStart + it.first, valueStart + it.last + 1) }
         }
     }
 }
 
 /**
- * Where [sought], in small letters as [language] writes them, stands in [text]: the ranges of [text]'s own letters,
- * each found after the one before it.
+ * Where [sought], in small letters as [locale] writes them, stands in [text]: the ranges of [text]'s own letters, each
+ * found after the one before it. A text folded is as long as itself, so that a place in it is the same place in [text].
  */
-internal fun placesOf(sought: String, text: String, language: String): List<IntRange> {
+internal fun placesOf(sought: String, text: String, locale: PantrixLocale): List<IntRange> {
     if (sought.isEmpty()) return emptyList()
-    // A letter can grow in small letters, as "İ" does outside Turkish: each small letter keeps where it came from.
-    val small = StringBuilder()
-    val from = ArrayList<Int>(text.length)
-    text.forEachIndexed { index, letter ->
-        folded(letter.toString(), language).forEach {
-            small.append(it)
-            from += index
-        }
-    }
+    val small = locale.fold(text)
     val places = mutableListOf<IntRange>()
     var at = small.indexOf(sought)
     while (at >= 0) {
-        places += from[at]..from[at + sought.length - 1]
+        places += at until at + sought.length
         at = small.indexOf(sought, at + sought.length)
     }
     return places
@@ -232,8 +208,7 @@ internal fun DocumentTree(
     val root = state.root ?: return
     val inks = rowInks()
     val selected = state.selected?.key
-    val maker = remember(root, inks) { RowMaker(root, inks) }
-    val rows = remember(maker, marks, state.expanded) { maker.rows(marks, state.expanded) }
+    val source = remember(root, inks, marks) { DocumentSource(root, inks, marks) }
     val words = previewWords()
     val links = LocalUriHandler.current
     val openLink = workspaceStrings.openLink
@@ -242,7 +217,7 @@ internal fun DocumentTree(
         tree.scrollToKey(selected ?: return@LaunchedEffect)
     }
     PantrixLazyTreeView(
-        nodes = rows.nodes,
+        source = source,
         expanded = state.expanded,
         onExpandedChange = { onIntent(WorkspaceIntent.Expand(it)) },
         modifier = modifier,
@@ -250,9 +225,9 @@ internal fun DocumentTree(
         selection = TreeSelection.Single,
         selected = setOfNotNull(selected),
         onSelectionChange = { onIntent(WorkspaceIntent.Select(it.firstOrNull())) },
-        trailing = { node -> rows.ends[node.key]?.let { RowEndOf(it, layout, chosen = node.key == selected, words = words) } },
+        trailing = { node -> source.endOf(node.key)?.let { RowEndOf(it, layout, chosen = node.key == selected, words = words) } },
         rowAction = { node ->
-            (rows.ends[node.key]?.preview as? ValuePreview.Link)?.let { link ->
+            (source.endOf(node.key)?.preview as? ValuePreview.Link)?.let { link ->
                 TreeRowAction(icon = PantrixIcons.ExternalLink, label = openLink) { links.open(link.url) }
             }
         },

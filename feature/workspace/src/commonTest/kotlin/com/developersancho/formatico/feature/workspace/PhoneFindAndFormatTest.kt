@@ -11,7 +11,7 @@ import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.format.Format
-import com.developersancho.formatico.core.testing.awaitText
+import com.developersancho.formatico.core.testing.awaitStatus
 import com.developersancho.formatico.core.testing.awaitUntil
 import com.pantrixui.foundation.adaptive.PantrixWindow
 import com.pantrixui.foundation.diagnostics.PantrixFindings
@@ -56,7 +56,7 @@ class PhoneFindAndFormatTest {
                 }
             }
         }
-        awaitText("Valid JSON")
+        awaitStatus("Valid JSON")
 
         // Find in the text is the menu's first item, above Find in the tree.
         onPantrixNode("IconButton", "more").performClick()
@@ -86,10 +86,10 @@ class PhoneFindAndFormatTest {
                 )
             }
         }
-        awaitText("Plain text")
+        awaitStatus("Plain text")
 
-        onPantrixNode("Button", "status_format")
-            .assert(hasContentDescription("Plain text"))
+        onPantrixNode("Tag", "status")
+            .assert(hasContentDescription("Plain text. Change the format"))
             .performClick()
         onPantrixNode("MenuItem", "json", scope = "Menu_status_formats").performClick()
 

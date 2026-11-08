@@ -10,6 +10,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.storage.memoryStorageModule
 import com.developersancho.formatico.core.testing.awaitNode
+import com.developersancho.formatico.core.testing.awaitStatus
 import com.developersancho.formatico.core.testing.awaitText
 import com.pantrixui.foundation.adaptive.PantrixWindow
 import com.pantrixui.testing.PantrixTestTheme
@@ -76,7 +77,7 @@ class AppTest {
         awaitText("Paste anything")
         onPantrixNode("Button", "switch_documents").assertDoesNotExist()
         onPantrixNode("ListItem", "sample_order").performClick()
-        awaitText("Valid JSON")
+        awaitStatus("Valid JSON")
 
         onPantrixNode("Button", "switch_documents").performClick()
         onPantrixNode("MenuItem", "new", scope = "Menu_documents").performClick()
@@ -86,7 +87,7 @@ class AppTest {
 
         onPantrixNode("Button", "switch_documents").performClick()
         onPantrixNode("MenuItem", "document_1", scope = "Menu_documents").performClick()
-        awaitText("Valid JSON")
+        awaitStatus("Valid JSON")
     }
 
     @Test
@@ -98,7 +99,7 @@ class AppTest {
         }
         awaitText("Paste anything")
         onPantrixNode("ListItem", "sample_order").performClick()
-        awaitText("Valid JSON")
+        awaitStatus("Valid JSON")
 
         onPantrixNode("IconButton", "more").performClick()
         // The test draws in less than the phone's window, and the menu's row stands past its foot: it is pressed as a
@@ -108,7 +109,7 @@ class AppTest {
         onPantrixNode("Button", "switch_documents").assertDoesNotExist()
 
         onPantrixNode("IconButton", "back").performClick()
-        awaitText("Valid JSON")
+        awaitStatus("Valid JSON")
         onPantrixNode("Button", "switch_documents").assertExists()
     }
 
@@ -121,7 +122,7 @@ class AppTest {
         }
         awaitText("Paste anything")
         onPantrixNode("ListItem", "sample_order").performClick()
-        awaitText("Valid JSON")
+        awaitStatus("Valid JSON")
 
         onPantrixNode("IconButton", "more").performClick()
         // The menu's row stands past the foot of what the test draws: it is pressed as a screen reader presses it.
@@ -131,7 +132,7 @@ class AppTest {
         onPantrixNode("Button", "switch_documents").assertDoesNotExist()
 
         onPantrixNode("IconButton", "back").performClick()
-        awaitText("Valid JSON")
+        awaitStatus("Valid JSON")
         onPantrixNode("Button", "switch_documents").assertExists()
     }
 }

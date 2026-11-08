@@ -19,6 +19,7 @@ import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.components.elements.buttongroup.GroupButton
 import com.pantrixui.components.elements.buttongroup.PantrixButtonGroup
 import com.pantrixui.components.elements.text.PantrixText
+import com.pantrixui.foundation.l10n.PantrixLocale
 import com.pantrixui.foundation.theme.PantrixTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -46,40 +47,29 @@ internal fun expandedTo(root: ValueNode?, level: Int?): Set<String> {
 
 /**
  * The values of [root] that [query] is found in, in the order the tree shows them: in a key or an index's place, or in
- * a value that holds no others, as the tree writes it. Letters are matched small as [language] writes them, so that in
+ * a value that holds no others, as the tree writes it. Letters are matched small as [locale] writes them, so that in
  * Turkish "i" finds "İzmir" and "ı" finds "Isparta". The root itself is never one, nor is anything for a blank query.
  */
-internal fun matchesOf(root: ValueNode?, query: String, language: String): List<ValueNode> {
+internal fun matchesOf(root: ValueNode?, query: String, locale: PantrixLocale): List<ValueNode> {
     if (root == null || query.isBlank()) return emptyList()
-    val sought = folded(query.trim(), language)
+    val sought = locale.fold(query.trim())
     val found = mutableListOf<ValueNode>()
 
     fun look(node: ValueNode) {
-        if (nameHolds(node, sought, language) || valueHolds(node, sought, language)) found += node
+        if (nameHolds(node, sought, locale) || valueHolds(node, sought, locale)) found += node
         node.children.forEach(::look)
     }
     look(root)
     return found
 }
 
-/** Whether [sought], in small letters as [language] writes them, is in [node]'s key or its index; never the root's. */
-internal fun nameHolds(node: ValueNode, sought: String, language: String): Boolean =
-    node.path.isNotEmpty() && sought in folded(node.name, language)
+/** Whether [sought], in small letters as [locale] writes them, is in [node]'s key or its index; never the root's. */
+internal fun nameHolds(node: ValueNode, sought: String, locale: PantrixLocale): Boolean =
+    node.path.isNotEmpty() && sought in locale.fold(node.name)
 
-/** Whether [sought], in small letters as [language] writes them, is in a value of [node]'s that holds no others. */
-internal fun valueHolds(node: ValueNode, sought: String, language: String): Boolean =
-    !node.kind.isContainer && sought in folded(node.value ?: node.text, language)
-
-/**
- * [text] in small letters as [language] writes them: Turkish and Azerbaijani have a dotted and a dotless i. Pantrix
- * keeps its own such lowercase to itself (PANTRIX_FINDINGS, "Temanın diline göre küçük harfe çevirme dışarıya açık
- * değil").
- */
-internal fun folded(text: String, language: String): String = if (language == "tr" || language == "az") {
-    text.replace('I', 'ı').replace('İ', 'i').lowercase()
-} else {
-    text.lowercase()
-}
+/** Whether [sought], in small letters as [locale] writes them, is in a value of [node]'s that holds no others. */
+internal fun valueHolds(node: ValueNode, sought: String, locale: PantrixLocale): Boolean =
+    !node.kind.isContainer && sought in locale.fold(node.value ?: node.text)
 
 /**
  * "Open to", where [withLabel] says there is room for it, and the levels the tree is opened to by a press: 1, 2, 3 and
@@ -113,7 +103,7 @@ internal fun TreeLevels(root: ValueNode, layout: WorkspaceLayout, onIntent: (Wor
 }
 
 /**
- * A search in the tree: whether its bar is [open], what is looked for in [query], matched in [language]'s small
+ * A search in the tree: whether its bar is [open], what is looked for in [query], matched in [locale]'s small
  * letters, the values it is [found] in and which of them is chosen. Opening and closing the bar and choosing a match,
  * which opens the branches it is in, go to [onIntent].
  */
@@ -122,7 +112,7 @@ internal class TreeSearch(
     val open: Boolean,
     private val chosen: MutableIntState,
     val query: TextFieldState,
-    private val language: String,
+    private val locale: PantrixLocale,
     private val found: State<Searched>,
     private val onIntent: (WorkspaceIntent) -> Unit
 ) {
@@ -156,7 +146,7 @@ internal class TreeSearch(
     fun marks(): TreeMarks? {
         val text = query.text.toString()
         if (!open || text.isBlank()) return null
-        return TreeMarks(sought = folded(text.trim(), language), language = language, current = matches.getOrNull(current)?.key)
+        return TreeMarks(sought = locale.fold(text.trim()), locale = locale, current = matches.getOrNull(current)?.key)
     }
 
     /**
@@ -183,24 +173,24 @@ internal class TreeSearch(
 internal fun rememberTreeSearch(state: WorkspaceState, onIntent: (WorkspaceIntent) -> Unit): TreeSearch {
     val query = rememberTextFieldState()
     val chosen = rememberSaveable { mutableIntStateOf(0) }
-    val language = PantrixTheme.locale.language
+    val locale = PantrixTheme.locale
     val text = query.text.toString()
     val root = state.root
     // Looked for off the main thread, as a large document has a million values to fold to small letters; a letter
     // typed before the search ends sets it aside for the next. Letters typed one after another wait for the typing to
     // pause: every search marks the tree's rows again.
-    val search = produceState(Searched(), root, text, language) {
+    val search = produceState(Searched(), root, text, locale) {
         if (text.isNotBlank() && value.query.isNotBlank() && value.query != text) delay(TYPING_PAUSE)
-        value = Searched(text, withContext(Dispatchers.Default) { matchesOf(root, text, language) })
+        value = Searched(text, withContext(Dispatchers.Default) { matchesOf(root, text, locale) })
     }
     val intents = rememberUpdatedState(onIntent)
     val open = state.document?.view?.searching == true
-    val tree = remember(open, query, chosen, search, language) {
+    val tree = remember(open, query, chosen, search, locale) {
         TreeSearch(
             open = open,
             chosen = chosen,
             query = query,
-            language = language,
+            locale = locale,
             found = search,
             onIntent = { intents.value(it) }
         )

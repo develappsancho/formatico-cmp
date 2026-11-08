@@ -59,9 +59,6 @@ internal interface TypesStrings {
     val jsonSchemaLibrary: String
     val swiftGuess: String
 
-    /** "{first} and {second}" */
-    fun twoNames(first: String, second: String): String
-
     /** "{first} and {second} more" */
     fun moreNames(first: String, second: Int): String
 

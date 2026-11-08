@@ -3,6 +3,7 @@ package com.developersancho.formatico.feature.workspace.strings
 /** [QueryStrings] in English. */
 internal object QueryStringsEnglish : QueryStrings {
     override val recent = "Recent"
+    override val languageName = "Query language"
     override val askJsonpath = "Write a JSONPath, as \$.items[*].name"
     override val askXpath = "Write an XPath, as //item/title"
     override val jsonpathElsewhere = "JSONPath is for JSON documents."

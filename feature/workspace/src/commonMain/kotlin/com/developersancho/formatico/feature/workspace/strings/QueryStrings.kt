@@ -13,6 +13,7 @@ import com.developersancho.formatico.core.designsystem.inTheLanguage
  */
 internal interface QueryStrings {
     val recent: String
+    val languageName: String
     val askJsonpath: String
     val askXpath: String
     val jsonpathElsewhere: String

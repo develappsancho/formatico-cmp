@@ -65,6 +65,8 @@ internal fun AppTopBarPreview(@PreviewParameter(AppTopBarCases::class) case: Pre
                 workbench = it.workbench,
                 settingsShown = false,
                 onSelectTab = {},
+                onCloseTab = {},
+                onCloseSettings = {},
                 darkTheme = case.dark,
                 onToggleTheme = {},
                 onOpenPalette = {},

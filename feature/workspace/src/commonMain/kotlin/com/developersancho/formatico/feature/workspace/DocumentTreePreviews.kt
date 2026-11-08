@@ -11,9 +11,10 @@ import com.developersancho.formatico.core.designsystem.Board
 import com.developersancho.formatico.core.designsystem.FormaticoPreview
 import com.developersancho.formatico.core.designsystem.PreviewCase
 import com.developersancho.formatico.core.designsystem.PreviewCases
+import com.pantrixui.foundation.l10n.PantrixLocale
 
 /** What the Workspace boards' search for "elif" marks: its first match, the customer's name, the current one. */
-private val ElifMarks = TreeMarks(sought = "elif", language = "en", current = "$.customer.name")
+private val ElifMarks = TreeMarks(sought = "elif", locale = PantrixLocale.English, current = "$.customer.name")
 
 /** The tree of [state] in the tree's pane of [layout], with what a search [marks]. */
 internal class TreeCase(val state: WorkspaceState, val layout: WorkspaceLayout, val marks: TreeMarks? = null) {

@@ -99,6 +99,7 @@ internal fun CompareByChoice(choice: CompareChoice, onIntent: (WorkspaceIntent) 
         selected = choice.by,
         onSelect = { onIntent(WorkspaceIntent.Compare(choice.copy(by = it, current = 0))) },
         fullWidth = false,
+        contentDescription = compareStrings.by,
         tagKey = "compare_by"
     )
 }

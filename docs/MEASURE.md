@@ -45,6 +45,13 @@ yeniden kurulması. Sorgu: `$..id`, XML'de `//order`. Convert: JSON YAML'a, öte
 
 Ağaçta arama ("grace"), 10 MB: CSV 76 ms (32.295 eşleşme), JSON 25 ms (4.470).
 
+**Ağacın kaynağı (2026-11-11).** Pantrix'in C partisiyle Workspace'in ağacı bir kaynaktan okuyor (`TreeSource`,
+`DocumentSource`): ağaç bir dalın kaç çocuğu olduğunu ve sıradaki çocuğunu satır görünmek üzereyken istiyor. Ölçüm
+artık bir ekranın satırlarını kaynağa ağacın sorduğu gibi soruyor (en çok 60 satır): her biçimde, 10 ve 50 MB'ta,
+açılışta 0–12 ms, tutulan bellek ölçülemeyecek kadar az, 60 satır kuruluyor; en kalabalık dal açıkken de 61–63 satır.
+Yukarıdaki tablolarda "Ağaç" sütunu kaynaktan önceki hâl: 50 MB'lık CSV'de 960.321 satır, 404 MB. "Seçim" sütunu da
+kalktı: bir değer seçilince hiçbir satır yeniden kurulmuyor. Okuma değişmedi (50 MB CSV 3.577 ms / 1.592 MB).
+
 ### Düzeltmelerden önce (10 MB)
 
 | | JSON | NDJSON | CSV | XML | YAML | TOML |
@@ -114,18 +121,22 @@ Makine: Apple M5 Max, 128 GB, JDK 21, Chrome 157 (başsız).
 uygulamasının 8 GB'lık bir makinede aldığı (`-XX:MaxRAMPercentage=50`). Süre bırakma alanına basıldığında, dosya elde
 başlıyor; bellek çöp toplanmadan en çok ve belge görününce toplanmış hâliyle.
 
+Pantrix'in C partisiyle (2026-11-11), ağaç kaynaktan okurken (`TreeSource`):
+
 | Dosya | Görünene dek | Yığın en çok | Yığın görününce |
 | :--- | ---: | ---: | ---: |
-| JSON, 10 MB | 0,7 s | 697 MB | 242 MB |
-| CSV, 10 MB | 1,9 s | 1.006 MB | 416 MB |
-| CSV, 50 MB | 5,9 s | 3.351 MB | 1.969 MB |
-| JSON, 50 MB | açılmıyor | — | — |
+| JSON, 10 MB | 0,6 s | 936 MB | 229 MB |
+| CSV, 10 MB | 2,1 s | 1.026 MB | 415 MB |
+| JSON, 50 MB | 2,0 s | 2.769 MB | 1.049 MB |
+| CSV, 50 MB | 6,4 s | 3.292 MB | 1.969 MB |
 
-*   **JSON, 50 MB:** Pantrix'in kod editörü bir milyonu aşkın satırlık metinde çöküyor: satırları parçalara bölerken
-    sınırı `Int`'te hesaplıyor ve taşıyor (`PANTRIX_FINDINGS.md`, "Kod editörü bir milyonu aşkın satırlık bir metinde
-    çöküyor", tıkıyor). Örnek 1.741.784 satır; sınır yaklaşık 1.048.000 satır. 954.935 satırlık CSV altında kaldı.
-    Düzeltme yerel pakete gelince bu satır yeniden ölçülecek.
-*   **CSV, 50 MB:** 4 GB'ın 3,35 GB'ına çıkıyor; açıldıktan sonra 2 GB. 8 GB'lık bir makinede sığıyor ama payı az.
+İlk ölçüm (2026-11-10): JSON 10 MB 0,7 s, 697 / 242 MB; CSV 10 MB 1,9 s, 1.006 / 416 MB; CSV 50 MB 5,9 s,
+3.351 / 1.969 MB; JSON 50 MB açılmıyordu. "Yığın en çok" çöp toplanmadan okunduğu için koşudan koşuya oynar.
+
+*   **JSON, 50 MB:** açılıyor. Pantrix'in kod editörü bir milyonu aşkın satırlık metinde çöküyordu: satırları parçalara
+    bölerken sınırı `Int`'te hesaplıyordu (`PANTRIX_FINDINGS.md`, "Kod editörü bir milyonu aşkın satırlık bir metinde
+    çöküyor", 2026-11-11'de kapandı). Örnek 1.741.784 satır.
+*   **CSV, 50 MB:** 4 GB'ın 3,3 GB'ına çıkıyor; açıldıktan sonra 2 GB. 8 GB'lık bir makinede sığıyor ama payı az.
 *   **Denenmeyen:** işletim sisteminin gerçek penceresi ve dosya seçicisi. Uygulama bir dosyayı yalnızca kendi
     denetimleriyle (seçici, bırakma, yapıştırma) alıyor; bunları bu makinede sürmek sahibinin klavyesini ve panosunu
     kullanmak demek. Ölçülen, aynı uygulamanın aynı JVM'de ve aynı yığında, aynı boyda çizdiği ekran.

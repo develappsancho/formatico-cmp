@@ -85,15 +85,14 @@ internal class ValueReading(val kind: String, val icon: ImageVector?, val headli
 @Composable
 internal fun readValue(node: ValueNode): ValueReading {
     val strings = PantrixTheme.strings
-    // A date is written with longDate, which the boards' date without the day of the week is not
-    // (PANTRIX_FINDINGS, "Ayın adıyla yazılan, haftanın günü olmayan bir tarih yok").
+    // A date is written with its month's name, as the boards' card does; its day of the week is said under it.
     return when (val preview = node.preview) {
         is ValuePreview.Moment -> {
             val clock = LocalPantrixClock.current
             val utc = preview.instant.on(Duration.ZERO)
             val local = preview.instant.on(clock.utcOffset(preview.instant))
             val headline = workspaceStrings.momentUtc(
-                strings.longDate(utc.date.day, utc.date.month, utc.date.year),
+                strings.fullDate(utc.date.day, utc.date.month, utc.date.year),
                 strings.clock(utc.hour, utc.minute)
             )
             val detail = workspaceStrings.separated(
@@ -107,7 +106,7 @@ internal fun readValue(node: ValueNode): ValueReading {
             ValueReading(
                 kind = workspaceStrings.kindDate,
                 icon = PantrixIcons.Calendar,
-                headline = strings.longDate(preview.date.day, preview.date.month, preview.date.year),
+                headline = strings.fullDate(preview.date.day, preview.date.month, preview.date.year),
                 detail = dayDetail(preview.date)
             )
         }
@@ -197,18 +196,19 @@ private fun plainReading(node: ValueNode): ValueReading {
     }
 }
 
-/** `5 days ago`: how far [date] is from the reader's today. The long date before it says its day of the week. */
+/** `A Wednesday, 5 days ago`: [date]'s day of the week, and how far it is from the reader's today. */
 @Composable
 private fun dayDetail(date: PantrixDate): String {
     val clock = LocalPantrixClock.current
     val now = clock.clock.now()
     val today = PantrixDate.of(now, clock.utcOffset(now))
     val days = (today.epochDays - date.epochDays).toInt()
-    return when {
+    val distance = when {
         days == 0 -> workspaceStrings.today
         days == 1 -> workspaceStrings.yesterday
         days == -1 -> workspaceStrings.tomorrow
         days > 1 -> workspaceStrings.daysAgo(days, days)
         else -> workspaceStrings.daysAhead(-days, -days)
     }
+    return workspaceStrings.dayOfTheWeek(PantrixTheme.strings.weekday(date.dayOfWeek), distance)
 }

@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.format.Problem
+import com.developersancho.formatico.core.format.Repairs
 import com.developersancho.formatico.core.format.Severity
 import com.developersancho.formatico.core.format.text.Indentation
 import com.developersancho.formatico.feature.workspace.OpenDocument
@@ -21,10 +22,12 @@ import com.developersancho.formatico.feature.workspace.SchemaIssue
 import com.developersancho.formatico.feature.workspace.ValueNode
 import com.developersancho.formatico.feature.workspace.nodeAt
 import com.developersancho.formatico.feature.workspace.problemMessage
+import com.developersancho.formatico.feature.workspace.repairLabel
 import com.developersancho.formatico.feature.workspace.sentenceOf
 import com.developersancho.formatico.feature.workspace.strings.schemaStrings
 import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.components.data.codeblock.CodeMark
+import com.pantrixui.components.data.codeblock.CodeMarkAction
 import com.pantrixui.components.data.codeblock.CodeTone
 import com.pantrixui.components.data.codeeditor.CodeEditorState
 import com.pantrixui.components.data.codeeditor.CodeEditorStyle
@@ -61,7 +64,9 @@ internal val PaneEditorStyle = CodeEditorStyle(
  *
  * The text and the tree keep their choice in step: the value [selected] in the tree is selected in the text, and the
  * value of [root] the caret comes to rest in is chosen in the tree ([onSelect]). Its [problems] are marked, the
- * [schemaIssues] of a schema it is validated against, and the [matches] of the query asked of it.
+ * [schemaIssues] of a schema it is validated against, and the [matches] of the query asked of it, the one at [match]
+ * framed. Where [onRepair] is given, a problem's note offers its repair and the next problem, as the Invalid boards' does;
+ * a phone's card offers them in its place.
  */
 @Composable
 internal fun DocumentEditor(
@@ -75,7 +80,9 @@ internal fun DocumentEditor(
     modifier: Modifier = Modifier,
     problems: List<Problem> = emptyList(),
     schemaIssues: List<SchemaIssue> = emptyList(),
-    matches: List<TextRange> = emptyList()
+    matches: List<TextRange> = emptyList(),
+    match: Int? = null,
+    onRepair: ((Problem) -> Unit)? = null
 ) {
     val language = editorLanguage(document.format)
     // The text the editor last wrote to the document, or took from it: a document's text that is another came from
@@ -110,7 +117,7 @@ internal fun DocumentEditor(
         state = editor,
         modifier = modifier,
         highlighter = language.highlighter,
-        rangeMarks = matchMarks(matches) + problemMarks(problems, document) + schemaMarks(schemaIssues),
+        rangeMarks = matchMarks(matches, match) + problemMarks(problems, document, editor, onRepair) + schemaMarks(schemaIssues),
         syntax = language.syntax,
         indent = editorIndent(indentation),
         style = PaneEditorStyle,
@@ -157,16 +164,16 @@ private fun FollowTheTree(editor: CodeEditorState, root: ValueNode?, selected: V
 }
 
 /**
- * A query's [matches] as marks on the text: a fill behind each in the warning's tone, with no dot and no words, as the
- * Query boards mark them. The chosen one is the editor's selection.
+ * A query's [matches] as marks on the text: a fill behind each in the warning's tone, with no dot and no words, and a
+ * frame round the one at [current] as well, the one chosen, as the Query boards mark them.
  */
-internal fun matchMarks(matches: List<TextRange>): List<CodeRangeMark> =
-    matches.map { match ->
+internal fun matchMarks(matches: List<TextRange>, current: Int? = null): List<CodeRangeMark> =
+    matches.mapIndexed { index, match ->
         CodeRangeMark(
             start = match.start,
             end = maxOf(match.end, match.start + 1),
             mark = CodeMark(tone = CodeTone.Warning),
-            style = CodeRangeStyle.Highlight
+            style = if (index == current) CodeRangeStyle.Current else CodeRangeStyle.Highlight
         )
     }
 
@@ -188,19 +195,39 @@ private fun schemaMarks(issues: List<SchemaIssue>): List<CodeRangeMark> {
 /**
  * The [problems] as marks on the text: a wavy line under each, in the colour of an error or a warning, a dot before its
  * line, and what to do about it while the caret is there. A problem at a place, with no text of its own, marks the
- * character there.
+ * character there. Where [onRepair] is given, the note offers the problem's repair, where it has one, and the next
+ * problem, which [editor] goes to.
  */
 @Composable
-private fun problemMarks(problems: List<Problem>, document: OpenDocument): List<CodeRangeMark> {
+private fun problemMarks(
+    problems: List<Problem>,
+    document: OpenDocument,
+    editor: CodeEditorState,
+    onRepair: ((Problem) -> Unit)?
+): List<CodeRangeMark> {
     val format = document.format ?: return emptyList()
-    return problems.map { problem ->
+    val next = workspaceStrings.nextProblem
+    return problems.mapIndexed { index, problem ->
         val end = if (problem.range.end > problem.range.start) problem.range.end else minOf(problem.range.start + 1, document.text.length)
+        val actions = if (onRepair == null) {
+            emptyList()
+        } else {
+            listOfNotNull(
+                Repairs.of(problem, document.text, format)?.let { repair ->
+                    CodeMarkAction(repairLabel(repair.kind)) { onRepair(problem) }
+                },
+                problems.getOrNull(index + 1)?.let { after ->
+                    CodeMarkAction(next) { editor.selection = TextRange(after.range.start, after.range.end) }
+                }
+            )
+        }
         CodeRangeMark(
             start = problem.range.start,
             end = end,
             mark = CodeMark(
                 tone = if (problem.severity == Severity.Error) CodeTone.Danger else CodeTone.Warning,
-                message = problemMessage(problem, document.text, format)
+                message = problemMessage(problem, document.text, format),
+                actions = actions
             )
         )
     }

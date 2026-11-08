@@ -1,7 +1,6 @@
 package com.developersancho.formatico.feature.workspace
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -37,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.designsystem.LocalSyntaxColors
 import com.developersancho.formatico.core.format.Format
 import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
+import com.pantrixui.components.data.datatable.DataTableCell
 import com.pantrixui.components.data.datatable.DataTableColumn
 import com.pantrixui.components.data.datatable.DataTableLayout
 import com.pantrixui.components.data.datatable.DataTablePin
@@ -62,9 +62,6 @@ private val IndexWidth = 48.dp
 
 /** The least width of a value's column. */
 private val ColumnMinWidth = 96.dp
-
-/** The line drawn round the chosen cell. */
-private val ChosenCellLine = 2.dp
 
 /**
  * The table of the array the tree's choice is in: its toolbar, a row to each item and a column to each key, and under
@@ -320,7 +317,7 @@ private fun RowsTable(
                 resizable = true,
                 // What the column holds, under its name, as the Table boards write it: a phone's records leave it out.
                 subtitle = typesLine(typesOf(table.rows, name), typeWords)
-            ) { row -> TableCell(row, name, alignment, choice, select) }
+            ) { row -> TableCell(row, name, alignment, select) }
         }
     }
     val sort = state.document?.view?.tableSort
@@ -331,6 +328,11 @@ private fun RowsTable(
         rowKey = { it.node.key },
         rowLabel = { "${it.index}" },
         selected = setOfNotNull(choice.value?.let { table.rows.getOrNull(it.row)?.node?.key }),
+        selectedCell = choice.value?.let { chosen ->
+            val row = table.rows.getOrNull(chosen.row)?.node?.key
+            val column = chosen.column?.takeIf { it in visible }
+            if (row != null && column != null) DataTableCell(row = row, column = column) else null
+        },
         sort = listOfNotNull(sort?.let { DataTableSort(it.column, it.descending) }),
         onSortChange = { order ->
             onIntent(WorkspaceIntent.SortTable(order.firstOrNull()?.let { TableSort(it.columnKey, it.descending) }))
@@ -376,27 +378,22 @@ private const val INDEX_KEY = "#index"
 /**
  * A cell: a value in the colour of its kind, a null in italics, a missing key as a dash, an object or an array as a
  * button that opens it in the table. A press chooses the cell's value in the tree, or the row where the key is missing.
- * It is as wide as its column, so that the line round a chosen cell is, and stands at [alignment] in it as its header
- * does: a column of numbers lines them up at their end.
+ * It is as wide as its column, and stands at [alignment] in it as its header does: a column of numbers lines them up
+ * at their end. The table frames the chosen one.
  */
 @Composable
 private fun TableCell(
     row: TableRow,
     column: String,
     alignment: Alignment.Horizontal,
-    choice: State<TableChoice?>,
     select: (String) -> Unit
 ) {
     val cell = row.cell(column)
-    val chosen = choice.value.let { it != null && it.row == row.index && it.column == column }
     val syntax = LocalSyntaxColors.current
     val code = PantrixTheme.typography.code.copy(fontSize = PantrixTheme.typography.label.fontSize)
-    // The chosen cell is marked by an edge inside it, as the table cannot choose a cell
-    // (PANTRIX_FINDINGS, "DataTable'da bir hücre seçilemiyor ya da işaretlenemiyor").
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .then(if (chosen) Modifier.border(ChosenCellLine, PantrixTheme.colors.focusRing, PantrixTheme.shapes.xs) else Modifier)
             .clickable(role = Role.Button) { select(cell?.key ?: row.node.key) }
             .padding(horizontal = PantrixTheme.spacing.xs),
         contentAlignment = if (alignment == Alignment.End) Alignment.CenterEnd else Alignment.CenterStart

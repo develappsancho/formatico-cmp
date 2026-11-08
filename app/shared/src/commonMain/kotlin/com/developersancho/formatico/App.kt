@@ -1,6 +1,7 @@
 package com.developersancho.formatico
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -42,6 +43,7 @@ import com.developersancho.formatico.feature.workspace.DocumentMoreMenu
 import com.developersancho.formatico.feature.workspace.LocalSchemaOpener
 import com.developersancho.formatico.feature.workspace.Workbench
 import com.developersancho.formatico.feature.workspace.WorkbenchKeeper
+import com.developersancho.formatico.feature.workspace.WorkbenchState
 import com.developersancho.formatico.feature.workspace.WorkspaceRoute
 import com.developersancho.formatico.feature.workspace.editor.LocalWrapLines
 import com.developersancho.formatico.feature.workspace.workspaceModule
@@ -148,22 +150,7 @@ private fun AppContent(
         val palette = rememberAppPalette(workbench, open, place, darkTheme, onToggleTheme, opening = documentOpening)
         PantrixScaffold(
             modifier = Modifier.fillMaxSize().appShortcuts(palette),
-            topBar = { insets ->
-                AppTopBar(
-                    insets = insets,
-                    workbench = open,
-                    settingsShown = showSettings,
-                    onSelectTab = { id ->
-                        showSettings = false
-                        workbench.select(id)
-                    },
-                    darkTheme = darkTheme,
-                    onToggleTheme = onToggleTheme,
-                    onOpenPalette = palette::open,
-                    onOpenSettings = { showSettings = true },
-                    documentMenu = { DocumentMoreMenu(documentId = it, workbench = workbench) }
-                )
-            },
+            topBar = { insets -> AppBar(insets, workbench, open, place, darkTheme, onToggleTheme, onOpenPalette = palette::open) },
             snackbars = snackbars
         ) { padding ->
             // Until what was open is back, the screen stays empty: Start for a moment, then the document, would be
@@ -185,6 +172,38 @@ private fun AppContent(
         AppPalette(palette)
         UnknownFormatDialog(document = opening.asking, onOpen = opening::answer, onDismiss = opening::dismiss)
     }
+}
+
+/**
+ * The app's bar over [open], the documents of [workbench]: a tab chosen or closed changes the workbench, and leaves
+ * Settings where [place] shows it, as Settings' own tab closed does.
+ */
+@Composable
+private fun AppBar(
+    insets: PaddingValues,
+    workbench: Workbench,
+    open: WorkbenchState,
+    place: AppPlace,
+    darkTheme: Boolean,
+    onToggleTheme: () -> Unit,
+    onOpenPalette: () -> Unit
+) {
+    AppTopBar(
+        insets = insets,
+        workbench = open,
+        settingsShown = place.settingsShown,
+        onSelectTab = { id ->
+            place.onShowSettings(false)
+            workbench.select(id)
+        },
+        onCloseTab = workbench::close,
+        onCloseSettings = { place.onShowSettings(false) },
+        darkTheme = darkTheme,
+        onToggleTheme = onToggleTheme,
+        onOpenPalette = onOpenPalette,
+        onOpenSettings = { place.onShowSettings(true) },
+        documentMenu = { DocumentMoreMenu(documentId = it, workbench = workbench) }
+    )
 }
 
 /**

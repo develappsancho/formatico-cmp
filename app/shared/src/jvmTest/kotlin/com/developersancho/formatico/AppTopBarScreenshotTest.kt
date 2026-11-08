@@ -45,6 +45,8 @@ private fun BarInItsWindow(case: PreviewCase<AppTopBarCase>) {
             workbench = it.workbench,
             settingsShown = false,
             onSelectTab = {},
+            onCloseTab = {},
+            onCloseSettings = {},
             darkTheme = case.dark,
             onToggleTheme = {},
             onOpenPalette = {},

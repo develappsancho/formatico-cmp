@@ -26,6 +26,7 @@ internal interface WorkspaceStrings {
     val saveFile: String
     val moreActions: String
     val closeDocument: String
+    val view: String
     val viewText: String
     val viewTree: String
     val viewTable: String
@@ -34,8 +35,11 @@ internal interface WorkspaceStrings {
     val findInText: String
     val showSummaryItem: String
 
-    /** What pressing the phone's status does: it opens the formats the document can be read as. */
-    val changeFormat: String
+    /** "{first}. Change the format": a phone's status, which opens the formats */
+    fun statusButton(first: String): String
+
+    /** "Format: {first}. Change the format" */
+    fun formatButton(first: String): String
 
     /** "match {first}" */
     fun match(first: String): String
@@ -118,6 +122,9 @@ internal interface WorkspaceStrings {
     /** "Copy the path of {first} as" */
     fun copyPathAs(first: String): String
 
+    /** "Copy the path of {first}": a phone's sheet of the forms */
+    fun copyPathTitle(first: String): String
+
     val pathLabel: String
     val pathCopied: String
     val pathCopyFailed: String
@@ -161,6 +168,9 @@ internal interface WorkspaceStrings {
 
     /** "{first} in your time zone" */
     fun momentLocal(first: String): String
+
+    /** "A {first}, {second}": a day of the week, and how far it is from today */
+    fun dayOfTheWeek(first: String, second: String): String
 
     val today: String
     val yesterday: String

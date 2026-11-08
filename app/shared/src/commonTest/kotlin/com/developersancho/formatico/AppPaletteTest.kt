@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.storage.memoryStorageModule
 import com.developersancho.formatico.core.testing.awaitNode
+import com.developersancho.formatico.core.testing.awaitStatus
 import com.developersancho.formatico.core.testing.awaitText
 import com.pantrixui.foundation.adaptive.PantrixWindow
 import com.pantrixui.foundation.keyboard.PantrixShortcut
@@ -165,7 +166,7 @@ class AppPaletteTest {
         }
         awaitText("Paste anything")
         onPantrixNode("ListItem", "sample_order").performClick()
-        awaitText("Valid JSON")
+        awaitStatus("Valid JSON")
 
         onPantrixNode("IconButton", "launcher").performClick()
 

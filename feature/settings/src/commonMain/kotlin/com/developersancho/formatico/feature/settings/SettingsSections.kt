@@ -41,6 +41,7 @@ internal fun GeneralSection(state: SettingsState, layout: SettingsLayout, onInte
                 selected = state.preferences.theme,
                 onSelect = { onIntent(SettingsIntent.SetTheme(it)) },
                 fullWidth = false,
+                contentDescription = settingsStrings.theme,
                 tagKey = "theme"
             )
         }
@@ -92,6 +93,7 @@ internal fun EditorSection(state: SettingsState, layout: SettingsLayout, onInten
                 selected = state.preferences.indentation,
                 onSelect = { onIntent(SettingsIntent.SetIndentation(it)) },
                 fullWidth = false,
+                contentDescription = settingsStrings.indentation,
                 tagKey = "indentation"
             )
         }

@@ -1,5 +1,6 @@
 package com.developersancho.formatico.feature.workspace
 
+import com.developersancho.formatico.core.format.diff.Change
 import com.pantrixui.components.data.codeblock.CodeMark
 import com.pantrixui.components.data.codeblock.CodeTone
 import com.pantrixui.components.data.codeeditor.CodeRangeMark
@@ -7,13 +8,19 @@ import com.pantrixui.components.data.codeeditor.CodeRangeStyle
 
 /**
  * The marks of [side]'s lines in [compared]: each difference's lines on the band of its change's tone alone, with the
- * change's mark, `~`, `+` or `−`, before their numbers; the lines of the difference at [current], the one shown, with a
- * bar in the primary colour as well.
+ * change's mark, `~`, `+` or `−`, before their numbers, and its name in [names] for a screen reader, which reads no
+ * mark; the lines of the difference at [current], the one shown, with a bar in the primary colour as well.
  */
-internal fun sideMarks(compared: CompareOutcome.Compared, side: Side, current: Int): Map<Int, CodeMark> = buildMap {
+internal fun sideMarks(
+    compared: CompareOutcome.Compared,
+    side: Side,
+    current: Int,
+    names: Map<Change, String> = emptyMap()
+): Map<Int, CodeMark> = buildMap {
     compared.differences.forEach { difference ->
+        val change = difference.change
         difference.linesOn(side).forEach { line ->
-            if (line !in this) put(line, CodeMark(difference.change.codeTone, gutter = difference.change.mark, showBar = false))
+            if (line !in this) put(line, CodeMark(change.codeTone, gutter = change.mark, showBar = false, description = names[change]))
         }
     }
     compared.differences.getOrNull(current)?.linesOn(side)?.forEach { line ->

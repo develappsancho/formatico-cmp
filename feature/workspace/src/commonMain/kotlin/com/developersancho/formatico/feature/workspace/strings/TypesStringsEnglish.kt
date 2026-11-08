@@ -47,8 +47,6 @@ internal object TypesStringsEnglish : TypesStrings {
     override val jsonSchemaLibrary = "A JSON Schema of draft 2020-12, which documents of the same shape can be validated against."
     override val swiftGuess = "String?, marked as a guess"
 
-    override fun twoNames(first: String, second: String) = "$first and $second"
-
     override fun moreNames(first: String, second: Int) = "$first and $second more"
 
     override fun onlyNullOne(first: String, second: String) =

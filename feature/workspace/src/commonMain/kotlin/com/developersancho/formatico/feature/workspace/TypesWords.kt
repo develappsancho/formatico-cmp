@@ -8,6 +8,8 @@ import com.developersancho.formatico.feature.workspace.strings.TypesStrings
 import com.developersancho.formatico.feature.workspace.strings.typesStrings
 import com.pantrixui.components.container.alert.AlertTone
 import com.pantrixui.components.container.alert.PantrixAlert
+import com.pantrixui.foundation.l10n.PantrixStrings
+import com.pantrixui.foundation.theme.PantrixTheme
 
 /**
  * What the types are and what of the document could not be told: how many types, from which document; then, where
@@ -18,7 +20,7 @@ internal fun TypesAlert(written: TypesOutcome.Written, documentName: String, wit
     val strings = typesStrings
     val sentences = buildList {
         if (withLibrary) add(strings.libraryOf(written.language))
-        written.notes.forEach { note -> add(strings.sentenceOf(note, written.language, written.root)) }
+        written.notes.forEach { note -> add(strings.sentenceOf(note, written.language, written.root, PantrixTheme.strings)) }
     }
     PantrixAlert(
         message = sentences.joinToString(" "),
@@ -38,34 +40,31 @@ private fun TypesStrings.libraryOf(language: TypeLanguage): String = when (langu
     TypeLanguage.JsonSchema -> jsonSchemaLibrary
 }
 
-/** The sentence of [note], in types written in [language], the root one [root]. */
-private fun TypesStrings.sentenceOf(note: TypeNote, language: TypeLanguage, root: String): String = when (note) {
+/** The sentence of [note], in types written in [language], the root one [root], its names joined as [words] join them. */
+private fun TypesStrings.sentenceOf(note: TypeNote, language: TypeLanguage, root: String, words: PantrixStrings): String = when (note) {
     is TypeNote.OnlyNull -> {
         val unknown = unknownOf(language, onlyNull = true)
-        if (note.names.size == 1) onlyNullOne(namesOf(note.names), unknown) else onlyNullMany(namesOf(note.names), unknown)
+        if (note.names.size == 1) onlyNullOne(namesOf(note.names, words), unknown) else onlyNullMany(namesOf(note.names, words), unknown)
     }
 
     is TypeNote.Mixed -> {
         val unknown = unknownOf(language, onlyNull = false)
-        if (note.names.size == 1) mixedOne(namesOf(note.names), unknown) else mixedMany(namesOf(note.names), unknown)
+        if (note.names.size == 1) mixedOne(namesOf(note.names, words), unknown) else mixedMany(namesOf(note.names, words), unknown)
     }
 
     is TypeNote.EmptyList -> {
         val unknown = unknownOf(language, onlyNull = false)
-        if (note.names.size == 1) emptyOne(namesOf(note.names), unknown) else emptyMany(namesOf(note.names), unknown)
+        if (note.names.size == 1) emptyOne(namesOf(note.names, words), unknown) else emptyMany(namesOf(note.names, words), unknown)
     }
 
-    is TypeNote.Dates -> if (note.names.size == 1) datesOne(namesOf(note.names)) else datesMany(namesOf(note.names))
+    is TypeNote.Dates -> if (note.names.size == 1) datesOne(namesOf(note.names, words)) else datesMany(namesOf(note.names, words))
 
     TypeNote.RootList -> rootList(root)
 }
 
-/** [names] in a sentence: one as it is, two joined, more as the first and how many others. */
-private fun TypesStrings.namesOf(names: List<String>): String = when (names.size) {
-    1 -> names.first()
-    2 -> twoNames(names[0], names[1])
-    else -> moreNames(names.first(), names.size - 1)
-}
+/** [names] in a sentence: one or two as the language joins them, more as the first and how many others. */
+private fun TypesStrings.namesOf(names: List<String>, words: PantrixStrings): String =
+    if (names.size <= 2) words.list(names) else moreNames(names.first(), names.size - 1)
 
 /**
  * What a value whose type cannot be told is written as in [language]: Kotlin's `JsonElement`, nullable where it is

@@ -111,14 +111,15 @@ private fun formatsItem(format: Format?, onChange: (Format?) -> Unit): ToolbarIt
     val rows = Format.entries.map { entry ->
         ToolbarMenuItem(key = entry.name.lowercase(), label = entry.displayName, onClick = { onChange(entry) }, selected = entry == format)
     } + ToolbarMenuItem(key = "plain", label = plain, onClick = { onChange(null) }, selected = format == null)
-    // The button is called by the format's name alone: a toolbar's menu takes no name of its own (PANTRIX_FINDINGS,
-    // "Araç çubuğunun menü düğmesine ayrı bir ad verilemiyor").
+    val name = format?.displayName ?: plain
+    // The button writes the format's name, and says what it is for to a screen reader, as the Workspace boards name it.
     return ToolbarItem.Menu(
         key = "format_menu",
-        label = format?.displayName ?: plain,
+        label = name,
         items = rows,
         variant = ButtonVariant.Outline,
-        priority = ToolbarPriority.FORMATS
+        priority = ToolbarPriority.FORMATS,
+        contentDescription = workspaceStrings.formatButton(name)
     )
 }
 

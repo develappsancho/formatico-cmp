@@ -5,12 +5,13 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import com.developersancho.formatico.core.designsystem.SyntaxColors
 import com.developersancho.formatico.core.format.Format
+import com.pantrixui.components.data.treeview.TreeNode
+import com.pantrixui.foundation.l10n.PantrixLocale
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
-import kotlin.test.assertNotSame
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNull
-import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class DocumentTreeTest {
@@ -93,7 +94,7 @@ class DocumentTreeTest {
     @Test
     fun aSearchMarksWhatItFoundInTheKeyAndInTheValueTheCurrentMatchStronger() {
         val root = root()
-        val marks = TreeMarks(sought = "elif", language = "en", current = "$.customer.name")
+        val marks = TreeMarks(sought = "elif", locale = PantrixLocale.English, current = "$.customer.name")
         val name = styledLabelOf(root.find("$.customer.name"), inks, marks = marks)
         // The tree keeps a mark's own colours on the chosen row, where the current match is.
         assertEquals(
@@ -108,75 +109,96 @@ class DocumentTreeTest {
             }
         )
         // A key is searched too, a value's quotes are not.
-        val key = styledLabelOf(root.find("$.customer.website"), inks, TreeMarks("web", "en", current = null))
+        val key = styledLabelOf(root.find("$.customer.website"), inks, TreeMarks("web", PantrixLocale.English, current = null))
         assertEquals(listOf("web"), partsOf(key).filter { it.second.background != Color.Unspecified }.map { it.first })
-        val quote = styledLabelOf(root.find("$.id"), inks, TreeMarks("\"", "en", current = null))
+        val quote = styledLabelOf(root.find("$.id"), inks, TreeMarks("\"", PantrixLocale.English, current = null))
         assertTrue(partsOf(quote).none { it.second.background != Color.Unspecified })
     }
 
     @Test
     fun placesAreFoundInTheTextsOwnLettersInTheReadersLanguage() {
-        assertEquals(listOf(0..3, 7..10), placesOf("elif", "Elif & elif", "en"))
-        assertEquals(emptyList(), placesOf("", "Elif", "en"))
-        // In Turkish "i" is the small "İ"; elsewhere "İ" grows to two small letters, and the place is still its own.
-        assertEquals(listOf(0..4), placesOf("izmir", "İzmir", "tr"))
-        assertEquals(listOf(0..0), placesOf("i̇", "İzmir", "en"))
-        assertEquals(listOf(1..1), placesOf("z", "İzmir", "en"))
+        val english = PantrixLocale.English
+        assertEquals(listOf(0..3, 7..10), placesOf("elif", "Elif & elif", english))
+        assertEquals(emptyList(), placesOf("", "Elif", english))
+        // In Turkish "ı" is the small "I"; in every language "i" is the small "İ", and a place is the text's own.
+        assertEquals(listOf(0..4), placesOf("izmir", "İzmir", PantrixLocale.forLanguageTag("tr")))
+        assertEquals(listOf(0..0), placesOf("ı", "Isparta", PantrixLocale.forLanguageTag("tr")))
+        assertEquals(listOf(0..4), placesOf("izmir", "İzmir", english))
+        assertEquals(listOf(1..1), placesOf("z", "İzmir", english))
+    }
+
+    /** The row of [key] in [source], asked for as the tree asks: down from the top, a branch at a time. */
+    private fun rowIn(source: DocumentSource, key: String): TreeNode {
+        var row = source.childAt(null, 0)
+        while (row.key != key) {
+            val under = (0 until source.childCount(row)).map { source.childAt(row, it) }
+            row = under.first { key == it.key || key.startsWith(it.key + ".") || key.startsWith(it.key + "[") }
+        }
+        return row
     }
 
     @Test
     fun aRowEndsInWhatItsStringLooksLikeItsAnchorAndWhereItsAliasPoints() {
-        val rows = documentRows(root(), inks, marks = null, expanded = root().branches())
-        val top = rows.nodes.single()
+        val source = DocumentSource(root(), inks, marks = null)
+        val top = source.childAt(null, 0)
+        assertEquals(1, source.childCount(null))
         assertEquals("$", top.key)
         assertEquals("root", top.tagKey)
-        assertTrue(top.children.any { it.key == "$.createdAt" && it.tagKey == "createdAt" })
-        assertIs<ValuePreview.Moment>(rows.ends.getValue("$.createdAt").preview)
-        assertEquals("#0F766E", rows.ends.getValue("$.theme.accent").written)
-        assertIs<ValuePreview.Link>(rows.ends.getValue("$.customer.website").preview)
-        assertNull(rows.ends["$.id"])
+        assertEquals("createdAt", rowIn(source, "$.createdAt").tagKey)
+        assertIs<ValuePreview.Moment>(source.endOf("$.createdAt")?.preview)
+        assertEquals("#0F766E", rowIn(source, "$.theme.accent").let { source.endOf(it.key) }?.written)
+        assertIs<ValuePreview.Link>(rowIn(source, "$.customer.website").let { source.endOf(it.key) }?.preview)
+        assertNull(rowIn(source, "$.id").let { source.endOf(it.key) })
 
-        val yaml = root(deployment, Format.Yaml).let { documentRows(it, inks, marks = null, expanded = it.branches()) }
-        assertEquals("&labels", yaml.ends.getValue("$.metadata.labels").anchor)
-        assertEquals("$.metadata.labels", yaml.ends.getValue("$.spec.selector.matchLabels").target)
+        val yaml = DocumentSource(root(deployment, Format.Yaml), inks, marks = null)
+        assertEquals("&labels", rowIn(yaml, "$.metadata.labels").let { yaml.endOf(it.key) }?.anchor)
+        assertEquals("$.metadata.labels", rowIn(yaml, "$.spec.selector.matchLabels").let { yaml.endOf(it.key) }?.target)
     }
 
     @Test
-    fun aClosedBranchsRowsAreMadeAsItOpens() {
-        val root = root()
-        val closed = documentRows(root, inks, marks = null, expanded = setOf("$"))
-        val customer = closed.nodes.single().children.first { it.key == "$.customer" }
-        assertTrue(customer.children.isEmpty())
+    fun aBranchsRowsAreMadeOnlyAsTheTreeAsksForThem() {
+        val source = DocumentSource(root(), inks, marks = null)
+        val customer = rowIn(source, "$.customer")
         assertTrue(customer.hasChildren)
-        // What a closed branch's own row ends in is made with it.
-        assertIs<ValuePreview.Moment>(closed.ends.getValue("$.createdAt").preview)
-        assertNull(closed.ends["$.customer.website"])
+        assertTrue(customer.children.isEmpty())
+        // A row not asked for yet has no end made for it.
+        assertNull(source.endOf("$.customer.website"))
 
-        val open = documentRows(root, inks, marks = null, expanded = setOf("$", "$.customer"))
-        val opened = open.nodes.single().children.first { it.key == "$.customer" }
-        assertEquals(listOf("$.customer.name", "$.customer.email", "$.customer.website"), opened.children.map { it.key })
-        assertIs<ValuePreview.Link>(open.ends.getValue("$.customer.website").preview)
-        // A leaf is no branch, open or not.
-        assertTrue(opened.children.none { it.hasChildren })
+        assertEquals(3, source.childCount(customer))
+        assertEquals(
+            listOf("$.customer.name", "$.customer.email", "$.customer.website"),
+            (0 until 3).map {
+                source.childAt(customer, it).key
+            }
+        )
+        assertIs<ValuePreview.Link>(source.endOf("$.customer.website")?.preview)
+        // A leaf is no branch.
+        assertTrue((0 until 3).none { source.childAt(customer, it).hasChildren })
     }
 
     @Test
-    fun aBranchOpenedMakesItsOwnRowsAgainAndKeepsTheRest() {
+    fun aKeyIsFoundAmongItsBranchsValuesWithoutMakingTheirRows() {
+        val source = DocumentSource(root(), inks, marks = null)
+        val top = source.childAt(null, 0)
+
+        assertEquals(0, source.indexOf(null, "$"))
+        assertEquals(-1, source.indexOf(null, "$.id"))
+        assertEquals(5, source.indexOf(top, "$.customer"))
+        assertEquals("$.items", source.childAt(top, source.indexOf(top, "$.items")).key)
+        assertEquals(1, source.indexOf(rowIn(source, "$.items"), "$.items[1]"))
+        assertEquals(-1, source.indexOf(top, "$.nothing"))
+    }
+
+    @Test
+    fun aSearchIsAnotherSourceAndAChoiceIsNot() {
         val root = root()
-        val maker = RowMaker(root, inks)
-        val first = maker.rows(marks = null, expanded = setOf("$", "$.customer"))
-
-        fun DocumentRows.row(key: String) = nodes.single().children.first { it.key == key }
-
-        val opened = maker.rows(marks = null, expanded = setOf("$", "$.customer", "$.theme"))
-        assertEquals(listOf("$.theme.accent"), opened.row("$.theme").children.map { it.key })
-        assertSame(first.row("$.customer"), opened.row("$.customer"))
-        assertSame(first.row("$.id"), opened.row("$.id"))
-
-        // A search makes every row again.
-        val marks = TreeMarks("elif", "en", current = "$.customer.name")
-        val searched = maker.rows(marks = marks, expanded = setOf("$", "$.customer", "$.theme"))
-        assertNotSame(opened.row("$.customer"), searched.row("$.customer"))
-        assertEquals(documentRows(root, inks, marks, setOf("$", "$.customer", "$.theme")).nodes, searched.nodes)
+        val marks = TreeMarks("elif", PantrixLocale.English, current = "$.customer.name")
+        assertEquals(DocumentSource(root, inks, null), DocumentSource(root, inks, null))
+        assertNotEquals(DocumentSource(root, inks, null), DocumentSource(root, inks, marks))
+        // The same values read again are another document.
+        assertNotEquals(DocumentSource(root, inks, null), DocumentSource(root(), inks, null))
+        // What a search marks is in the row it makes.
+        val name = rowIn(DocumentSource(root, inks, marks), "$.customer.name")
+        assertEquals(styledLabelOf(root.find("$.customer.name"), inks, marks), name.styledLabel)
     }
 }

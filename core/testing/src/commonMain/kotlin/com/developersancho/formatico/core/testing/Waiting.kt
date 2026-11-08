@@ -3,7 +3,9 @@ package com.developersancho.formatico.core.testing
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
+import com.pantrixui.testing.hasPantrixTag
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -36,3 +38,14 @@ suspend fun ComposeUiTest.awaitNode(matcher: SemanticsMatcher, what: String) =
 @OptIn(ExperimentalTestApi::class)
 suspend fun ComposeUiTest.awaitText(text: String, substring: Boolean = false) =
     awaitNode(hasText(text, substring = substring), "\"$text\"")
+
+/**
+ * Waits, as [awaitNode] does, for the document's status to say [words]: the status bar's tag writes them, and a phone's,
+ * a button that opens the formats, is named by them and what it does.
+ */
+@OptIn(ExperimentalTestApi::class)
+suspend fun ComposeUiTest.awaitStatus(words: String) =
+    awaitNode(
+        hasPantrixTag("Tag", "status") and (hasText(words) or hasContentDescription("$words.", substring = true)),
+        "The status \"$words\""
+    )

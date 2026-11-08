@@ -1,6 +1,7 @@
 package com.developersancho.formatico.feature.workspace
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import com.developersancho.formatico.core.designsystem.BoardPreviews
@@ -12,6 +13,9 @@ import com.developersancho.formatico.core.network.EncryptedLink
 import com.developersancho.formatico.core.share.ShareLinks
 import com.developersancho.formatico.core.share.ShareOutcome
 import com.developersancho.formatico.core.share.SharedDocument
+import com.pantrixui.foundation.platform.LocalShareSheet
+import com.pantrixui.foundation.platform.ShareResult
+import com.pantrixui.foundation.platform.ShareSheet
 import kotlin.time.Instant
 
 /** The size of the Share-834 board's events.ndjson, too large for a link: 4.2 MB. */
@@ -111,6 +115,12 @@ internal fun SharePreview(@PreviewParameter(ShareCases::class) case: PreviewCase
     FormaticoPreview(case) { state ->
         val commands = rememberDocumentCommands(remember { Workbench() })
         WorkspaceScreen(state = state.copy(share = null), onIntent = {}, commands = commands)
-        ShareDocument(state = state, layout = workspaceLayout(), onIntent = {}, commands = commands, sending = {})
+        // A sheet that sends nothing, whatever the machine the preview is drawn on has.
+        CompositionLocalProvider(LocalShareSheet provides PreviewShareSheet) {
+            ShareDocument(state = state, layout = workspaceLayout(), onIntent = {}, commands = commands)
+        }
     }
 }
+
+/** The platform's sheet in a preview, which sends nothing anywhere. */
+private val PreviewShareSheet = ShareSheet { _, _, onResult -> onResult(ShareResult.Cancelled) }

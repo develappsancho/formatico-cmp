@@ -156,7 +156,7 @@ class WorkspaceScreenshotTest {
 
             // Workspace-390's `format` state: a new document's text, still plain text, and the formats its status opens.
             "plain" -> {
-                captureOpenMenu("StatusFormatMenu", case, Board.Phone, opener = "status_format") { WorkspaceScreenPreview(case) }
+                captureOpenMenu("StatusFormatMenu", case, Board.Phone, opener = "status") { WorkspaceScreenPreview(case) }
             }
         }
     }

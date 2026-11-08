@@ -24,26 +24,29 @@ import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.components.overlay.dialog.PantrixDialog
 import com.pantrixui.components.overlay.sheet.PantrixSheet
 import com.pantrixui.foundation.icons.PantrixIcons
+import com.pantrixui.foundation.platform.ShareResult
+import com.pantrixui.foundation.platform.rememberShareSheet
 import com.pantrixui.foundation.theme.PantrixTheme
 
 /**
  * The document's share while [state] holds one, as the Share boards draw it: in the link itself, or as an encrypted
- * link Formatico's server keeps, in a dialog; on a phone in a sheet, with the platform's own way of sending the link
- * to another app where it has one ([sending]). A document a link cannot hold goes as an encrypted link, and one too
- * large for that as well is saved as a file instead.
+ * link Formatico's server keeps, in a dialog; on a phone in a sheet, with the platform's own sheet for sending the link
+ * to another app where it has one ([rememberShareSheet]). A document a link cannot hold goes as an encrypted link, and
+ * one too large for that as well is saved as a file instead.
  */
 @Composable
 internal fun ShareDocument(
     state: WorkspaceState,
     layout: WorkspaceLayout,
     onIntent: (WorkspaceIntent) -> Unit,
-    commands: DocumentCommands,
-    sending: ((String) -> Unit)? = rememberTextSharing()
+    commands: DocumentCommands
 ) {
     // What was shown stays while the dialog leaves.
     var shown by remember { mutableStateOf<DocumentShare?>(null) }
     state.share?.let { shown = it }
     val share = shown ?: return
+    val sheet = rememberShareSheet()
+    val title = share.title()
     val close = { onIntent(WorkspaceIntent.Share(open = false)) }
     val actions = ShareActions(
         close = close,
@@ -55,10 +58,10 @@ internal fun ShareDocument(
             state.document?.let(commands.save)
             close()
         },
-        send = sending?.let { send ->
+        // The share stays where the reader closed the platform's sheet without sending, or it could not be shown.
+        send = sheet?.let { platform ->
             { link: String ->
-                send(link)
-                close()
+                platform.share(link, title) { result -> if (result == ShareResult.Shared || result == ShareResult.Started) close() }
             }
         },
         intent = onIntent

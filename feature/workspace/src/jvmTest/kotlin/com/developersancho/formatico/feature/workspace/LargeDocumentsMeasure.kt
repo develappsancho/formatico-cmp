@@ -7,6 +7,7 @@ import com.developersancho.formatico.core.format.FormatDetector
 import com.developersancho.formatico.core.format.types.TypeLanguage
 import com.developersancho.formatico.core.format.types.generateTypes
 import com.pantrixui.components.data.treeview.TreeNode
+import com.pantrixui.foundation.l10n.PantrixLocale
 import java.io.File
 import kotlin.test.Test
 import kotlin.time.Duration
@@ -71,18 +72,18 @@ class LargeDocumentsMeasure {
         if (root != null) {
             val afterReading = used()
             val opened = defaultExpanded(root)
-            step(format, size, "tree rows", keep = true, base = afterReading, note = ::shownRows) {
-                RowMaker(root, inks).rows(null, opened)
+            // The rows a screen shows, asked of the tree's source as the tree asks for them: made only as they are shown.
+            step(format, size, "tree rows", keep = true, base = afterReading, note = { made: Int -> "$made rows made" }) {
+                screenOf(DocumentSource(root, inks, null), opened)
             }
             // The branch that holds the most, opened with the ones it stands in: the rows a reader scrolls through.
             val largest = largestBranch(root)
-            val withLargest = opened + trail(root, largest.key).map { it.key }
-            step(format, size, "tree rows, its largest branch open", note = ::shownRows) {
-                documentRows(root, inks, null, withLargest)
+            step(format, size, "tree rows, its largest branch open", note = { made: Int -> "$made rows made" }) {
+                screenOfBranch(DocumentSource(root, inks, null), root, largest.key)
             }
             // A search in the tree, its matches looked for in every value, as each letter typed looks again.
             step(format, size, "tree search", note = { found: List<ValueNode> -> "${found.size} matches" }) {
-                matchesOf(root, "grace", "en")
+                matchesOf(root, "grace", PantrixLocale.English)
             }
             step(format, size, "table") { tableOf(root, null) }
             step(format, size, "summary") { summaryOf(root) }
@@ -147,9 +148,37 @@ class LargeDocumentsMeasure {
         return value
     }
 
-    private fun shownRows(rows: DocumentRows): String {
-        fun count(node: TreeNode): Int = 1 + node.children.sumOf(::count)
-        return "${rows.nodes.sumOf(::count)} rows"
+    /**
+     * Asks [source] for a screen of rows, as the tree does: the [SCREEN_ROWS] first rows of the [expanded] branches,
+     * down from the top. It gives how many rows were made.
+     */
+    private fun screenOf(source: DocumentSource, expanded: Set<String>): Int {
+        var made = 0
+
+        fun walk(row: TreeNode) {
+            made++
+            if (row.key !in expanded) return
+            val count = source.childCount(row)
+            var index = 0
+            while (index < count && made < SCREEN_ROWS) walk(source.childAt(row, index++))
+        }
+        walk(source.childAt(null, 0))
+        return made
+    }
+
+    /**
+     * Asks [source] for the rows of [branch], as the tree does where it is scrolled to it: the rows it stands in, found
+     * by their keys, and the [SCREEN_ROWS] first of its own. It gives how many rows were made.
+     */
+    private fun screenOfBranch(source: DocumentSource, root: ValueNode, branch: String): Int {
+        var row = source.childAt(null, 0)
+        var made = 1
+        trail(root, branch).drop(1).forEach { value ->
+            row = source.childAt(row, source.indexOf(row, value.key))
+            made++
+        }
+        repeat(minOf(source.childCount(row), SCREEN_ROWS)) { source.childAt(row, it).also { made++ } }
+        return made
     }
 
     private fun differences(outcome: CompareOutcome): String =
@@ -203,6 +232,9 @@ class LargeDocumentsMeasure {
 
         // A name every sample writes, and another as long.
         const val CHANGED = "Grace Hopper"
+
+        // The rows a tall window shows of a tree.
+        const val SCREEN_ROWS = 60
         const val CHANGED_TO = "Grace Murray"
     }
 }

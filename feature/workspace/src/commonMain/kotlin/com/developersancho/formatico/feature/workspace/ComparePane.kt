@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.developersancho.formatico.core.format.diff.Change
 import com.developersancho.formatico.feature.workspace.editor.ComparedText
 import com.developersancho.formatico.feature.workspace.strings.compareStrings
 import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
@@ -192,7 +193,7 @@ internal fun SideText(compared: CompareOutcome.Compared, side: Side, layout: Wor
             text = document.text,
             format = document.format,
             name = name,
-            marks = sideMarks(compared, side, current),
+            marks = sideMarks(compared, side, current, Change.entries.associateWith { changeName(it) }),
             values = sideValues(compared, side),
             shown = shownLines(compared, side, current),
             tagKey = if (side == Side.A) "text_a" else "text_b",

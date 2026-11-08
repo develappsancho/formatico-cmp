@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.unit.dp
@@ -89,10 +90,14 @@ private val PREVIEW_CASES_TIMEOUT = 3.minutes
 /** How long a finding takes to be reported at the most: a tag on two nodes, after a second and a half. */
 private const val FINDINGS_SETTLE_MILLIS = 2_000L
 
-/** Waits for each of [texts] to be shown, once or more, each whole or, where [substring] says so, within a text. */
+/**
+ * Waits for each of [texts] to be shown, once or more, each whole or, where [substring] says so, within a text; or to
+ * be said at the start of a control's name, as a phone's status is a button named by its words and what it does.
+ */
 @OptIn(ExperimentalTestApi::class)
 suspend fun ComposeUiTest.awaitTexts(vararg texts: String, substring: Boolean = false) {
     for (text in texts) {
-        awaitUntil("\"$text\" was shown") { onAllNodes(hasText(text, substring = substring)).fetchSemanticsNodes().isNotEmpty() }
+        val shown = hasText(text, substring = substring) or hasContentDescription("$text.", substring = true)
+        awaitUntil("\"$text\" was shown") { onAllNodes(shown).fetchSemanticsNodes().isNotEmpty() }
     }
 }

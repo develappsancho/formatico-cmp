@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.format.Format
 import com.developersancho.formatico.core.testing.awaitNode
+import com.developersancho.formatico.core.testing.awaitStatus
 import com.developersancho.formatico.core.testing.awaitText
 import com.developersancho.formatico.core.testing.awaitUntil
 import com.pantrixui.foundation.adaptive.PantrixWindow
@@ -205,7 +206,7 @@ class WorkspaceScreenTest {
                 )
             }
         }
-        awaitText("Valid JSON")
+        awaitStatus("Valid JSON")
 
         onPantrixNode("IconButton", "copy_path").performClick()
         onPantrixNode("MenuItem", "jsonpath", scope = "Menu_path_forms").performClick()
@@ -232,7 +233,7 @@ class WorkspaceScreenTest {
                 )
             }
         }
-        awaitText("Valid JSON")
+        awaitStatus("Valid JSON")
 
         onPantrixNode("Button", "level_1", scope = "ButtonGroup_levels").performClick()
         onPantrixNode("Button", "level_all", scope = "ButtonGroup_levels").performClick()
@@ -352,7 +353,7 @@ class WorkspaceScreenTest {
                 }
             }
         }
-        awaitText("Valid JSON")
+        awaitStatus("Valid JSON")
 
         // The phone's "more" menu opens the search on the tree.
         onPantrixNode("IconButton", "more").performClick()

@@ -23,9 +23,14 @@ import com.developersancho.formatico.core.testing.awaitText
 import com.developersancho.formatico.core.testing.awaitUntil
 import com.pantrixui.foundation.adaptive.PantrixWindow
 import com.pantrixui.foundation.files.LocalFileSaver
+import com.pantrixui.foundation.platform.LocalShareSheet
+import com.pantrixui.foundation.platform.ShareResult
+import com.pantrixui.foundation.platform.ShareSheet
 import com.pantrixui.testing.PantrixTestTheme
+import com.pantrixui.testing.SharedText
 import com.pantrixui.testing.TestClipboard
 import com.pantrixui.testing.TestFileSaver
+import com.pantrixui.testing.TestShareSheet
 import com.pantrixui.testing.hasPantrixTag
 import com.pantrixui.testing.onPantrixNode
 import kotlin.test.Test
@@ -52,19 +57,22 @@ class ShareScreenTest {
         return state.copy(share = DocumentShare(name, format, canFormat = canFormat, outcome = outcome, way = way, encrypted = encrypted))
     }
 
-    /** The share of [state] in [window], what it asks for going to [intents]; a phone sends with [sending]. */
+    /**
+     * The share of [state] in [window], what it asks for going to [intents]; a phone sends with [sheet], the test's own
+     * unless it is given, or none for a platform without one.
+     */
     private fun ComposeUiTest.share(
         state: WorkspaceState,
         intents: MutableList<WorkspaceIntent>,
         window: PantrixWindow = desktop,
         clipboard: TestClipboard? = null,
         saver: TestFileSaver = TestFileSaver(),
-        sending: ((String) -> Unit)? = null
+        sheet: ShareSheet? = null
     ) = setContent {
         PantrixTestTheme(window = window, clipboard = clipboard) {
-            CompositionLocalProvider(LocalFileSaver provides saver) {
+            CompositionLocalProvider(LocalFileSaver provides saver, LocalShareSheet provides sheet) {
                 val commands = rememberDocumentCommands(remember { Workbench() })
-                ShareDocument(state, workspaceLayout(), onIntent = { intents += it }, commands = commands, sending = sending)
+                ShareDocument(state, workspaceLayout(), onIntent = { intents += it }, commands = commands)
             }
         }
     }
@@ -222,44 +230,52 @@ class ShareScreenTest {
 
     @Test
     fun aPhoneSharesInASheetAndSendsTheLinkWithAnotherApp() = runComposeUiTest {
-        val sent = mutableListOf<String>()
+        val sheet = TestShareSheet()
         val intents = mutableListOf<WorkspaceIntent>()
-        share(sharing(), intents, window = phone, sending = { sent += it })
+        share(sharing(), intents, window = phone, sheet = sheet)
 
         awaitNode(hasPantrixTag("Sheet", "share"), "The share's sheet")
         awaitText("Share order.json")
         onPantrixNode("Button", "send").performClick()
 
-        assertEquals(listOf(link), sent)
+        // The document's name is the title, a mail's subject.
+        assertEquals(listOf(SharedText(link, title = "order.json")), sheet.shared)
         assertEquals(listOf<WorkspaceIntent>(WorkspaceIntent.Share(open = false)), intents)
     }
 
     @Test
+    fun aPlatformsSheetClosedWithoutSendingLeavesTheShareOpen() = runComposeUiTest {
+        val sheet = TestShareSheet(result = ShareResult.Cancelled)
+        val intents = mutableListOf<WorkspaceIntent>()
+        share(sharing(), intents, window = phone, sheet = sheet)
+        awaitNode(hasPantrixTag("Sheet", "share"), "The share's sheet")
+
+        onPantrixNode("Button", "send").performClick()
+
+        assertEquals(listOf(link), sheet.shared.map { it.text })
+        assertEquals(emptyList(), intents)
+    }
+
+    @Test
     fun aPhoneSendsTheEncryptedLinkMade() = runComposeUiTest {
-        val sent = mutableListOf<String>()
+        val sheet = TestShareSheet()
         share(
-            sharing(
-                way = ShareWay.Encrypted,
-                encrypted = EncryptedShare.Created(TestEncryptedLink)
-            ),
+            sharing(way = ShareWay.Encrypted, encrypted = EncryptedShare.Created(TestEncryptedLink)),
             mutableListOf(),
             window = phone,
-            sending = {
-                sent +=
-                    it
-            }
+            sheet = sheet
         )
 
         awaitNode(hasPantrixTag("Sheet", "share"), "The share's sheet")
         onPantrixNode("Button", "delete_link").assertExists()
         onPantrixNode("Button", "send").performClick()
 
-        assertEquals(listOf(TestEncryptedLink.link), sent)
+        assertEquals(listOf(TestEncryptedLink.link), sheet.shared.map { it.text })
     }
 
     @Test
     fun aPhoneWithNoShareSheetOnlyCopies() = runComposeUiTest {
-        share(sharing(), mutableListOf(), window = phone, sending = null)
+        share(sharing(), mutableListOf(), window = phone, sheet = null)
 
         awaitNode(hasPantrixTag("Sheet", "share"), "The share's sheet")
         onPantrixNode("Button", "copy_link").assertExists()

@@ -39,7 +39,7 @@ import com.pantrixui.components.container.surface.PantrixSurface
 import com.pantrixui.components.container.tab.PantrixTabs
 import com.pantrixui.components.container.tab.TabBadge
 import com.pantrixui.components.container.tab.TabItem
-import com.pantrixui.components.container.tab.TabsColors
+import com.pantrixui.components.container.tab.TabsStyle
 import com.pantrixui.components.elements.badge.BadgeTone
 import com.pantrixui.components.elements.badge.PantrixBadge
 import com.pantrixui.components.elements.button.ButtonColors
@@ -81,6 +81,8 @@ private val BarHeight = 56.dp
  * @param workbench the open documents, and the chosen tab.
  * @param settingsShown whether Settings is shown, over the chosen tab.
  * @param onSelectTab chooses the tab of a document, by its id, or a new tab for null.
+ * @param onCloseTab closes the document whose tab's cross was pressed, by its id.
+ * @param onCloseSettings leaves Settings, by its tab's cross.
  * @param darkTheme whether the dark theme is in effect.
  * @param onToggleTheme asks for the other theme.
  * @param onOpenPalette opens the command palette.
@@ -93,6 +95,8 @@ internal fun AppTopBar(
     workbench: WorkbenchState,
     settingsShown: Boolean,
     onSelectTab: (Long?) -> Unit,
+    onCloseTab: (Long) -> Unit,
+    onCloseSettings: () -> Unit,
     darkTheme: Boolean,
     onToggleTheme: () -> Unit,
     onOpenPalette: () -> Unit,
@@ -137,6 +141,8 @@ internal fun AppTopBar(
                         workbench = workbench,
                         settingsShown = settingsShown,
                         onSelectTab = onSelectTab,
+                        onCloseTab = onCloseTab,
+                        onCloseSettings = onCloseSettings,
                         size = if (wide) ButtonSize.Small else ButtonSize.Medium,
                         modifier = Modifier.weight(1f).padding(start = if (wide) spacing.lg else spacing.md)
                     )
@@ -270,55 +276,66 @@ private fun RowScope.PhoneBar(
 private fun OpenDocument.label(): String = name ?: appStrings.untitled
 
 /**
- * The open documents' tabs, and a new tab's while it is chosen, with the button that opens a new tab. A document with
- * changes not saved to its file has a dot after its name.
+ * The open documents' tabs, and a new tab's while it is chosen, with the button that opens a new tab right after the
+ * last. A document with changes not saved to its file has a dot after its name. Each tab closes by the cross at its
+ * end: a document's closes it, Settings' leaves Settings, and a new tab's goes back to the last document, where there is
+ * one to go back to.
  */
 @Composable
 private fun DocumentTabs(
     workbench: WorkbenchState,
     settingsShown: Boolean,
     onSelectTab: (Long?) -> Unit,
+    onCloseTab: (Long) -> Unit,
+    onCloseSettings: () -> Unit,
     size: ButtonSize,
     modifier: Modifier = Modifier
 ) {
     val notSaved = appStrings.changesNotSaved
     val documents = workbench.documents
-    // Settings has a tab of its own while it is shown, as a new tab has while it is chosen: neither can be closed
-    // (PANTRIX_FINDINGS, "Belge sekmeleri için kapatılabilen bir sekme yok"), and each goes once another tab is chosen.
+    // Settings has a tab of its own while it is shown, as a new tab has while it is chosen; each goes once another tab
+    // is chosen. The new tab is closed only where a document is open: there is nothing else to show.
     val own = when {
-        settingsShown -> TabItem(label = appStrings.settings, tagKey = "settings")
-        workbench.selected == null -> TabItem(label = appStrings.newTab, tagKey = "new")
+        settingsShown -> TabItem(label = appStrings.settings, onClose = onCloseSettings, tagKey = "settings")
+
+        workbench.selected == null -> TabItem(
+            label = appStrings.newTab,
+            onClose = documents.lastOrNull()?.let { last -> { onSelectTab(last.id) } },
+            tagKey = "new"
+        )
+
         else -> null
     }
     val tabs = documents.map { document ->
         TabItem(
             label = document.label(),
-            tagKey = "document_${document.id}",
-            badge = if (document.edited) TabBadge(contentDescription = notSaved, tone = BadgeTone.Neutral) else null
+            badge = if (document.edited) TabBadge(contentDescription = notSaved, tone = BadgeTone.Neutral) else null,
+            onClose = { onCloseTab(document.id) },
+            tagKey = "document_${document.id}"
         )
     } + listOfNotNull(own)
     val chosen = documents.indexOfFirst { it.id == workbench.selectedId }.takeIf { it >= 0 && !settingsShown }
-    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
-        PantrixTabs(
-            tabs = tabs,
-            selectedIndex = chosen ?: documents.size,
-            onSelect = { index -> if (index < documents.size || own?.tagKey == "new") onSelectTab(documents.getOrNull(index)?.id) },
-            modifier = Modifier.weight(1f, fill = false),
-            scrollable = true,
-            // The bar draws its own edge: the row's hairline would be a second one (PANTRIX_FINDINGS: "PantrixTabs'ın
-            // altındaki çizgi yalnızca saydam bir renkle gizleniyor").
-            colors = TabsColors(divider = Color.Transparent),
-            tagKey = "documents"
-        )
-        PantrixIconButton(
-            imageVector = PantrixIcons.Plus,
-            contentDescription = appStrings.newTab,
-            onClick = { onSelectTab(null) },
-            size = size,
-            enabled = workbench.selected != null || settingsShown,
-            tagKey = "new_tab"
-        )
-    }
+    PantrixTabs(
+        tabs = tabs,
+        selectedIndex = chosen ?: documents.size,
+        onSelect = { index -> if (index < documents.size || own?.tagKey == "new") onSelectTab(documents.getOrNull(index)?.id) },
+        modifier = modifier,
+        scrollable = true,
+        // The bar draws its own edge: the row's hairline would be a second one.
+        style = TabsStyle(dividerWidth = 0.dp),
+        trailing = {
+            PantrixIconButton(
+                imageVector = PantrixIcons.Plus,
+                contentDescription = appStrings.newTab,
+                onClick = { onSelectTab(null) },
+                modifier = Modifier.align(Alignment.CenterVertically),
+                size = size,
+                enabled = workbench.selected != null || settingsShown,
+                tagKey = "new_tab"
+            )
+        },
+        tagKey = "documents"
+    )
 }
 
 /**

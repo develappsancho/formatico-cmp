@@ -16,6 +16,7 @@ internal object WorkspaceStringsEnglish : WorkspaceStrings {
     override val saveFile = "Save as a file"
     override val moreActions = "More actions"
     override val closeDocument = "Close the document"
+    override val view = "View"
     override val viewText = "Text"
     override val viewTree = "Tree"
     override val viewTable = "Table"
@@ -23,7 +24,10 @@ internal object WorkspaceStringsEnglish : WorkspaceStrings {
     override val findInTree = "Find in the tree"
     override val findInText = "Find in the text"
     override val showSummaryItem = "Show the summary"
-    override val changeFormat = "Change the format"
+
+    override fun statusButton(first: String) = "$first. Change the format"
+
+    override fun formatButton(first: String) = "Format: $first. Change the format"
 
     override fun match(first: String) = "match $first"
 
@@ -99,6 +103,8 @@ internal object WorkspaceStringsEnglish : WorkspaceStrings {
 
     override fun copyPathAs(first: String) = "Copy the path of $first as"
 
+    override fun copyPathTitle(first: String) = "Copy the path of $first"
+
     override val pathLabel = "Path"
     override val pathCopied = "Path copied"
     override val pathCopyFailed = "The path couldn’t be copied"
@@ -134,6 +140,8 @@ internal object WorkspaceStringsEnglish : WorkspaceStrings {
     override fun momentUtc(first: String, second: String) = "$first, $second UTC"
 
     override fun momentLocal(first: String) = "$first in your time zone"
+
+    override fun dayOfTheWeek(first: String, second: String) = "A $first, $second"
 
     override val today = "today"
     override val yesterday = "yesterday"

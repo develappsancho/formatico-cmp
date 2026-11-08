@@ -232,6 +232,8 @@ internal fun TextPane(
         modifier = modifier,
         problems = state.problems,
         schemaIssues = state.schema.issues,
-        matches = state.query.matches.map { TextRange(it.range.start, it.range.end) }
+        matches = state.query.matches.map { TextRange(it.range.start, it.range.end) },
+        match = state.currentMatch,
+        onRepair = { onIntent(WorkspaceIntent.Repair(it)) }
     )
 }

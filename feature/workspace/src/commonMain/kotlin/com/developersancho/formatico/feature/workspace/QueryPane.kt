@@ -124,6 +124,7 @@ internal fun LanguageChoice(language: QueryLanguage) {
         selected = language,
         onSelect = {},
         fullWidth = false,
+        contentDescription = queryStrings.languageName,
         tagKey = "query_language"
     )
 }

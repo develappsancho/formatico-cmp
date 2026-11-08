@@ -431,9 +431,13 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
                 header" seçeneği, açık belgeye dosya bırakmak.
             *   Ölçümler yapıldı (2026-11-10, `MEASURE.md`, "Uygulamanın bütünü"): uygulamanın bütünü masaüstünün
                 1440×900'lük penceresinde, 4 GB yığınla, 50 MB'lık CSV'yi 5,9 s'de açıyor (yığın en çok 3,35 GB); JS
-                yedeği 10 MB'lık JSON'u 2,4 s'de, CSV'yi 3 s'de açıyor. 50 MB'lık JSON açılmıyor: Pantrix'in kod editörü
-                bir milyonu aşkın satırda çöküyor (bulgu, tıkıyor; kütüphane oturumunda). Düzeltme gelince o satır
-                yeniden ölçülecek.
+                yedeği 10 MB'lık JSON'u 2,4 s'de, CSV'yi 3 s'de açıyor. 50 MB'lık JSON açılmıyordu: Pantrix'in kod editörü
+                bir milyonu aşkın satırda çöküyordu. Kütüphanenin C partisiyle (2026-11-11) açılıyor: 2,0 s, yığın en
+                çok 2,77 GB.
+            *   Kütüphanenin C partisi (2026-11-11, 19 madde ve iki bulgu) alındı: kapatılabilen sekmeler, Pantrix'in
+                paylaşma sayfası, tablonun seçili hücresi, boş hâller, menünün başlığı, basılabilen durum etiketi,
+                editörün notundaki düğmeler ve şimdiki eşleşme, ağacın kaynağı (`TreeSource`); geçici çözümleri
+                söküldü. Panolarla ayrılan yerler tuval oturumuna iletildi.
             *   Kütüphanenin yerel pakete koyduğu ilk parti düzeltmeyle sökülecek geçici çözümler bitti: paletin
                 arama alanının adı, `FileDrop`'un sözcükleri, dokuz yeni simge, `PantrixToolbar` ve `PantrixStatusBar`
                 (2026-11-10). Workspace'in araç ve durum çubuğu artık Pantrix'in. Panoların bu iki bileşenle yeniden

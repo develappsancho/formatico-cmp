@@ -16,6 +16,7 @@ internal object WorkspaceStringsTurkish : WorkspaceStrings {
     override val saveFile = "Dosya olarak kaydet"
     override val moreActions = "Diğer işlemler"
     override val closeDocument = "Belgeyi kapat"
+    override val view = "Görünüm"
     override val viewText = "Metin"
     override val viewTree = "Ağaç"
     override val viewTable = "Tablo"
@@ -23,7 +24,10 @@ internal object WorkspaceStringsTurkish : WorkspaceStrings {
     override val findInTree = "Ağaçta ara"
     override val findInText = "Metinde ara"
     override val showSummaryItem = "Özeti göster"
-    override val changeFormat = "Biçimi değiştir"
+
+    override fun statusButton(first: String) = "$first. Biçimi değiştir"
+
+    override fun formatButton(first: String) = "Biçim: $first. Biçimi değiştir"
 
     override fun match(first: String) = "eşleşme $first"
 
@@ -99,6 +103,8 @@ internal object WorkspaceStringsTurkish : WorkspaceStrings {
 
     override fun copyPathAs(first: String) = "$first değerinin yolunu şöyle kopyala"
 
+    override fun copyPathTitle(first: String) = "$first değerinin yolunu kopyala"
+
     override val pathLabel = "Yol"
     override val pathCopied = "Yol kopyalandı"
     override val pathCopyFailed = "Yol kopyalanamadı"
@@ -134,6 +140,8 @@ internal object WorkspaceStringsTurkish : WorkspaceStrings {
     override fun momentUtc(first: String, second: String) = "$first, $second UTC"
 
     override fun momentLocal(first: String) = "yerel saatle $first"
+
+    override fun dayOfTheWeek(first: String, second: String) = "$first, $second"
 
     override val today = "bugün"
     override val yesterday = "dün"

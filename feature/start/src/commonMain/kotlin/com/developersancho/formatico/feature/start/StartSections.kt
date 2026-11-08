@@ -1,6 +1,7 @@
 package com.developersancho.formatico.feature.start
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -19,8 +20,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import com.developersancho.formatico.feature.start.strings.startStrings
+import com.pantrixui.components.container.emptystate.PantrixEmptyState
 import com.pantrixui.components.container.surface.PantrixSurface
 import com.pantrixui.components.data.listitem.ListItemDivider
 import com.pantrixui.components.data.listitem.PantrixListItem
@@ -192,29 +193,15 @@ private fun Section(
     }
 }
 
+/** The Recent card before anything was opened: what it will hold, in the middle of its room. */
 @Composable
 private fun EmptyRecent(modifier: Modifier = Modifier) {
-    val spacing = PantrixTheme.spacing
-    Column(
-        modifier = modifier.padding(spacing.xl),
-        verticalArrangement = Arrangement.spacedBy(spacing.sm, Alignment.CenterVertically),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        PantrixIcon(
-            imageVector = PantrixIcons.Clock,
-            contentDescription = null,
-            tint = PantrixTheme.colors.textSecondary
-        )
-        PantrixText(
-            text = startStrings.recentEmptyTitle,
-            style = PantrixTheme.typography.label.copy(fontWeight = FontWeight.SemiBold),
-            textAlign = TextAlign.Center
-        )
-        PantrixText(
-            text = startStrings.recentEmptyText,
-            style = PantrixTheme.typography.footnote,
-            color = PantrixTheme.colors.textSecondary,
-            textAlign = TextAlign.Center
+    Box(modifier = modifier.padding(PantrixTheme.spacing.xl), contentAlignment = Alignment.Center) {
+        PantrixEmptyState(
+            title = startStrings.recentEmptyTitle,
+            description = startStrings.recentEmptyText,
+            icon = PantrixIcons.Clock,
+            tagKey = "recent"
         )
     }
 }

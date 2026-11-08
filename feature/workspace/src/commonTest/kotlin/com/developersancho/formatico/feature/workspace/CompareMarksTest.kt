@@ -1,6 +1,7 @@
 package com.developersancho.formatico.feature.workspace
 
 import com.developersancho.formatico.core.format.Format
+import com.developersancho.formatico.core.format.diff.Change
 import com.pantrixui.components.data.codeblock.CodeMark
 import com.pantrixui.components.data.codeblock.CodeTone
 import com.pantrixui.components.data.codeeditor.CodeRangeStyle
@@ -37,6 +38,15 @@ class CompareMarksTest {
             ),
             sideMarks(compared, Side.B, current = 1)
         )
+    }
+
+    @Test
+    fun eachMarkedLineSaysItsChangeToAScreenReader() {
+        val names = mapOf(Change.Changed to "Changed", Change.Added to "Added", Change.Removed to "Removed")
+
+        val marks = sideMarks(compare(), Side.A, current = 0, names = names)
+
+        assertEquals(mapOf(2 to "Changed", 5 to "Removed", 8 to "Changed"), marks.mapValues { it.value.description })
     }
 
     @Test

@@ -3,6 +3,7 @@ package com.developersancho.formatico.feature.workspace.strings
 /** [QueryStrings] in Turkish. */
 internal object QueryStringsTurkish : QueryStrings {
     override val recent = "Son kullanılanlar"
+    override val languageName = "Sorgu dili"
     override val askJsonpath = "Bir JSONPath yaz, örneğin \$.items[*].name"
     override val askXpath = "Bir XPath yaz, örneğin //item/title"
     override val jsonpathElsewhere = "JSONPath, JSON belgeleri içindir."

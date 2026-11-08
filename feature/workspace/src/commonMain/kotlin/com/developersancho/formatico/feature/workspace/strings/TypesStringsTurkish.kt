@@ -46,8 +46,6 @@ internal object TypesStringsTurkish : TypesStrings {
     override val jsonSchemaLibrary = "2020-12 sürümünde bir JSON Schema: aynı biçimdeki belgeler ona göre doğrulanabilir."
     override val swiftGuess = "String?, tahmin diye işaretli"
 
-    override fun twoNames(first: String, second: String) = "$first ve $second"
-
     override fun moreNames(first: String, second: Int) = "$first ve $second tane daha"
 
     override fun onlyNullOne(first: String, second: String) = "$first her değerde null, bu yüzden tipi bilinemiyor: $second olarak yazıldı."

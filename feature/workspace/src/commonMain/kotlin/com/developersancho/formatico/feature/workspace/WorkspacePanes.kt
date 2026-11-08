@@ -1,6 +1,7 @@
 package com.developersancho.formatico.feature.workspace
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -18,50 +18,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.feature.workspace.strings.graphStrings
 import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
+import com.pantrixui.components.container.emptystate.PantrixEmptyState
 import com.pantrixui.components.data.codeeditor.CodeEditorState
 import com.pantrixui.components.elements.button.ButtonVariant
 import com.pantrixui.components.elements.divider.PantrixHorizontalDivider
-import com.pantrixui.components.elements.icon.PantrixIcon
 import com.pantrixui.components.elements.iconbutton.PantrixIconButton
 import com.pantrixui.components.elements.segmentbutton.PantrixSegmentButton
 import com.pantrixui.components.elements.segmentbutton.SegmentOption
-import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.theme.PantrixTheme
 
-/** The widest a pane's message is set. */
-private val MessageWidth = 320.dp
-
-/**
- * A pane's message where it has nothing else to show: an icon, a title and a sentence, in its middle. Pantrix has no
- * such empty state (PANTRIX_FINDINGS, "Boş bir listenin hâlini çizen bir bileşen yok").
- */
+/** A pane's message where it has nothing else to show: an icon, a title and a sentence, in its middle. */
 @Composable
 internal fun PaneMessage(icon: ImageVector, title: String, body: String, modifier: Modifier = Modifier) {
-    val spacing = PantrixTheme.spacing
-    Column(
-        modifier = modifier.padding(spacing.xl),
-        verticalArrangement = Arrangement.spacedBy(spacing.sm, Alignment.CenterVertically),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        PantrixIcon(imageVector = icon, contentDescription = null, tint = PantrixTheme.colors.textSecondary)
-        PantrixText(
-            text = title,
-            style = PantrixTheme.typography.label.copy(fontWeight = FontWeight.SemiBold),
-            textAlign = TextAlign.Center
-        )
-        PantrixText(
-            text = body,
-            modifier = Modifier.widthIn(max = MessageWidth),
-            style = PantrixTheme.typography.footnote,
-            color = PantrixTheme.colors.textSecondary,
-            textAlign = TextAlign.Center
-        )
+    Box(modifier = modifier.padding(PantrixTheme.spacing.xl), contentAlignment = Alignment.Center) {
+        PantrixEmptyState(title = title, description = body, icon = icon, tagKey = "pane")
     }
 }
 
@@ -285,6 +259,7 @@ internal fun ViewChoice(
         onSelect = { pane -> pane?.let(onSelect) },
         modifier = modifier,
         fullWidth = fullWidth,
+        contentDescription = workspaceStrings.view,
         tagKey = "view"
     )
 }
