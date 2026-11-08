@@ -713,6 +713,11 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
                 da) ve `macos-launch-check.sh` (DMG'deki uygulama açılıyor mu: ana penceresi, istisnasız günlük). İkisi
                 de bozuk 1.0.0'ı yakalıyor, düzeltilmişi geçiriyor; DMG'nin imzalı ve sıkılaştırılmış hâli de açıldı.
             *   Arkadaşın MSI'ı bu düzeltmeyi beklemeli: 1.0.0'ın commit'inden yapılan MSI aynı hatayla açılmaz.
+        *   **Formatico 1.0.1 yayımlandı** (2026-11-12, sahibinin onayıyla): etiketi `v1.0.1` (`47c3aa5`), GitHub'ın son
+            sürümü. DMG 97,2 MB (iki denetimden geçti, Apple onaylı), APK 1.0.1 (`versionCode` 10001); GitHub'ın verdiği
+            SHA-256'lar yerel dosyalarınkiyle aynı. Notlarının başında neyi düzelttiği yazıyor. 1.0.0'ın bozuk DMG'si
+            o sürümden silindi (sahibinin onayı), notları macOS için 1.0.1'i gösteriyor. Kalan: web'in 1.0.1'e
+            geçmesi (`deploy.sh web`) ve arkadaşın MSI'ı `47c3aa5`'ten.
 
 ## Sahibinin kararını bekleyenler
 
