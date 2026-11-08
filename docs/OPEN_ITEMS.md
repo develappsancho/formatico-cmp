@@ -224,10 +224,10 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
 *   [x] **Workspace panolarının durum çubuğu belgenin boyunu yanlış yazıyordu (2026-11-03).**
     *   Ne: Workspace panolarının (1440, 834, 390) editör hâli "30 lines · 742 B" diyordu; çizilen order.json 665 bayt, kodun durum çubuğu da 665 B diyor.
     *   Durum: kapandı (2026-11-03). Panolarda 665 B'ye düzeltildi (tuval sürüm 59).
-*   [ ] **Web'de gezinti ile paylaşım bağlantısı aynı fragment'ı istiyor (2026-11-04).**
+*   [x] **Web'de gezinti ile paylaşım bağlantısı aynı fragment'ı istiyor (2026-11-04).**
     *   Ne: `core:navigation` ekranı adresin `#` kısmına yazıyor (`#start`, `#document?id=3`). v1'in paylaşımı (Faz 13) da belgeyi bağlantının fragment'ında taşıyacak. Bir paylaşım bağlantısıyla açılan sayfa ilk ekranı yazınca bağlantının fragment'ı siliniyor; bugün tanımadığı bir `#` kısmını uygulama yok sayıyor, ama adresi yine kendi girdisiyle değiştiriyor.
     *   Öneri: Faz 13'te paylaşılan belgeyi fragment'tan okuyup açtıktan sonra adresi gezintiye bırakmak (`#share=…` okunur, sonra `#document?id=N` olur); ya da navigation3-browser'ın birleşmemiş PR #9'u gibi gezintiyi yola (`/document/3`) taşımak, bu da sunucunun her yolu `index.html`'e yönlendirmesini ister.
-    *   Durum: açık, Faz 13'le.
+    *   Durum: kapandı (2026-11-06). İlk öneriyle: bağlantı `#d=…&n=…` (sahibinin seçtiği ad, `&n=`). Sayfa onunla açılınca `FollowBrowserHistory` fragment'ı belgeyi açana (`DocumentOpening.openLink`) veriyor, sonra adres gezintiye kalıyor: `#start`, belge açılınca `#document?id=N`. Paylaşılan belge tarayıcının geçmişinde kalmıyor; tarayıcı fragment'ı sunucuya hiç göndermiyor.
 *   [ ] **Uygulama aldığı kodun lisanslarını göstermiyor (2026-11-04).**
     *   Ne: navigation3-browser'dan alınan kodun MIT lisansı web dağıtımında bir dosya olarak gidiyor (`licenses/navigation3-browser.txt`); uygulamanın içinde, öteki platformlarda ve öteki bağımlılıklar (Geist, KSafe, snakeyaml-engine-kmp, Koin, Compose) için bir lisans sayfası yok. Geist'in OFL'si de yazı tipiyle birlikte lisansının verilmesini istiyor.
     *   Öneri: Settings'e (Faz 12) bir "Licenses" satırı; önce tuvalde Settings panosuna çizilir.
@@ -444,6 +444,20 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
 *   [ ] **Sekmeler sığmayınca ilki logonun yanında yarım kesiliyor (2026-11-06).**
     *   Ne: Belge sekmeleri `PantrixTabs(scrollable = true)`; şerit, seçili sekmeyi ortasında tutuyor. Şeridin genişliği logo ile arama alanı arasında kalanla sınırlı: Android'in geniş penceresinde iki sekme ("order.json", "New tab") bile sığmıyor ve ilki "ler.json" diye logonun yanında kesiliyor; web'de altı sekmede ilki "ız" kalıyor. Kenarda bir solma ya da devamının olduğunu gösteren bir işaret yok.
     *   Öneri: şeridin başında ve sonunda bir solma (Pantrix'te `PantrixTabs`'ın kaydırılan kenarı için bir seçenek yoksa bulgu); ya da seçili sekme ortada değil görünür olduğu kadar kaydırılsın, ilk sekmeler sığdığı sürece başta kalsın.
+    *   Durum: açık.
+
+## Paylaşım
+
+*   [ ] **Paylaşımın panolardan ayrıldığı yerler (2026-11-06).**
+    *   Ne:
+        *   Share, belgenin "More actions" menüsünde (geniş, tablet, telefon), Close'un üstünde; menü panolarda çizili değil. Satırın simgesi yok: `PantrixIcons`'ta paylaşma simgesi yok. Komut paletinde Share yok: Palette panolarının listesinde yok.
+        *   Telefonda çok büyük bir belge, Share-834'ün penceresinin sözcükleriyle bir sayfada (alt sayfa): Share-390 yalnızca bağlantıyı çiziyor.
+        *   "Send with another app" platformun kendi paylaşma sayfası: Android'in seçicisi, iOS'un UIActivityViewController'ı, tarayıcıda `navigator.share` (telefonların tarayıcıları); masaüstünde ve onu olmayan bir tarayıcıda düğme yok.
+        *   Bağlantı hazırlanırken alan boş, Copy the link kapalı; anahtar değişince önceki bağlantı yenisi gelene kadar kalıyor.
+        *   Biçimlendirme anahtarı düz metinde ve hatalı bir belgede kapalı (Format onları yazamıyor); belgenin kendisi değişmiyor, yalnızca bağlantıdaki metin biçimlendiriliyor. Anahtar her açılışta kapalı başlıyor.
+        *   Bağlantının sıkıştırması Formatico'nun kendi saf Kotlin deflate'i (`core:share`), zlib biçiminde: her platformda aynı bağlantı. 2 MB'tan büyük bir metin sıkıştırılmadan "çok büyük" sayılıyor.
+        *   Bağlantı Android ve iOS uygulamasını açmıyor (sahibinin kararı): web açıyor, uygulamada herhangi bir yere yapıştırılınca da açılıyor. App Links ve Universal Links site yayına girince (Faz 22).
+    *   Öneri: sahibinin onayı.
     *   Durum: açık.
 
 ## Komut paleti

@@ -35,6 +35,8 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(projects.core.testing)
+            // The links a test pastes are made as Formatico makes them.
+            implementation(projects.core.share)
         }
     }
 }

@@ -42,6 +42,8 @@ data class OpenDocument(
  * @property hiddenColumns the names of the table's columns that are not shown.
  * @property tableFilter what the table's rows are filtered by, kept when the table is left for the tree.
  * @property searching whether the tree's search bar is open: a phone's "more" menu opens it from the top bar.
+ * @property sharing whether the document is being shared: its link shown, to copy or send. Like [searching], it is not
+ *   kept when the app closes.
  * @property query what the document is queried with, in its language: JSONPath, or XPath for XML; kept when the query
  *   is left for another view.
  * @property convert how the document is converted, kept when Convert is left for another view.
@@ -55,6 +57,7 @@ data class DocumentView(
     val hiddenColumns: Set<String> = emptySet(),
     val tableFilter: String = "",
     val searching: Boolean = false,
+    val sharing: Boolean = false,
     val query: String = "",
     val convert: ConvertChoice = ConvertChoice(),
     val compare: CompareChoice = CompareChoice()
@@ -222,6 +225,9 @@ class Workbench(
             Edited.AliasBeforeAnchor -> EditResult.AliasBeforeAnchor
         }
     }
+
+    /** How Format writes a document now, as Settings has it. */
+    internal val formatOptions: FormatOptions get() = formatting()
 
     /** Gives [document] the [text] an edit made of it, where it is another. */
     private fun keep(document: OpenDocument, text: String, commentsRemoved: Int): EditResult {

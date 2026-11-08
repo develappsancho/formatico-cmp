@@ -12,6 +12,8 @@ kotlin {
             implementation(projects.core.storage)
             // Whether a history is kept, and what a text of no format told becomes, are Settings'.
             implementation(projects.core.settings)
+            // A link of Formatico's, pasted or opened, carries a document of its own.
+            implementation(projects.core.share)
         }
     }
 }

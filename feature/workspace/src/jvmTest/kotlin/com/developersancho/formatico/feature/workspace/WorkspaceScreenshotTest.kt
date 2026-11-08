@@ -2,6 +2,7 @@ package com.developersancho.formatico.feature.workspace
 
 import com.developersancho.formatico.core.designsystem.Board
 import com.developersancho.formatico.core.testing.captureOpenMenu
+import com.developersancho.formatico.core.testing.captureOverlay
 import com.developersancho.formatico.core.testing.capturePreview
 import kotlin.test.Test
 
@@ -11,6 +12,11 @@ import kotlin.test.Test
  * (`StatusBar/invalid-dark-1440.png`), and `verifyRoborazziJvm` compares against them.
  */
 class WorkspaceScreenshotTest {
+    @Test
+    fun share() = ShareCases().values.forEach { case ->
+        Board.entries.forEach { board -> captureOverlay("Share", case, board) { SharePreview(case) } }
+    }
+
     @Test
     fun workspaceScreen() = WorkspaceScreenCases().values.forEach { case ->
         Board.entries.forEach { board -> capturePreview("WorkspaceScreen", case, board) { WorkspaceScreenPreview(case) } }

@@ -168,6 +168,18 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
 
 ## 6. Bileşenler
 
+*   [ ] **Metni başka bir uygulamaya göndermenin bir hizmeti yok (2026-11-06).**
+    *   Ne: Share-390 bağlantıyı "Send with another app" ile platformun paylaşma sayfasına veriyor. Pantrix panoyu (`PantrixClipboard`), dosya seçmeyi ve kaydetmeyi veriyor, paylaşma sayfasını vermiyor; grafik dışa aktarma rehberi bunun uygulamaya kaldığını söylüyor ve Android'le iOS için parçalar veriyor. Formatico kendi `expect`/`actual`'ını yazdı: Android'de `Intent.ACTION_SEND` seçicisi, iOS'ta `UIActivityViewController` (iPad'de bir popover), web'de `navigator.share`, masaüstünde yok.
+    *   Nerede: [Chart export](https://pantrixui.com/docs/guides/chart-export), bölüm 3 ("the share sheet is the app's"); MCP `search_api "share sheet"`.
+    *   Öneri: platform hizmetlerine `rememberShareSheet()` (bir metin ya da bağlantı için; olmayan yerde null), `TestShareSheet` ile birlikte; dosya için `FileProvider` gerektiren kısım ayrı kalabilir.
+    *   Durum: açık. Formatico'yu tıkamıyor.
+
+*   [ ] **Pencere verilen test temasında boş bir içeriğin üstündeki dialog 0×0 ölçülüyor (2026-11-06).**
+    *   Ne: `PantrixTestTheme(window = …)` içinde yalnızca bir `PantrixDialog` (ya da `PantrixSheet`) çizilince, altındaki içerik boyutsuzken, dialog'un içi 0×0 ölçülüyor: metinleri bulunuyor ama düğmelerinin yeri (0, 0), `performClick` arka plana düşüyor ve dialog kapatılmak isteniyor. Pencere verilmeyince ya da içerik pencereyi doldurunca doğru ölçülüyor. Uygulamada dialog hep bir ekranın üstünde, etkisi testte.
+    *   Nerede: `PantrixTestTheme`'in `window`'u ve `PantrixDialog`; `guide/testing`'de bu yok.
+    *   Öneri: dialog'un katmanı, verilen pencerenin boyutunu (ya da kökün boyutunu) alsın; olmuyorsa rehberde "bir overlay'i içeriği olan bir ekranın üstünde sınayın" notu.
+    *   Durum: açık. Formatico'nun paylaşım testi dialog'u ekranı dolduran bir kutunun içinde çiziyor; yorumda bu bulgu anılıyor.
+
 *   [ ] **Belge sekmeleri için kapatılabilen bir sekme yok (2026-11-02).**
     *   Ne: Workspace açık belgeleri sekmelerde tutuyor: her sekmenin bir kapatma düğmesi ve kaydedilmemiş değişiklik işareti var. `PantrixTabs`'ın `TabItem`'ı etiket, simge, rozet, `enabled` ve `tagKey` alıyor; kapatma ya da sekmenin sonuna bir düğme koyma yolu yok. Panolarda belge sekmeleri işaretleme.
     *   Nerede: [Tabs](https://pantrixui.com/components/tabs); MCP `get_api TabItem`.

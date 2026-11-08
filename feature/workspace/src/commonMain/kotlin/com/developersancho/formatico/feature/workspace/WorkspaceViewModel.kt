@@ -6,13 +6,17 @@ import com.developersancho.formatico.core.format.Format
 import com.developersancho.formatico.core.format.Repairs
 import com.developersancho.formatico.core.format.convert.ConvertOptions
 import com.developersancho.formatico.core.format.xml.XmlDocument
+import com.developersancho.formatico.core.share.ShareLinks
+import com.developersancho.formatico.core.share.SharedDocument
 import com.developersancho.formatico.core.storage.MemorySmallStore
 import formatico.feature.workspace.generated.resources.Res
 import formatico.feature.workspace.generated.resources.convert_null_comment
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -55,6 +59,35 @@ internal class WorkspaceViewModel(
                     val allows = if (invalid) withContext(reader) { json5Allows(text, format, reading) } else 0
                     setState { copy(reading = reading, stats = stats, json5Allows = allows).arranged() }
                 }
+        }
+    }
+
+    /** Whether the link is to carry the document formatted: off each time the share opens, as its boards draw it. */
+    private val shareFormatted = MutableStateFlow(false)
+
+    init {
+        // The link is made while the share is shown, off the main thread, again as the text or the choice changes; the
+        // link made before stays until the next is made.
+        viewModelScope.launch {
+            val shared = workbench.state
+                .map { state -> state.documents.firstOrNull { it.id == documentId }?.takeIf { it.view.sharing } }
+                .map { shown -> shown?.let { Triple(it.name, it.text, it.format) } }
+                .distinctUntilChanged()
+            combine(shared, shareFormatted, ::Pair).collectLatest { (shown, formatted) ->
+                val (name, text, format) = shown ?: return@collectLatest setState { copy(share = null) }
+                // What Format makes of it, without keeping it: none of plain text, nor of a document with errors.
+                val options = workbench.formatOptions
+                val formattedText = withContext(reader) {
+                    val document = OpenDocument(id = documentId, name = name, text = text, format = format)
+                    (edited(document, DocumentEdit.Format, options) as? Edited.Text)?.text
+                }
+                val sent = if (formatted && formattedText != null) formattedText else text
+                setState {
+                    copy(share = DocumentShare(name, format, formatted, canFormat = formattedText != null, outcome = share?.outcome))
+                }
+                val outcome = withContext(reader) { ShareLinks.share(SharedDocument(sent, name)) }
+                setState { copy(share = share?.copy(outcome = outcome)) }
+            }
         }
     }
 
@@ -216,6 +249,13 @@ internal class WorkspaceViewModel(
             WorkspaceIntent.RepairAll -> repairAll()
 
             WorkspaceIntent.Close -> workbench.close(documentId)
+
+            is WorkspaceIntent.Share -> {
+                if (intent.open) shareFormatted.value = false
+                workbench.changeView(documentId) { it.copy(sharing = intent.open) }
+            }
+
+            is WorkspaceIntent.ShareFormatted -> shareFormatted.value = intent.formatted
         }
     }
 

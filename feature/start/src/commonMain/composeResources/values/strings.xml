@@ -9,6 +9,7 @@
     <string name="start_new_document">New document</string>
     <string name="start_open_file">Open a file</string>
     <string name="start_clipboard_empty">No text was read from the clipboard</string>
+    <string name="start_link_broken">This link holds no document Formatico can read. It may have been cut short.</string>
     <string name="start_clipboard_unreadable">This browser does not let Formatico read the clipboard. Paste with the keyboard, or open a file.</string>
 
     <string name="start_file_drop_supporting">JSON, JSONC, JSON5, NDJSON, XML, YAML, TOML, CSV, TSV, properties and INI, up to %1$s</string>

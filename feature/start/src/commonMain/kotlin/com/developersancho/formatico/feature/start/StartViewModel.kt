@@ -73,7 +73,10 @@ class StartViewModel(
     /** Hands [document] on: one that holds text goes to the top of the history first, and on with its place there. */
     private suspend fun open(document: OpenedDocument) = show(Opening.Opened(opener.record(document)))
 
-    /** Shows what came of an [opening]: the document handed on, nothing to paste, or why a file was refused. */
+    /**
+     * Shows what came of an [opening]: the document handed on, nothing to paste, a broken link, or why a file was
+     * refused.
+     */
     private fun show(opening: Opening) {
         when (opening) {
             is Opening.Opened -> {
@@ -82,6 +85,8 @@ class StartViewModel(
             }
 
             Opening.NothingToPaste -> sendEffect(StartEffect.NothingToPaste)
+
+            Opening.BrokenLink -> sendEffect(StartEffect.BrokenLink)
 
             is Opening.Refused -> setState { copy(refusal = opening.refusal) }
         }

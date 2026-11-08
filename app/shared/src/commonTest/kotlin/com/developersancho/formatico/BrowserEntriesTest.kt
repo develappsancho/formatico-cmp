@@ -64,4 +64,12 @@ class BrowserEntriesTest {
         workbench.showBrowserEntries(listOf("#elsewhere")) { settings = it }
         assertNull(settings)
     }
+
+    @Test
+    fun anAddressThatCarriesADocumentIsTheLinksAlone() {
+        assertEquals("#d=eJxLAQ&n=a.json", sharedEntryOf(listOf("#d=eJxLAQ&n=a.json")))
+        assertNull(sharedEntryOf(listOf("#start")))
+        assertNull(sharedEntryOf(listOf("#start", "#d=eJxLAQ")))
+        assertNull(sharedEntryOf(emptyList()))
+    }
 }

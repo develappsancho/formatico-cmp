@@ -18,17 +18,27 @@ internal const val SETTINGS_ENTRY = "#settings"
 
 /**
  * Keeps the browser's history and address with the screen the app shows, where the app runs in a browser: going back
- * or forward in the browser goes from tab to tab, and an address written by hand opens its document. Elsewhere it
- * does nothing.
+ * or forward in the browser goes from tab to tab, and an address written by hand opens its document. An address that
+ * carries a document, a link of Formatico's, goes to [onLink] with its `#` part, and the address then follows what is
+ * opened. Elsewhere it does nothing.
  */
 @Composable
-internal fun FollowBrowserHistory(workbench: Workbench, settings: MutableState<Boolean>) {
+internal fun FollowBrowserHistory(workbench: Workbench, settings: MutableState<Boolean>, onLink: (String) -> Unit) {
     val state by workbench.state.collectAsState()
     BrowserHistory(
         entries = browserEntries(state.selectedId, settings.value),
-        onRestore = { entries -> workbench.showBrowserEntries(entries) { settings.value = it } }
+        onRestore = { entries ->
+            val link = sharedEntryOf(entries)
+            if (link != null) onLink(link) else workbench.showBrowserEntries(entries) { settings.value = it }
+        }
     )
 }
+
+/** The `#` part of an address that carries a document, where the browser's [entries] are that alone. */
+internal fun sharedEntryOf(entries: List<String>): String? = entries.singleOrNull()?.takeIf { it.startsWith(SHARED_ENTRY) }
+
+/** A document a link carries, as its address writes it after its `#`: `#d=…`, compressed, and `&n=` and its name. */
+internal const val SHARED_ENTRY = "#d="
 
 /**
  * The app's screens, as a browser's addresses write them after their `#`: Start, the document shown over it, and

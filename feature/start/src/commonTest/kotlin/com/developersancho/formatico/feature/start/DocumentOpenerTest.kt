@@ -1,6 +1,9 @@
 package com.developersancho.formatico.feature.start
 
 import com.developersancho.formatico.core.format.Format
+import com.developersancho.formatico.core.share.ShareLinks
+import com.developersancho.formatico.core.share.ShareOutcome
+import com.developersancho.formatico.core.share.SharedDocument
 import com.developersancho.formatico.core.storage.MemorySmallStore
 import com.developersancho.formatico.core.storage.MemoryTextStore
 import com.pantrixui.foundation.files.PantrixFile
@@ -35,6 +38,34 @@ class DocumentOpenerTest {
 
         assertEquals(Opening.Opened(OpenedDocument(name = null, text = "a: 1\n", format = Format.Yaml, historyId = 1)), opening)
         assertEquals(moment, history.documents.value.single().at)
+    }
+
+    @Test
+    fun aLinkOfFormaticosOpensTheDocumentItCarriesUnderItsName() = runTest(dispatcher) {
+        val (opener, history) = opener()
+        val link = (ShareLinks.share(SharedDocument("""{"a": 1}""", "order.json")) as ShareOutcome.Link).link
+
+        val pasted = opener.paste(link)
+        val opened = opener.link(link.substringAfter(ShareLinks.SITE))
+
+        assertEquals(
+            Opening.Opened(OpenedDocument(name = "order.json", text = """{"a": 1}""", format = Format.Json, historyId = 1)),
+            pasted
+        )
+        // The same document again is the one the history holds.
+        assertEquals(pasted, opened)
+        assertEquals(1, history.documents.value.size)
+    }
+
+    @Test
+    fun aBrokenLinkOpensNothingAndAnAddressOfNoneIsNoLink() = runTest(dispatcher) {
+        val (opener, history) = opener()
+
+        assertEquals(Opening.BrokenLink, opener.paste("https://formatico.pantrixui.com/#d=eJyrVspMUbJSUEpKzSmyUiopTUoqUqoFAGG1CBs"))
+        assertEquals(Opening.BrokenLink, opener.link("#d=eJ"))
+        assertNull(opener.link("#start"))
+        assertNull(opener.link("#document?id=3"))
+        assertEquals(emptyList(), history.documents.value)
     }
 
     @Test

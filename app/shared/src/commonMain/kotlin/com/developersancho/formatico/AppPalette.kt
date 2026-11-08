@@ -7,8 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
-import com.developersancho.formatico.feature.start.OpenedDocument
-import com.developersancho.formatico.feature.start.rememberDocumentOpening
+import com.developersancho.formatico.feature.start.DocumentOpening
 import com.developersancho.formatico.feature.workspace.DocumentPalette
 import com.developersancho.formatico.feature.workspace.Workbench
 import com.developersancho.formatico.feature.workspace.WorkbenchState
@@ -173,7 +172,7 @@ internal class AppPlace(val settingsShown: Boolean, val onShowSettings: (Boolean
 /**
  * The app's palette over [workbench], whose state is [open], at [place]: its commands for the document shown, none
  * over Settings, and the app's own, and what they do. [onToggleTheme] chooses the other theme than [darkTheme]; what is
- * pasted or opened goes to [onOpen], over whatever is shown.
+ * pasted or opened goes through [opening], over whatever is shown.
  */
 @Composable
 internal fun rememberAppPalette(
@@ -182,16 +181,10 @@ internal fun rememberAppPalette(
     place: AppPlace,
     darkTheme: Boolean,
     onToggleTheme: () -> Unit,
-    onOpen: (OpenedDocument) -> Unit
+    opening: DocumentOpening
 ): AppPaletteState {
     val shown = rememberSaveable { mutableStateOf(false) }
     val documents = rememberDocumentPalette(workbench)
-    val opening = rememberDocumentOpening(
-        onOpen = { document ->
-            place.onShowSettings(false)
-            onOpen(document)
-        }
-    )
     val document = open.selected.takeUnless { place.settingsShown }
     val commands = document?.let { documentPaletteCommands(it) }.orEmpty() + appPaletteCommands(open, darkTheme, place.settingsShown)
     val phone = PantrixTheme.window.isNarrow

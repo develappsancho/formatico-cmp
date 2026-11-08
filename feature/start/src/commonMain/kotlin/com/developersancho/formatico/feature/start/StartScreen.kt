@@ -48,6 +48,7 @@ import formatico.feature.start.generated.resources.start_file_unreadable
 import formatico.feature.start.generated.resources.start_file_wrong_type
 import formatico.feature.start.generated.resources.start_lead
 import formatico.feature.start.generated.resources.start_lead_short
+import formatico.feature.start.generated.resources.start_link_broken
 import formatico.feature.start.generated.resources.start_new_document
 import formatico.feature.start.generated.resources.start_new_empty_document
 import formatico.feature.start.generated.resources.start_open_file
@@ -74,6 +75,7 @@ fun StartRoute(onOpenDocument: (OpenedDocument) -> Unit, modifier: Modifier = Mo
     val snackbars = LocalPantrixSnackbars.current
     val scope = rememberCoroutineScope()
     val nothingToPaste = stringResource(Res.string.start_clipboard_empty)
+    val brokenLink = stringResource(Res.string.start_link_broken)
     MviScreen(
         viewModel = viewModel,
         onEffect = { effect ->
@@ -83,6 +85,8 @@ fun StartRoute(onOpenDocument: (OpenedDocument) -> Unit, modifier: Modifier = Mo
                 StartEffect.NothingToPaste -> scope.launch {
                     snackbars?.show(message = nothingToPaste, tagKey = "nothing_to_paste")
                 }
+
+                StartEffect.BrokenLink -> scope.launch { snackbars?.showBrokenLink(brokenLink) }
             }
         }
     ) { state, dispatch ->

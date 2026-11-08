@@ -1,6 +1,10 @@
 package com.developersancho.formatico.feature.workspace
 
 import com.developersancho.formatico.core.format.Format
+import com.developersancho.formatico.core.share.LinkReading
+import com.developersancho.formatico.core.share.ShareLinks
+import com.developersancho.formatico.core.share.ShareOutcome
+import com.developersancho.formatico.core.share.SharedDocument
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -15,7 +19,9 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -38,6 +44,46 @@ class WorkspaceViewModelTest {
 
     private fun viewModel(id: Long, reader: CoroutineDispatcher = dispatcher) =
         WorkspaceViewModel(documentId = id, workbench = workbench, readings = readings, reader = reader)
+
+    @Test
+    fun theShareMakesALinkThatCarriesTheDocumentAndFormatsItWhereAsked() {
+        val id = workbench.open("order.json", """{"a":1}""", Format.Json)
+        val viewModel = viewModel(id)
+
+        viewModel.dispatch(WorkspaceIntent.Share(open = true))
+        val share = assertNotNull(viewModel.state.value.share)
+        val link = assertIs<ShareOutcome.Link>(share.outcome)
+        assertEquals(LinkReading.Read(SharedDocument("""{"a":1}""", "order.json")), ShareLinks.read(link.link))
+        assertTrue(share.canFormat)
+        assertFalse(share.formatted)
+        assertTrue(workbench.state.value.documents.single().view.sharing)
+
+        viewModel.dispatch(WorkspaceIntent.ShareFormatted(formatted = true))
+        val formatted = assertIs<ShareOutcome.Link>(viewModel.state.value.share?.outcome)
+        assertEquals(LinkReading.Read(SharedDocument("{\n  \"a\": 1\n}", "order.json")), ShareLinks.read(formatted.link))
+        // The document itself is left as it is.
+        assertEquals("""{"a":1}""", workbench.state.value.documents.single().text)
+
+        viewModel.dispatch(WorkspaceIntent.Share(open = false))
+        assertNull(viewModel.state.value.share)
+        // Opened again, the link carries the document as it is.
+        viewModel.dispatch(WorkspaceIntent.Share(open = true))
+        assertEquals(false, viewModel.state.value.share?.formatted)
+    }
+
+    @Test
+    fun plainTextAndADocumentWithErrorsAreSharedAsTheyAre() {
+        val text = viewModel(workbench.open("notes.txt", "a note\n", null))
+        text.dispatch(WorkspaceIntent.Share(open = true))
+        assertEquals(false, text.state.value.share?.canFormat)
+
+        val invalid = viewModel(workbench.open("broken.json", """{"a": }""", Format.Json))
+        invalid.dispatch(WorkspaceIntent.Share(open = true))
+        invalid.dispatch(WorkspaceIntent.ShareFormatted(formatted = true))
+        val link = assertIs<ShareOutcome.Link>(invalid.state.value.share?.outcome)
+        assertEquals(false, invalid.state.value.share?.canFormat)
+        assertEquals(LinkReading.Read(SharedDocument("""{"a": }""", "broken.json")), ShareLinks.read(link.link))
+    }
 
     @Test
     fun theDocumentIsReadAndOpensWithItsObjects() {

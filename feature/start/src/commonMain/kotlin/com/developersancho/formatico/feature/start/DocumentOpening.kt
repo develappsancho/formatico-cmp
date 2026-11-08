@@ -10,6 +10,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import com.pantrixui.components.overlay.snackbar.LocalPantrixSnackbars
+import com.pantrixui.components.overlay.snackbar.PantrixSnackbarState
+import com.pantrixui.components.overlay.snackbar.SnackbarDuration
+import com.pantrixui.components.overlay.snackbar.SnackbarTone
 import com.pantrixui.foundation.files.FilePickRequest
 import com.pantrixui.foundation.files.FilePicker
 import com.pantrixui.foundation.files.rememberFilePicker
@@ -18,6 +21,7 @@ import com.pantrixui.foundation.platform.rememberPantrixClipboard
 import formatico.feature.start.generated.resources.Res
 import formatico.feature.start.generated.resources.start_clipboard_empty
 import formatico.feature.start.generated.resources.start_clipboard_unreadable
+import formatico.feature.start.generated.resources.start_link_broken
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
@@ -47,6 +51,14 @@ class DocumentOpening internal constructor(
         }
     }
 
+    /**
+     * Opens the document a link of Formatico's carries: [address] is the part of a browser's address from its `#`.
+     * One that is no link of Formatico's opens nothing; a broken one is said so.
+     */
+    fun openLink(address: String) {
+        scope.launch { opener.link(address)?.let(::show) }
+    }
+
     /** Opens the platform's picker, and the file chosen in it. */
     fun pickFile() {
         picker.pick(FilePickRequest(accept = DocumentFileTypes)) { files ->
@@ -60,6 +72,7 @@ class DocumentOpening internal constructor(
             is Opening.Opened -> onOpen.value(opening.document)
             Opening.NothingToPaste -> said.value = OpeningMessage.NothingToPaste
             is Opening.Refused -> said.value = OpeningMessage.Refused(opening.refusal)
+            Opening.BrokenLink -> said.value = OpeningMessage.BrokenLink
         }
     }
 }
@@ -71,6 +84,8 @@ internal sealed interface OpeningMessage {
     data object ClipboardUnreadable : OpeningMessage
 
     data class Refused(val refusal: FileRefusal) : OpeningMessage
+
+    data object BrokenLink : OpeningMessage
 }
 
 /** A way to paste and open a file from anywhere in the app; what is opened is handed to [onOpen]. */
@@ -93,15 +108,27 @@ fun rememberDocumentOpening(onOpen: (OpenedDocument) -> Unit): DocumentOpening {
 @Composable
 private fun OpeningMessages(said: MutableState<OpeningMessage?>, scope: CoroutineScope) {
     val snackbars = LocalPantrixSnackbars.current
-    val message = when (val shown = said.value) {
+    val shown = said.value
+    val message = when (shown) {
         OpeningMessage.NothingToPaste -> stringResource(Res.string.start_clipboard_empty) to "nothing_to_paste"
         OpeningMessage.ClipboardUnreadable -> stringResource(Res.string.start_clipboard_unreadable) to "clipboard_unreadable"
         is OpeningMessage.Refused -> refusalText(shown.refusal) to "file_refused"
+        OpeningMessage.BrokenLink -> stringResource(Res.string.start_link_broken) to "link_broken"
         null -> null
     }
     LaunchedEffect(message) {
         val (text, tag) = message ?: return@LaunchedEffect
         said.value = null
-        scope.launch { snackbars?.show(message = text, tagKey = tag) }
+        scope.launch {
+            if (shown == OpeningMessage.BrokenLink) snackbars?.showBrokenLink(text) else snackbars?.show(message = text, tagKey = tag)
+        }
     }
+}
+
+/**
+ * Says a link of Formatico's holds no document it can read, as the Start board does: in the danger's tone, for longer
+ * than a word, until it is closed or its time is up.
+ */
+internal suspend fun PantrixSnackbarState.showBrokenLink(message: String) {
+    show(message = message, duration = SnackbarDuration.Long, closeButton = true, tone = SnackbarTone.Danger, tagKey = "link_broken")
 }

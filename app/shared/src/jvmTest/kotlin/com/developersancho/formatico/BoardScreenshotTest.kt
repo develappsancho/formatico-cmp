@@ -63,8 +63,14 @@ class BoardScreenshotTest {
     @Test
     fun unknownFormat() = boards { board, dark -> capture("Ask", board, dark, then = Then.Ask) }
 
+    @Test
+    fun share() = boards { board, dark -> capture("Share", board, dark, sample = "order", shows = "customer", then = Then.Share) }
+
+    @Test
+    fun brokenLink() = boards { board, dark -> capture("BrokenLink", board, dark, then = Then.BrokenLink) }
+
     /** What a board shows once its sample is open: nothing more, or what is opened over it. */
-    private enum class Then { Nothing, Convert, Palette, Settings, Ask }
+    private enum class Then { Nothing, Convert, Palette, Settings, Ask, Share, BrokenLink }
 
     /** Every board, in the light theme and the dark. */
     private fun boards(capture: (Board, Boolean) -> Unit) = Board.entries.forEach { board ->
@@ -91,8 +97,8 @@ class BoardScreenshotTest {
     @Suppress("LongParameterList") // What a board shows, as capture is given it.
     private fun draw(file: String, board: Board, dark: Boolean, sample: String?, shows: String?, then: Then) =
         runDesktopComposeUiTest(width = board.width, height = board.height) {
-            // The board's text of no format told is what the clipboard holds.
-            val clipboard = TestClipboard().apply { putText(UNTOLD) }
+            // The board's text of no format told is what the clipboard holds, or a link cut short.
+            val clipboard = TestClipboard().apply { putText(if (then == Then.BrokenLink) BROKEN_LINK else UNTOLD) }
             setContent {
                 PantrixTestTheme(platform = board.platform, dark = dark, window = board.window, clipboard = clipboard) {
                     App(systemDark = dark, storage = memoryStorageModule)
@@ -151,10 +157,28 @@ class BoardScreenshotTest {
                     waitUntilAtLeastOneExists(hasText("What format is this?"), timeoutMillis = 10_000)
                     onAllNodes(isRoot()).onLast().captureRoboImage(file)
                 }
+
+                Then.Share -> {
+                    // Share is in the document's "more" menu, a phone's in its bar and a wider window's in its toolbar.
+                    onPantrixNode("IconButton", "more").performSemanticsAction(SemanticsActions.OnClick)
+                    onPantrixNode("MenuItem", "share", scope = "Menu_document").performSemanticsAction(SemanticsActions.OnClick)
+                    // The link is made a moment after the share opens: its length is said under it then.
+                    waitUntilAtLeastOneExists(hasText(" characters", substring = true), timeoutMillis = 10_000)
+                    onAllNodes(isRoot()).onLast().captureRoboImage(file)
+                }
+
+                Then.BrokenLink -> {
+                    onPantrixNode("Button", "paste").performSemanticsAction(SemanticsActions.OnClick)
+                    waitUntilAtLeastOneExists(hasText("This link holds no document", substring = true), timeoutMillis = 10_000)
+                    onRoot().captureRoboImage(file)
+                }
             }
         }
 
     private companion object {
+        /** The Share board's link, whose checksum is not its text's: a link Start says it cannot read. */
+        const val BROKEN_LINK = "https://formatico.pantrixui.com/#d=eJyrVspMUbJSUEpKzSmyUiopTUoqUqoFAGG1CBs"
+
         /** A text Formatico cannot tell the format of, as the Start boards' question shows it. */
         const val UNTOLD = "2026-11-05 21:04:11 INFO  Server started on port 8080\n" +
             "2026-11-05 21:04:12 WARN  Slow query took 812 ms\n2026-11-05 21:04:15 INFO  Shutting down"

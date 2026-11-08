@@ -9,6 +9,7 @@
     <string name="start_new_document">Yeni belge</string>
     <string name="start_open_file">Dosya aç</string>
     <string name="start_clipboard_empty">Panodan metin okunamadı</string>
+    <string name="start_link_broken">Bu bağlantıda Formatico'nun okuyabileceği bir belge yok. Yarıda kesilmiş olabilir.</string>
     <string name="start_clipboard_unreadable">Bu tarayıcı Formatico'nun panoyu okumasına izin vermiyor. Klavyeyle yapıştır ya da bir dosya aç.</string>
 
     <string name="start_file_drop_supporting">JSON, JSONC, JSON5, NDJSON, XML, YAML, TOML, CSV, TSV, properties ve INI, en çok %1$s</string>

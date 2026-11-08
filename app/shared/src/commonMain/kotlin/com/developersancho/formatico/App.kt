@@ -36,6 +36,7 @@ import com.developersancho.formatico.feature.start.DocumentHistory
 import com.developersancho.formatico.feature.start.OpenedDocument
 import com.developersancho.formatico.feature.start.StartRoute
 import com.developersancho.formatico.feature.start.UnknownFormatDialog
+import com.developersancho.formatico.feature.start.rememberDocumentOpening
 import com.developersancho.formatico.feature.start.startModule
 import com.developersancho.formatico.feature.workspace.DocumentMoreMenu
 import com.developersancho.formatico.feature.workspace.Workbench
@@ -44,6 +45,7 @@ import com.developersancho.formatico.feature.workspace.WorkspaceRoute
 import com.developersancho.formatico.feature.workspace.editor.LocalWrapLines
 import com.developersancho.formatico.feature.workspace.workspaceModule
 import com.pantrixui.components.container.scaffold.PantrixScaffold
+import com.pantrixui.components.overlay.snackbar.LocalPantrixSnackbars
 import com.pantrixui.components.overlay.snackbar.rememberPantrixSnackbarState
 import com.pantrixui.foundation.l10n.PantrixLocale
 import org.koin.compose.KoinApplication
@@ -122,52 +124,62 @@ private fun AppContent(
     onToggleTheme: () -> Unit
 ) {
     val snackbars = rememberPantrixSnackbarState()
-    val workbench = koinInject<Workbench>()
-    val history = koinInject<DocumentHistory>()
-    val settings = koinInject<SettingsStore>()
-    LaunchedEffect(workbench, history) { followHistory(workbench, history, Clock.System) }
-    LaunchedEffect(settings, history) { keepHistory(settings, history, Clock.System) }
-    val open by workbench.state.collectAsState()
-    var showSettings by settingsShown
-    LaunchedEffect(open.selectedId, showSettings) { backStack.show(open.selectedId, showSettings) }
-    val restored by koinInject<WorkbenchKeeper>().restored.collectAsState()
-    if (followsBrowser && restored) FollowBrowserHistory(workbench, settingsShown)
-    val opening = remember(workbench, settings) { DocumentOpen(workbench, settings) }
-    val place = AppPlace(settingsShown = showSettings, onShowSettings = { showSettings = it })
-    val palette = rememberAppPalette(workbench, open, place, darkTheme, onToggleTheme, onOpen = opening::open)
-    PantrixScaffold(
-        modifier = Modifier.fillMaxSize().appShortcuts(palette),
-        topBar = { insets ->
-            AppTopBar(
-                insets = insets,
-                workbench = open,
-                settingsShown = showSettings,
-                onSelectTab = { id ->
-                    showSettings = false
-                    workbench.select(id)
-                },
-                darkTheme = darkTheme,
-                onToggleTheme = onToggleTheme,
-                onOpenPalette = palette::open,
-                onOpenSettings = { showSettings = true },
-                documentMenu = { DocumentMoreMenu(documentId = it, workbench = workbench) }
-            )
-        },
-        snackbars = snackbars
-    ) { padding ->
-        // Until what was open is back, the screen stays empty: Start for a moment, then the document, would be
-        // a screen the reader did not ask for.
-        if (!restored) return@PantrixScaffold
-        AppScreens(
-            backStack = backStack,
-            workbench = workbench,
-            onOpen = opening::open,
-            onCloseSettings = { showSettings = false },
-            modifier = Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding)
+    // The palette and an address say what they could not open in the scaffold's snackbars too, outside its screens.
+    CompositionLocalProvider(LocalPantrixSnackbars provides snackbars) {
+        val workbench = koinInject<Workbench>()
+        val history = koinInject<DocumentHistory>()
+        val settings = koinInject<SettingsStore>()
+        LaunchedEffect(workbench, history) { followHistory(workbench, history, Clock.System) }
+        LaunchedEffect(settings, history) { keepHistory(settings, history, Clock.System) }
+        val open by workbench.state.collectAsState()
+        var showSettings by settingsShown
+        LaunchedEffect(open.selectedId, showSettings) { backStack.show(open.selectedId, showSettings) }
+        val restored by koinInject<WorkbenchKeeper>().restored.collectAsState()
+        val opening = remember(workbench, settings) { DocumentOpen(workbench, settings) }
+        // What is pasted or opened away from Start, by the palette or by an address, over whatever is shown.
+        val documentOpening = rememberDocumentOpening(
+            onOpen = { document ->
+                showSettings = false
+                opening.open(document)
+            }
         )
+        if (followsBrowser && restored) FollowBrowserHistory(workbench, settingsShown, onLink = documentOpening::openLink)
+        val place = AppPlace(settingsShown = showSettings, onShowSettings = { showSettings = it })
+        val palette = rememberAppPalette(workbench, open, place, darkTheme, onToggleTheme, opening = documentOpening)
+        PantrixScaffold(
+            modifier = Modifier.fillMaxSize().appShortcuts(palette),
+            topBar = { insets ->
+                AppTopBar(
+                    insets = insets,
+                    workbench = open,
+                    settingsShown = showSettings,
+                    onSelectTab = { id ->
+                        showSettings = false
+                        workbench.select(id)
+                    },
+                    darkTheme = darkTheme,
+                    onToggleTheme = onToggleTheme,
+                    onOpenPalette = palette::open,
+                    onOpenSettings = { showSettings = true },
+                    documentMenu = { DocumentMoreMenu(documentId = it, workbench = workbench) }
+                )
+            },
+            snackbars = snackbars
+        ) { padding ->
+            // Until what was open is back, the screen stays empty: Start for a moment, then the document, would be
+            // a screen the reader did not ask for.
+            if (!restored) return@PantrixScaffold
+            AppScreens(
+                backStack = backStack,
+                workbench = workbench,
+                onOpen = opening::open,
+                onCloseSettings = { showSettings = false },
+                modifier = Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding)
+            )
+        }
+        AppPalette(palette)
+        UnknownFormatDialog(document = opening.asking, onOpen = opening::answer, onDismiss = opening::dismiss)
     }
-    AppPalette(palette)
-    UnknownFormatDialog(document = opening.asking, onOpen = opening::answer, onDismiss = opening::dismiss)
 }
 
 /**

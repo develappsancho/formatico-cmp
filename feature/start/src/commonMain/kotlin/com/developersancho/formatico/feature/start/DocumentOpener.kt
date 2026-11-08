@@ -1,6 +1,8 @@
 package com.developersancho.formatico.feature.start
 
 import com.developersancho.formatico.core.format.FormatDetector
+import com.developersancho.formatico.core.share.LinkReading
+import com.developersancho.formatico.core.share.ShareLinks
 import com.pantrixui.foundation.files.PantrixFile
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -17,6 +19,9 @@ sealed interface Opening {
 
     /** The file was not opened, for [refusal]. */
     data class Refused(val refusal: FileRefusal) : Opening
+
+    /** A link of Formatico's whose document cannot be read back: cut short, or changed on its way. */
+    data object BrokenLink : Opening
 }
 
 /**
@@ -36,12 +41,32 @@ class DocumentOpener(
     private val reader: CoroutineDispatcher = Dispatchers.Default,
     private val keeps: () -> Boolean = { true }
 ) {
-    /** [text], pasted, as a document; nothing to open where it is null or blank. */
+    /**
+     * [text], pasted, as a document: the one it carries where it is a link of Formatico's, and else itself. Nothing to
+     * open where it is null or blank.
+     */
     suspend fun paste(text: String?): Opening {
         if (text.isNullOrBlank()) return Opening.NothingToPaste
-        val format = withContext(reader) { FormatDetector.detect(text) }
-        return Opening.Opened(record(OpenedDocument(name = null, text = text, format = format)))
+        return link(text) ?: Opening.Opened(record(OpenedDocument(name = null, text = text, format = detect(text, null))))
     }
+
+    /**
+     * The document a link of Formatico's carries, as a file of its name is opened: [address] is a whole link, or the
+     * part of one from its `#`, as a browser's address gives it. A broken link where it cannot be read back; null
+     * where [address] is no link of Formatico's.
+     */
+    suspend fun link(address: String): Opening? = when (val reading = withContext(reader) { ShareLinks.read(address) }) {
+        LinkReading.NotALink -> null
+
+        LinkReading.Broken -> Opening.BrokenLink
+
+        is LinkReading.Read -> {
+            val (text, name) = reading.document
+            Opening.Opened(record(OpenedDocument(name = name, text = text, format = detect(text, name))))
+        }
+    }
+
+    private suspend fun detect(text: String, name: String?) = withContext(reader) { FormatDetector.detect(text, name) }
 
     /** [file] read as a document; refused where it is larger than the platform's most, or cannot be read. */
     suspend fun open(file: PantrixFile): Opening {

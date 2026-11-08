@@ -31,6 +31,9 @@ import formatico.feature.workspace.generated.resources.convert_label
 import formatico.feature.workspace.generated.resources.query_results_copied
 import formatico.feature.workspace.generated.resources.query_results_copy_failed
 import formatico.feature.workspace.generated.resources.query_results_label
+import formatico.feature.workspace.generated.resources.share_link_copied
+import formatico.feature.workspace.generated.resources.share_link_copy_failed
+import formatico.feature.workspace.generated.resources.share_link_label
 import formatico.feature.workspace.generated.resources.summary_copied
 import formatico.feature.workspace.generated.resources.summary_copy_failed
 import formatico.feature.workspace.generated.resources.summary_label
@@ -58,6 +61,7 @@ import formatico.feature.workspace.generated.resources.workspace_path_label
 import formatico.feature.workspace.generated.resources.workspace_query
 import formatico.feature.workspace.generated.resources.workspace_save_failed
 import formatico.feature.workspace.generated.resources.workspace_save_file
+import formatico.feature.workspace.generated.resources.workspace_share
 import formatico.feature.workspace.generated.resources.workspace_show_summary_item
 import formatico.feature.workspace.generated.resources.workspace_sort_keys
 import formatico.feature.workspace.generated.resources.workspace_table_copied
@@ -76,7 +80,7 @@ import org.jetbrains.compose.resources.stringResource
 internal data class NewDocument(val name: String, val text: String, val format: Format)
 
 /** What is copied from a document besides the whole of it, each said in words of its own. */
-internal enum class Copied { Value, Path, Table, Summary, Results, Converted }
+internal enum class Copied { Value, Path, Table, Summary, Results, Converted, Link }
 
 /**
  * What a document's buttons do that is not the workspace's state: copying it, or a part of it ([copyText]), saving as
@@ -231,6 +235,12 @@ private fun partWords(): Map<Copied, CopyWords> = mapOf(
         done = stringResource(Res.string.convert_copied),
         failed = stringResource(Res.string.convert_copy_failed),
         tag = "converted_copied"
+    ),
+    Copied.Link to CopyWords(
+        label = stringResource(Res.string.share_link_label),
+        done = stringResource(Res.string.share_link_copied),
+        failed = stringResource(Res.string.share_link_copy_failed),
+        tag = "link_copied"
     )
 )
 
@@ -324,6 +334,7 @@ fun DocumentMoreMenu(documentId: Long, workbench: Workbench) {
             scope.launch { commands.report(DocumentEdit.SortKeys, workbench.edit(documentId, DocumentEdit.SortKeys)) }
         },
         onSave = {},
+        onShare = { workbench.changeView(documentId) { it.copy(sharing = true) } },
         onClose = { workbench.close(documentId) }
     )
 }
@@ -342,6 +353,7 @@ internal fun DocumentMenu(
     onSortKeys: () -> Unit,
     onCompare: () -> Unit = {},
     onSave: () -> Unit,
+    onShare: () -> Unit = {},
     onClose: () -> Unit
 ) {
     var open by rememberSaveable { mutableStateOf(false) }
@@ -388,7 +400,12 @@ internal fun DocumentMenu(
                 tagKey = "save"
             )
         }
-        if (items != DocumentMenuItems.Close) PantrixDivider()
+        PantrixMenuItem(
+            text = stringResource(Res.string.workspace_share),
+            onClick = onShare,
+            tagKey = "share"
+        )
+        PantrixDivider()
         PantrixMenuItem(
             text = stringResource(Res.string.workspace_close_document),
             onClick = onClose,

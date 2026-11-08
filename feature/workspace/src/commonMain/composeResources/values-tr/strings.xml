@@ -707,4 +707,22 @@
     <string name="palette_query_xpath">XPath ile sorgula</string>
     <string name="palette_query_keywords">jsonpath, xpath, süz, filtre</string>
     <string name="palette_convert_to">%1$s biçimine dönüştür</string>
+    <string name="workspace_share">Paylaş</string>
+    <string name="share_title">%1$s belgesini paylaş</string>
+    <string name="share_body">Bağlantı belgenin kendisini sıkıştırılmış olarak taşır. Hiçbir sunucuya gönderilmez: bağlantısı olan herkes belgeyi okuyabilir.</string>
+    <string name="share_body_phone">Bağlantı belgenin kendisini sıkıştırılmış olarak taşır. Hiçbir sunucuya gönderilmez: bağlantısı olan herkes onu okuyabilir.</string>
+    <string name="share_link">Bağlantı</string>
+    <string name="share_fits_short">%1$s %2$s, %3$s karakterde: her tarayıcıya ve uygulamaya sığacak kadar kısa.</string>
+    <string name="share_fits_short_phone">%1$s %2$s, %3$s karakterde</string>
+    <string name="share_fits_long">%1$s %2$s, %3$s karakterde: tarayıcılar açar, ama bir sohbet ya da posta uygulaması bu uzunlukta bir bağlantıyı kesebilir.</string>
+    <string name="share_plain_text">metin</string>
+    <string name="share_formatted">Bağlantıdaki belgeyi biçimlendir</string>
+    <string name="share_cancel">Vazgeç</string>
+    <string name="share_copy">Bağlantıyı kopyala</string>
+    <string name="share_send">Başka bir uygulamayla gönder</string>
+    <string name="share_too_large_title">%1$s bir bağlantı için çok büyük</string>
+    <string name="share_too_large_body">Bir bağlantı yaklaşık 32 KB metin taşır, bu belge ise %1$s. Onu bir dosya olarak kaydedip dosyayı gönder.</string>
+    <string name="share_link_label">Bağlantı</string>
+    <string name="share_link_copied">Bağlantı kopyalandı</string>
+    <string name="share_link_copy_failed">Bağlantı kopyalanamadı</string>
 </resources>

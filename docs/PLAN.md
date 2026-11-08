@@ -125,7 +125,14 @@ eksikler Faz 4'te.
     `PantrixKeycaps`'iyle yapıldı (2026-11-06): paletin kısayollu komutları, gruplarıyla, uygulamanın çalıştığı yerin
     tuşlarıyla (telefonda bölüm yok, tarayıcıda kendi tuttuğu kısayollar yok); başlatıcının ve Start'ın ipucunun
     tuşları da kapaklarda. Masaüstünde ve web'de Escape artık ekrandan çıkarmıyor (2026-11-06).
-*   [ ] **Faz 13: Paylaşım.** Küçük bir belge sıkıştırılıp bağlantının fragment'ında; sunucu yok.
+*   [x] **Faz 13: Paylaşım.** Küçük bir belge sıkıştırılıp bağlantının fragment'ında; sunucu yok. Yapıldı (2026-11-06):
+    tuvalde eksikler çizildi (sürüm 80: uzun bağlantı, `&n=` ile ad, bozuk bağlantının uyarısı). `core:share`: saf Kotlin
+    deflate ve inflate (zlib biçiminde, Adler-32'yle; Java'nın zlib'iyle iki yönlü sınandı), bağlantı
+    `https://formatico.pantrixui.com/#d=…&n=…`, en çok 32.768 karakter, 2.000'e kadar "her uygulama alır". Paylaşım
+    belgenin "More actions" menüsünden: genişte ve tablette pencere, telefonda sayfa ve platformun paylaşma sayfası;
+    çok büyük belge dosya olarak kaydediliyor. Bağlantıyı web açıyor (adres sonra gezintiye kalıyor), uygulamada
+    herhangi bir yere yapıştırınca da açılıyor; bozuk bağlantı bir uyarıyla söyleniyor (sahibinin kararları,
+    2026-11-06). App Links ve Universal Links Faz 22'de.
 *   [ ] **Faz 14: Büyük dosyalar.** Masaüstünde 50 MB, telefonda ve web'de 10 MB, ölçülerek.
 *   [ ] **Faz 15: v1'in testi.** Roborazzi her panoyla, Maestro akışları Android ve iOS'ta, tarayıcı testleri;
     Türkçe ve İngilizce metinler, erişilebilirlik.

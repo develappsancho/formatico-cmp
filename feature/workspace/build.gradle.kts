@@ -12,6 +12,8 @@ kotlin {
             implementation(projects.core.storage)
             // Format writes as Settings chose.
             implementation(projects.core.settings)
+            // A document is shared in a link that carries it, as core:share makes one.
+            implementation(projects.core.share)
             // A phone's Convert is a screen of its own, which the system's back leaves.
             implementation(projects.core.navigation)
         }

@@ -108,6 +108,7 @@ internal fun WorkspaceScreen(
     val document = state.document ?: return
     val text = editor ?: remember(document.id) { CodeEditorState(document.text) }
     val layout = workspaceLayout()
+    ShareDocument(state = state, layout = layout, onIntent = onIntent, commands = commands)
     if (layout == WorkspaceLayout.Phone) {
         when (document.view.pane) {
             // The conversion and the comparison are screens of their own, their bars in the app bar's place, as
@@ -367,6 +368,7 @@ private fun DocumentButtons(
             onSortKeys = { onIntent(WorkspaceIntent.Edit(DocumentEdit.SortKeys)) },
             onCompare = { onIntent(WorkspaceIntent.ShowPane(DocumentPane.Compare)) },
             onSave = { commands.save(document) },
+            onShare = { onIntent(WorkspaceIntent.Share(open = true)) },
             onClose = { onIntent(WorkspaceIntent.Close) }
         )
     }

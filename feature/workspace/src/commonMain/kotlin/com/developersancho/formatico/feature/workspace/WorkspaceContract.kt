@@ -36,7 +36,8 @@ internal data class WorkspaceState(
     val recentQueries: RecentQueries = RecentQueries(),
     val conversion: ConvertOutcome? = null,
     val comparison: CompareOutcome? = null,
-    val others: List<OtherDocument> = emptyList()
+    val others: List<OtherDocument> = emptyList(),
+    val share: DocumentShare? = null
 ) {
     /** What is wrong in the document, where it was read: its errors, and the warnings it is valid with. */
     val problems: List<Problem> get() = (reading as? Reading.Read)?.problems.orEmpty()
@@ -89,6 +90,12 @@ internal data class OtherDocument(val id: Long, val name: String?)
 
 /** What the user did, or asked for, in a workspace. */
 internal sealed interface WorkspaceIntent {
+    /** Show the document's link to share it, or leave it. */
+    data class Share(val open: Boolean) : WorkspaceIntent
+
+    /** Format the document in the link where [formatted], or leave its text as it is. */
+    data class ShareFormatted(val formatted: Boolean) : WorkspaceIntent
+
     /** Open the tree's branches whose keys are [keys], and close the others. */
     data class Expand(val keys: Set<String>) : WorkspaceIntent
 
