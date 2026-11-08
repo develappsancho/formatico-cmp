@@ -42,6 +42,8 @@ data class OpenDocument(
  * @property hiddenColumns the names of the table's columns that are not shown.
  * @property tableFilter what the table's rows are filtered by, kept when the table is left for the tree.
  * @property searching whether the tree's search bar is open: a phone's "more" menu opens it from the top bar.
+ * @property query what the document is queried with, in its language: JSONPath, or XPath for XML; kept when the query
+ *   is left for another view.
  */
 data class DocumentView(
     val expanded: Set<String>? = null,
@@ -50,13 +52,19 @@ data class DocumentView(
     val tableSort: TableSort? = null,
     val hiddenColumns: Set<String> = emptySet(),
     val tableFilter: String = "",
-    val searching: Boolean = false
+    val searching: Boolean = false,
+    val query: String = ""
 )
 
 /**
- * What is shown of a document: on a phone one at a time, elsewhere the tree, the table or its problems beside the text.
+ * What is shown of a document: on a phone one at a time, elsewhere the tree, the table, its problems, its summary or
+ * its query beside the text.
  */
-enum class DocumentPane { Text, Tree, Table, Problems, Summary }
+enum class DocumentPane { Text, Tree, Table, Problems, Summary, Query }
+
+/** The view a document of [format] opens on: a table its table, any other its tree. */
+internal fun openingPane(format: Format?): DocumentPane =
+    if (format == Format.Csv || format == Format.Tsv) DocumentPane.Table else DocumentPane.Tree
 
 /** The column a table's rows are ordered by, [column], the largest first where [descending] says so. */
 data class TableSort(val column: String, val descending: Boolean)
@@ -127,8 +135,7 @@ class Workbench(private val worker: CoroutineDispatcher = Dispatchers.Default) {
             select(open.id)
             return open.id
         }
-        // A table opens on its table.
-        val pane = if (format == Format.Csv || format == Format.Tsv) DocumentPane.Table else DocumentPane.Tree
+        val pane = openingPane(format)
         val document = OpenDocument(
             id = nextId++,
             name = name,

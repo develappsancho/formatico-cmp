@@ -8,8 +8,8 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
 /**
- * What the workspaces are built from: the open documents, kept on this device from the moment the app opens, and a
- * view model for each document's workspace.
+ * What the workspaces are built from: the open documents and the queries used, kept on this device from the moment the
+ * app opens, and a view model for each document's workspace.
  */
 val workspaceModule: Module = module {
     single { Workbench() }
@@ -21,7 +21,10 @@ val workspaceModule: Module = module {
             scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
         ).also { it.start() }
     }
+    single(createdAtStart = true) {
+        QueryHistory(small = get(), scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)).also { it.start() }
+    }
     single { Readings(workbench = get()) }
     single { Editors(workbench = get()) }
-    viewModel { (documentId: Long) -> WorkspaceViewModel(documentId = documentId, workbench = get(), readings = get()) }
+    viewModel { (documentId: Long) -> WorkspaceViewModel(documentId = documentId, workbench = get(), readings = get(), queries = get()) }
 }

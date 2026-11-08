@@ -320,3 +320,15 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Nerede: MCP `get_component PantrixCodeEditor` ("Marks", `rangeMarks`: "a wavy line under each in the colour of its tone, a dot before its line, and its message while the caret is in it"); `get_api CodeRangeMark`.
     *   Öneri: imlecin satırında da işaretin çizgisi ve noktası; imlecin satırının dolgusu işaretin altında kalsın. Bir ekran resmi testi: imleç işaretin içindeyken çizgi ve nokta çiziliyor.
     *   Durum: açık. Formatico'da geçici bir çözüm yok; telefonun problem kartı imlecin problemini ayrıca söylüyor.
+
+*   [ ] **CodeEditor, bir uygulamanın verdiği aralıkları vurgulayamıyor (2026-11-05).**
+    *   Ne: Query panoları sorgunun eşleşmelerini metinde işaretliyor: her eşleşme `warning-container` zeminde, şimdiki eşleşme ayrıca `warning-color` bir çerçeveyle; altında "A match is marked in the text; choosing one moves the cursor to it." yazıyor. `PantrixCodeEditor`'ın dışarıdan aldığı tek işaret `rangeMarks`: bir tonun dalgalı çizgisi, satırın başında bir nokta ve bir ileti. Bir eşleşme problem değil; ne çizgisi ne iletisi var. Editörün kendi bul'u eşleşmeleri vurguluyor, ama bu vurgu `CodeFind`'ın içinde, bir uygulamanın kendi aralıklarına açık değil.
+    *   Nerede: kaynak jar'da `CodeEditor.kt` (`PantrixCodeEditor`'ın parametreleri), `CodeEditorMarks.kt` (`CodeRangeMark`), `CodeFind.kt` ve `CodeSearch.kt`.
+    *   Öneri: `PantrixCodeEditor`'a `highlights: List<CodeHighlight>` gibi bir parametre: aralık ve vurgusu (eşleşme, şimdiki eşleşme), bul'un çizdiğiyle aynı zemin ve çerçeve, iletisiz ve noktasız. Ekran okuyucuya bir şey söylemesi gerekmiyor.
+    *   Durum: açık. Formatico'yu tıkamıyor. Seçilen eşleşme metinde seçiliyor ve imleç ona gidiyor; öteki eşleşmeler işaretlenmiyor. Kodda ipucu bu yüzden "Choosing a match moves the cursor to it." (`query_choose_hint`); bulgu kapanınca panodaki ilk yarısı geri gelir.
+
+*   [ ] **SegmentButton'a grubun adı verilemiyor (2026-11-05).**
+    *   Ne: Panolar her segment grubuna bir ad veriyor: görünümlerin seçimi `label="View"`, Query'nin dili `label="Query language"`. `PantrixSegmentButton` bir `contentDescription` ya da etiket almıyor; ekran okuyucu grubu adsız, yalnızca seçenekleriyle okuyor.
+    *   Nerede: kaynak jar'da `PantrixSegmentButton`'ın imzası: `options`, `selected`, `onSelect`, `modifier`, `enabled`, `fullWidth`, `style`, `colors`, `tagKey`, `labelStyle`.
+    *   Öneri: `PantrixSegmentButton(contentDescription = …)`, grubun anlamında (radio group gibi) okunan bir ad.
+    *   Durum: açık. Formatico'nun iki grubu adsız.

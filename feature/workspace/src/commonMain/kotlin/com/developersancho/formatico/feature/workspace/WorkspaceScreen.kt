@@ -145,6 +145,7 @@ private fun DocumentPanes(
     val table = pane == DocumentPane.Table
     val problems = pane == DocumentPane.Problems && state.problems.isNotEmpty()
     val summary = pane == DocumentPane.Summary
+    val query = pane == DocumentPane.Query
     // How tall the text stands on a tablet, as its handle leaves it.
     var textHeight by rememberSaveable { mutableFloatStateOf(TextHeight.value) }
     val second: @Composable () -> Unit = {
@@ -152,6 +153,7 @@ private fun DocumentPanes(
             table -> TablePane(state, layout, onIntent, commands)
             problems -> ProblemsPane(state = state, editor = editor, layout = layout, onIntent = onIntent)
             summary -> SummaryPane(state = state, layout = layout, onIntent = onIntent, commands = commands)
+            query -> QueryPane(state = state, layout = layout, onIntent = onIntent, commands = commands)
             else -> TreePane(state = state, layout = layout, onIntent = onIntent, commands = commands)
         }
     }
@@ -220,12 +222,14 @@ private fun Toolbar(
         if (wide) ToolbarDivider(wide)
         EditButtons(state = state, layout = layout, onIntent = onIntent)
         ToolbarDivider(wide)
+        val querying = document.view.pane == DocumentPane.Query
         PantrixButton(
             text = stringResource(Res.string.workspace_query),
-            onClick = {},
-            variant = ButtonVariant.Text,
+            // Pressed again, it gives the view the document opens with back.
+            onClick = { onIntent(WorkspaceIntent.ShowPane(if (querying) openingPane(document.format) else DocumentPane.Query)) },
+            variant = if (querying) ButtonVariant.Soft else ButtonVariant.Text,
             size = size,
-            enabled = false,
+            enabled = document.format != null,
             leadingIcon = { PantrixIcon(imageVector = PantrixIcons.Search, contentDescription = null) },
             tagKey = "query"
         )

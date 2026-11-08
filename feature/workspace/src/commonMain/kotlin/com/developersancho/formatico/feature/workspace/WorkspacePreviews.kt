@@ -18,7 +18,7 @@ import com.developersancho.formatico.core.format.Format
 import com.pantrixui.components.data.codeeditor.CodeEditorState
 
 /** An order: a date, a colour, links, a picture, a null and an array of items, which makes a table. */
-private val PreviewOrder =
+internal val PreviewOrder =
     """
     {
       "id": "ord_8842",
@@ -123,7 +123,7 @@ private val PreviewInvalidYaml =
     """.trimIndent() + "\n"
 
 /** Formatico's notes as an RSS feed, as the Query board shows it: three items, two of them releases. */
-private val PreviewFeed =
+internal val PreviewFeed =
     """
     <?xml version="1.0" encoding="UTF-8"?>
     <rss version="2.0">
@@ -218,7 +218,7 @@ private val PreviewSettings =
     """.trimIndent() + "\n"
 
 /** The workspace of a document named [name], with [text] read as [format] and its tree left as [view] says. */
-private fun previewState(name: String?, text: String, format: Format?, view: DocumentView = DocumentView()) =
+internal fun previewState(name: String?, text: String, format: Format?, view: DocumentView = DocumentView()) =
     readState(OpenDocument(id = 1, name = name, text = text, format = format, view = view))
 
 internal val Order = previewState("order.json", PreviewOrder, Format.Json, DocumentView(selected = "$.customer.avatar"))
@@ -286,7 +286,7 @@ internal class ScreenCase(val state: WorkspaceState, val caret: Int = 0)
  * The workspace's cases: a JSON document with its value previews, a YAML one with anchors, a CSV and a JSON array as
  * tables, a document with mistakes and its problems, a YAML one with a flow left open, an XML feed, a TOML manifest,
  * newline-delimited JSON, a properties file and an INI one, the order's Summary measured and being measured and a CSV's,
- * one being read, and a new, empty one.
+ * the order and the feed queried, as the Query boards draw them, one being read, and a new, empty one.
  */
 internal class WorkspaceScreenCases :
     PreviewCases<ScreenCase>(
@@ -305,6 +305,9 @@ internal class WorkspaceScreenCases :
         "summary" to ScreenCase(OrderSummary),
         "summary measuring" to ScreenCase(OrderSummaryMeasuring),
         "csv summary" to ScreenCase(CountriesSummary),
+        "query" to ScreenCase(OrderNames),
+        "query xml" to ScreenCase(FeedReleases),
+        "query prices" to ScreenCase(OrderPrices),
         "reading" to ScreenCase(BeingRead),
         "empty" to ScreenCase(Empty)
     )

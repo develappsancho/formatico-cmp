@@ -15,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.developersancho.formatico.core.format.Format
 import com.developersancho.formatico.core.format.json.jsonPath
 import com.developersancho.formatico.core.format.text.Indentation
 import com.developersancho.formatico.core.format.text.LineEnding
@@ -32,6 +31,7 @@ import com.pantrixui.components.elements.divider.PantrixHorizontalDivider
 import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.foundation.theme.PantrixTheme
 import formatico.feature.workspace.generated.resources.Res
+import formatico.feature.workspace.generated.resources.query_match_of
 import formatico.feature.workspace.generated.resources.workspace_encoding
 import formatico.feature.workspace.generated.resources.workspace_indent_spaces
 import formatico.feature.workspace.generated.resources.workspace_indent_tabs
@@ -49,7 +49,8 @@ import org.jetbrains.compose.resources.stringResource
 
 /**
  * The bar under the panes: whether the document is valid, how long it is, the line and column of [editor]'s caret or
- * of the chosen value, the chosen value's path and the text's layout. How long it is shows its Summary, or hides it.
+ * of the chosen value, the chosen value's path and the text's layout, or while the query is shown which of its matches
+ * is chosen. How long it is shows its Summary, or hides it.
  */
 @Composable
 internal fun StatusBar(
@@ -75,6 +76,15 @@ internal fun StatusBar(
             StatusTag(state)
             state.stats?.let { stats -> SizeButton(state, stats, onIntent) }
             Spacer(modifier = Modifier.weight(1f))
+            // While the query is shown, the bar says which of its matches is chosen, where the text's layout stood.
+            val match = state.currentMatch?.takeIf { state.document?.view?.pane == DocumentPane.Query }
+            match?.let {
+                PantrixText(
+                    text = stringResource(Res.string.query_match_of, it + 1, state.query.matches.size),
+                    style = style,
+                    color = quiet
+                )
+            }
             caretOf(state, editor)?.let { (line, column) ->
                 PantrixText(
                     text = stringResource(Res.string.workspace_line_column, line, column),
@@ -90,7 +100,7 @@ internal fun StatusBar(
                     maxLines = 1
                 )
             }
-            if (layout == WorkspaceLayout.Wide) {
+            if (layout == WorkspaceLayout.Wide && match == null) {
                 state.stats?.let { PantrixText(text = layoutOf(it), style = style, color = quiet) }
             }
         }
@@ -178,7 +188,7 @@ private fun SizeButton(state: WorkspaceState, stats: TextStats, onIntent: (Works
         pluralStringResource(Res.plurals.workspace_lines, stats.lines, stats.lines),
         PantrixTheme.strings.fileSize(stats.bytes)
     )
-    val back = if (document.format == Format.Csv || document.format == Format.Tsv) DocumentPane.Table else DocumentPane.Tree
+    val back = openingPane(document.format)
     PantrixButton(
         text = size,
         onClick = { onIntent(WorkspaceIntent.ShowPane(if (shown) back else DocumentPane.Summary)) },

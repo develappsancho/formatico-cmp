@@ -62,6 +62,11 @@ class WorkspaceScreenshotTest {
     }
 
     @Test
+    fun query() = QueryCases().values.forEach { case ->
+        capturePreview("Query", case, case.value.board) { QueryPreview(case) }
+    }
+
+    @Test
     fun treeSearchBar() = TreeSearchBarCases().values.forEach { case ->
         capturePreview("TreeSearchBar", case, case.value.board) { TreeSearchBarPreview(case) }
     }

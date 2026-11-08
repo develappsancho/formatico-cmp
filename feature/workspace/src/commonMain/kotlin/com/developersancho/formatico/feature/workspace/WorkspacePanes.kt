@@ -42,6 +42,7 @@ import formatico.feature.workspace.generated.resources.workspace_no_value_body
 import formatico.feature.workspace.generated.resources.workspace_no_value_title
 import formatico.feature.workspace.generated.resources.workspace_plain_body
 import formatico.feature.workspace.generated.resources.workspace_plain_title
+import formatico.feature.workspace.generated.resources.workspace_query
 import formatico.feature.workspace.generated.resources.workspace_view_problems
 import formatico.feature.workspace.generated.resources.workspace_view_problems_short
 import formatico.feature.workspace.generated.resources.workspace_view_summary
@@ -243,9 +244,9 @@ private fun TreeHeader(
 }
 
 /**
- * The views of a document: its text where [withText] says so, its tree, its table where [withTable] says so, and its
- * [problems] where it has any. It fills its place's width where [fullWidth] says so, by default where it shows the
- * text: on a row of its own.
+ * The views of a document: its text where [withText] says so, its tree, its table where [withTable] says so, its
+ * [problems] where it has any, and its query where [withQuery] says so, while it is shown. It fills its place's width
+ * where [fullWidth] says so, by default where it shows the text: on a row of its own.
  */
 @Composable
 internal fun ViewChoice(
@@ -255,7 +256,8 @@ internal fun ViewChoice(
     modifier: Modifier = Modifier,
     fullWidth: Boolean = withText,
     problems: Int = 0,
-    withTable: Boolean = true
+    withTable: Boolean = true,
+    withQuery: Boolean = false
 ) {
     val textLabel = stringResource(Res.string.workspace_view_text)
     val treeLabel = stringResource(Res.string.workspace_view_tree)
@@ -277,13 +279,20 @@ internal fun ViewChoice(
         label = stringResource(Res.string.workspace_view_summary),
         tagKey = "summary"
     )
+    // The query is a view while it is shown, as the toolbar opens it; a phone shows it in the table's place too.
+    val query = SegmentOption<DocumentPane?>(
+        value = DocumentPane.Query,
+        label = stringResource(Res.string.workspace_query),
+        tagKey = "query"
+    )
     PantrixSegmentButton(
         options = listOfNotNull(
             text.takeIf { withText },
             tree,
-            table.takeIf { withTable && !(withText && summaryShown) },
+            table.takeIf { withTable && !(withText && (summaryShown || withQuery)) },
             problemList.takeIf { problems > 0 },
-            summary.takeIf { summaryShown }
+            summary.takeIf { summaryShown },
+            query.takeIf { withQuery }
         ),
         selected = selected,
         onSelect = { pane -> pane?.let(onSelect) },

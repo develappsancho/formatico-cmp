@@ -380,4 +380,43 @@
         <item quantity="one">%1$s burada yazıldığı gibi kalıyor. Onu sayı olarak okuyan bir araç %2$s yazar.</item>
         <item quantity="other">%1$s burada yazıldığı gibi kalıyor. Onları sayı olarak okuyan bir araç %2$s yazar.</item>
     </plurals>
+    <!-- Query: JSONPath and XPath. -->
+    <string name="query_recent">Son kullanılanlar</string>
+    <string name="query_ask_jsonpath">Bir JSONPath yaz, örneğin $.items[*].name</string>
+    <string name="query_ask_xpath">Bir XPath yaz, örneğin //item/title</string>
+    <string name="query_jsonpath_elsewhere">JSONPath, JSON belgeleri içindir.</string>
+    <string name="query_xpath_elsewhere">XPath, XML belgeleri içindir.</string>
+    <string name="query_status_and_note">%1$s. %2$s</string>
+    <string name="query_unread">Belge okunamadı; sorgulanacak bir şey yok.</string>
+    <string name="query_computed">XPath bir değer veriyor</string>
+    <string name="query_no_matches">Eşleşme yok</string>
+    <plurals name="query_matches">
+        <item quantity="one">%1$d eşleşme</item>
+        <item quantity="other">%1$d eşleşme</item>
+    </plurals>
+    <string name="query_value">Değer</string>
+    <string name="query_match_of">Eşleşme %1$d / %2$d</string>
+    <string name="query_error_at">%1$s (%2$d. karakter)</string>
+    <string name="query_copy_results">Sonuçları kopyala</string>
+    <string name="query_open_results">Belge olarak aç</string>
+    <string name="query_choose_hint">Bir eşleşmeyi seçmek imleci ona götürür.</string>
+    <string name="query_see_in_text">Metinde görmek için birini seç</string>
+    <string name="query_results_label">Sorgu sonuçları</string>
+    <string name="query_results_copied">Sonuçlar kopyalandı</string>
+    <string name="query_results_copy_failed">Sonuçlar kopyalanamadı</string>
+    <string name="query_error_empty">Sorgu boş</string>
+    <string name="query_error_unexpected_end">Sorgu erken bitiyor</string>
+    <string name="query_error_unexpected_character">Bu burada duramaz</string>
+    <string name="query_error_missing_root">JSONPath $ ile başlar</string>
+    <string name="query_error_unclosed_string">Bu metin hiç kapanmıyor</string>
+    <string name="query_error_invalid_escape">Bu kaçış JSONPath'te yok</string>
+    <string name="query_error_invalid_number">Bu sayı JSONPath'in yazdığı gibi yazılmamış</string>
+    <string name="query_error_integer_out_of_range">Bu sayı bir sıra için fazla büyük</string>
+    <string name="query_error_not_singular">Bu birden fazla değer bulabilir; burada tek bir değer karşılaştırılır</string>
+    <string name="query_error_wrong_type">Bu burada duramaz: türü başka</string>
+    <string name="query_error_unknown_function">Bu adda bir işlev yok</string>
+    <string name="query_error_wrong_argument_count">Bu işlev başka sayıda bağımsız değişken alır</string>
+    <string name="query_error_unknown_axis">Bu adda bir eksen yok</string>
+    <string name="query_error_unsupported">Formatico'nun XPath'inde değişken ve namespace ekseni yok</string>
+    <string name="query_error_too_deep">Sorgu fazla iç içe</string>
 </resources>

@@ -118,12 +118,7 @@ internal fun styledLabelOf(node: ValueNode, inks: RowInks, chosen: Boolean, mark
 }
 
 /** The colour a value of [kind] is written in: its syntax's, and the size of an object or an array quieter. */
-private fun inkOf(kind: ValueKind, inks: RowInks): Color = when (kind) {
-    ValueKind.Object, ValueKind.Array -> inks.size
-    ValueKind.String -> inks.syntax.string
-    ValueKind.Number -> inks.syntax.number
-    ValueKind.Boolean, ValueKind.Null, ValueKind.Alias -> inks.syntax.literal
-}
+private fun inkOf(kind: ValueKind, inks: RowInks): Color = syntaxInk(kind, inks.syntax, inks.size)
 
 /**
  * Where [sought], in small letters as [language] writes them, stands in [text]: the ranges of [text]'s own letters,

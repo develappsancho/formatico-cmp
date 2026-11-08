@@ -14,6 +14,10 @@ import com.developersancho.formatico.core.format.Repairs
  * @property trail the values from the root down to the chosen one, or nothing where none is chosen.
  * @property table the table of the array the choice is in, or of the document's first array.
  * @property json5Allows how many of a JSON document's errors JSON5 allows: what reading it as JSON5 would leave out.
+ * @property summary what the document holds, while its Summary is shown.
+ * @property sizes how large the document is, written out and squeezed, while its Summary is shown.
+ * @property query what the document's query found, while its Query is shown, or null.
+ * @property recentQueries the queries used last on this device, the latest first.
  */
 internal data class WorkspaceState(
     val document: OpenDocument? = null,
@@ -24,7 +28,9 @@ internal data class WorkspaceState(
     val table: TableModel? = null,
     val json5Allows: Int = 0,
     val summary: DocumentSummary? = null,
-    val sizes: SizeSummary? = null
+    val sizes: SizeSummary? = null,
+    val query: QueryOutcome? = null,
+    val recentQueries: RecentQueries = RecentQueries()
 ) {
     /** What is wrong in the document, where it was read: its errors, and the warnings it is valid with. */
     val problems: List<Problem> get() = (reading as? Reading.Read)?.problems.orEmpty()
@@ -56,6 +62,20 @@ internal data class WorkspaceState(
 
     /** Where the table stands in the tree's choice. */
     val tableChoice: TableChoice? get() = tableChoice(table, trail)
+
+    /** The language the document is queried in, where it has a format. */
+    val queryLanguage: QueryLanguage? get() = document?.format?.queryLanguage
+
+    /** The queries of the document's language used last, the latest first, but the one it is queried with now. */
+    val otherQueries: List<String>
+        get() {
+            val language = queryLanguage ?: return emptyList()
+            val asked = document?.view?.query?.trim()
+            return recentQueries.of(language).filter { it != asked }
+        }
+
+    /** The place of the chosen value among the query's matches, or null where it is none of them. */
+    val currentMatch: Int? get() = query.matches.indexOfFirst { it.key != null && it.key == selected?.key }.takeIf { it >= 0 }
 }
 
 /** What the user did, or asked for, in a workspace. */
@@ -86,6 +106,12 @@ internal sealed interface WorkspaceIntent {
 
     /** Filter the table's rows by [filter], or show them all where it is empty. */
     data class FilterTable(val filter: String) : WorkspaceIntent
+
+    /** Query the document with [query], in its language. */
+    data class Query(val query: String) : WorkspaceIntent
+
+    /** The query the document is queried with was used: it is offered again, as a recent one. */
+    data object UseQuery : WorkspaceIntent
 
     /** The document's text is now [text], as its editor wrote it. */
     data class Write(val text: String) : WorkspaceIntent

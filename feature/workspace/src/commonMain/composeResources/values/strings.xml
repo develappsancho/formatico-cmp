@@ -380,4 +380,43 @@
         <item quantity="one">%1$s keeps its spelling here. A tool that reads it as a number writes %2$s.</item>
         <item quantity="other">%1$s keep their spelling here. A tool that reads them as numbers writes %2$s.</item>
     </plurals>
+    <!-- Query: JSONPath and XPath. -->
+    <string name="query_recent">Recent</string>
+    <string name="query_ask_jsonpath">Write a JSONPath, as $.items[*].name</string>
+    <string name="query_ask_xpath">Write an XPath, as //item/title</string>
+    <string name="query_jsonpath_elsewhere">JSONPath is for JSON documents.</string>
+    <string name="query_xpath_elsewhere">XPath is for XML documents.</string>
+    <string name="query_status_and_note">%1$s. %2$s</string>
+    <string name="query_unread">The document couldn’t be read, so there is nothing to query.</string>
+    <string name="query_computed">The XPath comes to a value</string>
+    <string name="query_no_matches">No matches</string>
+    <plurals name="query_matches">
+        <item quantity="one">%1$d match</item>
+        <item quantity="other">%1$d matches</item>
+    </plurals>
+    <string name="query_value">Value</string>
+    <string name="query_match_of">Match %1$d of %2$d</string>
+    <string name="query_error_at">%1$s (character %2$d)</string>
+    <string name="query_copy_results">Copy the results</string>
+    <string name="query_open_results">Open as a document</string>
+    <string name="query_choose_hint">Choosing a match moves the cursor to it.</string>
+    <string name="query_see_in_text">Choose one to see it in the text</string>
+    <string name="query_results_label">Query results</string>
+    <string name="query_results_copied">Results copied</string>
+    <string name="query_results_copy_failed">The results couldn’t be copied</string>
+    <string name="query_error_empty">The query is empty</string>
+    <string name="query_error_unexpected_end">The query ends too soon</string>
+    <string name="query_error_unexpected_character">This can’t stand here</string>
+    <string name="query_error_missing_root">A JSONPath starts with $</string>
+    <string name="query_error_unclosed_string">This string is never closed</string>
+    <string name="query_error_invalid_escape">This escape isn’t one JSONPath has</string>
+    <string name="query_error_invalid_number">This number isn’t written as JSONPath writes one</string>
+    <string name="query_error_integer_out_of_range">This number is too large for an index</string>
+    <string name="query_error_not_singular">This can find more than one value, where one is compared</string>
+    <string name="query_error_wrong_type">This can’t stand here: it is of another type</string>
+    <string name="query_error_unknown_function">There is no function of this name</string>
+    <string name="query_error_wrong_argument_count">This function takes another number of arguments</string>
+    <string name="query_error_unknown_axis">There is no axis of this name</string>
+    <string name="query_error_unsupported">Formatico’s XPath has no variables or namespace axis</string>
+    <string name="query_error_too_deep">The query is nested too deep</string>
 </resources>

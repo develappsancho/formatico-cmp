@@ -3,7 +3,10 @@ package com.developersancho.formatico.feature.workspace
 import androidx.lifecycle.viewModelScope
 import com.developersancho.formatico.core.base.MviViewModel
 import com.developersancho.formatico.core.format.Repairs
+import com.developersancho.formatico.core.format.xml.XmlDocument
+import com.developersancho.formatico.core.storage.MemorySmallStore
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -17,12 +20,14 @@ import kotlinx.coroutines.withContext
  *
  * @param readings what the open documents were read as: a document read before is not read again.
  * @param reader where the document is read, off the main thread.
+ * @param queries the queries used on this device, which the Query view offers again.
  */
 internal class WorkspaceViewModel(
     private val documentId: Long,
     private val workbench: Workbench,
     private val readings: Readings = Readings(workbench),
-    private val reader: CoroutineDispatcher = Dispatchers.Default
+    private val reader: CoroutineDispatcher = Dispatchers.Default,
+    private val queries: QueryHistory = QueryHistory(MemorySmallStore(), CoroutineScope(Dispatchers.Unconfined))
 ) : MviViewModel<WorkspaceState, WorkspaceIntent, WorkspaceEffect>(WorkspaceState()) {
     init {
         val document = workbench.state
@@ -70,6 +75,36 @@ internal class WorkspaceViewModel(
         }
     }
 
+    init {
+        // The query is asked while it is shown, off the main thread, and the first of a new query's matches chosen, as
+        // the tree's search chooses its first.
+        viewModelScope.launch {
+            workbench.state
+                .map { state -> state.documents.firstOrNull { it.id == documentId }?.takeIf { it.view.pane == DocumentPane.Query } }
+                .map { shown ->
+                    shown?.let { it.copy(name = null, edited = false, view = DocumentView(query = it.view.query), historyId = null) }
+                }
+                .distinctUntilChanged()
+                .collectLatest { shown ->
+                    if (shown == null) return@collectLatest setState { copy(query = null) }
+                    val reading = readings.of(documentId, shown.text, shown.format)?.first
+                        ?: withContext(reader) { readDocument(shown.text, shown.format) }
+                    val outcome = withContext(reader) { queryOutcome(shown, reading, shown.view.query, ::xmlOf) }
+                    setState { copy(query = outcome) }
+                    val first = outcome.matches.firstOrNull { it.key != null } ?: return@collectLatest
+                    if (outcome.matches.none { it.key == state.value.selected?.key }) select(first.key)
+                }
+        }
+        viewModelScope.launch {
+            queries.queries.collect { recent -> setState { copy(recentQueries = recent) } }
+        }
+    }
+
+    // The XML an XPath is asked of, read once for each of its texts rather than once for each query.
+    private var xml: XmlDocument? = null
+
+    private fun xmlOf(text: String): XmlDocument = xml?.takeIf { it.text == text } ?: XmlDocument.parse(text).also { xml = it }
+
     override fun handle(intent: WorkspaceIntent) {
         when (intent) {
             is WorkspaceIntent.Expand -> workbench.changeView(documentId) { it.copy(expanded = intent.keys) }
@@ -92,6 +127,12 @@ internal class WorkspaceViewModel(
 
             is WorkspaceIntent.HideColumns -> workbench.changeView(documentId) {
                 it.copy(hiddenColumns = intent.hidden)
+            }
+
+            is WorkspaceIntent.Query -> workbench.changeView(documentId) { it.copy(query = intent.query) }
+
+            WorkspaceIntent.UseQuery -> state.value.let { shown ->
+                shown.queryLanguage?.let { queries.remember(it, shown.document?.view?.query.orEmpty()) }
             }
 
             is WorkspaceIntent.Write -> workbench.write(documentId, intent.text)
@@ -146,6 +187,7 @@ internal fun readState(document: OpenDocument): WorkspaceState {
         stats = TextStats.of(document.text),
         json5Allows = json5Allows(document.text, document.format, reading),
         summary = if (shown) (reading as? Reading.Read)?.root?.let(::summaryOf) else null,
-        sizes = if (shown) sizesOf(document, minifiedOf(document)) else null
+        sizes = if (shown) sizesOf(document, minifiedOf(document)) else null,
+        query = if (document.view.pane == DocumentPane.Query) queryOutcome(document, reading, document.view.query) else null
     ).arranged()
 }

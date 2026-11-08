@@ -72,10 +72,16 @@ internal fun PhoneWorkspace(
             onSelect = { onIntent(WorkspaceIntent.ShowPane(it)) },
             problems = state.problems.size,
             withTable = state.problems.isEmpty() || state.table != null,
+            withQuery = pane == DocumentPane.Query,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = spacing.lg, end = spacing.lg, top = spacing.md, bottom = spacing.sm)
         )
+        // The query's board gives it the room under the views, and its own actions at the bottom.
+        if (pane == DocumentPane.Query) {
+            PhoneQuery(state = state, onIntent = onIntent, commands = commands, modifier = Modifier.weight(1f).fillMaxWidth())
+            return@Column
+        }
         // The table's board and the Summary's give them the room the tree's card and the actions take.
         if (pane == DocumentPane.Table || pane == DocumentPane.Summary) {
             val room = Modifier.weight(1f).fillMaxWidth()

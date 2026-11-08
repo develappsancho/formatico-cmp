@@ -89,7 +89,7 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
 *   [ ] **Üst çubuğun bazı düğmeleri basılmıyor (2026-11-03).**
     *   Ne: Başlatıcı (komut paleti) ve Ayarlar kendi ekranları gelene kadar `enabled = false`; tek sekme var ve yeni sekme düğmesi çizilmiyor.
     *   Öneri: Palette, Settings ve sekmeler yazıldıkça bağlamak.
-    *   Durum: açık. Sekmeler ve yeni sekme düğmesi Workspace'le bağlandı (2026-11-03); başlatıcı ve Ayarlar hâlâ basılmıyor. Workspace'in Query, Convert, Compare, ağaçta arama ve Table görünümü de kendi ekranlarını bekliyor.
+    *   Durum: açık. Sekmeler ve yeni sekme düğmesi Workspace'le bağlandı (2026-11-03); başlatıcı ve Ayarlar hâlâ basılmıyor. Workspace'in Query, Convert, Compare, ağaçta arama ve Table görünümü de kendi ekranlarını bekliyor. Query bağlandı (2026-11-05); Convert ve Compare Faz 10 ve 11'i bekliyor.
 *   [x] **Temanın seçimi saklanmıyor (2026-11-03).**
     *   Ne: Çubuğun tema düğmesi seçimi `rememberSaveable` ile tutuyor; uygulama yeniden açılınca sistemin teması geri geliyor.
     *   Öneri: Settings ekranıyla birlikte cihazda saklamak.
@@ -321,7 +321,7 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
 *   [ ] **Ağacın satırı panolarda ölçekte olmayan bir boyda (2026-11-04).**
     *   Ne: Workspace panoları ağacın satırını Geist Mono'yla 13/20 ve normal kalınlıkta yazıyor (telefonda 14/20). Pantrix'in ölçeğinde 13 yok; kodun rolü `code` 14/20 ve orta kalınlıkta. Ağaç `TreeViewStyle(labelRole = TypeRole.Code)` ile o rolü kullanıyor.
     *   Öneri: tuvalde satırı `code`'a getirmek; ya da bu sapmayı kabul etmek.
-    *   Durum: açık. Kodda temanın `code`'u.
+    *   Durum: açık. Kodda temanın `code`'u. Query panolarının eşleşme satırları da 13/20 (telefonda değer 15/22, yol 12/16); kodda `code`, telefonda `code` gövdenin ve dipnotun boyunda (2026-11-05).
 *   [ ] **Ağacın kökü panolarda `${4}` diye yazılıyor (2026-11-04).**
     *   Ne: Panolar kökün satırını iki nokta olmadan ve boşluksuz `$` ile boyutunu yan yana yazıyor: `${11}`, `${4}`. JavaScript'in şablon yazısına benziyor; bir boşluk (`$ {11}`) ya da yalnızca `$` daha az karışabilir. Kod panodaki gibi.
     *   Öneri: sahibinin kararı.
@@ -334,3 +334,33 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Ne: Seçili satırın ve aramanın işaretleri satırın etiketinde (`styledLabel`), bu yüzden `documentRows` seçim ya da aranan değişince bütün düğümleri yeniden kuruyor. Küçük belgelerde fark edilmiyor; Faz 14'ün 50 MB hedefinde ölçülmeli.
     *   Öneri: Faz 14'te ölçmek; gerekirse yalnızca değişen satırların yolunu yeniden kurmak.
     *   Durum: açık.
+
+*   [ ] **Telefonda Query'ye giriş panolarda yok (2026-11-05).**
+    *   Ne: Query-390 sorguyu görünümlerin içinde, tablonun yerinde gösteriyor (`Text`, `Tree`, `Query`), ama Workspace-390'da Query'yi açan bir şey yok: araç çubuğunun Query'si telefonda yok, More menüsü hiçbir hâlde çizilmemiş. Tabletin More düğmesinin adı ("More actions: sort keys, compare, save as a file") Query'yi saymıyor; tablette Query araç çubuğunda.
+    *   Öneri: telefonun More menüsünü tuvale çizmek: Find in tree, Summary, Query, Sort keys, Compare, Close.
+    *   Durum: açık. Kodda, arama ve Summary için verilen karar gibi (2026-11-04), Query telefonun More menüsünde, Summary'nin altında.
+*   [ ] **Query'nin panolarda olmayan hâlleri kodda seçildi (2026-11-05).**
+    *   Ne: Query panoları yalnızca eşleşmeleri bulunmuş bir sorguyu çiziyor. Kodda seçilenler:
+        *   Boş sorgu: alanın altında "Write a JSONPath, as $.items[*].name" (XPath için "Write an XPath, as //item/title"); eşleşme listesi yok.
+        *   Sorgu olmayan bir yazı: alan hata hâlinde, nedeni ve yeri ("… (character 9)"); liste yok.
+        *   Eşleşmesiz bir sorgu: "No matches"; kopyalama ve belge olarak açma kapalı.
+        *   Bir değere varan XPath (`count(//item)`, Query-834'ün son sorgularında var): başlık "Value", tek satırda XPath'in kendisi ve değeri.
+        *   Okunamamış bir belge: ağacın bölmesinin iletisi.
+    *   Öneri: tuvale bu hâllerin çizilmesi, ya da kodun seçiminin kabulü.
+    *   Durum: açık.
+*   [ ] **Sorgunun sonuçlarının biçimi ve adı kodda seçildi (2026-11-05).**
+    *   Ne: "Copy the results" ve "Open as a document" panolarda var, ne verdikleri yok. Kodda JSONPath'in değerleri bir JSON dizisi (belge hangi biçimde olursa olsun; YAML'ın alias'ı gösterdiği değer olarak), XPath'in düğümleri bir XML belgesinin `<results>`'ı: bir öğe yazıldığı gibi, öteki düğümler değerleriyle bir `<result>`'ta; bir değere varan XPath tek bir `<result>`. İkisi de Format'la dizilmiş. Yeni belgenin adı belgenin adı ve `-query`: `order-query.json`, `feed-query.xml`.
+    *   Öneri: tuvalde sonuçların belgesini çizmek, ya da bu seçimi kabul etmek.
+    *   Durum: açık.
+*   [ ] **Son sorgular ne zaman saklanıyor, kodda seçildi (2026-11-05).**
+    *   Ne: Panolarda "Recent" altında son sorgular var. Kodda bir sorgu yazılırken değil, kullanılınca saklanıyor: klavyenin eylemi, bir eşleşmenin seçilmesi, sonuçların kopyalanması ya da belge olarak açılması. Her dilden en çok beş tanesi cihazda (`core:storage`), en yenisi önde; o anki sorgu aralarında gösterilmiyor. Geniş pencere ve tablet üçünü gösteriyor, telefon hepsini kayan bir satırda.
+    *   Öneri: tasarımda bu kuralın onayı.
+    *   Durum: açık.
+*   [ ] **Önizlemelerin siparişi panolarınkinden başka (2026-11-05).**
+    *   Ne: Panoların `order.json`'unda iki kalem var (T-shirt, Mug) ve bir `shipping` nesnesi; kodun önizlemelerindeki siparişte (`PreviewOrder`) üç kalem (Keyboard, Mouse, Desk pad) ve `shipping` yok. Query-1440 "2 matches" diyor, önizlemesi "3 matches"; çizim aynı, içerik değil. Önizlemeler bir zaman panolardan alınmış olmalı; panolar sonra değişmiş.
+    *   Öneri: `PreviewOrder`'ı panolardaki belgeye getirmek ve bütün ekran görüntülerini yeniden kaydetmek (Workspace, Table, Summary, Query, uygulamanın panoları), ayrı bir değişiklikte.
+    *   Durum: açık.
+*   [ ] **Büyük bir XML'de XPath her sorguda dizinini yeniden kuruyor (2026-11-05).**
+    *   Ne: Workspace bir XML metnini her metin için bir kez okuyor, ama `XPath.evaluate` her sorguda belgenin dizinini (ebeveynler, sıra) yeniden kuruyor; her eşleşmenin değeri de (`XPathMatch.value`) hemen yazılıyor: `//*` büyük bir belgede metni derinlik kadar kopyalıyor. Sorgu her harfte soruluyor.
+    *   Öneri: Faz 14'te 50 MB'ta ölçmek; gerekirse dizini belgeyle tutmak, değeri gösterilen satırlar için yazmak, sorguyu yazım durunca sormak.
+    *   Durum: açık, Faz 14'le.

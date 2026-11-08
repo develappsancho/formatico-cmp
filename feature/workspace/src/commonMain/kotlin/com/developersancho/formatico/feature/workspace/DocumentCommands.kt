@@ -15,6 +15,7 @@ import com.pantrixui.components.overlay.menu.PantrixMenu
 import com.pantrixui.components.overlay.menu.PantrixMenuItem
 import com.pantrixui.components.overlay.popover.PopoverAlignment
 import com.pantrixui.components.overlay.snackbar.LocalPantrixSnackbars
+import com.pantrixui.components.overlay.snackbar.PantrixSnackbarState
 import com.pantrixui.components.overlay.snackbar.SnackbarResult
 import com.pantrixui.components.overlay.snackbar.SnackbarTone
 import com.pantrixui.foundation.files.FileSaveResult
@@ -23,6 +24,9 @@ import com.pantrixui.foundation.files.rememberFileSaver
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.platform.rememberPantrixClipboard
 import formatico.feature.workspace.generated.resources.Res
+import formatico.feature.workspace.generated.resources.query_results_copied
+import formatico.feature.workspace.generated.resources.query_results_copy_failed
+import formatico.feature.workspace.generated.resources.query_results_label
 import formatico.feature.workspace.generated.resources.summary_copied
 import formatico.feature.workspace.generated.resources.summary_copy_failed
 import formatico.feature.workspace.generated.resources.summary_label
@@ -46,6 +50,7 @@ import formatico.feature.workspace.generated.resources.workspace_more_actions_so
 import formatico.feature.workspace.generated.resources.workspace_path_copied
 import formatico.feature.workspace.generated.resources.workspace_path_copy_failed
 import formatico.feature.workspace.generated.resources.workspace_path_label
+import formatico.feature.workspace.generated.resources.workspace_query
 import formatico.feature.workspace.generated.resources.workspace_save_failed
 import formatico.feature.workspace.generated.resources.workspace_save_file
 import formatico.feature.workspace.generated.resources.workspace_show_summary_item
@@ -63,18 +68,19 @@ import org.jetbrains.compose.resources.getPluralString
 import org.jetbrains.compose.resources.stringResource
 
 /** What is copied from a document besides the whole of it, each said in words of its own. */
-internal enum class Copied { Value, Path, Table, Summary }
+internal enum class Copied { Value, Path, Table, Summary, Results }
 
 /**
  * What a document's buttons do that is not the workspace's state: copying it, or a part of it ([copyText]), saving as
- * a file, and saying what an edit did, with its undo.
+ * a file, saying what an edit did, with its undo, and opening what a query found as a document of its own ([open]).
  */
 internal class DocumentCommands(
     val copy: (OpenDocument) -> Unit,
     val copyText: (Copied, String) -> Unit,
     val save: (OpenDocument) -> Unit,
     val saveCsv: (OpenDocument, String) -> Unit,
-    val report: (DocumentEdit, EditResult) -> Unit
+    val report: (DocumentEdit, EditResult) -> Unit,
+    val open: (QueryResults) -> Unit = {}
 )
 
 /** What a copy says: what is copied, for the system's own preview of it, and how it went. */
@@ -130,6 +136,12 @@ private fun commandWords() = CommandWords(
             done = stringResource(Res.string.summary_copied),
             failed = stringResource(Res.string.summary_copy_failed),
             tag = "summary_copied"
+        ),
+        Copied.Results to CopyWords(
+            label = stringResource(Res.string.query_results_label),
+            done = stringResource(Res.string.query_results_copied),
+            failed = stringResource(Res.string.query_results_copy_failed),
+            tag = "results_copied"
         )
     ),
     edits = EditWords(
@@ -181,9 +193,7 @@ internal fun rememberDocumentCommands(workbench: Workbench): DocumentCommands {
     fun save(file: PantrixFile) {
         saver.save(file) { result ->
             if (result == FileSaveResult.Failed) {
-                scope.launch {
-                    snackbars?.show(message = words.saveFailed, tone = SnackbarTone.Danger, tagKey = "save_failed")
-                }
+                scope.launch { snackbars?.show(message = words.saveFailed, tone = SnackbarTone.Danger, tagKey = "save_failed") }
             }
         }
     }
@@ -195,53 +205,61 @@ internal fun rememberDocumentCommands(workbench: Workbench): DocumentCommands {
             save = { document ->
                 save(PantrixFile(fileNameOf(document, words.untitled), document.text.encodeToByteArray()))
             },
+            open = { results -> workbench.open(results.name, results.text, results.format) },
             saveCsv = { document, csv ->
                 val name = fileNameOf(document, words.untitled).substringBeforeLast('.') + ".csv"
                 save(PantrixFile(name, csv.encodeToByteArray(), mimeType = "text/csv"))
             },
-            report = { edit, result ->
-                scope.launch {
-                    when (result) {
-                        is EditResult.Changed -> {
-                            val removed = result.commentsRemoved
-                            val answer = snackbars?.show(
-                                message = if (removed > 0) {
-                                    getPluralString(Res.plurals.workspace_minified_comments, removed, removed)
-                                } else {
-                                    words.edits.done.getValue(edit)
-                                },
-                                actionLabel = words.edits.undo,
-                                tagKey = "edited"
-                            )
-                            if (answer == SnackbarResult.ActionPerformed) workbench.restore(result.previous)
-                        }
-
-                        EditResult.Unchanged -> {
-                            snackbars?.show(
-                                message = words.edits.already.getValue(edit),
-                                tagKey = "unchanged"
-                            )
-                        }
-
-                        EditResult.NotPossible -> {
-                            snackbars?.show(
-                                message = words.edits.impossible,
-                                tone = SnackbarTone.Warning,
-                                tagKey = "not_possible"
-                            )
-                        }
-
-                        EditResult.AliasBeforeAnchor -> {
-                            snackbars?.show(
-                                message = words.edits.aliasBeforeAnchor,
-                                tone = SnackbarTone.Warning,
-                                tagKey = "alias_before_anchor"
-                            )
-                        }
-                    }
-                }
-            }
+            report = { edit, result -> scope.launch { reportEdit(edit, result, snackbars, words.edits, workbench) } }
         )
+    }
+}
+
+/** Says what [edit] came to, [result], in [snackbars]: a change with its undo, which gives [workbench] the document back. */
+private suspend fun reportEdit(
+    edit: DocumentEdit,
+    result: EditResult,
+    snackbars: PantrixSnackbarState?,
+    words: EditWords,
+    workbench: Workbench
+) {
+    when (result) {
+        is EditResult.Changed -> {
+            val removed = result.commentsRemoved
+            val answer = snackbars?.show(
+                message = if (removed > 0) {
+                    getPluralString(Res.plurals.workspace_minified_comments, removed, removed)
+                } else {
+                    words.done.getValue(edit)
+                },
+                actionLabel = words.undo,
+                tagKey = "edited"
+            )
+            if (answer == SnackbarResult.ActionPerformed) workbench.restore(result.previous)
+        }
+
+        EditResult.Unchanged -> {
+            snackbars?.show(
+                message = words.already.getValue(edit),
+                tagKey = "unchanged"
+            )
+        }
+
+        EditResult.NotPossible -> {
+            snackbars?.show(
+                message = words.impossible,
+                tone = SnackbarTone.Warning,
+                tagKey = "not_possible"
+            )
+        }
+
+        EditResult.AliasBeforeAnchor -> {
+            snackbars?.show(
+                message = words.aliasBeforeAnchor,
+                tone = SnackbarTone.Warning,
+                tagKey = "alias_before_anchor"
+            )
+        }
     }
 }
 
@@ -253,14 +271,14 @@ internal enum class DocumentMenuItems {
     /** In a tablet's toolbar: sorting the keys, comparing, saving and closing. */
     SortCompareSaveClose,
 
-    /** In a phone's bar, where Format, Minify, Copy and Save stand at the bottom: finding in the tree and the Summary too. */
+    /** In a phone's bar, where Format, Minify, Copy and Save stand at the bottom: finding in the tree, the Summary and the query too. */
     FindSummarySortCompareClose
 }
 
 /**
  * The "more" button of a phone's bar while the document of [workbench] whose id is [documentId] is shown, and the menu
- * it opens: finding in the tree, showing the Summary, sorting the keys, comparing (not open yet) and closing the
- * document. A phone has no room for the search's button over its tree, nor a status bar whose size shows the Summary.
+ * it opens: finding in the tree, showing the Summary, querying, sorting the keys, comparing (not open yet) and closing
+ * the document. A phone has no room for the search's button over its tree, nor a status bar whose size shows the Summary.
  */
 @Composable
 fun DocumentMoreMenu(documentId: Long, workbench: Workbench) {
@@ -275,6 +293,7 @@ fun DocumentMoreMenu(documentId: Long, workbench: Workbench) {
         read = format != null,
         onFind = { workbench.changeView(documentId) { it.copy(pane = DocumentPane.Tree, searching = true) } },
         onSummary = { workbench.changeView(documentId) { it.copy(pane = DocumentPane.Summary) } },
+        onQuery = { workbench.changeView(documentId) { it.copy(pane = DocumentPane.Query) } },
         // Whether the document is valid is the workspace's to know; one with errors is told why it is not sorted.
         canSort = format?.edits?.contains(DocumentEdit.SortKeys) == true,
         onSortKeys = {
@@ -293,6 +312,7 @@ internal fun DocumentMenu(
     read: Boolean = true,
     onFind: () -> Unit = {},
     onSummary: () -> Unit = {},
+    onQuery: () -> Unit = {},
     canSort: Boolean,
     onSortKeys: () -> Unit,
     onSave: () -> Unit,
@@ -320,7 +340,7 @@ internal fun DocumentMenu(
         alignment = PopoverAlignment.End,
         tagKey = "document"
     ) {
-        if (items == DocumentMenuItems.FindSummarySortCompareClose) FindAndSummaryItems(read, onFind, onSummary)
+        if (items == DocumentMenuItems.FindSummarySortCompareClose) FindSummaryAndQueryItems(read, onFind, onSummary, onQuery)
         if (items != DocumentMenuItems.Close) {
             PantrixMenuItem(
                 text = stringResource(Res.string.workspace_sort_keys),
@@ -353,9 +373,12 @@ internal fun DocumentMenu(
     }
 }
 
-/** The rows only a phone's menu holds: finding in the tree and showing the Summary, which a [read] document has. */
+/**
+ * The rows only a phone's menu holds: finding in the tree, showing the Summary and querying, which a [read] document
+ * has. A phone has no room for the toolbar's Query.
+ */
 @Composable
-private fun FindAndSummaryItems(read: Boolean, onFind: () -> Unit, onSummary: () -> Unit) {
+private fun FindSummaryAndQueryItems(read: Boolean, onFind: () -> Unit, onSummary: () -> Unit, onQuery: () -> Unit) {
     PantrixMenuItem(
         text = stringResource(Res.string.workspace_find_in_tree),
         onClick = onFind,
@@ -368,5 +391,11 @@ private fun FindAndSummaryItems(read: Boolean, onFind: () -> Unit, onSummary: ()
         onClick = onSummary,
         enabled = read,
         tagKey = "summary"
+    )
+    PantrixMenuItem(
+        text = stringResource(Res.string.workspace_query),
+        onClick = onQuery,
+        enabled = read,
+        tagKey = "query"
     )
 }

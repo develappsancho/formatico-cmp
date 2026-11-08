@@ -91,7 +91,11 @@ eksikler Faz 4'te.
     Summary "more" menüsünden açılıyor (sahibinin kararı, 2026-11-04). Ağaç `PantrixLazyTreeView`'e geçti
     (2026-11-04): satırlar sözdizimi renkleriyle, tarih, renk ve resim önizlemesi, aramanın vurgusu, seçili satıra
     kaydırma. Kalanlar Pantrix'i bekliyor: sütun türleri (DataTable'ın başlığı), bağlantının ve resmin simgesi.
-*   [ ] **Faz 9: Query.** JSONPath ve XPath.
+*   [x] **Faz 9: Query.** JSONPath ve XPath. Yapıldı (2026-11-05): `core:format`'ta RFC 9535'in bütün JSONPath'i ve
+    XPath 1.0 (ad alanı çözümü olmadan); Workspace'te Query görünümü üç genişlikte, araç çubuğundan, telefonda More
+    menüsünden. JSONPath XML dışındaki her biçimin ağacında, XPath XML'in kendi düğümlerinde; eşleşmeler ağaçta ve
+    metinde seçiliyor, sonuçlar kopyalanıyor ya da belge olarak açılıyor, son sorgular cihazda. Eşleşmelerin metinde
+    işaretlenmesi Pantrix'i bekliyor (PANTRIX_FINDINGS).
 *   [ ] **Faz 10: Convert.** Biçimler arasında; kaybolacak olan önceden söylenir.
 *   [ ] **Faz 11: Compare.** Anlamsal karşılaştırma.
 *   [ ] **Faz 12: Komut paleti, kısayollar ve Settings.** Faz 4'ün cihazda saklamasının üstünde.
