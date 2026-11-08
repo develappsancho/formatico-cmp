@@ -624,4 +624,72 @@
         <item quantity="one">%1$d array named</item>
         <item quantity="other">%1$d arrays named</item>
     </plurals>
+    <string name="compare_a">A</string>
+    <string name="compare_b">B</string>
+    <string name="compare_b_menu">B: %1$s. Choose another document</string>
+    <string name="compare_by">Compare by</string>
+    <string name="compare_by_meaning">Meaning</string>
+    <string name="compare_by_text">Text</string>
+    <plurals name="compare_changed">
+        <item quantity="one">%1$d changed</item>
+        <item quantity="other">%1$d changed</item>
+    </plurals>
+    <plurals name="compare_added">
+        <item quantity="one">%1$d added</item>
+        <item quantity="other">%1$d added</item>
+    </plurals>
+    <plurals name="compare_removed">
+        <item quantity="one">%1$d removed</item>
+        <item quantity="other">%1$d removed</item>
+    </plurals>
+    <string name="compare_stop">Stop comparing</string>
+    <plurals name="compare_differences">
+        <item quantity="one">%1$d difference</item>
+        <item quantity="other">%1$d differences</item>
+    </plurals>
+    <string name="compare_no_differences">No differences</string>
+    <string name="compare_same_meaning">A and B mean the same.</string>
+    <string name="compare_same_text">A and B are the same text.</string>
+    <string name="compare_change_changed">Changed</string>
+    <string name="compare_change_added">Added</string>
+    <string name="compare_change_removed">Removed</string>
+    <string name="compare_what">%1$s → %2$s</string>
+    <string name="compare_line">Line %1$d</string>
+    <string name="compare_lines">Lines %1$d–%2$d</string>
+    <string name="compare_not_counted">Not counted as differences</string>
+    <string name="compare_moved_pair">The order of the keys: %1$s and %2$s changed places.</string>
+    <plurals name="compare_moved">
+        <item quantity="one">The order of the keys: %1$s moved.</item>
+        <item quantity="other">The order of the keys: %1$s and %2$d more moved.</item>
+    </plurals>
+    <string name="compare_respelled_alone">The spelling of the numbers: %1$s and %2$s are the same number.</string>
+    <string name="compare_respelled_after">And %1$s and %2$s, which are the same number.</string>
+    <plurals name="compare_respelled_more">
+        <item quantity="one">And %1$s and %2$s, which are the same number, and %3$d more.</item>
+        <item quantity="other">And %1$s and %2$s, which are the same number, and %3$d more.</item>
+    </plurals>
+    <string name="compare_not_counted_both">%1$s %2$s</string>
+    <string name="compare_difference_of">Difference %1$d of %2$d</string>
+    <string name="compare_by_meaning_note">Compared by meaning: key order and number spelling are not differences</string>
+    <string name="compare_by_text_note">Compared by text: every character counts</string>
+    <plurals name="compare_side">
+        <item quantity="one">%1$s · %2$s · %3$d line</item>
+        <item quantity="other">%1$s · %2$s · %3$d lines</item>
+    </plurals>
+    <string name="compare_side_short">%1$s · %2$s</string>
+    <string name="compare_title">Compare</string>
+    <string name="compare_show">Show</string>
+    <string name="compare_show_in">Show %1$s in A and B</string>
+    <string name="compare_in_a">In A</string>
+    <string name="compare_in_b">In B</string>
+    <string name="compare_not_there">not there</string>
+    <string name="compare_alone_title">Nothing to compare with</string>
+    <string name="compare_alone_body">Open another document in a new tab, and compare this one with it.</string>
+    <string name="compare_unread_title">%1$s has nothing to compare by meaning</string>
+    <string name="compare_unread_body">It is plain text, or none of it could be read: compare it by text instead.</string>
+    <plurals name="compare_invalid_title">
+        <item quantity="one">%1$s has an error</item>
+        <item quantity="other">%1$s has %2$d errors</item>
+    </plurals>
+    <string name="compare_invalid_body">Repair it to compare by meaning, or compare by text.</string>
 </resources>

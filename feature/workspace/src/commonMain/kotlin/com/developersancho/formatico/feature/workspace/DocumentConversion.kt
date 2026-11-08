@@ -125,6 +125,9 @@ internal fun convertedName(name: String?, format: Format): String? {
     return "$stem.${format.extensions.first()}"
 }
 
+/** The value of the tree whose root is [root], read as [format], as a conversion carries it and a comparison weighs it. */
+internal fun dataValueOf(root: ValueNode, format: Format): DataValue = DocumentData(root, format).value
+
 /**
  * The value of the tree whose root is [root], read as [format], as a conversion carries it. A YAML alias is the value
  * it points at, as YAML reads it, unless that value holds the alias itself, or the document has more aliases than

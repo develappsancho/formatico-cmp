@@ -111,4 +111,27 @@ class AppTest {
         awaitText("Valid JSON")
         onPantrixNode("Button", "switch_documents").assertExists()
     }
+
+    @Test
+    fun aPhonesComparisonHasABarOfItsOwnInTheAppBarsPlace() = runComposeUiTest {
+        setContent {
+            PantrixTestTheme(window = PantrixWindow(DpSize(390.dp, 844.dp))) {
+                App(systemDark = false, storage = memoryStorageModule)
+            }
+        }
+        awaitText("Paste anything")
+        onPantrixNode("ListItem", "sample_order").performClick()
+        awaitText("Valid JSON")
+
+        onPantrixNode("IconButton", "more").performClick()
+        // The menu's row stands past the foot of what the test draws: it is pressed as a screen reader presses it.
+        onPantrixNode("MenuItem", "compare", scope = "Menu_document").performSemanticsAction(SemanticsActions.OnClick)
+        // The one document open has nothing to compare with.
+        awaitText("Nothing to compare with")
+        onPantrixNode("Button", "switch_documents").assertDoesNotExist()
+
+        onPantrixNode("IconButton", "back").performClick()
+        awaitText("Valid JSON")
+        onPantrixNode("Button", "switch_documents").assertExists()
+    }
 }

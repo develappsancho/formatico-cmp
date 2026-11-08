@@ -218,8 +218,13 @@ internal val PreviewSettings =
     """.trimIndent() + "\n"
 
 /** The workspace of a document named [name], with [text] read as [format] and its tree left as [view] says. */
-internal fun previewState(name: String?, text: String, format: Format?, view: DocumentView = DocumentView()) =
-    readState(OpenDocument(id = 1, name = name, text = text, format = format, view = view))
+internal fun previewState(
+    name: String?,
+    text: String,
+    format: Format?,
+    view: DocumentView = DocumentView(),
+    others: List<OpenDocument> = emptyList()
+) = readState(OpenDocument(id = 1, name = name, text = text, format = format, view = view), others)
 
 internal val Order = previewState("order.json", PreviewOrder, Format.Json, DocumentView(selected = "$.customer.avatar"))
 internal val OrderUnchosen = previewState("order.json", PreviewOrder, Format.Json)
@@ -287,7 +292,8 @@ internal class ScreenCase(val state: WorkspaceState, val caret: Int = 0)
  * tables, a document with mistakes and its problems, a YAML one with a flow left open, an XML feed, a TOML manifest,
  * newline-delimited JSON, a properties file and an INI one, the order's Summary measured and being measured and a CSV's,
  * the order and the feed queried, as the Query boards draw them, the order converted to YAML and to TOML, as the
- * Convert boards draw it, one being read, and a new, empty one.
+ * Convert boards draw it, the boards' two orders compared by meaning and by text, one being read, and a new, empty
+ * one.
  */
 internal class WorkspaceScreenCases :
     PreviewCases<ScreenCase>(
@@ -311,6 +317,8 @@ internal class WorkspaceScreenCases :
         "query prices" to ScreenCase(OrderPrices),
         "convert" to ScreenCase(OrderToYaml),
         "convert toml" to ScreenCase(OrderToToml),
+        "compare" to ScreenCase(OrdersCompared),
+        "compare text" to ScreenCase(OrdersComparedAsText),
         "reading" to ScreenCase(BeingRead),
         "empty" to ScreenCase(Empty)
     )

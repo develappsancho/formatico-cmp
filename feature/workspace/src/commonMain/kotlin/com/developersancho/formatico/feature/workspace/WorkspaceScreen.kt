@@ -109,10 +109,35 @@ internal fun WorkspaceScreen(
     val text = editor ?: remember(document.id) { CodeEditorState(document.text) }
     val layout = workspaceLayout()
     if (layout == WorkspaceLayout.Phone) {
-        PhoneWorkspace(state = state, document = document, editor = text, onIntent = onIntent, commands = commands, modifier = modifier)
+        when (document.view.pane) {
+            // The conversion and the comparison are screens of their own, their bars in the app bar's place, as
+            // Convert-390 and Compare-390 draw them.
+            DocumentPane.Convert -> PhoneConvert(state = state, onIntent = onIntent, commands = commands, modifier = modifier)
+
+            DocumentPane.Compare -> PhoneCompare(
+                state = state,
+                onIntent = onIntent,
+                more = { PhoneMoreMenu(state, document, onIntent) },
+                modifier = modifier
+            )
+
+            else -> PhoneWorkspace(
+                state = state,
+                document = document,
+                editor = text,
+                onIntent = onIntent,
+                commands = commands,
+                modifier = modifier
+            )
+        }
         return
     }
     val wide = layout == WorkspaceLayout.Wide
+    // The comparison takes the toolbar's room and the status bar's, as the Compare boards draw it.
+    if (document.view.pane == DocumentPane.Compare) {
+        CompareScreen(state = state, layout = layout, onIntent = onIntent, modifier = modifier)
+        return
+    }
     Column(modifier = modifier.fillMaxSize().background(PantrixTheme.colors.surface)) {
         Toolbar(state = state, document = document, layout = layout, onIntent = onIntent, commands = commands)
         PantrixHorizontalDivider()
@@ -257,10 +282,9 @@ private fun Toolbar(
         if (wide) {
             PantrixButton(
                 text = stringResource(Res.string.workspace_compare),
-                onClick = {},
+                onClick = { onIntent(WorkspaceIntent.ShowPane(DocumentPane.Compare)) },
                 variant = ButtonVariant.Text,
                 size = size,
-                enabled = false,
                 tagKey = "compare"
             )
         }
@@ -341,6 +365,7 @@ private fun DocumentButtons(
             size = layout.buttons,
             canSort = DocumentEdit.SortKeys in state.edits,
             onSortKeys = { onIntent(WorkspaceIntent.Edit(DocumentEdit.SortKeys)) },
+            onCompare = { onIntent(WorkspaceIntent.ShowPane(DocumentPane.Compare)) },
             onSave = { commands.save(document) },
             onClose = { onIntent(WorkspaceIntent.Close) }
         )

@@ -131,9 +131,9 @@ private fun PhoneChoices(converted: ConvertOutcome.Converted, choice: ConvertCho
     }
 }
 
-/** Leaves the conversion when the system goes back, where the window has a way of going back to listen to. */
+/** Calls [onBack] when the system goes back, where the window has a way of going back to listen to. */
 @Composable
-private fun SystemBack(onBack: () -> Unit) {
+internal fun SystemBack(onBack: () -> Unit) {
     if (LocalNavigationEventDispatcherOwner.current == null) return
     NavigationBackHandler(state = rememberNavigationEventState(NavigationEventInfo.None), onBackCompleted = onBack)
 }

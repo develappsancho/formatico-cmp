@@ -124,6 +124,50 @@ internal class WorkspaceViewModel(
         }
     }
 
+    init {
+        // The other open documents, which the document can be compared with.
+        viewModelScope.launch {
+            workbench.state
+                .map { state -> state.documents.filter { it.id != documentId }.map { OtherDocument(it.id, it.name) } }
+                .distinctUntilChanged()
+                .collect { others -> setState { copy(others = others) } }
+        }
+        // The document is compared while its Compare is shown, off the main thread, again as either text, the other
+        // document or the choice changes.
+        viewModelScope.launch {
+            workbench.state
+                .map { state -> compareInput(state.documents) }
+                .distinctUntilChanged()
+                .collectLatest { input ->
+                    if (input == null) return@collectLatest setState { copy(comparison = null) }
+                    val (a, b) = input
+                    val aReading = readingOf(a)
+                    val bReading = b?.let { readingOf(it) }
+                    val outcome = withContext(reader) { comparisonOf(a, aReading, b, bReading, a.view.compare.by) }
+                    setState { copy(comparison = outcome) }
+                }
+        }
+    }
+
+    /**
+     * What the document's comparison is worked out from, while its Compare is shown: the document and the one it is
+     * compared with, with no more of their views than how they are compared, so that a new choice of difference does
+     * not compare them again.
+     */
+    private fun compareInput(documents: List<OpenDocument>): Pair<OpenDocument, OpenDocument?>? {
+        val shown = documents.firstOrNull { it.id == documentId }?.takeIf { it.view.pane == DocumentPane.Compare } ?: return null
+        val partner = partnerOf(documentId, documents, shown.view.compare)
+
+        fun bare(document: OpenDocument, by: CompareBy) =
+            document.copy(edited = false, view = DocumentView(compare = CompareChoice(by = by)), historyId = null)
+        return bare(shown, shown.view.compare.by) to partner?.let { bare(it, CompareBy.Meaning) }
+    }
+
+    /** What [document] was read as: kept where it was read before, read again off the main thread otherwise. */
+    private suspend fun readingOf(document: OpenDocument): Reading =
+        readings.of(document.id, document.text, document.format)?.first
+            ?: withContext(reader) { readDocument(document.text, document.format) }
+
     // The XML an XPath is asked of, read once for each of its texts rather than once for each query.
     private var xml: XmlDocument? = null
 
@@ -156,6 +200,8 @@ internal class WorkspaceViewModel(
             is WorkspaceIntent.Query -> workbench.changeView(documentId) { it.copy(query = intent.query) }
 
             is WorkspaceIntent.Convert -> workbench.changeView(documentId) { it.copy(convert = intent.choice) }
+
+            is WorkspaceIntent.Compare -> workbench.changeView(documentId) { it.copy(compare = intent.choice) }
 
             WorkspaceIntent.UseQuery -> state.value.let { shown ->
                 shown.queryLanguage?.let { queries.remember(it, shown.document?.view?.query.orEmpty()) }
@@ -202,8 +248,11 @@ internal fun WorkspaceState.arranged(): WorkspaceState {
     )
 }
 
-/** The workspace of [document] once it is read: what its view model comes to, at once, for a preview or a test. */
-internal fun readState(document: OpenDocument): WorkspaceState {
+/**
+ * The workspace of [document] once it is read, beside the [others] open: what its view model comes to, at once, for a
+ * preview or a test.
+ */
+internal fun readState(document: OpenDocument, others: List<OpenDocument> = emptyList()): WorkspaceState {
     val reading = readDocument(document.text, document.format)
     // Its summary is worked out where it is shown, all but its gzipped size, which the platform measures in its time.
     val shown = document.view.pane == DocumentPane.Summary
@@ -215,8 +264,16 @@ internal fun readState(document: OpenDocument): WorkspaceState {
         summary = if (shown) (reading as? Reading.Read)?.root?.let(::summaryOf) else null,
         sizes = if (shown) sizesOf(document, minifiedOf(document)) else null,
         query = if (document.view.pane == DocumentPane.Query) queryOutcome(document, reading, document.view.query) else null,
-        conversion = if (document.view.pane == DocumentPane.Convert) previewConversion(document, reading) else null
+        conversion = if (document.view.pane == DocumentPane.Convert) previewConversion(document, reading) else null,
+        comparison = if (document.view.pane == DocumentPane.Compare) previewComparison(document, reading, others) else null,
+        others = others.map { OtherDocument(it.id, it.name) }
     ).arranged()
+}
+
+/** [document], read as [reading], compared at once with the one of [others] its view chooses, for a preview or a test. */
+private fun previewComparison(document: OpenDocument, reading: Reading, others: List<OpenDocument>): CompareOutcome {
+    val partner = partnerOf(document.id, listOf(document) + others, document.view.compare)
+    return comparisonOf(document, reading, partner, partner?.let { readDocument(it.text, it.format) }, document.view.compare.by)
 }
 
 /** [document], read as [reading], converted at once, for a preview or a test. */

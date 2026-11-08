@@ -72,6 +72,11 @@ class WorkspaceScreenshotTest {
     }
 
     @Test
+    fun compare() = CompareCases().values.forEach { case ->
+        capturePreview("Compare", case, case.value.board) { ComparePreview(case) }
+    }
+
+    @Test
     fun treeSearchBar() = TreeSearchBarCases().values.forEach { case ->
         capturePreview("TreeSearchBar", case, case.value.board) { TreeSearchBarPreview(case) }
     }
@@ -92,6 +97,10 @@ class WorkspaceScreenshotTest {
 
             "convert" -> {
                 captureOpenMenu("TargetMenu", case, Board.Desktop, opener = "convert_to") { WorkspaceScreenPreview(case) }
+            }
+
+            "compare" -> {
+                captureOpenMenu("PartnerMenu", case, Board.Desktop, opener = "partner") { WorkspaceScreenPreview(case) }
             }
 
             "json table" -> {

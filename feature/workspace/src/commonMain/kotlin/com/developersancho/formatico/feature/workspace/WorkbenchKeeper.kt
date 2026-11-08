@@ -128,7 +128,9 @@ private data class KeptWorkbench(val tabs: List<KeptTab>, val selectedId: Long?)
                     convertTo = view.convert.to?.name,
                     convertIndent = view.convert.indent,
                     convertSortKeys = view.convert.sortKeys,
-                    convertNulls = view.convert.nulls.name
+                    convertNulls = view.convert.nulls.name,
+                    compareWith = view.compare.with,
+                    compareBy = view.compare.by.name
                 )
             },
             selectedId = state.selectedId
@@ -158,7 +160,9 @@ private data class KeptTab(
     val convertTo: String? = null,
     val convertIndent: Int = 2,
     val convertSortKeys: Boolean = false,
-    val convertNulls: String? = null
+    val convertNulls: String? = null,
+    val compareWith: Long? = null,
+    val compareBy: String? = null
 ) {
     /** What the document was left showing: its pane by name, or the tree where that pane is no longer one. */
     fun view() = DocumentView(
@@ -174,7 +178,8 @@ private data class KeptTab(
             indent = convertIndent,
             sortKeys = convertSortKeys,
             nulls = NullHandling.entries.firstOrNull { it.name == convertNulls } ?: NullHandling.LeaveOut
-        )
+        ),
+        compare = CompareChoice(with = compareWith, by = CompareBy.entries.firstOrNull { it.name == compareBy } ?: CompareBy.Meaning)
     )
 }
 

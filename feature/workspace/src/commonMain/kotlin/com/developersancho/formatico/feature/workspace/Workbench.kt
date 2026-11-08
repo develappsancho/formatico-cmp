@@ -45,6 +45,7 @@ data class OpenDocument(
  * @property query what the document is queried with, in its language: JSONPath, or XPath for XML; kept when the query
  *   is left for another view.
  * @property convert how the document is converted, kept when Convert is left for another view.
+ * @property compare how the document is compared with another, kept when Compare is left for another view.
  */
 data class DocumentView(
     val expanded: Set<String>? = null,
@@ -55,14 +56,16 @@ data class DocumentView(
     val tableFilter: String = "",
     val searching: Boolean = false,
     val query: String = "",
-    val convert: ConvertChoice = ConvertChoice()
+    val convert: ConvertChoice = ConvertChoice(),
+    val compare: CompareChoice = CompareChoice()
 )
 
 /**
  * What is shown of a document: on a phone one at a time, elsewhere the tree, the table, its problems, its summary, its
- * query or its conversion beside the text; a tablet's conversion, and a phone's, take the whole room.
+ * query or its conversion beside the text; a tablet's conversion, and a phone's, take the whole room, and the
+ * comparison with another document takes it everywhere.
  */
-enum class DocumentPane { Text, Tree, Table, Problems, Summary, Query, Convert }
+enum class DocumentPane { Text, Tree, Table, Problems, Summary, Query, Convert, Compare }
 
 /** The view a document of [format] opens on: a table its table, any other its tree. */
 internal fun openingPane(format: Format?): DocumentPane =

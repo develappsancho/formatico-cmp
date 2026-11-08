@@ -624,4 +624,72 @@
         <item quantity="one">%1$d dizi adlandırıldı</item>
         <item quantity="other">%1$d dizi adlandırıldı</item>
     </plurals>
+    <string name="compare_a">A</string>
+    <string name="compare_b">B</string>
+    <string name="compare_b_menu">B: %1$s. Başka bir belge seç</string>
+    <string name="compare_by">Karşılaştırma</string>
+    <string name="compare_by_meaning">Anlam</string>
+    <string name="compare_by_text">Metin</string>
+    <plurals name="compare_changed">
+        <item quantity="one">%1$d değişti</item>
+        <item quantity="other">%1$d değişti</item>
+    </plurals>
+    <plurals name="compare_added">
+        <item quantity="one">%1$d eklendi</item>
+        <item quantity="other">%1$d eklendi</item>
+    </plurals>
+    <plurals name="compare_removed">
+        <item quantity="one">%1$d çıkarıldı</item>
+        <item quantity="other">%1$d çıkarıldı</item>
+    </plurals>
+    <string name="compare_stop">Karşılaştırmayı bitir</string>
+    <plurals name="compare_differences">
+        <item quantity="one">%1$d fark</item>
+        <item quantity="other">%1$d fark</item>
+    </plurals>
+    <string name="compare_no_differences">Fark yok</string>
+    <string name="compare_same_meaning">A ile B aynı anlama geliyor.</string>
+    <string name="compare_same_text">A ile B aynı metin.</string>
+    <string name="compare_change_changed">Değişti</string>
+    <string name="compare_change_added">Eklendi</string>
+    <string name="compare_change_removed">Çıkarıldı</string>
+    <string name="compare_what">%1$s → %2$s</string>
+    <string name="compare_line">Satır %1$d</string>
+    <string name="compare_lines">Satır %1$d–%2$d</string>
+    <string name="compare_not_counted">Fark sayılmayanlar</string>
+    <string name="compare_moved_pair">Anahtarların sırası: %1$s ile %2$s yer değiştirdi.</string>
+    <plurals name="compare_moved">
+        <item quantity="one">Anahtarların sırası: %1$s yer değiştirdi.</item>
+        <item quantity="other">Anahtarların sırası: %1$s ve %2$d anahtar daha yer değiştirdi.</item>
+    </plurals>
+    <string name="compare_respelled_alone">Sayıların yazılışı: %1$s ile %2$s aynı sayı.</string>
+    <string name="compare_respelled_after">Bir de aynı sayı olan %1$s ile %2$s.</string>
+    <plurals name="compare_respelled_more">
+        <item quantity="one">Bir de aynı sayı olan %1$s ile %2$s ve %3$d sayı daha.</item>
+        <item quantity="other">Bir de aynı sayı olan %1$s ile %2$s ve %3$d sayı daha.</item>
+    </plurals>
+    <string name="compare_not_counted_both">%1$s %2$s</string>
+    <string name="compare_difference_of">Fark %1$d / %2$d</string>
+    <string name="compare_by_meaning_note">Anlamla karşılaştırıldı: anahtarların sırası ve sayıların yazılışı fark sayılmıyor</string>
+    <string name="compare_by_text_note">Metinle karşılaştırıldı: her karakter sayılıyor</string>
+    <plurals name="compare_side">
+        <item quantity="one">%1$s · %2$s · %3$d satır</item>
+        <item quantity="other">%1$s · %2$s · %3$d satır</item>
+    </plurals>
+    <string name="compare_side_short">%1$s · %2$s</string>
+    <string name="compare_title">Karşılaştır</string>
+    <string name="compare_show">Göster</string>
+    <string name="compare_show_in">%1$s değerini A ile B'de göster</string>
+    <string name="compare_in_a">A'da</string>
+    <string name="compare_in_b">B'de</string>
+    <string name="compare_not_there">yok</string>
+    <string name="compare_alone_title">Karşılaştırılacak bir belge yok</string>
+    <string name="compare_alone_body">Yeni bir sekmede başka bir belge aç, bunu onunla karşılaştır.</string>
+    <string name="compare_unread_title">%1$s belgesinde anlamla karşılaştırılacak bir şey yok</string>
+    <string name="compare_unread_body">Düz metin, ya da hiçbir yeri okunamadı: onu metinle karşılaştır.</string>
+    <plurals name="compare_invalid_title">
+        <item quantity="one">%1$s belgesinde bir hata var</item>
+        <item quantity="other">%1$s belgesinde %2$d hata var</item>
+    </plurals>
+    <string name="compare_invalid_body">Anlamla karşılaştırmak için onar, ya da metinle karşılaştır.</string>
 </resources>

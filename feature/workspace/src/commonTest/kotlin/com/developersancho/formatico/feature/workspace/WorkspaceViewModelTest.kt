@@ -211,4 +211,27 @@ class WorkspaceViewModelTest {
         viewModel.dispatch(WorkspaceIntent.ShowPane(DocumentPane.Tree))
         viewModel.state.first { it.conversion == null }
     }
+
+    @Test
+    fun theDocumentIsComparedWithTheTabAfterItWhileItsCompareIsShown() = runTest(dispatcher) {
+        val id = workbench.open("order.json", PreviewCompareA, Format.Json)
+        val other = workbench.open("order-v2.json", PreviewCompareB, Format.Json)
+        workbench.select(id)
+        val viewModel = viewModel(id)
+        assertEquals(listOf(OtherDocument(other, "order-v2.json")), viewModel.state.value.others)
+        assertNull(viewModel.state.value.comparison)
+
+        viewModel.dispatch(WorkspaceIntent.ShowPane(DocumentPane.Compare))
+        val meaning = viewModel.state.first { it.comparison != null }.comparison.compared
+        assertEquals(4, meaning?.differences?.size)
+        assertEquals("order-v2.json", meaning?.b?.name)
+
+        viewModel.dispatch(WorkspaceIntent.Compare(CompareChoice(by = CompareBy.Text)))
+        val text = viewModel.state.first { it.comparison.compared?.by == CompareBy.Text }.comparison.compared
+        assertTrue(text?.differences?.all { it.path == null } == true)
+        assertEquals(CompareChoice(by = CompareBy.Text), workbench.state.value.documents.first { it.id == id }.view.compare)
+
+        viewModel.dispatch(WorkspaceIntent.ShowPane(DocumentPane.Tree))
+        viewModel.state.first { it.comparison == null }
+    }
 }

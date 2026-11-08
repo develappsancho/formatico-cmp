@@ -72,3 +72,6 @@ private fun ndjsonDocument(value: DataValue, log: ConvertLog): String {
     }
     return lines.joinToString("") { it + "\n" }
 }
+
+/** [value] as JSON on one line, as a short view of it writes it: JSON5's numbers where JSON has none. */
+fun compactJson(value: DataValue): String = JsonWriter(indent = null, json5 = true, ConvertLog(NullHandling.LeaveOut)).line(value, "")

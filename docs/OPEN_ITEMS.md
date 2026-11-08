@@ -89,7 +89,7 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
 *   [ ] **Üst çubuğun bazı düğmeleri basılmıyor (2026-11-03).**
     *   Ne: Başlatıcı (komut paleti) ve Ayarlar kendi ekranları gelene kadar `enabled = false`; tek sekme var ve yeni sekme düğmesi çizilmiyor.
     *   Öneri: Palette, Settings ve sekmeler yazıldıkça bağlamak.
-    *   Durum: açık. Sekmeler ve yeni sekme düğmesi Workspace'le bağlandı (2026-11-03); başlatıcı ve Ayarlar hâlâ basılmıyor. Workspace'in Query, Convert, Compare, ağaçta arama ve Table görünümü de kendi ekranlarını bekliyor. Query bağlandı (2026-11-05), Convert de (2026-11-05); Compare Faz 11'i bekliyor.
+    *   Durum: açık. Sekmeler ve yeni sekme düğmesi Workspace'le bağlandı (2026-11-03); başlatıcı ve Ayarlar hâlâ basılmıyor. Workspace'in Query, Convert, Compare, ağaçta arama ve Table görünümü de kendi ekranlarını bekliyor. Query, Convert ve Compare bağlandı (2026-11-05).
 *   [x] **Temanın seçimi saklanmıyor (2026-11-03).**
     *   Ne: Çubuğun tema düğmesi seçimi `rememberSaveable` ile tutuyor; uygulama yeniden açılınca sistemin teması geri geliyor.
     *   Öneri: Settings ekranıyla birlikte cihazda saklamak.
@@ -403,4 +403,35 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Ne: `QueryResults.kt`'nin kendi `JsonWriter`'ı var; `core:format`'ın dönüştürücüsü aynı işi (değerleri JSON olarak yazmak, YAML'ın takma adlarını açmak, JSON'ın yazamadığı sayıları dizgi yapmak) yapıyor.
     *   Öneri: sorgunun sonuçlarını dönüştürücüyle yazmak; ayrı bir temizlik değişikliği.
     *   Durum: açık.
+*   [ ] **Compare'in panolarda olmayan hâlleri kodda seçildi (2026-11-05).**
+    *   Ne: Compare panoları iki siparişin anlamla karşılaştırılmasını çiziyor. Kodda seçilenler:
+        *   B, A'nın sekmesinden sonraki belge (A sonuncuysa öncekisi); B'nin menüsü öteki açık belgeleri sayıyor.
+        *   Tek bir belge açıksa: "Nothing to compare with", yeni bir sekmede başka bir belge açmayı söylüyor.
+        *   Anlamla karşılaştırılamayan bir belge (düz metin, okunamayan, hatalı): nedeni ve metinle karşılaştırmanın
+            seçimi; seçim çubuğu duruyor.
+        *   Metinle karşılaştırma satır satır: listede "Line 2" ya da "Lines 4–5" ve ilk satırın metni; "Not counted"
+            uyarısı yok, alt şerit "Compared by text: every character counts".
+        *   Hiç fark yoksa: "No differences" ve "A and B mean the same." (ya da "are the same text").
+        *   Biçimleri ayrı iki belge anlamla karşılaştırılıyor: bir JSON ile onun YAML'ı aynı anlama geliyor.
+        *   Telefonda "Show" bir sayfa açıyor: A'nın ve B'nin metni üst üste, farkın satırları seçili. Çubuğun More'u
+            belgenin "more" menüsü. "Not counted" kartların altında, tek satır yazı.
+        *   Geniş pencerede ve tablette çubuk araç çubuğunun, alt şerit durum çubuğunun yerinde; X görünümü ağaca (tablonun
+            belgesinde tabloya) döndürüyor.
+    *   Öneri: tuvale bu hâllerin çizilmesi, ya da kodun seçiminin kabulü.
+    *   Durum: açık.
+*   [ ] **Anlamla karşılaştırmanın kuralları kodda seçildi (2026-11-05).**
+    *   Ne: Bir nesnenin üyeleri adlarıyla eşleşiyor (iki kez verilen bir ad, o adlıların arasındaki yeriyle); bir
+        dizinin öğeleri ikisinin sırayla ortak en uzun dizisiyle, aradakiler yer yer karşılaştırılıyor, kalanlar eklenmiş
+        ya da çıkarılmış. Sayılar değerleriyle (`129.90` = `129.9`, `0x1F` = `31`, `1e3` = `1000`), dizgiler değerleriyle
+        (kaçışlar fark değil), TOML'ın tarihi aynı yazılışlı bir dizgiyle eşit; `1` ile `"1"` farklı. Farklar B'nin
+        sırasıyla, A'dan çıkarılan bir değer A'da ardından geldiği değerin arkasında. Fark sayılmayanlar: yer değiştiren
+        anahtarlar ve başka yazılmış sayılar.
+    *   Öneri: sahibinin onayı; dizilerin anahtarla eşleşmesi (`id`'si aynı öğeler) istenirse Settings'e.
+    *   Durum: açık.
+*   [ ] **Büyük belgelerde karşılaştırma kısa kesiliyor (2026-11-05).**
+    *   Ne: Dizilerin ve satırların ortak dizisi en çok dört milyon karşılaştırmayla (iki bin satıra iki bin satır)
+        aranıyor; ötesinde iki dizi baştan sona değişmiş sayılıyor. Metinde baştaki ve sondaki ortak satırlar önce
+        ayrılıyor, ama ortası büyükse fark tek bir koşu.
+    *   Öneri: Faz 14'te ölçmek; Myers'ın algoritması ya da satırları özetleriyle (hash) karşılaştırmak.
+    *   Durum: açık, Faz 14'le.
 

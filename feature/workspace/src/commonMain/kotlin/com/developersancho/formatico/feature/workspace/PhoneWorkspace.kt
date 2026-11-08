@@ -64,11 +64,6 @@ internal fun PhoneWorkspace(
 ) {
     val spacing = PantrixTheme.spacing
     val pane = document.view.pane
-    // The conversion is a screen of its own, its bar in the app bar's place, as Convert-390 draws it.
-    if (pane == DocumentPane.Convert) {
-        PhoneConvert(state = state, onIntent = onIntent, commands = commands, modifier = modifier)
-        return
-    }
     Column(modifier = modifier.fillMaxSize().background(PantrixTheme.colors.surface)) {
         // A phone has room for three views: an invalid document's problems take the table's place, where it has none.
         ViewChoice(
@@ -403,4 +398,25 @@ private fun Modifier.outset(end: Dp, vertical: Dp): Modifier = layout { measurab
     layout((placeable.width - endPx).coerceAtLeast(0), (placeable.height - 2 * verticalPx).coerceAtLeast(0)) {
         placeable.place(0, -verticalPx)
     }
+}
+
+/** The document's "more" menu, as the app bar's has it, where a screen of the document's own stands in that bar's place. */
+@Composable
+internal fun PhoneMoreMenu(state: WorkspaceState, document: OpenDocument, onIntent: (WorkspaceIntent) -> Unit) {
+    DocumentMenu(
+        items = DocumentMenuItems.FindSummarySortCompareClose,
+        size = ButtonSize.Large,
+        read = document.format != null,
+        onFind = {
+            onIntent(WorkspaceIntent.ShowPane(DocumentPane.Tree))
+            onIntent(WorkspaceIntent.Search(open = true))
+        },
+        onSummary = { onIntent(WorkspaceIntent.ShowPane(DocumentPane.Summary)) },
+        onQuery = { onIntent(WorkspaceIntent.ShowPane(DocumentPane.Query)) },
+        onConvert = { onIntent(WorkspaceIntent.ShowPane(DocumentPane.Convert)) },
+        canSort = DocumentEdit.SortKeys in state.edits,
+        onSortKeys = { onIntent(WorkspaceIntent.Edit(DocumentEdit.SortKeys)) },
+        onSave = {},
+        onClose = { onIntent(WorkspaceIntent.Close) }
+    )
 }

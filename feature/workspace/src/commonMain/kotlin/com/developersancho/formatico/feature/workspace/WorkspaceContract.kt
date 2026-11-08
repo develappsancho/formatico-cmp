@@ -19,6 +19,8 @@ import com.developersancho.formatico.core.format.Repairs
  * @property query what the document's query found, while its Query is shown, or null.
  * @property recentQueries the queries used last on this device, the latest first.
  * @property conversion what converting the document came to, while its Convert is shown, or null.
+ * @property comparison what comparing the document with another came to, while its Compare is shown, or null.
+ * @property others the other open documents, which it can be compared with, in the order of their tabs.
  */
 internal data class WorkspaceState(
     val document: OpenDocument? = null,
@@ -32,7 +34,9 @@ internal data class WorkspaceState(
     val sizes: SizeSummary? = null,
     val query: QueryOutcome? = null,
     val recentQueries: RecentQueries = RecentQueries(),
-    val conversion: ConvertOutcome? = null
+    val conversion: ConvertOutcome? = null,
+    val comparison: CompareOutcome? = null,
+    val others: List<OtherDocument> = emptyList()
 ) {
     /** What is wrong in the document, where it was read: its errors, and the warnings it is valid with. */
     val problems: List<Problem> get() = (reading as? Reading.Read)?.problems.orEmpty()
@@ -80,6 +84,9 @@ internal data class WorkspaceState(
     val currentMatch: Int? get() = query.matches.indexOfFirst { it.key != null && it.key == selected?.key }.takeIf { it >= 0 }
 }
 
+/** Another open document, by its [id] and its [name]: one a document can be compared with. */
+internal data class OtherDocument(val id: Long, val name: String?)
+
 /** What the user did, or asked for, in a workspace. */
 internal sealed interface WorkspaceIntent {
     /** Open the tree's branches whose keys are [keys], and close the others. */
@@ -117,6 +124,9 @@ internal sealed interface WorkspaceIntent {
 
     /** Convert the document as [choice] says. */
     data class Convert(val choice: ConvertChoice) : WorkspaceIntent
+
+    /** Compare the document with another as [choice] says. */
+    data class Compare(val choice: CompareChoice) : WorkspaceIntent
 
     /** The document's text is now [text], as its editor wrote it. */
     data class Write(val text: String) : WorkspaceIntent

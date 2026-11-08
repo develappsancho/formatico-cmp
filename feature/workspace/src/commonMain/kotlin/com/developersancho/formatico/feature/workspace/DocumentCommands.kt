@@ -299,8 +299,8 @@ internal enum class DocumentMenuItems {
 
 /**
  * The "more" button of a phone's bar while the document of [workbench] whose id is [documentId] is shown, and the menu
- * it opens: finding in the tree, showing the Summary, querying, converting, sorting the keys, comparing (not open yet)
- * and closing the document. A phone has no room for the search's button over its tree, nor a status bar whose size shows the Summary.
+ * it opens: finding in the tree, showing the Summary, querying, converting, sorting the keys, comparing and closing the
+ * document. A phone has no room for the search's button over its tree, nor a status bar whose size shows the Summary.
  */
 @Composable
 fun DocumentMoreMenu(documentId: Long, workbench: Workbench) {
@@ -317,6 +317,7 @@ fun DocumentMoreMenu(documentId: Long, workbench: Workbench) {
         onSummary = { workbench.changeView(documentId) { it.copy(pane = DocumentPane.Summary) } },
         onQuery = { workbench.changeView(documentId) { it.copy(pane = DocumentPane.Query) } },
         onConvert = { workbench.changeView(documentId) { it.copy(pane = DocumentPane.Convert) } },
+        onCompare = { workbench.changeView(documentId) { it.copy(pane = DocumentPane.Compare) } },
         // Whether the document is valid is the workspace's to know; one with errors is told why it is not sorted.
         canSort = format?.edits?.contains(DocumentEdit.SortKeys) == true,
         onSortKeys = {
@@ -339,6 +340,7 @@ internal fun DocumentMenu(
     onConvert: () -> Unit = {},
     canSort: Boolean,
     onSortKeys: () -> Unit,
+    onCompare: () -> Unit = {},
     onSave: () -> Unit,
     onClose: () -> Unit
 ) {
@@ -374,8 +376,7 @@ internal fun DocumentMenu(
             )
             PantrixMenuItem(
                 text = stringResource(Res.string.workspace_compare),
-                onClick = {},
-                enabled = false,
+                onClick = onCompare,
                 tagKey = "compare"
             )
         }

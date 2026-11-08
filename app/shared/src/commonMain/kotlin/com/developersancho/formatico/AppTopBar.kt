@@ -86,7 +86,7 @@ private val BarHeight = 56.dp
  * Formatico's bar, over every screen: the mark and the name, the documents' tabs, the launcher of the command palette,
  * the theme's switch and the settings. A phone keeps the mark, the name, the launcher's button and the settings over a
  * new tab, and over a document the document's name, which switches documents, how many are open, the launcher's
- * button and the document's "more" menu; over a document being converted, none: that screen has a bar of its own.
+ * button and the document's "more" menu; over a document being converted or compared, none: those screens have bars of their own.
  *
  * The palette and the settings come with their screens; until then their buttons are drawn and not pressed.
  *
@@ -113,8 +113,10 @@ internal fun AppTopBar(
     val wide = window.widthClass >= WindowWidthClass.Expanded
     val shown = workbench.selected
     Column(modifier = modifier.fillMaxWidth().background(PantrixTheme.colors.surface).padding(insets)) {
-        // A phone's conversion is a screen with a bar of its own, Convert-390's, in this one's place.
-        if (phone && shown?.view?.pane == DocumentPane.Convert) return@Column
+        // A phone's conversion and its comparison are screens with bars of their own, Convert-390's and Compare-390's,
+        // in this one's place.
+        val ownBar = shown?.view?.pane == DocumentPane.Convert || shown?.view?.pane == DocumentPane.Compare
+        if (phone && ownBar) return@Column
         Row(
             modifier = Modifier
                 .fillMaxWidth()
