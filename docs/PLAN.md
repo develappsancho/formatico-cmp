@@ -702,6 +702,17 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
         *   Web yeniden yayında (2026-11-12, `dc45aa4`): indirme menüsü, HSTS ve Wasm konsolunun düzeltmesi.
             `check.sh`'ın sekiz denetimi canlıda geçti; tarayıcıda menü 1.0.0'ı gösteriyor (DMG ve APK, Windows "henüz
             yok"), temiz bir sekmenin konsolunda hata yok. Kalan: arkadaşın MSI'ı.
+        *   **1.0.0'ın DMG'si açılmıyor** (2026-11-12, sahibi indirip kurunca gördü): "java/net/http/HttpClient$Version".
+            Compose'un uygulamaya koyduğu Java ortamı yalnızca sayılan modülleri tutar ve hiçbiri sayılmamıştı: `jdeps`'e
+            göre `java.net.http` (Ktor), `java.management` (KSafe, Ktor), `jdk.unsupported` ve `java.instrument`
+            (kotlinx.coroutines) eksikti. Yayından önce uygulama açılıp penceresine bakılmamıştı: ilk denemede yalnızca
+            sürecin ayakta olduğuna bakıldı, onu da hata penceresi ayakta tutuyordu.
+            *   Düzeltme: `app/desktopApp`'te `modules(...)` (bu dört modül, ayrıca Windows'un ekran okuyucusu için
+                `jdk.accessibility` ve kodlamalar için `jdk.charsets`).
+            *   İki denetim, her DMG'de: `runtime-modules-check.sh` (jdeps'in istediği her modül ortamda mı; Windows'ta
+                da) ve `macos-launch-check.sh` (DMG'deki uygulama açılıyor mu: ana penceresi, istisnasız günlük). İkisi
+                de bozuk 1.0.0'ı yakalıyor, düzeltilmişi geçiriyor; DMG'nin imzalı ve sıkılaştırılmış hâli de açıldı.
+            *   Arkadaşın MSI'ı bu düzeltmeyi beklemeli: 1.0.0'ın commit'inden yapılan MSI aynı hatayla açılmaz.
 
 ## Sahibinin kararını bekleyenler
 

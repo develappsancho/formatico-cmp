@@ -284,13 +284,22 @@ Gerekenler, bu Mac'te bir kez:
 
 Betik şunları yapar (`deploy/desktop/macos-dmg.sh`, sitenin betiğinin Formatico'ya uyarlanmışı):
 
-1.  Gradle `:app:desktopApp:createDistributable` ile `Formatico.app`'i yapar; sürümüne bakar.
+1.  Gradle `:app:desktopApp:createDistributable` ile `Formatico.app`'i yapar; sürümüne bakar. Uygulamanın Java ortamı
+    yalnızca `app/desktopApp/build.gradle.kts`'in saydığı modülleri tutar: `deploy/desktop/runtime-modules-check.sh`,
+    `jdeps`'in jar'larda bulduğu her modülün ortamda olduğuna bakar, eksik olanı sayıp durur.
 2.  Uygulamayı sertifikanın karmasıyla imzalar: jar'ların içindeki yerel kütüphaneler, Java'nın çalışma ortamının
     kütüphaneleri ve çalıştırılabilirleri, ortamın kendisi, sonra uygulama, JVM'in üç hakkıyla
     (`deploy/desktop/macos-entitlements.plist`). Compose'un kendi imzası sertifikayı adıyla arar; adında ASCII dışı
     bir harf olunca bulamaz.
 3.  DMG'yi yapar ve imzalar, Apple'a onaya gönderir (birkaç dakika), onayı DMG'ye ekler ve Gatekeeper'a sorar.
-4.  `build/release/Formatico-macOS.dmg`'yi, boyutunu, SHA-256'sını ve commit'ini yazar.
+4.  DMG'yi bağlar ve içindeki uygulamayı açar (`deploy/desktop/macos-launch-check.sh`), kendine ait boş bir ev
+    klasörüyle, bu Mac'te tutulan geçmişe ve ayarlara dokunmadan: ana penceresi ekranda ve günlüğünde bir istisna
+    yoksa geçer. Yalnızca bir hata penceresi açılırsa ya da bir istisna yazılırsa DMG'yi siler ve durur. Ayakta kalan
+    bir süreç yetmez: başlatıcının hata penceresi de süreci ayakta tutar.
+5.  `build/release/Formatico-macOS.dmg`'yi, boyutunu, SHA-256'sını ve commit'ini yazar.
+
+1.0.0 bu iki denetim olmadan çıktı ve açılışta `java.net.http`'yi bulamadığı için durdu (2026-11-12): ortamında Ktor'un,
+KSafe'in ve kotlinx.coroutines'in kullandığı dört modül yoktu.
 
 DMG Apple silikonlu Mac'ler içindir: içindeki Java ortamı bu Mac'inkidir (arm64). `--dry-run` imzalar, Apple'a
 göndermez; böyle bir DMG sürüme konmaz (Gatekeeper durdurur) ve `release` onu kabul etmez.
@@ -358,7 +367,8 @@ deploy/windows.sh
 Betik önce bakar: Windows mı, `formatico.version`, Java, iki `GitHubPackages` satırı, temiz ağaç, `gh`'nin hesabının
 depoya yazabilmesi, `v<sürüm>` sürümü. Ağaç sürümün commit'inde değilse durur ve hangi commit'e geçileceğini söyler
 (`git checkout <commit>`): taslağın hedefi, yayımlanmış sürümde etiketin commit'i. Sonra Gradle
-`:app:desktopApp:packageMsi` ile MSI'ı yapar (ilk derleme JDK'yı ve WiX'i indirdiği için uzun sürer),
+`:app:desktopApp:packageMsi` ile MSI'ı yapar, uygulamanın Java ortamının jar'ların kullandığı her modülü tuttuğuna bakar
+(`deploy/desktop/runtime-modules-check.sh`, Mac'tekinin aynısı) (ilk derleme JDK'yı ve WiX'i indirdiği için uzun sürer),
 `build/release/Formatico-Windows.msi` olarak sürüme koyar ve notların Windows bölümünü SHA-256'sıyla yazar. Yeniden
 çalıştırılırsa MSI'ı ve bölümü yenisiyle değiştirir.
 
@@ -413,3 +423,6 @@ Dosyaların adı her sürümde aynıdır; bu yüzden `releases/latest/download/<
 | `this is not the release's commit` | Arkadaşın ağacı başka bir commit'te: betiğin söylediği `git checkout` |
 | `GitHubPackagesPassword is not in …` | 8.2, adım 3 |
 | Windows'ta `bash\r: No such file or directory` | Depo `.gitattributes`'tan önce klonlanmış: yeniden klonlamak |
+| `The app's runtime lacks modules its jars use: …` | Bir kütüphane yeni bir Java modülü kullanıyor: `app/desktopApp/build.gradle.kts`'te `modules(...)`'a eklemek |
+| `Formatico did not come up` | DMG'deki uygulama açılmadı: betik pencerelerini ve günlükteki istisnayı yazar; DMG tutulmaz |
+| `jdeps is not on the PATH` | JDK'nın `bin`'i PATH'te değil (Windows'ta Temurin'in kurulumu ekler; Git Bash yeniden açılır) |

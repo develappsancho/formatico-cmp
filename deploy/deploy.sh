@@ -323,6 +323,8 @@ desktop() {
     local built_version
     built_version="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$built/Contents/Info.plist")"
     [ "$built_version" = "$version" ] || fail "the app is $built_version, not $version: run without --no-gradle"
+    step "The app's runtime, against the modules its jars use"
+    "$DEPLOY/desktop/runtime-modules-check.sh" "$built/Contents/app" "$built/Contents/runtime/Contents/Home/release"
 
     step "The DMG: signed with the Developer ID$($dry || echo ', and notarized by Apple')"
     local work="$OUT/desktop"
@@ -334,6 +336,18 @@ desktop() {
     $dry && notarization=(--no-notarize)
     "$DEPLOY/desktop/macos-dmg.sh" "$work/Formatico.app" "$OUT/$DMG_NAME" ${notarization[@]+"${notarization[@]}"}
     rm -rf "$work"
+
+    # The app as whoever downloads it opens it, from the DMG: signed, with its runtime, its window on screen.
+    step "The DMG's app, opened"
+    local mount opened=true
+    mount="$(mktemp -d)"
+    hdiutil attach -quiet -nobrowse -readonly -mountpoint "$mount" "$OUT/$DMG_NAME"
+    "$DEPLOY/desktop/macos-launch-check.sh" "$mount/Formatico.app" || opened=false
+    hdiutil detach -quiet "$mount"
+    if ! $opened; then
+        rm -f "$OUT/$DMG_NAME"
+        fail "the DMG's app did not come up, and the DMG is not kept"
+    fi
     $dry || revision > "$OUT/$DMG_NAME.commit"
     describe "$OUT/$DMG_NAME"
 }

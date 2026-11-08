@@ -91,8 +91,12 @@ fi
 
 if $gradle; then
     step "Gradle: Formatico $version's MSI (Gradle fetches its JDK and WiX the first time)"
-    "$ROOT/gradlew" -p "$ROOT" --console=plain :app:desktopApp:packageMsi
+    "$ROOT/gradlew" -p "$ROOT" --console=plain :app:desktopApp:createDistributable :app:desktopApp:packageMsi
 fi
+# The app's runtime holds only the modules the build names: one left out ends the app at its start, as 1.0.0's on the Mac.
+image="$ROOT/app/desktopApp/build/compose/binaries/main/app/Formatico"
+step "The app's runtime, against the modules its jars use"
+"$ROOT/deploy/desktop/runtime-modules-check.sh" "$image/app" "$image/runtime/release"
 built="$ROOT/app/desktopApp/build/compose/binaries/main/msi/Formatico-$version.msi"
 [ -f "$built" ] || fail "no MSI at $built: run without --no-gradle"
 mkdir -p "$OUT"
