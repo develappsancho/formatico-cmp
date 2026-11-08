@@ -89,7 +89,7 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
 *   [ ] **Üst çubuğun bazı düğmeleri basılmıyor (2026-11-03).**
     *   Ne: Başlatıcı (komut paleti) ve Ayarlar kendi ekranları gelene kadar `enabled = false`; tek sekme var ve yeni sekme düğmesi çizilmiyor.
     *   Öneri: Palette, Settings ve sekmeler yazıldıkça bağlamak.
-    *   Durum: açık. Sekmeler ve yeni sekme düğmesi Workspace'le bağlandı (2026-11-03); başlatıcı ve Ayarlar hâlâ basılmıyor. Workspace'in Query, Convert, Compare, ağaçta arama ve Table görünümü de kendi ekranlarını bekliyor. Query, Convert ve Compare bağlandı (2026-11-05).
+    *   Durum: açık. Sekmeler ve yeni sekme düğmesi Workspace'le bağlandı (2026-11-03); başlatıcı ve Ayarlar hâlâ basılmıyor. Workspace'in Query, Convert, Compare, ağaçta arama ve Table görünümü de kendi ekranlarını bekliyor. Query, Convert ve Compare bağlandı (2026-11-05). Başlatıcı bağlandı (2026-11-05, Faz 12): komut paletini açıyor; Command ya da Control ve K her yerde açıyor. Ayarlar Settings'i bekliyor.
 *   [x] **Temanın seçimi saklanmıyor (2026-11-03).**
     *   Ne: Çubuğun tema düğmesi seçimi `rememberSaveable` ile tutuyor; uygulama yeniden açılınca sistemin teması geri geliyor.
     *   Öneri: Settings ekranıyla birlikte cihazda saklamak.
@@ -434,4 +434,15 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
         ayrılıyor, ama ortası büyükse fark tek bir koşu.
     *   Öneri: Faz 14'te ölçmek; Myers'ın algoritması ya da satırları özetleriyle (hash) karşılaştırmak.
     *   Durum: açık, Faz 14'le.
+
+## Komut paleti
+
+*   [ ] **Komut paletinin panolardan ayrıldığı yerler (2026-11-05).**
+    *   Ne: Kodda tek bir kural var, panolar genişliğe göre biraz ayrılıyor:
+        *   Tablette liste masaüstününki. Palette-834'te Save as a file ve Use the dark theme yok, Query ile Paste'in kısayolu yazılmamış; bunun bir nedeni görünmüyor.
+        *   Telefonda Convert'te XML de var. Palette-390 YAML, TOML ve CSV'yi listeliyor; kod her genişlikte JSON, YAML, TOML, XML ve CSV'den belgenin kendi biçimi dışındakileri listeliyor.
+        *   Web'de Command ya da Control ile T, 1 ve 2 tarayıcının (yeni sekme, sekmeler arası geçiş): sayfa bunları duymuyor. Yeni sekmenin, ağacın ve tablonun komutları web'de kısayolsuz.
+        *   Start'ta palet yalnızca Formatico'nun komutlarını listeliyor; bu hâl panoda çizilmemiş.
+    *   Öneri: sahibinin kararı: Palette-834 ve Palette-390'ı koda göre düzeltmek, ya da kodu panolara göre ayırmak.
+    *   Durum: açık.
 

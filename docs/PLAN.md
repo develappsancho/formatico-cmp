@@ -112,7 +112,13 @@ eksikler Faz 4'te.
     bandında, olukta `~ + −`, değişen değer dolgusuyla; gösterilen fark birincil çubukla ve imleç taşınmadan ekrana
     geliyor (Pantrix'in üç `tıkıyor` bulgusu kapandı). Panodan kalan, tıkamayan bir ayrım bulgularda: işaretsiz ilk
     satırın imleç bandı.
-*   [ ] **Faz 12: Komut paleti, kısayollar ve Settings.** Faz 4'ün cihazda saklamasının üstünde.
+*   [ ] **Faz 12: Komut paleti, kısayollar ve Settings.** Faz 4'ün cihazda saklamasının üstünde. Tuvalde eksikler çizildi
+    (2026-11-05, sürüm 76): Settings'in Keyboard shortcuts bölümü ve Open-source licences sayfası, telefonda alt kısım,
+    Start'ta biçimi anlaşılmayan metnin sorusu ("Ask me"). Komut paleti ve kısayollar yapıldı (2026-11-05): palet
+    başlatıcıdan ve Command ya da Control ve K ile açılıyor; belgenin komutları (Document, View, Convert) ve
+    Formatico'nunkiler; her komut kendi kısayoluyla paletsiz de çalışıyor; dosya açma ve yapıştırma Start'ın
+    kurallarıyla her ekrandan (`DocumentOpener`). Settings kaldı; iki bulgusu `tıkıyor` (sahibinin kararı, 2026-11-05):
+    "Wrap long lines" Pantrix'in editörünü, Keyboard shortcuts bölümü Pantrix'in tuş kapağını bekliyor.
 *   [ ] **Faz 13: Paylaşım.** Küçük bir belge sıkıştırılıp bağlantının fragment'ında; sunucu yok.
 *   [ ] **Faz 14: Büyük dosyalar.** Masaüstünde 50 MB, telefonda ve web'de 10 MB, ölçülerek.
 *   [ ] **Faz 15: v1'in testi.** Roborazzi her panoyla, Maestro akışları Android ve iOS'ta, tarayıcı testleri;

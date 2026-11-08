@@ -42,6 +42,7 @@ class AppTopBarTest {
                     onSelectTab = onSelectTab,
                     darkTheme = false,
                     onToggleTheme = {},
+                    onOpenPalette = {},
                     documentMenu = { DocumentMoreMenu(documentId = it, workbench = documents) }
                 )
             }

@@ -46,6 +46,7 @@ private fun BarInItsWindow(case: PreviewCase<AppTopBarCase>) {
             onSelectTab = {},
             darkTheme = case.dark,
             onToggleTheme = {},
+            onOpenPalette = {},
             documentMenu = { id -> DocumentMoreMenu(documentId = id, workbench = workbench) }
         )
     }

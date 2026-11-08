@@ -9,7 +9,10 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 import kotlin.time.Clock
 
-/** What the Start screen is built from: the history kept on this device, the samples and its view model. */
+/**
+ * What the Start screen is built from: the history kept on this device, the samples, what opens a document from
+ * anywhere, and its view model.
+ */
 val startModule: Module = module {
     // The history lives as long as the app does, and so does the scope its writes are made in.
     single<DocumentHistory> {
@@ -20,6 +23,7 @@ val startModule: Module = module {
         )
     }
     single<SampleSource> { ResourceSampleSource() }
+    single { DocumentOpener(history = get(), clock = Clock.System, maxFileSize = maxFileSize(currentPlatformType())) }
     viewModel {
         StartViewModel(
             history = get(),

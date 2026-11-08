@@ -16,6 +16,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
@@ -52,7 +54,8 @@ import kotlin.time.Clock
  * over it the workspace of the document whose tab is chosen. Going back from a document goes to a new tab, and the
  * document stays open in its own.
  *
- * The theme is the system's until the bar's switch is pressed, and the choice is kept on this device. A change made
+ * The command palette opens from the bar and by Command or Control and K, anywhere; its commands run by their own keys
+ * too. The theme is the system's until the bar's switch is pressed, and the choice is kept on this device. A change made
  * to a document in its workspace is told to Start's history. In a browser, the tab's history and address follow the
  * screen shown, once the documents open when the app last closed are back.
  */
@@ -82,8 +85,9 @@ internal fun App(systemDark: Boolean, storage: Module, followsBrowser: Boolean =
             LaunchedEffect(open.selectedId) { backStack.showDocument(open.selectedId) }
             val restored by koinInject<WorkbenchKeeper>().restored.collectAsState()
             if (followsBrowser && restored) FollowBrowserHistory(workbench)
+            val palette = rememberAppPalette(workbench, open, darkTheme, onToggleTheme = theme::toggle)
             PantrixScaffold(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize().appShortcuts(palette),
                 topBar = { insets ->
                     AppTopBar(
                         insets = insets,
@@ -91,6 +95,7 @@ internal fun App(systemDark: Boolean, storage: Module, followsBrowser: Boolean =
                         onSelectTab = workbench::select,
                         darkTheme = darkTheme,
                         onToggleTheme = theme::toggle,
+                        onOpenPalette = palette::open,
                         documentMenu = { DocumentMoreMenu(documentId = it, workbench = workbench) }
                     )
                 },
@@ -99,34 +104,44 @@ internal fun App(systemDark: Boolean, storage: Module, followsBrowser: Boolean =
                 // Until what was open is back, the screen stays empty: Start for a moment, then the document, would be
                 // a screen the reader did not ask for.
                 if (!restored) return@PantrixScaffold
-                NavDisplay(
-                    backStack = backStack,
-                    modifier = Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding),
-                    entryDecorators = listOf(
-                        rememberSaveableStateHolderNavEntryDecorator(),
-                        rememberViewModelStoreNavEntryDecorator()
-                    ),
-                    onBack = {
-                        if (backStack.lastOrNull() is Destination.Workspace) {
-                            workbench.select(null)
-                        } else {
-                            backStack.removeLastOrNull()
-                        }
-                    },
-                    entryProvider = entryProvider {
-                        entry<Destination.Start> {
-                            StartRoute(
-                                onOpenDocument = { workbench.open(it.name, it.text, it.format, it.historyId) }
-                            )
-                        }
-                        entry<Destination.Workspace> { destination ->
-                            WorkspaceRoute(documentId = destination.documentId)
-                        }
-                    }
-                )
+                AppScreens(backStack, workbench, Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding))
             }
+            AppPalette(palette)
         }
     }
+}
+
+/**
+ * The screen at the top of [backStack]: Start for a new tab, or the workspace of a document of [workbench]. Going back
+ * from a document goes to a new tab.
+ */
+@Composable
+private fun AppScreens(backStack: NavBackStack<NavKey>, workbench: Workbench, modifier: Modifier) {
+    NavDisplay(
+        backStack = backStack,
+        modifier = modifier,
+        entryDecorators = listOf(
+            rememberSaveableStateHolderNavEntryDecorator(),
+            rememberViewModelStoreNavEntryDecorator()
+        ),
+        onBack = {
+            if (backStack.lastOrNull() is Destination.Workspace) {
+                workbench.select(null)
+            } else {
+                backStack.removeLastOrNull()
+            }
+        },
+        entryProvider = entryProvider {
+            entry<Destination.Start> {
+                StartRoute(
+                    onOpenDocument = { workbench.open(it.name, it.text, it.format, it.historyId) }
+                )
+            }
+            entry<Destination.Workspace> { destination ->
+                WorkspaceRoute(documentId = destination.documentId)
+            }
+        }
+    )
 }
 
 /** The theme the app is in: the reader's [chosen] one, or the system's until there is one; [keep] keeps a choice. */

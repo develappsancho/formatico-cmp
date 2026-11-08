@@ -309,8 +309,9 @@ private fun RejectedFile.toRefusal(maxSize: Long): FileRefusal? = when (reason) 
     FileRejection.Count -> null
 }
 
+/** What is said of a file that was not opened, for [refusal]. */
 @Composable
-private fun refusalText(refusal: FileRefusal): String = when (refusal) {
+internal fun refusalText(refusal: FileRefusal): String = when (refusal) {
     is FileRefusal.TooLarge -> {
         stringResource(
             Res.string.start_file_too_large,

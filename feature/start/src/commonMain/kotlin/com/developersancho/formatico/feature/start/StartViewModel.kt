@@ -2,12 +2,10 @@ package com.developersancho.formatico.feature.start
 
 import androidx.lifecycle.viewModelScope
 import com.developersancho.formatico.core.base.MviViewModel
-import com.developersancho.formatico.core.format.FormatDetector
 import com.pantrixui.foundation.files.PantrixFile
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlin.time.Clock
 
 /**
@@ -23,10 +21,12 @@ import kotlin.time.Clock
 class StartViewModel(
     private val history: DocumentHistory,
     private val samples: SampleSource,
-    private val clock: Clock,
-    private val maxFileSize: Long,
-    private val reader: CoroutineDispatcher = Dispatchers.Default
+    clock: Clock,
+    maxFileSize: Long,
+    reader: CoroutineDispatcher = Dispatchers.Default
 ) : MviViewModel<StartState, StartIntent, StartEffect>(StartState()) {
+    private val opener = DocumentOpener(history, clock, maxFileSize, reader)
+
     init {
         viewModelScope.launch {
             history.documents.collect { recent -> setState { copy(recent = recent) } }
@@ -54,42 +54,11 @@ class StartViewModel(
     }
 
     private fun paste(text: String?) {
-        if (text.isNullOrBlank()) {
-            sendEffect(StartEffect.NothingToPaste)
-            return
-        }
-        viewModelScope.launch {
-            val format = withContext(reader) { FormatDetector.detect(text) }
-            open(OpenedDocument(name = null, text = text, format = format))
-        }
+        viewModelScope.launch { show(opener.paste(text)) }
     }
 
     private fun openFile(file: PantrixFile) {
-        val size = file.size
-        if (size != null && size > maxFileSize) {
-            setState { copy(refusal = FileRefusal.TooLarge(file.name, maxFileSize)) }
-            return
-        }
-        viewModelScope.launch {
-            val bytes = runCatching { file.readBytes() }.getOrNull()
-            when {
-                bytes == null -> {
-                    setState { copy(refusal = FileRefusal.Unreadable(file.name)) }
-                }
-
-                bytes.size > maxFileSize -> {
-                    setState { copy(refusal = FileRefusal.TooLarge(file.name, maxFileSize)) }
-                }
-
-                else -> {
-                    val document = withContext(reader) {
-                        val text = bytes.decodeToString()
-                        OpenedDocument(name = file.name, text = text, format = FormatDetector.detect(text, file.name))
-                    }
-                    open(document)
-                }
-            }
-        }
+        viewModelScope.launch { show(opener.open(file)) }
     }
 
     private fun openSample(sample: Sample) {
@@ -100,9 +69,19 @@ class StartViewModel(
     }
 
     /** Hands [document] on: one that holds text goes to the top of the history first, and on with its place there. */
-    private suspend fun open(document: OpenedDocument) {
-        setState { copy(refusal = null) }
-        val historyId = if (document.text.isNotEmpty()) history.record(document, clock.now()) else null
-        sendEffect(StartEffect.OpenDocument(document.copy(historyId = historyId)))
+    private suspend fun open(document: OpenedDocument) = show(Opening.Opened(opener.record(document)))
+
+    /** Shows what came of an [opening]: the document handed on, nothing to paste, or why a file was refused. */
+    private fun show(opening: Opening) {
+        when (opening) {
+            is Opening.Opened -> {
+                setState { copy(refusal = null) }
+                sendEffect(StartEffect.OpenDocument(opening.document))
+            }
+
+            Opening.NothingToPaste -> sendEffect(StartEffect.NothingToPaste)
+
+            is Opening.Refused -> setState { copy(refusal = opening.refusal) }
+        }
     }
 }

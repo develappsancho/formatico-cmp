@@ -16,4 +16,9 @@
         <item quantity="one">%1$d open document</item>
         <item quantity="other">%1$d open documents</item>
     </plurals>
+    <string name="palette_placeholder">Type a command or a format</string>
+    <string name="palette_empty">No command has those words</string>
+    <string name="palette_new_document">New document</string>
+    <string name="palette_open_file">Open a file</string>
+    <string name="palette_paste">Paste as a new document</string>
 </resources>

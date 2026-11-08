@@ -3,6 +3,8 @@ package com.developersancho.formatico
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isRoot
+import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -49,6 +51,9 @@ class BoardScreenshotTest {
     @Test
     fun convert() = boards { board, dark -> capture("Convert", board, dark, sample = "order", shows = "customer", convert = true) }
 
+    @Test
+    fun palette() = boards { board, dark -> capture("Palette", board, dark, sample = "order", shows = "customer", palette = true) }
+
     /** Every board, in the light theme and the dark. */
     private fun boards(capture: (Board, Boolean) -> Unit) = Board.entries.forEach { board ->
         listOf(false, true).forEach { dark -> capture(board, dark) }
@@ -56,8 +61,8 @@ class BoardScreenshotTest {
 
     /**
      * Draws the app on [board], as dark as the system is where [dark] says so, opens [sample] where one is named and
-     * waits for what it [shows], converts it where [convert] says so, and writes the picture as `[name]-width.png`, or
-     * `[name]-width-dark.png`.
+     * waits for what it [shows], converts it where [convert] says so or opens the command palette where [palette] does,
+     * and writes the picture as `[name]-width.png`, or `[name]-width-dark.png`.
      */
     private fun capture(
         name: String,
@@ -65,13 +70,15 @@ class BoardScreenshotTest {
         dark: Boolean,
         sample: String? = null,
         shows: String? = null,
-        convert: Boolean = false
+        convert: Boolean = false,
+        palette: Boolean = false
     ) {
-        inEnglish { draw(name, board, dark, sample, shows, convert) }
+        inEnglish { draw(name, board, dark, sample, shows, convert, palette) }
         stopKoin()
     }
 
-    private fun draw(name: String, board: Board, dark: Boolean, sample: String?, shows: String?, convert: Boolean) =
+    @Suppress("LongParameterList") // What a board shows, as capture is given it.
+    private fun draw(name: String, board: Board, dark: Boolean, sample: String?, shows: String?, convert: Boolean, palette: Boolean) =
         runDesktopComposeUiTest(width = board.width, height = board.height) {
             setContent {
                 PantrixTestTheme(platform = board.platform, dark = dark, window = board.window) {
@@ -98,6 +105,15 @@ class BoardScreenshotTest {
                 }
                 waitUntilAtLeastOneExists(hasText("Nothing is lost"), timeoutMillis = 10_000)
             }
-            onRoot().captureRoboImage("screenshots/$name-${board.width}${if (dark) "-dark" else ""}.png")
+            val file = "screenshots/$name-${board.width}${if (dark) "-dark" else ""}.png"
+            if (palette) {
+                // The palette is a window of its own, over the app: the last root drawn.
+                onPantrixNode(if (board == Board.Desktop) "Button" else "IconButton", "launcher")
+                    .performSemanticsAction(SemanticsActions.OnClick)
+                waitUntilAtLeastOneExists(hasText("Copy the document"), timeoutMillis = 10_000)
+                onAllNodes(isRoot()).onLast().captureRoboImage(file)
+            } else {
+                onRoot().captureRoboImage(file)
+            }
         }
 }

@@ -692,4 +692,19 @@
         <item quantity="other">%1$s has %2$d errors</item>
     </plurals>
     <string name="compare_invalid_body">Repair it to compare by meaning, or compare by text.</string>
+    <string name="palette_group_document">Document</string>
+    <string name="palette_group_view">View</string>
+    <string name="palette_group_convert">Convert</string>
+    <string name="palette_format">Format document</string>
+    <string name="palette_format_keywords">pretty, indent, beautify</string>
+    <string name="palette_minify_keywords">compact, one line</string>
+    <string name="palette_sort_keywords">order, alphabet</string>
+    <string name="palette_compare">Compare with another document</string>
+    <string name="palette_compare_keywords">diff</string>
+    <string name="palette_tree">Show the tree</string>
+    <string name="palette_table">Show the table</string>
+    <string name="palette_query_jsonpath">Query with JSONPath</string>
+    <string name="palette_query_xpath">Query with XPath</string>
+    <string name="palette_query_keywords">jsonpath, xpath, filter</string>
+    <string name="palette_convert_to">Convert to %1$s</string>
 </resources>

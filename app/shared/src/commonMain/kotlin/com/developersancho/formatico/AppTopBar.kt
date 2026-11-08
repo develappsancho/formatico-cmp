@@ -28,7 +28,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -57,7 +56,6 @@ import com.pantrixui.components.overlay.menu.PantrixMenuItem
 import com.pantrixui.foundation.adaptive.WindowWidthClass
 import com.pantrixui.foundation.adaptive.isNarrow
 import com.pantrixui.foundation.icons.PantrixIcons
-import com.pantrixui.foundation.keyboard.PantrixShortcut
 import com.pantrixui.foundation.platform.LocalOperatingSystem
 import com.pantrixui.foundation.theme.PantrixTheme
 import formatico.app.shared.generated.resources.Res
@@ -88,13 +86,14 @@ private val BarHeight = 56.dp
  * new tab, and over a document the document's name, which switches documents, how many are open, the launcher's
  * button and the document's "more" menu; over a document being converted or compared, none: those screens have bars of their own.
  *
- * The palette and the settings come with their screens; until then their buttons are drawn and not pressed.
+ * The settings come with their screen; until then its button is drawn and not pressed.
  *
  * @param insets the window's insets at the bar's edges: the bar's fill runs behind them.
  * @param workbench the open documents, and the chosen tab.
  * @param onSelectTab chooses the tab of a document, by its id, or a new tab for null.
  * @param darkTheme whether the dark theme is in effect.
  * @param onToggleTheme asks for the other theme.
+ * @param onOpenPalette opens the command palette.
  * @param documentMenu the "more" menu of the document a phone's bar is over, by its id.
  */
 @Composable
@@ -104,6 +103,7 @@ internal fun AppTopBar(
     onSelectTab: (Long?) -> Unit,
     darkTheme: Boolean,
     onToggleTheme: () -> Unit,
+    onOpenPalette: () -> Unit,
     documentMenu: @Composable (documentId: Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -132,6 +132,7 @@ internal fun AppTopBar(
                         onSelectTab = onSelectTab,
                         darkTheme = darkTheme,
                         onToggleTheme = onToggleTheme,
+                        onOpenPalette = onOpenPalette,
                         documentMenu = documentMenu,
                         modifier = Modifier.weight(1f)
                     )
@@ -152,7 +153,8 @@ internal fun AppTopBar(
                         wide = wide,
                         withTheme = roomy,
                         darkTheme = darkTheme,
-                        onToggleTheme = onToggleTheme
+                        onToggleTheme = onToggleTheme,
+                        onOpenPalette = onOpenPalette
                     )
                 }
             }
@@ -171,6 +173,7 @@ private fun AnimatedPhoneBar(
     onSelectTab: (Long?) -> Unit,
     darkTheme: Boolean,
     onToggleTheme: () -> Unit,
+    onOpenPalette: () -> Unit,
     documentMenu: @Composable (documentId: Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -195,6 +198,7 @@ private fun AnimatedPhoneBar(
                 onSelectTab = onSelectTab,
                 darkTheme = darkTheme,
                 onToggleTheme = onToggleTheme,
+                onOpenPalette = onOpenPalette,
                 documentMenu = documentMenu
             )
         }
@@ -211,6 +215,7 @@ private fun RowScope.PhoneBar(
     onSelectTab: (Long?) -> Unit,
     darkTheme: Boolean,
     onToggleTheme: () -> Unit,
+    onOpenPalette: () -> Unit,
     documentMenu: @Composable (documentId: Long) -> Unit
 ) {
     val shown = workbench.selected
@@ -221,9 +226,8 @@ private fun RowScope.PhoneBar(
             PantrixIconButton(
                 imageVector = PantrixIcons.Search,
                 contentDescription = stringResource(Res.string.search_or_run_a_command),
-                onClick = {},
+                onClick = onOpenPalette,
                 size = ButtonSize.Large,
-                enabled = false,
                 tagKey = "launcher"
             )
             documentMenu(shown.id)
@@ -237,7 +241,8 @@ private fun RowScope.PhoneBar(
                 wide = false,
                 withTheme = false,
                 darkTheme = darkTheme,
-                onToggleTheme = onToggleTheme
+                onToggleTheme = onToggleTheme,
+                onOpenPalette = onOpenPalette
             )
         }
 
@@ -248,7 +253,8 @@ private fun RowScope.PhoneBar(
                 wide = false,
                 withTheme = false,
                 darkTheme = darkTheme,
-                onToggleTheme = onToggleTheme
+                onToggleTheme = onToggleTheme,
+                onOpenPalette = onOpenPalette
             )
         }
     }
@@ -368,7 +374,8 @@ private fun BarActions(
     wide: Boolean,
     withTheme: Boolean,
     darkTheme: Boolean,
-    onToggleTheme: () -> Unit
+    onToggleTheme: () -> Unit,
+    onOpenPalette: () -> Unit
 ) {
     val size = when {
         wide -> ButtonSize.Small
@@ -376,14 +383,13 @@ private fun BarActions(
         else -> ButtonSize.Medium
     }
     if (wide) {
-        Launcher()
+        Launcher(onOpenPalette)
     } else {
         PantrixIconButton(
             imageVector = PantrixIcons.Search,
             contentDescription = stringResource(Res.string.search_or_run_a_command),
-            onClick = {},
+            onClick = onOpenPalette,
             size = size,
-            enabled = false,
             tagKey = "launcher"
         )
     }
@@ -450,16 +456,14 @@ private val MarkLetterSpacing = (-1).sp
 
 /** What opens the command palette in a wide window: a field's look, with the palette's keys at its end. */
 @Composable
-private fun Launcher() {
+private fun Launcher(onOpenPalette: () -> Unit) {
     val colors = PantrixTheme.colors
-    val shortcut = PantrixShortcut(Key.K, command = true)
     val label = stringResource(Res.string.search_or_run_a_command)
     PantrixButton(
-        onClick = {},
+        onClick = onOpenPalette,
         contentDescription = label,
         modifier = Modifier.width(LauncherWidth),
         size = ButtonSize.Small,
-        enabled = false,
         shape = PantrixTheme.shapes.md,
         colors = ButtonColors(container = colors.background, content = colors.textSecondary, border = colors.border),
         tagKey = "launcher"
@@ -467,7 +471,7 @@ private fun Launcher() {
         PantrixIcon(imageVector = PantrixIcons.Search, contentDescription = null)
         PantrixText(text = label, modifier = Modifier.weight(1f).padding(horizontal = PantrixTheme.spacing.sm))
         PantrixText(
-            text = shortcut.writtenOn(LocalOperatingSystem.current),
+            text = AppShortcuts.Palette.writtenOn(LocalOperatingSystem.current),
             style = PantrixTheme.typography.caption
         )
     }

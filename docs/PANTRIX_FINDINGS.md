@@ -192,7 +192,7 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Ne: `PantrixShortcut.keysOn` bir kısayolu tuş tuş veriyor (`⌘`, `K`), ama tuşları çizen bir bileşen yok; tasarım sisteminde de yok. Formatico'nun Start ve Workspace panolarındaki `⌘K` ve `⌘V` işaretleme.
     *   Nerede: [Keyboard shortcuts](https://pantrixui.com/docs/guides/keyboard-shortcuts); tasarım sisteminin bileşen listesi.
     *   Öneri: `CommandPalette`'in kısayol yazımını kullanan küçük bir `PantrixKeys` (ya da `PantrixShortcutLabel`).
-    *   Durum: açık. Kodda (2026-11-03) başlatıcının `⌘K`'sı ve Start'ın `⌘V` ipucu `PantrixShortcut.writtenOn` ile düz metin; tuş kapağı çizilmiyor.
+    *   Durum: açık, tıkıyor (sahibinin kararı, 2026-11-05). Faz 12'nin Settings'i buna bağlı: Keyboard shortcuts bölümü (tuval sürüm 76) her kısayolu tuş kapaklarıyla çiziyor; Faz 12 bu bulgu kapanana kadar kapanmıyor. Önceki durum: açık. Kodda (2026-11-03) başlatıcının `⌘K`'sı ve Start'ın `⌘V` ipucu `PantrixShortcut.writtenOn` ile düz metin; tuş kapağı çizilmiyor. Faz 12'de (2026-11-05) görüldü: `PantrixCommandPalette` kısayolları kendi içinde kapaklarla çiziyor (kaynak jar'da `CommandRows.kt`'nin `Keycaps`'i), ama o öğe dışarıya açık değil. Settings'in Keyboard shortcuts bölümü (tuval sürüm 76) aynı kapakları çiziyor ve bu bulguyu bekliyor.
 *   [x] **CodeBlock'un renk türlerinde anahtar yok (2026-11-02).**
     *   Ne: `CodeTokenKind`'in türleri `Plain`, `Comment`, `Keyword`, `Type`, `StringLiteral`, `Number`, `Punctuation`, `Annotation`; belgesi "bir özellik `Plain`'dir" diyor. JSON, YAML, TOML ve properties metninin yarısı anahtar; Formatico'nun sözdizimi renkleri (sahibinin kararı) anahtarı ayrı bir renkle yazıyor. `PantrixCodeBlock` bu yüzden dönüşümün çıktısını ve karşılaştırmayı Formatico'nun renkleriyle çizemiyor: anahtarlar düz metin olur ya da `Type` gibi anlamı başka bir türe yazılır.
     *   Nerede: [Code Block](https://pantrixui.com/components/code-block); MCP `get_api CodeTokenKind`.
@@ -380,3 +380,9 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Nerede: `CodeMark`'ın KDoc'u (0.1.2-SNAPSHOT'un kaynak jar'ı), `gutter`: "A screen reader does not read it ... what the line is stands in the [message], as words".
     *   Öneri: `CodeMark`'a görünmeyen, yalnızca ekran okuyucunun okuduğu bir açıklama (`description: String?`); ya da `gutter`'a bir ad.
     *   Durum: açık. Formatico'yu tıkamıyor.
+
+*   [ ] **Kod editöründe uzun satır alttan devam ettirilemiyor (2026-11-05).**
+    *   Ne: Settings panolarının Editor bölümünde "Wrap long lines" ("A line too long for the window goes on under itself"), açık olarak çizili. `PantrixCodeEditor`'ın parametrelerinde satırı kaydırmanın yolu yok (`indent`, `closesPairs`, `keyRow`, `lineNumbers`, `readOnly`, `textStyle`, `style`); uzun satır yana kayıyor. Formatico'nun Settings'i bu satırı bağlayamıyor.
+    *   Nerede: MCP `get_component_metadata CodeEditor`; 0.1.2-SNAPSHOT'un kaynak jar'ında `PantrixCodeEditor`'ın imzası.
+    *   Öneri: `PantrixCodeEditor`'a `softWrap: Boolean` (varsayılanı bugünkü gibi `false`): satır, editörün genişliğinde alttan devam eder; devam eden parçanın numarası yok (oluk boş), girintisi satırın girintisi kadar; imleç, seçim, bul ve işaretler (`lineMarks`, `rangeMarks`) kaydırılmış satırda da doğru yerde. `PantrixCodeBlock`'ta da aynı seçenek.
+    *   Durum: açık, tıkıyor (sahibinin kararı, 2026-11-05). Faz 12'nin Settings'i buna bağlı: "Wrap long lines" düzeltme gelince bağlanır.

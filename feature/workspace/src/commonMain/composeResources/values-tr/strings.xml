@@ -692,4 +692,19 @@
         <item quantity="other">%1$s belgesinde %2$d hata var</item>
     </plurals>
     <string name="compare_invalid_body">Anlamla karşılaştırmak için onar, ya da metinle karşılaştır.</string>
+    <string name="palette_group_document">Belge</string>
+    <string name="palette_group_view">Görünüm</string>
+    <string name="palette_group_convert">Dönüştür</string>
+    <string name="palette_format">Belgeyi biçimlendir</string>
+    <string name="palette_format_keywords">güzelleştir, girinti, pretty, beautify</string>
+    <string name="palette_minify_keywords">sıkıştır, tek satır, compact</string>
+    <string name="palette_sort_keywords">sıra, alfabe, order</string>
+    <string name="palette_compare">Başka bir belgeyle karşılaştır</string>
+    <string name="palette_compare_keywords">fark, diff</string>
+    <string name="palette_tree">Ağacı göster</string>
+    <string name="palette_table">Tabloyu göster</string>
+    <string name="palette_query_jsonpath">JSONPath ile sorgula</string>
+    <string name="palette_query_xpath">XPath ile sorgula</string>
+    <string name="palette_query_keywords">jsonpath, xpath, süz, filtre</string>
+    <string name="palette_convert_to">%1$s biçimine dönüştür</string>
 </resources>
