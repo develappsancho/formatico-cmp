@@ -45,6 +45,21 @@ yeniden kurulması. Sorgu: `$..id`, XML'de `//order`. Convert: JSON YAML'a, öte
 
 Ağaçta arama ("grace"), 10 MB: CSV 76 ms (32.295 eşleşme), JSON 25 ms (4.470).
 
+**Compare'in satırları (2026-11-11).** Compare `PantrixDiffView`'a geçince karşılaştırma iki metnin bütün satırlarını
+da kuruyor (`comparedLines`), anlamca karşılaştırmada metnin satır karşılaştırmasını da yapıyor. Ana iş parçacığının
+dışında ve yalnızca Compare açıkken; ortasında bir değeri değişmiş iki belgeyle:
+
+| Biçim | MB | Anlamla (ms), önce → şimdi | Metinle (ms), önce → şimdi |
+| :--- | ---: | ---: | ---: |
+| JSON | 10 | 994 → 1.550 | 304 → 600 |
+| CSV | 10 | 1.506 → 1.886 | 234 → 548 |
+| YAML | 10 | 1.324 → 1.559 | 302 → 810 |
+| JSON | 50 | 4.570 → 6.392 | 1.180 → 3.072 |
+| CSV | 50 | 8.237 → 9.959 | 1.139 → 2.964 |
+| YAML | 50 | 5.438 → 7.459 | 1.250 → 3.477 |
+
+Her satır bir `DiffLine`; değişmeyenler görünümde katlı ama listede duruyor, basınca açılsınlar diye.
+
 **Ağacın kaynağı (2026-11-11).** Pantrix'in C partisiyle Workspace'in ağacı bir kaynaktan okuyor (`TreeSource`,
 `DocumentSource`): ağaç bir dalın kaç çocuğu olduğunu ve sıradaki çocuğunu satır görünmek üzereyken istiyor. Ölçüm
 artık bir ekranın satırlarını kaynağa ağacın sorduğu gibi soruyor (en çok 60 satır): her biçimde, 10 ve 50 MB'ta,

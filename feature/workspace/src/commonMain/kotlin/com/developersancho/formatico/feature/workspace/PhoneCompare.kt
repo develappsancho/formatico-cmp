@@ -29,6 +29,7 @@ import com.pantrixui.components.container.card.CardColors
 import com.pantrixui.components.container.card.CardVariant
 import com.pantrixui.components.container.card.PantrixCard
 import com.pantrixui.components.container.topbar.PantrixBackButton
+import com.pantrixui.components.data.diffview.DiffLayout
 import com.pantrixui.components.elements.button.ButtonSize
 import com.pantrixui.components.elements.button.ButtonVariant
 import com.pantrixui.components.elements.button.PantrixButton
@@ -44,14 +45,15 @@ import com.pantrixui.foundation.theme.PantrixTheme
  * A phone's comparison, a screen of its own in the app bar's place: the way back, "Compare" and the document's "more"
  * menu; A and B, what they are compared by and how many differences of each kind there are; and the differences, a
  * card each with what A has and what B has, and the button that shows it in the two texts. The system's back leaves it
- * as its own button does.
+ * as its own button does. A preview gives [showing] to draw the two texts shown from the start.
  */
 @Composable
 internal fun PhoneCompare(
     state: WorkspaceState,
     onIntent: (WorkspaceIntent) -> Unit,
     more: @Composable () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    showing: Boolean = false
 ) {
     val document = state.document ?: return
     val back = { onIntent(WorkspaceIntent.ShowPane(openingPane(document.format))) }
@@ -80,7 +82,7 @@ internal fun PhoneCompare(
             CompareMessage(state.comparison, Modifier.weight(1f).fillMaxWidth().background(PantrixTheme.colors.background))
             return@Column
         }
-        DifferenceCards(compared, choice, onIntent, Modifier.weight(1f).fillMaxWidth())
+        DifferenceCards(compared, choice, onIntent, Modifier.weight(1f).fillMaxWidth(), showing)
     }
 }
 
@@ -108,16 +110,20 @@ private fun PhoneCompareChoices(state: WorkspaceState, document: OpenDocument, c
     }
 }
 
-/** The differences, a card each, the one shown marked, and what was not counted as one under them. */
+/**
+ * The differences, a card each, the one shown marked, and what was not counted as one under them; the one shown in the
+ * two texts in a sheet while a card's Show has it, or from the start where [shownFirst] says so, as a preview does.
+ */
 @Composable
 private fun DifferenceCards(
     compared: CompareOutcome.Compared,
     choice: CompareChoice,
     onIntent: (WorkspaceIntent) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    shownFirst: Boolean = false
 ) {
     val spacing = PantrixTheme.spacing
-    var showing by rememberSaveable { mutableStateOf(false) }
+    var showing by rememberSaveable { mutableStateOf(shownFirst) }
     val current = choice.current.coerceIn(0, (compared.differences.size - 1).coerceAtLeast(0))
     LazyColumn(
         modifier = modifier.background(PantrixTheme.colors.background),
@@ -204,7 +210,10 @@ private fun SideValue(label: String, value: String?) {
     }
 }
 
-/** The difference at [current] in A's text and in B's, one over the other, in a sheet over the cards. */
+/**
+ * The difference at [current] in A's text and B's, in a sheet over the cards: the two texts compared in one column, as
+ * Compare-390's sheet draws them, the difference shown.
+ */
 @Composable
 private fun ShownInBoth(compared: CompareOutcome.Compared, current: Int, visible: Boolean, onDismiss: () -> Unit) {
     val difference = compared.differences.getOrNull(current)
@@ -216,10 +225,13 @@ private fun ShownInBoth(compared: CompareOutcome.Compared, current: Int, visible
         scrollContent = false,
         tagKey = "shown"
     ) {
-        Column(modifier = Modifier.fillMaxWidth().weight(1f)) {
-            SideText(compared, Side.A, WorkspaceLayout.Phone, current, Modifier.weight(1f).fillMaxWidth())
-            PantrixHorizontalDivider()
-            SideText(compared, Side.B, WorkspaceLayout.Phone, current, Modifier.weight(1f).fillMaxWidth())
-        }
+        // The texts stand in from the sheet's edges in their own frame, as Compare-390's sheet draws them.
+        val spacing = PantrixTheme.spacing
+        ComparedTexts(
+            compared,
+            current,
+            DiffLayout.Unified,
+            Modifier.fillMaxWidth().weight(1f).padding(start = spacing.lg, end = spacing.lg, bottom = spacing.lg)
+        )
     }
 }

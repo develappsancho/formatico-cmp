@@ -60,13 +60,6 @@ internal object CompareStringsEnglish : CompareStrings {
     override val byMeaningNote = "Compared by meaning: key order and number spelling are not differences"
     override val byTextNote = "Compared by text: every character counts"
 
-    override fun side(count: Int, first: String, second: String, third: Int) =
-        if (count == 1) {
-            "$first · $second · $third line"
-        } else {
-            "$first · $second · $third lines"
-        }
-
     override fun sideShort(first: String, second: String) = "$first · $second"
 
     override val title = "Compare"

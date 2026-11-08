@@ -21,10 +21,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.developersancho.formatico.core.format.diff.Change
-import com.developersancho.formatico.feature.workspace.editor.ComparedText
 import com.developersancho.formatico.feature.workspace.strings.compareStrings
 import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
+import com.pantrixui.components.data.diffview.DiffLayout
 import com.pantrixui.components.elements.divider.PantrixHorizontalDivider
 import com.pantrixui.components.elements.divider.PantrixVerticalDivider
 import com.pantrixui.components.elements.icon.PantrixIcon
@@ -36,7 +35,7 @@ import com.pantrixui.foundation.theme.PantrixTheme
 /**
  * A document compared with another in a wide window or on a tablet, in the whole room, the toolbar's and the status
  * bar's as well: A and B and what they are compared by over them; the differences, with what was not counted as one;
- * the two texts, each difference's lines on a band; and which difference is shown under them.
+ * the two texts side by side, the lines that differ marked (`ComparedTexts`); and which difference is shown under them.
  */
 @Composable
 internal fun CompareScreen(
@@ -61,12 +60,17 @@ internal fun CompareScreen(
             Row(modifier = Modifier.weight(1f).fillMaxWidth()) {
                 Differences(compared, layout, current, choose, Modifier.width(DifferencesWidth).fillMaxHeight())
                 PantrixVerticalDivider()
-                Sides(compared, layout, current, Modifier.weight(1f).fillMaxHeight())
+                ComparedTexts(
+                    compared,
+                    current,
+                    DiffLayout.SideBySide,
+                    Modifier.weight(1f).fillMaxHeight().padding(PantrixTheme.spacing.md)
+                )
             }
         } else {
             Differences(compared, layout, current, choose, Modifier.fillMaxWidth().heightIn(max = TabletDifferencesHeight))
             PantrixHorizontalDivider()
-            Sides(compared, layout, current, Modifier.weight(1f).fillMaxWidth())
+            ComparedTexts(compared, current, DiffLayout.SideBySide, Modifier.weight(1f).fillMaxWidth().padding(PantrixTheme.spacing.md))
         }
         CompareFooter(compared, layout, current)
     }
@@ -153,52 +157,6 @@ private fun Differences(
         item(key = "not counted") {
             NotCountedAlert(compared, Modifier.padding(start = spacing.xs, end = spacing.xs, top = spacing.md))
         }
-    }
-}
-
-/** A's text and B's beside it, each under its letter, its name and its lines. */
-@Composable
-private fun Sides(compared: CompareOutcome.Compared, layout: WorkspaceLayout, current: Int, modifier: Modifier = Modifier) {
-    Row(modifier = modifier) {
-        SideText(compared, Side.A, layout, current, Modifier.weight(1f).fillMaxHeight())
-        PantrixVerticalDivider()
-        SideText(compared, Side.B, layout, current, Modifier.weight(1f).fillMaxHeight())
-    }
-}
-
-/** One of the texts compared, under its letter, its name and, in a wide window, its lines. */
-@Composable
-internal fun SideText(compared: CompareOutcome.Compared, side: Side, layout: WorkspaceLayout, current: Int, modifier: Modifier = Modifier) {
-    val document = if (side == Side.A) compared.a else compared.b
-    val letter = if (side == Side.A) compareStrings.a else compareStrings.b
-    val name = comparedName(document)
-    Column(modifier = modifier) {
-        Row(
-            modifier = Modifier.fillMaxWidth().height(36.dp).padding(horizontal = PantrixTheme.spacing.md),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            PantrixText(
-                text = if (layout == WorkspaceLayout.Wide) {
-                    compareStrings.side(document.lines, letter, name, document.lines)
-                } else {
-                    compareStrings.sideShort(letter, name)
-                },
-                style = PantrixTheme.typography.footnote.copy(fontWeight = FontWeight.Medium),
-                color = PantrixTheme.colors.textSecondary,
-                maxLines = 1
-            )
-        }
-        PantrixHorizontalDivider()
-        ComparedText(
-            text = document.text,
-            format = document.format,
-            name = name,
-            marks = sideMarks(compared, side, current, Change.entries.associateWith { changeName(it) }),
-            values = sideValues(compared, side),
-            shown = shownLines(compared, side, current),
-            tagKey = if (side == Side.A) "text_a" else "text_b",
-            modifier = Modifier.weight(1f).fillMaxWidth()
-        )
     }
 }
 

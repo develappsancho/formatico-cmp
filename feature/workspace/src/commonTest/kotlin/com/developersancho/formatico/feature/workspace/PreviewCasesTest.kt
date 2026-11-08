@@ -430,6 +430,7 @@ class PreviewCasesTest {
             "meaning on a tablet" to listOf("A · order.json", "B · order-v2.json", "1 → 2"),
             "meaning on a phone" to listOf("In A", "\"shipped\"", "In B", "\"delivered\""),
             "last on a phone" to listOf("In A", "In B"),
+            "shown on a phone" to listOf("A · order.json → B · order-v2.json"),
             "text" to listOf("4 differences", "Line 2", "\"status\": \"delivered\","),
             "far down" to listOf("1 changed", "\$.items[59].qty"),
             "the same" to listOf("No differences", "A and B mean the same."),

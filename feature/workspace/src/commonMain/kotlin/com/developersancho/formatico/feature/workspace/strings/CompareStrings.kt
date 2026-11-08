@@ -79,9 +79,6 @@ internal interface CompareStrings {
     val byMeaningNote: String
     val byTextNote: String
 
-    /** "{first} · {second} · {third} lines", the form [count] chooses */
-    fun side(count: Int, first: String, second: String, third: Int): String
-
     /** "{first} · {second}" */
     fun sideShort(first: String, second: String): String
 

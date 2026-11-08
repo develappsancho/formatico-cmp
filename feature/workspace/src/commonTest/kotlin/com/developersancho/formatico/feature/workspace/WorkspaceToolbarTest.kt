@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.format.Format
 import com.developersancho.formatico.core.testing.awaitNode
+import com.developersancho.formatico.core.testing.awaitUntil
 import com.pantrixui.foundation.adaptive.PantrixWindow
 import com.pantrixui.foundation.l10n.PantrixLocale
 import com.pantrixui.testing.PantrixTestTheme
@@ -49,9 +50,13 @@ class WorkspaceToolbarTest {
         var state by mutableStateOf(previewState("order.json", PreviewOrder, Format.Json))
         turkishTabletToolbar { state }
 
-        // Schema, the lowest, goes into the "…" menu first: it has no icon to be drawn as.
+        // Schema, the lowest, goes into the "…" menu first: it has no icon to be drawn as. In a browser the words are
+        // measured again once the fonts come, after the first frame: the bar folds then.
         awaitNode(hasPantrixTag("Action", "types", "Toolbar_document"), "Types in the bar")
-        onPantrixNode("Action", "schema", scope = "Toolbar_document").assertDoesNotExist()
+        awaitUntil("Schema went into the menu") {
+            onAllNodes(hasPantrixTag("Action", "schema", "Toolbar_document")).fetchSemanticsNodes().isEmpty()
+        }
+        onPantrixNode("Action", "types", scope = "Toolbar_document").assertExists()
 
         // Shown, it keeps its button, which says which view is open.
         state = previewState("order.json", PreviewOrder, Format.Json, DocumentView(pane = DocumentPane.Schema))

@@ -5,7 +5,6 @@ import com.developersancho.formatico.core.format.diff.Change
 import com.developersancho.formatico.core.format.json.jsonPath
 import com.developersancho.formatico.feature.workspace.strings.compareStrings
 import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
-import com.pantrixui.components.data.codeblock.CodeTone
 import com.pantrixui.components.data.tag.TagTone
 
 /** The mark a change is drawn with, beside its row and its line's number: `~`, `+` or `−`. */
@@ -22,14 +21,6 @@ internal val Change.tagTone: TagTone
         Change.Changed -> TagTone.Warning
         Change.Added -> TagTone.Success
         Change.Removed -> TagTone.Danger
-    }
-
-/** The tone of a change's lines in the text. */
-internal val Change.codeTone: CodeTone
-    get() = when (this) {
-        Change.Changed -> CodeTone.Warning
-        Change.Added -> CodeTone.Success
-        Change.Removed -> CodeTone.Danger
     }
 
 /** What a screen reader calls a change. */

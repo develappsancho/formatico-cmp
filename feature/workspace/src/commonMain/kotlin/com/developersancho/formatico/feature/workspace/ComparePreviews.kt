@@ -3,6 +3,7 @@ package com.developersancho.formatico.feature.workspace
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -11,6 +12,7 @@ import com.developersancho.formatico.core.designsystem.FormaticoPreview
 import com.developersancho.formatico.core.designsystem.PreviewCase
 import com.developersancho.formatico.core.designsystem.PreviewCases
 import com.developersancho.formatico.core.format.Format
+import com.developersancho.formatico.feature.workspace.editor.LocalWrapLines
 
 /** The order A of the Compare boards. */
 internal val PreviewCompareA =
@@ -74,13 +76,14 @@ private fun longOrder(last: Int, items: Int = 60): String = buildString {
     append("  ]\n}\n")
 }
 
-/** A case of the comparison: [state], laid out for [layout]. */
-internal class CompareCase(val state: WorkspaceState, val layout: WorkspaceLayout) {
+/** A case of the comparison: [state], laid out for [layout]; on a phone, the difference shown in the texts where [shown]. */
+internal class CompareCase(val state: WorkspaceState, val layout: WorkspaceLayout, val shown: Boolean = false) {
     val board get() = LaidOutState(state, layout).board
 }
 
 /**
- * The comparison's cases: the boards' two orders by meaning at each width, the last difference shown on a phone, and by
+ * The comparison's cases: the boards' two orders by meaning at each width, the last difference shown on a phone, the
+ * first in the two texts of a phone's sheet, as Compare-390's `show` state draws it, and by
  * text; two long orders whose one difference is off the screen until it is brought into view; the order against itself
  * in YAML, which differs in nothing; one open document alone; and B with errors, and B in plain text, which have nothing
  * to compare by meaning.
@@ -91,6 +94,7 @@ internal class CompareCases :
         "meaning on a tablet" to CompareCase(OrdersCompared, WorkspaceLayout.Tablet),
         "meaning on a phone" to CompareCase(OrdersCompared, WorkspaceLayout.Phone),
         "last on a phone" to CompareCase(compared(CompareChoice(current = 3)), WorkspaceLayout.Phone),
+        "shown on a phone" to CompareCase(OrdersCompared, WorkspaceLayout.Phone, shown = true),
         "text" to CompareCase(OrdersComparedAsText, WorkspaceLayout.Wide),
         "far down" to CompareCase(
             compared(
@@ -133,10 +137,13 @@ private fun convertedYaml(): String =
 @Composable
 internal fun ComparePreview(@PreviewParameter(CompareCases::class) case: PreviewCase<CompareCase>) {
     FormaticoPreview(case, Modifier.width(case.value.board.width.dp).height(case.value.board.height.dp)) { compare ->
-        if (compare.layout == WorkspaceLayout.Phone) {
-            PhoneCompare(state = compare.state, onIntent = {}, more = {})
-        } else {
-            CompareScreen(state = compare.state, layout = compare.layout, onIntent = {})
+        // Long lines go on under themselves, as Settings first has it.
+        CompositionLocalProvider(LocalWrapLines provides true) {
+            if (compare.layout == WorkspaceLayout.Phone) {
+                PhoneCompare(state = compare.state, onIntent = {}, more = {}, showing = compare.shown)
+            } else {
+                CompareScreen(state = compare.state, layout = compare.layout, onIntent = {})
+            }
         }
     }
 }

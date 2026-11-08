@@ -60,8 +60,6 @@ internal object CompareStringsTurkish : CompareStrings {
     override val byMeaningNote = "Anlama göre karşılaştırıldı: anahtarların sırası ve sayıların yazılışı fark sayılmıyor"
     override val byTextNote = "Metne göre karşılaştırıldı: her karakter hesaba katılıyor"
 
-    override fun side(count: Int, first: String, second: String, third: Int) = "$first · $second · $third satır"
-
     override fun sideShort(first: String, second: String) = "$first · $second"
 
     override val title = "Karşılaştır"

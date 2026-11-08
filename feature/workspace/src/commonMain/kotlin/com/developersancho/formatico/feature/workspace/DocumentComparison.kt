@@ -22,6 +22,7 @@ import com.developersancho.formatico.core.format.json.PathStep
 import com.developersancho.formatico.core.format.json.jsonPath
 import com.developersancho.formatico.core.format.text.LineMap
 import com.developersancho.formatico.core.format.text.TextRange
+import com.pantrixui.components.data.diffview.DiffLine
 
 /** What two documents are compared by: what their values mean, whatever their format, or their text, a line at a time. */
 enum class CompareBy { Meaning, Text }
@@ -85,7 +86,8 @@ internal sealed interface CompareOutcome {
 
     /**
      * [a] and [b] were compared by [by]: their [differences], in order; and where they were compared by meaning, what
-     * was not counted as one, the keys that [moved] and the numbers [respelled].
+     * was not counted as one, the keys that [moved] and the numbers [respelled]. The two texts are shown in [lines]
+     * (`comparedLines`), and each difference is the change at its place in [changes] among theirs, or none.
      */
     @Immutable
     data class Compared(
@@ -94,7 +96,9 @@ internal sealed interface CompareOutcome {
         val by: CompareBy,
         val differences: List<ShownDifference>,
         val moved: KeysMoved? = null,
-        val respelled: NumbersRespelled? = null
+        val respelled: NumbersRespelled? = null,
+        val lines: List<DiffLine> = emptyList(),
+        val changes: List<Int?> = emptyList()
     ) : CompareOutcome
 }
 
@@ -126,7 +130,7 @@ internal fun comparisonOf(a: OpenDocument, aReading: Reading, b: OpenDocument?, 
     val second = ComparedDocument(b.id, b.name, b.format, b.text, TextStats.of(b.text).lines)
     if (by == CompareBy.Text) {
         val differences = compareLines(a.text, b.text).map { textDifference(it, a.text, b.text) }
-        return CompareOutcome.Compared(first, second, by, differences)
+        return CompareOutcome.Compared(first, second, by, differences).withLines()
     }
     val partner = OtherDocument(b.id, b.name)
     return whyNot(Side.A, a, aReading as? Reading.Read, partner)
@@ -142,7 +146,13 @@ private fun byMeaning(a: ComparedDocument, b: ComparedDocument, aRead: Reading.R
     val aNodes = NodesByPath(aRoot, a.text)
     val bNodes = NodesByPath(bRoot, b.text)
     val differences = comparison.differences.map { difference -> valueDifference(difference, aNodes, bNodes) }
-    return CompareOutcome.Compared(a, b, CompareBy.Meaning, differences, comparison.moved, comparison.respelled)
+    return CompareOutcome.Compared(a, b, CompareBy.Meaning, differences, comparison.moved, comparison.respelled).withLines()
+}
+
+/** This comparison with the lines its texts are shown in, and the place of each difference among their changes. */
+private fun CompareOutcome.Compared.withLines(): CompareOutcome.Compared {
+    val lines = comparedLines(a.text, b.text, by, differences)
+    return copy(lines = lines, changes = changesOf(lines, differences))
 }
 
 /**

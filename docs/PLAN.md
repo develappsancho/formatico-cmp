@@ -438,6 +438,9 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
                 paylaşma sayfası, tablonun seçili hücresi, boş hâller, menünün başlığı, basılabilen durum etiketi,
                 editörün notundaki düğmeler ve şimdiki eşleşme, ağacın kaynağı (`TreeSource`); geçici çözümleri
                 söküldü. Panolarla ayrılan yerler tuval oturumuna iletildi.
+            *   Compare `PantrixDiffView`'a geçti (2026-11-11), tasarım sisteminin DiffView'u yayımlanıp Compare panoları
+                onunla çizildikten sonra. Anlamca karşılaştırmada yalnızca farkların satırları işaretli (sahibinin
+                kararı); panolar orada tasarım sistemi satır alana kadar koddan ayrı.
             *   Kütüphanenin yerel pakete koyduğu ilk parti düzeltmeyle sökülecek geçici çözümler bitti: paletin
                 arama alanının adı, `FileDrop`'un sözcükleri, dokuz yeni simge, `PantrixToolbar` ve `PantrixStatusBar`
                 (2026-11-10). Workspace'in araç ve durum çubuğu artık Pantrix'in. Panoların bu iki bileşenle yeniden

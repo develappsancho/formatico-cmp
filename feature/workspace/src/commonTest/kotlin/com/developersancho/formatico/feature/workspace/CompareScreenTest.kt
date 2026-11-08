@@ -47,8 +47,10 @@ class CompareScreenTest {
 
         awaitText("4 differences")
         awaitText("The order of the keys: status and id changed places. And 129.90 and 129.9, which are the same number.")
-        awaitText("A · order.json · 11 lines")
-        awaitText("B · order-v2.json · 11 lines")
+        // The two texts side by side, each under its letter and its name.
+        onPantrixNode("DiffView", "texts").assertExists()
+        awaitText("A · order.json")
+        awaitText("B · order-v2.json")
         awaitText("Difference 1 of 4")
         onPantrixNode(
             "ListItem",
