@@ -109,9 +109,33 @@ class DocumentOpening internal constructor(
         }
     }
 
-    private fun show(opening: Opening) {
+    /**
+     * Opens the platform's picker, and hands the file chosen in it to [onOpened] rather than to the screen's `onOpen`:
+     * a schema, opened beside the document it validates. What could not be opened is said in a snackbar.
+     */
+    fun pickFile(onOpened: (OpenedDocument) -> Unit) {
+        picker.pick(FilePickRequest(accept = DocumentFileTypes)) { files ->
+            val file = files.firstOrNull() ?: return@pick
+            scope.launch { show(opener.open(file), onOpened) }
+        }
+    }
+
+    /**
+     * Opens the document at [address] with no dialog, and hands it to [onOpened]: the schema a document's `$schema`
+     * names. Why it was not opened is said in a snackbar.
+     */
+    fun openAddress(address: String, onOpened: (OpenedDocument) -> Unit) {
+        scope.launch {
+            when (val opening = opener.address(address)) {
+                is Opening.AddressRefused -> said.value = OpeningMessage.AddressRefused(opening.reading, opener.maxFileSize)
+                else -> show(opening, onOpened)
+            }
+        }
+    }
+
+    private fun show(opening: Opening, onOpened: (OpenedDocument) -> Unit = onOpen.value) {
         when (opening) {
-            is Opening.Opened -> onOpen.value(opening.document)
+            is Opening.Opened -> onOpened(opening.document)
             Opening.NothingToPaste -> said.value = OpeningMessage.NothingToPaste
             is Opening.Refused -> said.value = OpeningMessage.Refused(opening.refusal)
             Opening.BrokenLink -> said.value = OpeningMessage.BrokenLink
@@ -135,6 +159,9 @@ internal sealed interface OpeningMessage {
     data object SharedLinkGone : OpeningMessage
 
     data class SharedLinkUnreachable(val address: String) : OpeningMessage
+
+    /** The document at an address opened with no dialog was not, for [reading]; a file may have [maxFileSize] bytes. */
+    data class AddressRefused(val reading: AddressReading, val maxFileSize: Long) : OpeningMessage
 }
 
 /** A way to paste and open a file from anywhere in the app; what is opened is handed to [onOpen]. */
@@ -169,6 +196,7 @@ private fun OpeningMessages(said: MutableState<OpeningMessage?>, scope: Coroutin
         OpeningMessage.BrokenLink -> startStrings.linkBroken to "link_broken"
         OpeningMessage.SharedLinkGone -> startStrings.sharedLinkGone to "shared_link_gone"
         is OpeningMessage.SharedLinkUnreachable -> startStrings.sharedLinkUnreachable to "shared_link_unreachable"
+        is OpeningMessage.AddressRefused -> refusalOf(shown.reading, shown.maxFileSize) to "address_refused"
         null -> null
     }
     LaunchedEffect(message) {

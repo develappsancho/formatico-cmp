@@ -83,6 +83,11 @@ class WorkspaceScreenshotTest {
     }
 
     @Test
+    fun schema() = SchemaCases().values.forEach { case ->
+        capturePreview("Schema", case, case.value.board) { SchemaPreview(case) }
+    }
+
+    @Test
     fun compare() = CompareCases().values.forEach { case ->
         capturePreview("Compare", case, case.value.board) { ComparePreview(case) }
     }
@@ -108,6 +113,10 @@ class WorkspaceScreenshotTest {
 
             "convert" -> {
                 captureOpenMenu("TargetMenu", case, Board.Desktop, opener = "convert_to") { WorkspaceScreenPreview(case) }
+            }
+
+            "schema" -> {
+                captureOpenMenu("SchemaMenu", case, Board.Desktop, opener = "schema_against") { WorkspaceScreenPreview(case) }
             }
 
             "compare" -> {

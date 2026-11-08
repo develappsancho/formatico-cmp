@@ -152,7 +152,7 @@ internal fun TypesPanes(
     }
 }
 
-/** A wide window's document beside what is made of it, as the pane shown says: its conversion, or its types. */
+/** A wide window's document beside what is made of it, as the pane shown says: its conversion, its types or its schema. */
 @Composable
 internal fun MadeBesideText(
     state: WorkspaceState,
@@ -161,10 +161,10 @@ internal fun MadeBesideText(
     commands: DocumentCommands,
     modifier: Modifier = Modifier
 ) {
-    if (state.document?.view?.pane == DocumentPane.Types) {
-        TypesPanes(state, editor, onIntent, commands, modifier)
-    } else {
-        ConvertPanes(state, editor, onIntent, commands, modifier)
+    when (state.document?.view?.pane) {
+        DocumentPane.Types -> TypesPanes(state, editor, onIntent, commands, modifier)
+        DocumentPane.Schema -> SchemaPanes(state, editor, onIntent, modifier)
+        else -> ConvertPanes(state, editor, onIntent, commands, modifier)
     }
 }
 

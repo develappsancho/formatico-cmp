@@ -242,4 +242,81 @@ class BoardOrderTypesTest {
         assertEquals(6, types.types)
         assertEquals(notes, types.notes)
     }
+
+    @Test
+    fun theBoardsOrderIsAJsonSchemaItsNullAnything() {
+        val types = typesOf(BoardOrderValue, TypeLanguage.JsonSchema, "Order")
+        assertEquals(
+            lines(
+                "{",
+                "  \"\$schema\": \"https://json-schema.org/draft/2020-12/schema\",",
+                "  \"title\": \"Order\",",
+                "  \"type\": \"object\",",
+                "  \"properties\": {",
+                "    \"id\": { \"type\": \"string\" },",
+                "    \"status\": { \"type\": \"string\" },",
+                "    \"createdAt\": { \"type\": \"string\" },",
+                "    \"total\": { \"type\": \"number\" },",
+                "    \"currency\": { \"type\": \"string\" },",
+                "    \"paid\": { \"type\": \"boolean\" },",
+                "    \"coupon\": {},",
+                "    \"customer\": { \"\$ref\": \"#/\$defs/Customer\" },",
+                "    \"theme\": { \"\$ref\": \"#/\$defs/Theme\" },",
+                "    \"items\": { \"type\": \"array\", \"items\": { \"\$ref\": \"#/\$defs/Item\" } },",
+                "    \"shipping\": { \"\$ref\": \"#/\$defs/Shipping\" }",
+                "  },",
+                "  \"required\": [\"id\", \"status\", \"createdAt\", \"total\", \"currency\", \"paid\", \"coupon\", \"customer\", \"theme\", \"items\", \"shipping\"],",
+                "  \"\$defs\": {",
+                "    \"Customer\": {",
+                "      \"type\": \"object\",",
+                "      \"properties\": {",
+                "        \"name\": { \"type\": \"string\" },",
+                "        \"email\": { \"type\": \"string\" },",
+                "        \"avatar\": { \"type\": \"string\" },",
+                "        \"website\": { \"type\": \"string\" }",
+                "      },",
+                "      \"required\": [\"name\", \"email\", \"avatar\", \"website\"]",
+                "    },",
+                "    \"Theme\": {",
+                "      \"type\": \"object\",",
+                "      \"properties\": {",
+                "        \"accent\": { \"type\": \"string\" }",
+                "      },",
+                "      \"required\": [\"accent\"]",
+                "    },",
+                "    \"Item\": {",
+                "      \"type\": \"object\",",
+                "      \"properties\": {",
+                "        \"sku\": { \"type\": \"string\" },",
+                "        \"name\": { \"type\": \"string\" },",
+                "        \"qty\": { \"type\": \"integer\" },",
+                "        \"price\": { \"type\": \"number\" }",
+                "      },",
+                "      \"required\": [\"sku\", \"name\", \"qty\", \"price\"]",
+                "    },",
+                "    \"Shipping\": {",
+                "      \"type\": \"object\",",
+                "      \"properties\": {",
+                "        \"method\": { \"type\": \"string\" },",
+                "        \"eta\": { \"type\": \"string\" },",
+                "        \"address\": { \"\$ref\": \"#/\$defs/Address\" }",
+                "      },",
+                "      \"required\": [\"method\", \"eta\", \"address\"]",
+                "    },",
+                "    \"Address\": {",
+                "      \"type\": \"object\",",
+                "      \"properties\": {",
+                "        \"city\": { \"type\": \"string\" },",
+                "        \"country\": { \"type\": \"string\" }",
+                "      },",
+                "      \"required\": [\"city\", \"country\"]",
+                "    }",
+                "  }",
+                "}"
+            ),
+            types.text
+        )
+        assertEquals(6, types.types)
+        assertEquals(notes, types.notes)
+    }
 }

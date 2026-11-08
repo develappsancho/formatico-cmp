@@ -56,6 +56,7 @@ internal interface TypesStrings {
     val typeScriptLibrary: String
     val swiftLibrary: String
     val goLibrary: String
+    val jsonSchemaLibrary: String
     val swiftGuess: String
 
     /** "{first} and {second}" */
@@ -95,6 +96,8 @@ internal interface TypesStrings {
 
     /** "Generate {first} types" */
     fun generate(first: String): String
+
+    val generateSchema: String
 }
 
 /** [TypesStrings] in the theme's language. */

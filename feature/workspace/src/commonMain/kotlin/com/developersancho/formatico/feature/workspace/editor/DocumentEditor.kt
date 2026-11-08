@@ -17,9 +17,12 @@ import com.developersancho.formatico.core.format.Problem
 import com.developersancho.formatico.core.format.Severity
 import com.developersancho.formatico.core.format.text.Indentation
 import com.developersancho.formatico.feature.workspace.OpenDocument
+import com.developersancho.formatico.feature.workspace.SchemaIssue
 import com.developersancho.formatico.feature.workspace.ValueNode
 import com.developersancho.formatico.feature.workspace.nodeAt
 import com.developersancho.formatico.feature.workspace.problemMessage
+import com.developersancho.formatico.feature.workspace.sentenceOf
+import com.developersancho.formatico.feature.workspace.strings.schemaStrings
 import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.components.data.codeblock.CodeMark
 import com.pantrixui.components.data.codeblock.CodeTone
@@ -56,7 +59,8 @@ internal val PaneEditorStyle = CodeEditorStyle(
  * or Sort keys, comes into the editor as a step of its own to undo.
  *
  * The text and the tree keep their choice in step: the value [selected] in the tree is selected in the text, and the
- * value of [root] the caret comes to rest in is chosen in the tree ([onSelect]).
+ * value of [root] the caret comes to rest in is chosen in the tree ([onSelect]). Its [problems] are marked, and the
+ * [schemaIssues] of a schema it is validated against.
  */
 @Composable
 internal fun DocumentEditor(
@@ -68,7 +72,8 @@ internal fun DocumentEditor(
     onWrite: (String) -> Unit,
     onSelect: (String) -> Unit,
     modifier: Modifier = Modifier,
-    problems: List<Problem> = emptyList()
+    problems: List<Problem> = emptyList(),
+    schemaIssues: List<SchemaIssue> = emptyList()
 ) {
     val language = editorLanguage(document.format)
     // The text the editor last wrote to the document, or took from it: a document's text that is another came from
@@ -103,7 +108,7 @@ internal fun DocumentEditor(
         state = editor,
         modifier = modifier,
         highlighter = language.highlighter,
-        rangeMarks = problemMarks(problems, document),
+        rangeMarks = problemMarks(problems, document) + schemaMarks(schemaIssues),
         syntax = language.syntax,
         indent = editorIndent(indentation),
         style = PaneEditorStyle,
@@ -146,6 +151,21 @@ private fun FollowTheTree(editor: CodeEditorState, root: ValueNode?, selected: V
                 select(node.key)
             }
         }
+    }
+}
+
+/** The [issues] against a schema as marks on the text: a wavy line under each, in an error's colour, and what is wrong. */
+@Composable
+private fun schemaMarks(issues: List<SchemaIssue>): List<CodeRangeMark> {
+    if (issues.isEmpty()) return emptyList()
+    val strings = schemaStrings
+    return issues.mapNotNull { issue ->
+        val range = issue.range ?: return@mapNotNull null
+        CodeRangeMark(
+            start = range.start,
+            end = maxOf(range.end, range.start + 1),
+            mark = CodeMark(tone = CodeTone.Danger, message = strings.sentenceOf(issue.problem))
+        )
     }
 }
 

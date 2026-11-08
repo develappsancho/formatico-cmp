@@ -12,6 +12,7 @@ import com.developersancho.formatico.core.format.Format
 import com.developersancho.formatico.feature.workspace.strings.WorkspaceStrings
 import com.developersancho.formatico.feature.workspace.strings.convertStrings
 import com.developersancho.formatico.feature.workspace.strings.queryStrings
+import com.developersancho.formatico.feature.workspace.strings.schemaStrings
 import com.developersancho.formatico.feature.workspace.strings.shareStrings
 import com.developersancho.formatico.feature.workspace.strings.summaryStrings
 import com.developersancho.formatico.feature.workspace.strings.typesStrings
@@ -294,6 +295,7 @@ fun DocumentMoreMenu(documentId: Long, workbench: Workbench) {
         onQuery = { workbench.changeView(documentId) { it.copy(pane = DocumentPane.Query) } },
         onConvert = { workbench.changeView(documentId) { it.copy(pane = DocumentPane.Convert) } },
         onTypes = { workbench.changeView(documentId) { it.copy(pane = DocumentPane.Types) } },
+        onSchema = { workbench.changeView(documentId) { it.copy(pane = DocumentPane.Schema) } },
         onCompare = { workbench.changeView(documentId) { it.copy(pane = DocumentPane.Compare) } },
         // Whether the document is valid is the workspace's to know; one with errors is told why it is not sorted.
         canSort = format?.edits?.contains(DocumentEdit.SortKeys) == true,
@@ -317,6 +319,7 @@ internal fun DocumentMenu(
     onQuery: () -> Unit = {},
     onConvert: () -> Unit = {},
     onTypes: () -> Unit = {},
+    onSchema: () -> Unit = {},
     canSort: Boolean,
     onSortKeys: () -> Unit,
     onCompare: () -> Unit = {},
@@ -346,7 +349,7 @@ internal fun DocumentMenu(
     ) {
         if (items == DocumentMenuItems.FindSummarySortCompareClose) {
             FindAndSummaryItems(read, onFind, onSummary)
-            QueryConvertTypesItems(read, onQuery, onConvert, onTypes)
+            QueryConvertTypesItems(read, onQuery, onConvert, onTypes, onSchema)
         }
         if (items != DocumentMenuItems.Close) {
             PantrixMenuItem(
@@ -402,9 +405,12 @@ private fun FindAndSummaryItems(read: Boolean, onFind: () -> Unit, onSummary: ()
     )
 }
 
-/** A phone's menu items for what is made of the document: its query, its conversion and its types. Plain text has none. */
+/**
+ * A phone's menu items for what is made of the document: its query, its conversion, its types and its validation
+ * against a schema. Plain text has none.
+ */
 @Composable
-private fun QueryConvertTypesItems(read: Boolean, onQuery: () -> Unit, onConvert: () -> Unit, onTypes: () -> Unit) {
+private fun QueryConvertTypesItems(read: Boolean, onQuery: () -> Unit, onConvert: () -> Unit, onTypes: () -> Unit, onSchema: () -> Unit) {
     PantrixMenuItem(
         text = workspaceStrings.query,
         onClick = onQuery,
@@ -423,5 +429,11 @@ private fun QueryConvertTypesItems(read: Boolean, onQuery: () -> Unit, onConvert
         onClick = onTypes,
         enabled = read,
         tagKey = "types"
+    )
+    PantrixMenuItem(
+        text = schemaStrings.schema,
+        onClick = onSchema,
+        enabled = read,
+        tagKey = "schema"
     )
 }

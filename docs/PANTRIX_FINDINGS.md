@@ -510,3 +510,17 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
         *   Tasarım sisteminin web karşılığı (`Graph`), panolar işaretleme yerine onu kullansın; PantrixIcons'a bir
             sığdırma simgesi (`FitScreen`): Fit düğmesi şimdilik sözcükle.
     *   Durum: açık. Faz 18'in kodu bu bileşen yerel pakete girene kadar bekliyor.
+*   [ ] **Sığmayan eylemleri menüsüne alan bir araç çubuğu yok (2026-11-09).**
+    *   Ne: Faz 19'da Workspace'in araç çubuğuna Schema eklenince tablette (834) iki yerde sığmadı: Türkçede
+        ("Biçimlendir", "Sorgu", "Dönüştür", "Tipler", "Şema") sondaki "more" düğmesi 46 dp kaldı, onarılacak bir
+        belgede Repair ile birlikte kopyalama ve "more" 30 ve 0 dp'ye düştü; Pantrix'in tanılaması ikisini de
+        `SmallTouchTarget` diye buldu. Pantrix'te genişliğe göre sığmayan eylemleri sondaki bir "more" menüsüne alan
+        bir araç çubuğu yok: `PantrixTopBar`'ın eylemleri ve `PantrixButtonGroup` sığmayanı küçültüyor ya da kesiyor.
+        Formatico iki yerde elle çözdü: Türkçe araç çubuğunda Format'ın sözcüğü "Biçimle" oldu, tablette onarılacak
+        bir belgede Minify'ın yerini Repair alıyor (Invalid-834'ün çizdiği gibi).
+    *   Nerede: MCP `search_components` ("toolbar overflow actions that do not fit move into a more menu"); TopBar,
+        ButtonGroup ve Menu sayfaları.
+    *   Öneri: bir `PantrixToolbar` (ya da `PantrixTopBar`'ın eylemlerine bir seçenek): eylemler öncelikleriyle
+        verilir, sığmayanlar sondaki "more" menüsüne düşer, menüdeki satırları eylemin sözcüğü ve simgesiyle; ekran
+        okuyucu ve otomasyon etiketleri iki yerde de aynı.
+    *   Durum: açık. Formatico'nun işini tıkamıyor.

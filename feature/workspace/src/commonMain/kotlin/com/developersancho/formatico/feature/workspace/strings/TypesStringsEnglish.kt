@@ -44,6 +44,7 @@ internal object TypesStringsEnglish : TypesStrings {
     override val typeScriptLibrary = "TypeScript interfaces."
     override val swiftLibrary = "Swift structs for Codable."
     override val goLibrary = "Go structs for encoding/json."
+    override val jsonSchemaLibrary = "A JSON Schema of draft 2020-12, which documents of the same shape can be validated against."
     override val swiftGuess = "String?, marked as a guess"
 
     override fun twoNames(first: String, second: String) = "$first and $second"
@@ -73,4 +74,6 @@ internal object TypesStringsEnglish : TypesStrings {
     override val groupTypes = "Types"
 
     override fun generate(first: String) = "Generate $first types"
+
+    override val generateSchema = "Generate a JSON Schema"
 }

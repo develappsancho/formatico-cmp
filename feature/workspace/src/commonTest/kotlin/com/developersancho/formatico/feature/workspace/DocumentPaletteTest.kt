@@ -81,10 +81,10 @@ class DocumentPaletteTest {
         assertEquals(
             listOf("format", "minify", "sort", "copy", "save", "compare", "tree", "table", "query") +
                 listOf("convert_yaml", "convert_toml", "convert_xml", "convert_csv") +
-                listOf("types_kotlin", "types_typescript", "types_swift", "types_go"),
+                listOf("types_kotlin", "types_typescript", "types_swift", "types_go", "types_jsonschema", "schema"),
             commands.map { it.key }
         )
-        assertEquals(listOf("Document", "View", "Convert", "Types"), commands.mapNotNull { it.group }.distinct())
+        assertEquals(listOf("Document", "View", "Convert", "Types", "Schema"), commands.mapNotNull { it.group }.distinct())
         val byKey = commands.associateBy { it.key }
         assertEquals("Format document", byKey.getValue("format").label)
         assertEquals(DocumentShortcuts.Format, byKey.getValue("format").shortcut)
@@ -92,6 +92,8 @@ class DocumentPaletteTest {
         assertEquals("Query with JSONPath", byKey.getValue("query").label)
         assertEquals("Convert to YAML", byKey.getValue("convert_yaml").label)
         assertEquals("Generate TypeScript types", byKey.getValue("types_typescript").label)
+        assertEquals("Generate a JSON Schema", byKey.getValue("types_jsonschema").label)
+        assertEquals("Validate against a schema", byKey.getValue("schema").label)
         assertTrue("beautify" in byKey.getValue("format").keywords)
         assertTrue(commands.all { it.enabled })
     }
@@ -102,7 +104,7 @@ class DocumentPaletteTest {
 
         assertEquals(
             listOf("format", "minify", "copy", "save", "query", "convert_yaml", "convert_toml", "convert_xml", "convert_csv") +
-                listOf("types_kotlin", "types_typescript", "types_swift", "types_go"),
+                listOf("types_kotlin", "types_typescript", "types_swift", "types_go", "types_jsonschema", "schema"),
             commands.map { it.key }
         )
         assertTrue(commands.all { it.shortcut == null })
@@ -134,6 +136,7 @@ class DocumentPaletteTest {
         assertFalse(text.getValue("tree").enabled)
         assertFalse(text.getValue("convert_yaml").enabled)
         assertFalse(text.getValue("types_kotlin").enabled)
+        assertFalse(text.getValue("schema").enabled)
         assertTrue(text.getValue("copy").enabled && text.getValue("compare").enabled)
 
         assertEquals("Query with XPath", xml.getValue("query").label)
@@ -158,6 +161,8 @@ class DocumentPaletteTest {
         assertEquals(TypeLanguage.Go, view().types.language)
         assertTrue(palette.run("query", id))
         assertEquals(DocumentPane.Query, view().pane)
+        assertTrue(palette.run("schema", id))
+        assertEquals(DocumentPane.Schema, view().pane)
         assertFalse(palette.run("settings", id))
 
         assertTrue(palette.run("format", id))

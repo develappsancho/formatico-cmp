@@ -75,7 +75,8 @@ internal class TypesCase(val state: WorkspaceState, val layout: WorkspaceLayout,
 }
 
 /**
- * The types' cases: the order's in Kotlin, TypeScript and Swift, as the three boards draw them, and in Go; its root type
+ * The types' cases: the order's in Kotlin, TypeScript and Swift, as the three boards draw them, in Go and as a JSON
+ * Schema; its root type
  * named by the reader; a list of events, NDJSON, whose root is one of its lines; a deployment, YAML; a document with
  * no object, which has no types; an invalid document, which is repaired first; and plain text, which has none.
  */
@@ -87,6 +88,12 @@ internal class TypesCases :
         "go" to
             TypesCase(
                 typed("order.json", PreviewBoardOrder, Format.Json, TypesChoice(language = TypeLanguage.Go)),
+                WorkspaceLayout.Wide,
+                height = 760
+            ),
+        "json schema" to
+            TypesCase(
+                typed("order.json", PreviewBoardOrder, Format.Json, TypesChoice(language = TypeLanguage.JsonSchema)),
                 WorkspaceLayout.Wide,
                 height = 760
             ),

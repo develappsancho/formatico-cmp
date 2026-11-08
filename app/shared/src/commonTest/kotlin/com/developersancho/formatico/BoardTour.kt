@@ -34,7 +34,7 @@ import com.pantrixui.testing.onPantrixNode
 import kotlin.test.assertTrue
 
 /**
- * A board of the canvas, as the app is brought to it: Formatico's eleven screens, the YAML document's workspace, and
+ * A board of the canvas, as the app is brought to it: Formatico's twelve screens, the YAML document's workspace, and
  * Start's two answers to what is pasted (a text of no format told, a link cut short). [fileName] is its screenshots'.
  */
 internal enum class AppBoard(val fileName: String) {
@@ -46,6 +46,7 @@ internal enum class AppBoard(val fileName: String) {
     Query("Query"),
     Convert("Convert"),
     Types("Types"),
+    Schema("Schema"),
     Compare("Compare"),
     Summary("Summary"),
     Palette("Palette"),
@@ -73,7 +74,8 @@ internal class BoardWords(
     val linkBroken: String,
     val secondProblemAt: String,
     val values: String,
-    val types: String
+    val types: String,
+    val schemaProblems: String
 ) {
     companion object {
         val English = BoardWords(
@@ -87,7 +89,8 @@ internal class BoardWords(
             linkBroken = "This link holds no document",
             secondProblemAt = "Line 10, column 5",
             values = "Values",
-            types = "6 types from order.json"
+            types = "6 types from order.json",
+            schemaProblems = "2 problems against order.schema.json"
         )
 
         val Turkish = BoardWords(
@@ -101,7 +104,8 @@ internal class BoardWords(
             linkBroken = "Bu bağlantıda Formatico’nun okuyabileceği bir belge yok",
             secondProblemAt = "Satır 10, sütun 5",
             values = "Değerler",
-            types = "order.json belgesinden 6 tip"
+            types = "order.json belgesinden 6 tip",
+            schemaProblems = "order.schema.json şemasına göre 2 sorun"
         )
     }
 }
@@ -199,6 +203,8 @@ private class Trip(
             }
 
             AppBoard.Types -> types()
+
+            AppBoard.Schema -> schema()
 
             AppBoard.Compare -> compare()
 
@@ -370,6 +376,25 @@ private class Trip(
         awaitShown(file)
     }
 
+    /**
+     * The order against its schema, as the Schema boards draw it: the schema opened in a tab of its own, the order's
+     * Schema shown, from the toolbar or a phone's "more" menu, and the schema chosen in its menu.
+     */
+    private suspend fun schema() {
+        openSample("order")
+        newTab()
+        openFile("order.schema.json", BOARD_SCHEMA)
+        chooseTab("order.json")
+        if (phone) documentMenu("schema") else press("Button", "schema")
+        press("Button", "schema_against")
+        val schema = SemanticsMatcher("the menu's order.schema.json") { node ->
+            node.config.getOrNull(SemanticsProperties.TestTag)?.contains("MenuItem_schema_") == true
+        }
+        test.awaitNode(schema, "the menu's order.schema.json")
+        test.onNode(schema).performTouchInput { click() }
+        awaitShown(words.schemaProblems)
+    }
+
     /** Presses the document's "more" menu's row [key]: a phone's in its bar, a wider window's in its toolbar. */
     private suspend fun documentMenu(key: String) {
         press("IconButton", "more")
@@ -489,5 +514,59 @@ private val ORDER_B =
         { "sku": "TS-001", "qty": 2 },
         { "sku": "MG-014", "qty": 2 }
       ]
+    }
+    """.trimIndent() + "\n"
+
+/** The schema of the Schema boards, order.schema.json, which the order fails twice: its coupon and its customer's phone. */
+private val BOARD_SCHEMA =
+    """
+    {
+      "${'$'}schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Order",
+      "type": "object",
+      "required": ["id", "status", "total", "currency", "customer", "items"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^ord_[0-9]+${'$'}" },
+        "status": { "enum": ["pending", "paid", "shipped", "delivered"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "total": { "type": "number", "minimum": 0 },
+        "currency": { "type": "string", "minLength": 3, "maxLength": 3 },
+        "paid": { "type": "boolean" },
+        "coupon": { "type": "string" },
+        "customer": { "${'$'}ref": "#/${'$'}defs/customer" },
+        "items": { "type": "array", "minItems": 1, "items": { "${'$'}ref": "#/${'$'}defs/item" } },
+        "shipping": { "${'$'}ref": "#/${'$'}defs/shipping" }
+      },
+      "${'$'}defs": {
+        "customer": {
+          "type": "object",
+          "required": ["name", "email", "phone"],
+          "properties": {
+            "email": { "type": "string", "format": "email" },
+            "website": { "type": "string", "format": "uri" }
+          }
+        },
+        "item": {
+          "type": "object",
+          "required": ["sku", "qty", "price"],
+          "properties": {
+            "qty": { "type": "integer", "minimum": 1 },
+            "price": { "type": "number", "exclusiveMinimum": 0 }
+          }
+        },
+        "shipping": {
+          "type": "object",
+          "properties": {
+            "method": { "enum": ["standard", "express"] },
+            "eta": { "type": "string", "format": "date" },
+            "address": { "${'$'}ref": "#/${'$'}defs/address" }
+          }
+        },
+        "address": {
+          "type": "object",
+          "required": ["city", "country"],
+          "properties": { "country": { "type": "string", "pattern": "^[A-Z]{2}${'$'}" } }
+        }
+      }
     }
     """.trimIndent() + "\n"

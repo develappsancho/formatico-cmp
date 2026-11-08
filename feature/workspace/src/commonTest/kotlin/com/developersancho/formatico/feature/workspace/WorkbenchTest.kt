@@ -160,4 +160,17 @@ class WorkbenchTest {
         assertEquals(Format.Json5, document.format)
         assertEquals(DocumentView(), document.view)
     }
+
+    @Test
+    fun aSchemaOpenedBesideADocumentLeavesItsTabChosenAndClosedIsChosenNoMore() {
+        val id = workbench.open("order.json", "{}", Format.Json)
+        val schema = workbench.open("order.schema.json", "{\"type\": \"object\"}", Format.Json, choose = false)
+        assertEquals(id, workbench.state.value.selectedId)
+        assertEquals(schema, workbench.open("order.schema.json", "{\"type\": \"object\"}", Format.Json, choose = false))
+        assertEquals(id, workbench.state.value.selectedId)
+
+        workbench.changeView(id) { it.copy(schema = SchemaChoice(with = schema)) }
+        workbench.close(schema)
+        assertEquals(SchemaChoice(), workbench.state.value.documents.single().view.schema)
+    }
 }

@@ -1,5 +1,6 @@
 package com.developersancho.formatico.feature.workspace.editor
 
+import com.developersancho.formatico.core.format.Format
 import com.developersancho.formatico.core.format.types.TypeLanguage
 import com.pantrixui.components.data.codeblock.CodeTokenKind
 import com.pantrixui.components.data.codeeditor.CodeHighlight
@@ -186,7 +187,10 @@ private val GoTypes = TypesHighlighter(
     namesFirst = true
 )
 
-/** What the editor knows of the code Types writes in [language]: what colours it, and its brackets, quotes and comments. */
+/**
+ * What the editor knows of the code Types writes in [language]: what colours it, and its brackets, quotes and comments;
+ * a JSON Schema is JSON.
+ */
 internal fun editorLanguage(language: TypeLanguage): EditorLanguage {
     val comments = CodeSyntax(quotes = "\"", lineComment = "//", blockCommentStart = "/*", blockCommentEnd = "*/")
     return when (language) {
@@ -195,6 +199,8 @@ internal fun editorLanguage(language: TypeLanguage): EditorLanguage {
         TypeLanguage.TypeScript -> EditorLanguage(TypeScriptTypes, comments)
 
         TypeLanguage.Swift -> EditorLanguage(SwiftTypes, comments)
+
+        TypeLanguage.JsonSchema -> editorLanguage(Format.Json)
 
         TypeLanguage.Go -> EditorLanguage(
             GoTypes,

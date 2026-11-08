@@ -277,8 +277,9 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
         %70'i) ve `bringIntoView(key)` (metinden ve ağaçtan gelen seçim), `expandedToLevel` (Open to). Tasarım
         sistemi de bir Graph alacak: Graph panoları o zaman işaretleme yerine onu kullanır. Formatico'nun seçimin
         dışarıdan yönetilmesi, otomasyon etiketleri ve ekran okuyucu üzerine soruları kütüphanenin oturumunda.
-*   [ ] **Faz 19: JSON Schema.** Panolar kanvasta (2026-11-09, sürüm 119–122): Schema-1440, Schema-834, Schema-390;
-    dört durum (`state`): problems, valid, none, unreadable. Önerilen kararlar, sahibinin onayını bekliyor:
+*   [x] **Faz 19: JSON Schema.** Panolar kanvasta (2026-11-09, sürüm 119–122): Schema-1440, Schema-834, Schema-390;
+    dört durum (`state`): problems, valid, none, unreadable. Kararlar, sahibinin onayıyla (2026-11-09: "Evet, başla";
+    JavaScript varyantlarıyla en çok 4,9 MB'lık indirme de: "Evet, indir"):
     *   **Yeri:** Schema, araç çubuğunda Types'tan sonra (`DocumentPane.Schema`): masaüstünde metnin yanında (Types
         gibi `BesideTextPanes`), tablette bütün oda, telefonda kendi ekranı, "more" menüsünde Types'tan sonra.
         Komut paletinde "Validate against a schema". Öteki panoların araç çubukları Schema'yı onaydan sonra alır.
@@ -320,6 +321,22 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
         iki dilde, şemaların seçilmesi (`$schema`, `$id`), dört durum, view model; bölmenin önizlemeleri (dört durum,
         hatalı belge, doğrulanmayan biçim, üç genişlik, açık ve koyu), ekran görüntüleri ve UI testleri her hedefte.
         Büyük belgede süre ölçülür (10 MB'lık bir JSON).
+    *   **Durum (2026-11-09):** yeni modül `core:schema` (doğrulayıcının üstünde Formatico'nun sorunları ve cümle
+        kuralları; `anyOf`/`oneOf`'un hiçbirine uymayan dalları tek sorun), Workspace'te Schema bölmesi (geniş
+        ekranda metnin yanında, tablette bütün oda, telefonda kendi ekranı), araç çubuğunda, telefonun "more"
+        menüsünde ve komut paletinde Schema, metinde işaretler, durum çubuğunda sayı; Choose a file ve "Open <adres>"
+        şemayı seçili sekmeyi değiştirmeden yeni bir sekmede açıyor. Types'ta beşinci dil JSON Schema; üretilen şema
+        belgenin kendisini doğruluyor (testte). Settings'in lisanslarına beş kütüphane eklendi (json-schema-validator,
+        karacteristics, uri-kmp, doistx-normalize, kotlin-codepoints; MIT ve Apache). Ölçüm (JVM, LargeDocumentsMeasure):
+        üretilen şemaya göre doğrulama 10 MB JSON'da 0,43 s, YAML'da 0,34 s; 50 MB JSON'da 1,6 s, YAML'da 1,5 s; şemayı yazmak
+        0,1–0,3 s. Panolar sürüm 123–145: Schema panoları kodun cümleleriyle, öteki panoların araç çubuklarında Schema,
+        Types panolarında JSON Schema, Settings'in lisansları. Tablette iki şey sığmadı ve Formatico'da çözüldü:
+        Türkçe araç çubuğunda Format "Biçimle" oldu; onarılacak bir belgede Repair, Minify'ın yerinde (Invalid-834'ün
+        çizdiği gibi). Pantrix'te sığmayan eylemleri menüye alan bir araç çubuğu yok: bulgu, tıkamıyor. Denetim:
+        JVM'de, iOS simülatöründe ve Wasm'da bütün testler (core:schema 12, Workspace JVM 308, iOS ve Wasm 287), web'in
+        JavaScript yedeği derleniyor, pano görüntüleri masaüstünde, iOS'ta ve Android'de (Robolectric) kaydedildi,
+        web testleri (10) geçti; lint, detekt ve görünmeyen karakter denetimi temiz. Açık kalan, Faz 19'u bekletmeden:
+        tablette menünün düğmesindeki odak halkası şema menüsünde de (`OPEN_ITEMS.md`, gerçek bir tablette denenecek).
 *   [ ] **Faz 20: Uygulama içi yapay zekâ,** kullanıcının kendi anahtarıyla.
 
 ## Kapanış

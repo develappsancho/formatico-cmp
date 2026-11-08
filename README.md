@@ -11,6 +11,7 @@ properties. It is a Compose Multiplatform app for Android, iOS, the desktop and 
 | [`app/shared`](app/shared) | The app every platform draws: `App()`, in Formatico's theme, with its bar, Koin and the navigation3 back stack |
 | [`app/androidApp`](app/androidApp), [`app/desktopApp`](app/desktopApp), [`app/webApp`](app/webApp), [`app/iosApp`](app/iosApp) | Each platform's entry point |
 | [`core/format`](core/format) | Pure Kotlin: the formats, their lossless parsers, format detection, problems with their line and column, JSON formatted, minified and with its keys sorted, YAML read through snakeyaml-engine-kmp and written by Formatico's own printer, CSV and TSV read and written by Formatico's own reader and printer, JSONPath |
+| [`core/schema`](core/schema) | A document validated against a JSON Schema, drafts 4 to 2020-12, by optimumcode's json-schema-validator: its errors as Formatico's problems, each with its path and the keyword it fails, an `anyOf` or a `oneOf` none of whose schemas matched as one; why a schema cannot be used (a draft not known, a `$ref` to nothing, not a schema of its draft) |
 | [`core/base`](core/base) | The bases every feature builds on: `MviViewModel`, `MviScreen` |
 | [`core/storage`](core/storage) | What is kept on the device: the small values in KSafe, the documents' texts encrypted (AES-GCM, KSafe's key) as files, and in a browser in IndexedDB |
 | [`core/testing`](core/testing) | What the tests share: waiting while a browser runs, a preview's screenshot, an open menu's |
@@ -19,7 +20,7 @@ properties. It is a Compose Multiplatform app for Android, iOS, the desktop and 
 | [`core/navigation`](core/navigation) | A browser tab's history and address kept with the app's screens (adapted from navigation3-browser, MIT) |
 | [`core/designsystem`](core/designsystem) | Formatico's look over Pantrix UI: `FormaticoPreset` (Teal), Geist and Geist Mono, the syntax colours, `FormaticoTheme`, Formatico's own icons |
 | [`feature/start`](feature/start) | The Start screen: paste, open, drop, recent documents and samples |
-| [`feature/workspace`](feature/workspace) | The open documents and their workspace: the toolbar, the tree with its value previews, the table of an array or a CSV (sorting, filtering, columns, a column summed up, saved as CSV), the status bar |
+| [`feature/workspace`](feature/workspace) | The open documents and their workspace: the toolbar, the tree with its value previews, the table of an array or a CSV (sorting, filtering, columns, a column summed up, saved as CSV), the status bar; a document's types (Kotlin, TypeScript, Swift, Go, JSON Schema) and its validation against a schema |
 | [`server`](server) | Formatico's server, Spring Boot on WebFlux: the encrypted shares it keeps and cannot read, and web addresses fetched for a browser, public ones alone |
 | [`deploy`](deploy) | The stack: nginx with the web app and the server beside it, in Docker; `deploy/deploy.sh local` runs it on this machine at `localhost:4005`, `deploy/check.sh` checks it |
 | [`build-logic`](build-logic) | The convention plugins, as Kotlin classes: `formatico.kmp.library`, `formatico.kmp.compose`, `formatico.feature`, `formatico.quality`, `formatico.web.application` |

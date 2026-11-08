@@ -35,6 +35,12 @@ internal fun jsonSpelling(written: String): String? {
     }
 }
 
+/**
+ * The number as JSON writes it and, where JSON has none for it, as JSON5 does: `Infinity`, `-Infinity`, `NaN`. Null for
+ * no number either reads. A JSON Schema is asked of it so (Faz 19), whatever format it was read from.
+ */
+val DataNumber.jsonSpelled: String? get() = jsonSpelling(written) ?: json5Spelling(written)
+
 /** [written] as JSON5 writes it, or null where it is no number JSON5 writes. */
 internal fun json5Spelling(written: String): String? {
     if (Json5Number.matches(written)) return written

@@ -43,6 +43,7 @@ internal object TypesStringsTurkish : TypesStrings {
     override val typeScriptLibrary = "TypeScript arayüzleri."
     override val swiftLibrary = "Codable için Swift struct’ları."
     override val goLibrary = "encoding/json için Go struct’ları."
+    override val jsonSchemaLibrary = "2020-12 sürümünde bir JSON Schema: aynı biçimdeki belgeler ona göre doğrulanabilir."
     override val swiftGuess = "String?, tahmin diye işaretli"
 
     override fun twoNames(first: String, second: String) = "$first ve $second"
@@ -71,4 +72,6 @@ internal object TypesStringsTurkish : TypesStrings {
     override val groupTypes = "Tipler"
 
     override fun generate(first: String) = "$first tiplerini yaz"
+
+    override val generateSchema = "Bir JSON Schema yaz"
 }

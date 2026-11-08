@@ -133,7 +133,8 @@ private data class KeptWorkbench(val tabs: List<KeptTab>, val selectedId: Long?)
                     compareWith = view.compare.with,
                     compareBy = view.compare.by.name,
                     typesLanguage = view.types.language.name,
-                    typesRoot = view.types.root
+                    typesRoot = view.types.root,
+                    schemaWith = view.schema.with
                 )
             },
             selectedId = state.selectedId
@@ -167,7 +168,8 @@ private data class KeptTab(
     val compareWith: Long? = null,
     val compareBy: String? = null,
     val typesLanguage: String? = null,
-    val typesRoot: String? = null
+    val typesRoot: String? = null,
+    val schemaWith: Long? = null
 ) {
     /** What the document was left showing: its pane by name, or the tree where that pane is no longer one. */
     fun view() = DocumentView(
@@ -188,7 +190,8 @@ private data class KeptTab(
         types = TypesChoice(
             language = TypeLanguage.entries.firstOrNull { it.name == typesLanguage } ?: TypeLanguage.Kotlin,
             root = typesRoot
-        )
+        ),
+        schema = SchemaChoice(with = schemaWith)
     )
 }
 

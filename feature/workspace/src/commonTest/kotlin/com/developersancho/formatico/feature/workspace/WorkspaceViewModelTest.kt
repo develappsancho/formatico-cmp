@@ -283,6 +283,47 @@ class WorkspaceViewModelTest {
     }
 
     @Test
+    fun theDocumentIsValidatedWhileItsSchemaIsShownOrOneIsChosen() = runTest(dispatcher) {
+        val schemaId = workbench.open("order.schema.json", PreviewOrderSchema, Format.Json)
+        val id = workbench.open("order.json", PreviewBoardOrder, Format.Json)
+        val viewModel = viewModel(id)
+        assertNull(viewModel.state.value.schema)
+
+        viewModel.dispatch(WorkspaceIntent.ShowPane(DocumentPane.Schema))
+        val none = viewModel.state.first { it.schema != null }
+        assertEquals(SchemaCheck.NoSchema(named = null), none.schema)
+        assertEquals(listOf(OfferedSchema(schemaId, "order.schema.json", null)), none.schemas)
+
+        viewModel.dispatch(WorkspaceIntent.Schema(SchemaChoice(with = schemaId)))
+        val failed = assertIs<SchemaCheck.Failed>(viewModel.state.first { it.schema is SchemaCheck.Failed }.schema)
+        assertEquals(2, failed.total)
+
+        // Chosen, the schema validates the document in its other views too, again as it is written.
+        viewModel.dispatch(WorkspaceIntent.ShowPane(DocumentPane.Tree))
+        assertIs<SchemaCheck.Failed>(viewModel.state.value.schema)
+        workbench.write(id, PreviewValidOrder)
+        viewModel.state.first { it.schema is SchemaCheck.Valid }
+
+        // Its tab closed, the schema is chosen no more.
+        workbench.close(schemaId)
+        viewModel.state.first { it.schema == null }
+        assertEquals(SchemaChoice(), workbench.state.value.documents.single().view.schema)
+    }
+
+    @Test
+    fun theSchemaTheDocumentsSchemaNamesIsChosenForIt() = runTest(dispatcher) {
+        val withId = PreviewOrderSchema.replaceFirst("{\n", "{\n  \"\$id\": \"https://example.com/schemas/order.json\",\n")
+        val schemaId = workbench.open("order.schema.json", withId, Format.Json)
+        val naming = PreviewBoardOrder.replaceFirst("{\n", "{\n  \"\$schema\": \"https://example.com/schemas/order.json\",\n")
+        val id = workbench.open("order.json", naming, Format.Json)
+        val viewModel = viewModel(id)
+
+        viewModel.dispatch(WorkspaceIntent.ShowPane(DocumentPane.Schema))
+        viewModel.state.first { it.schema is SchemaCheck.Failed }
+        assertEquals(SchemaChoice(with = schemaId), workbench.state.value.documents.first { it.id == id }.view.schema)
+    }
+
+    @Test
     fun theDocumentIsComparedWithTheTabAfterItWhileItsCompareIsShown() = runTest(dispatcher) {
         val id = workbench.open("order.json", PreviewCompareA, Format.Json)
         val other = workbench.open("order-v2.json", PreviewCompareB, Format.Json)

@@ -16,7 +16,10 @@ enum class TypeLanguage(val displayName: String) {
     Swift("Swift"),
 
     /** Structs for encoding/json. */
-    Go("Go")
+    Go("Go"),
+
+    /** A JSON Schema of draft 2020-12, which other documents of the same shape can be validated against (Faz 19). */
+    JsonSchema("JSON Schema")
 }
 
 /**
@@ -77,6 +80,7 @@ fun generateTypes(value: DataValue, language: TypeLanguage, rootName: String): G
         TypeLanguage.TypeScript -> typeScriptTypes(types)
         TypeLanguage.Swift -> swiftTypes(types)
         TypeLanguage.Go -> goTypes(types, goPackageName(rootName))
+        TypeLanguage.JsonSchema -> jsonSchemaTypes(types)
     }
     return GeneratedTypes(text, types.declarations.size, notesOf(root, rootList = value is DataArray))
 }

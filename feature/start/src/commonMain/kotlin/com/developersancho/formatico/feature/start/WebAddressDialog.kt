@@ -107,7 +107,7 @@ private fun helpOf(maxFileSize: Long): String =
 
 /** Why the document at the address was not opened, said as what to put right. */
 @Composable
-private fun refusalOf(reading: AddressReading, maxFileSize: Long): String {
+internal fun refusalOf(reading: AddressReading, maxFileSize: Long): String {
     val strings = startStrings
     val fileSize = PantrixTheme.strings::fileSize
     return when (reading) {

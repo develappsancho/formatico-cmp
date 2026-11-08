@@ -7,7 +7,9 @@ import androidx.compose.runtime.setValue
 import com.developersancho.formatico.core.format.Format
 import com.developersancho.formatico.core.settings.SettingsStore
 import com.developersancho.formatico.core.settings.UnknownFormat
+import com.developersancho.formatico.feature.start.DocumentOpening
 import com.developersancho.formatico.feature.start.OpenedDocument
+import com.developersancho.formatico.feature.workspace.SchemaOpener
 import com.developersancho.formatico.feature.workspace.Workbench
 
 /**
@@ -45,4 +47,17 @@ internal class DocumentOpen(private val workbench: Workbench, private val settin
     private fun show(document: OpenedDocument, format: Format?) {
         workbench.open(document.name, document.text, format, document.historyId)
     }
+}
+
+/**
+ * Opens a schema beside the document it validates, as [opening] opens a file or a web address: in a tab of its own that
+ * is not chosen, read as JSON where its format cannot be told, since a schema is JSON.
+ */
+internal class AppSchemaOpener(private val opening: DocumentOpening, private val workbench: Workbench) : SchemaOpener {
+    override fun pickFile(onOpened: (Long) -> Unit) = opening.pickFile { onOpened(beside(it)) }
+
+    override fun openAddress(address: String, onOpened: (Long) -> Unit) = opening.openAddress(address) { onOpened(beside(it)) }
+
+    private fun beside(document: OpenedDocument): Long =
+        workbench.open(document.name, document.text, document.format ?: Format.Json, document.historyId, choose = false)
 }

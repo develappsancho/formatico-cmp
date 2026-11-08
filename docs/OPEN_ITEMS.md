@@ -529,7 +529,10 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
         klavyenin halkası görünüyor: JVM'nin tablet panosunda ve iOS simülatöründe, satıra dokunarak seçilince de.
         Android'in tablet panosunda (Robolectric) ve iOS'un telefon panosunda aynı akışta halka yok. Panoda halka
         yok. Gerçek bir iPad'de ya da Android tablette denenmedi.
-    *   Nerede: `app/shared/screenshots/Types-834.png`, `ios/Types-834.png`; turu `BoardTour.types()`.
+        Faz 19'da Schema-834'ün şema menüsünde de aynısı (2026-11-09): order.schema.json seçilince menünün düğmesi
+        halkayla kalıyor.
+    *   Nerede: `app/shared/screenshots/Types-834.png`, `ios/Types-834.png`, `Schema-834.png`; turları
+        `BoardTour.types()` ve `BoardTour.schema()`.
     *   Öneri: gerçek bir tablette dokunarak denemek; orada da görünürse Pantrix'in bulgusu (PantrixMenu odağı geri
         verirken menünün dokunmayla kullanıldığını hesaba katmıyor), görünmezse testin ortamına özgü.
     *   Durum: açık.

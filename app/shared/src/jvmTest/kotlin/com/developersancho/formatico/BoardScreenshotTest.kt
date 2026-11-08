@@ -59,6 +59,9 @@ class BoardScreenshotTest {
     fun types() = boards(AppBoard.Types)
 
     @Test
+    fun schema() = boards(AppBoard.Schema)
+
+    @Test
     fun summary() = boards(AppBoard.Summary)
 
     @Test

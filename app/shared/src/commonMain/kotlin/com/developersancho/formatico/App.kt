@@ -39,6 +39,7 @@ import com.developersancho.formatico.feature.start.UnknownFormatDialog
 import com.developersancho.formatico.feature.start.rememberDocumentOpening
 import com.developersancho.formatico.feature.start.startModule
 import com.developersancho.formatico.feature.workspace.DocumentMoreMenu
+import com.developersancho.formatico.feature.workspace.LocalSchemaOpener
 import com.developersancho.formatico.feature.workspace.Workbench
 import com.developersancho.formatico.feature.workspace.WorkbenchKeeper
 import com.developersancho.formatico.feature.workspace.WorkspaceRoute
@@ -167,14 +168,18 @@ private fun AppContent(
             // Until what was open is back, the screen stays empty: Start for a moment, then the document, would be
             // a screen the reader did not ask for.
             if (!restored) return@PantrixScaffold
-            AppScreens(
-                backStack = backStack,
-                workbench = workbench,
-                onOpen = opening::open,
-                onOpenAddress = documentOpening::askAddress,
-                onCloseSettings = { showSettings = false },
-                modifier = Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding)
-            )
+            // A schema is opened beside the document it validates, as the palette opens a file or an address.
+            val schemaOpener = remember(documentOpening, workbench) { AppSchemaOpener(documentOpening, workbench) }
+            CompositionLocalProvider(LocalSchemaOpener provides schemaOpener) {
+                AppScreens(
+                    backStack = backStack,
+                    workbench = workbench,
+                    onOpen = opening::open,
+                    onOpenAddress = documentOpening::askAddress,
+                    onCloseSettings = { showSettings = false },
+                    modifier = Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding)
+                )
+            }
         }
         AppPalette(palette)
         UnknownFormatDialog(document = opening.asking, onOpen = opening::answer, onDismiss = opening::dismiss)

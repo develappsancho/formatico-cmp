@@ -8,7 +8,7 @@ internal object WorkspaceStringsTurkish : WorkspaceStrings {
 
     override fun formatMenu(first: String) = "Biçim: $first. Biçimi değiştir"
 
-    override val format = "Biçimlendir"
+    override val format = "Biçimle"
     override val minify = "Küçült"
     override val sortKeys = "Anahtarları sırala"
     override val query = "Sorgu"
@@ -37,7 +37,7 @@ internal object WorkspaceStringsTurkish : WorkspaceStrings {
     override val closeSearch = "Aramayı kapat"
     override val editorTitle = "Metin düzenleme yakında geliyor"
     override val editorBody =
-        "Sonraki bir sürümle geliyor. O zamana kadar belge ağaçta görünüyor; Biçimlendir, Küçült ve Kopyala belgenin tamamında çalışıyor."
+        "Sonraki bir sürümle geliyor. O zamana kadar belge ağaçta görünüyor; Biçimle, Küçült ve Kopyala belgenin tamamında çalışıyor."
     override val editorBodyUnread =
         "Sonraki bir sürümle geliyor. O zamana kadar Kopyala ve Dosya olarak kaydet belgenin tamamında çalışıyor."
     override val editorBodyRead =
@@ -152,7 +152,7 @@ internal object WorkspaceStringsTurkish : WorkspaceStrings {
     override fun daysAhead(count: Int, first: Int) = "$first gün sonra"
 
     override val editorBodyTable =
-        "Sonraki bir sürümle geliyor. O zamana kadar belge tabloda görünüyor; Biçimlendir ve Kopyala belgenin tamamında çalışıyor."
+        "Sonraki bir sürümle geliyor. O zamana kadar belge tabloda görünüyor; Biçimle ve Kopyala belgenin tamamında çalışıyor."
 
     override fun rows(count: Int, first: Int) = "$first satır"
 

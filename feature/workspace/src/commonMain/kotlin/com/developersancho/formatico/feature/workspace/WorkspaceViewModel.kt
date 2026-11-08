@@ -208,6 +208,44 @@ internal class WorkspaceViewModel(
     }
 
     init {
+        // The open documents that are JSON Schemas, and the document validated against the one chosen, or the one its
+        // $schema names: while its Schema is shown or a schema is chosen, off the main thread, again as its text, a
+        // schema's text or the choice changes.
+        viewModelScope.launch {
+            workbench.state
+                .map { state -> schemaInput(state.documents) }
+                .distinctUntilChanged()
+                .collectLatest { input ->
+                    if (input == null) return@collectLatest setState { copy(schema = null, schemas = emptyList()) }
+                    val (shown, candidates) = input
+                    val schemas = candidates.mapNotNull { other ->
+                        readingOf(other).let { withContext(reader) { schemaDocumentOf(other, it) } }
+                    }
+                    val reading = readingOf(shown)
+                    val validation = withContext(reader) { schemaCheckOf(shown, reading, shown.view.schema, schemas) }
+                    setState { copy(schema = validation.check, schemas = schemas.map { OfferedSchema(it.id, it.name, it.schemaId) }) }
+                    // The schema the document's $schema names is chosen for it, as though the reader had chosen it.
+                    val named = validation.schema?.takeIf { shown.view.schema.with == null }
+                    if (named != null) workbench.changeView(documentId) { it.copy(schema = SchemaChoice(with = named.id)) }
+                }
+        }
+    }
+
+    /**
+     * What the document's validation is worked out from, while its Schema is shown or a schema is chosen: the document,
+     * with no more of its view than its choice, and the other open documents a schema may be among, with none of theirs.
+     */
+    private fun schemaInput(documents: List<OpenDocument>): Pair<OpenDocument, List<OpenDocument>>? {
+        val document = documents.firstOrNull { it.id == documentId } ?: return null
+        val view = document.view
+        if (view.pane != DocumentPane.Schema && view.schema.with == null) return null
+        val shown = document.copy(edited = false, view = DocumentView(schema = view.schema), historyId = null)
+        val candidates = documents.filter { it.id != documentId && it.format in SchemaFormats }
+            .map { it.copy(edited = false, view = DocumentView(), historyId = null) }
+        return shown to candidates
+    }
+
+    init {
         // The other open documents, which the document can be compared with.
         viewModelScope.launch {
             workbench.state
@@ -287,6 +325,8 @@ internal class WorkspaceViewModel(
             is WorkspaceIntent.Types -> workbench.changeView(documentId) { it.copy(types = intent.choice) }
 
             is WorkspaceIntent.Compare -> workbench.changeView(documentId) { it.copy(compare = intent.choice) }
+
+            is WorkspaceIntent.Schema -> workbench.changeView(documentId) { it.copy(schema = intent.choice) }
 
             WorkspaceIntent.UseQuery -> state.value.let { shown ->
                 shown.queryLanguage?.let { queries.remember(it, shown.document?.view?.query.orEmpty()) }
@@ -397,7 +437,19 @@ internal fun readState(document: OpenDocument, others: List<OpenDocument> = empt
         types = if (document.view.pane == DocumentPane.Types) typesOf(document, reading, document.view.types) else null,
         comparison = if (document.view.pane == DocumentPane.Compare) previewComparison(document, reading, others) else null,
         others = others.map { OtherDocument(it.id, it.name) }
-    ).arranged()
+    ).withSchema(document, reading, others).arranged()
+}
+
+/**
+ * The state with its document validated at once against the schema its view chooses among [others], where its Schema
+ * is shown or a schema is chosen, for a preview or a test.
+ */
+private fun WorkspaceState.withSchema(document: OpenDocument, reading: Reading, others: List<OpenDocument>): WorkspaceState {
+    val view = document.view
+    if (view.pane != DocumentPane.Schema && view.schema.with == null) return this
+    val schemas = others.mapNotNull { other -> schemaDocumentOf(other, readDocument(other.text, other.format)) }
+    val validation = schemaCheckOf(document, reading, view.schema, schemas)
+    return copy(schema = validation.check, schemas = schemas.map { OfferedSchema(it.id, it.name, it.schemaId) })
 }
 
 /** [document], read as [reading], compared at once with the one of [others] its view chooses, for a preview or a test. */

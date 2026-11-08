@@ -285,4 +285,45 @@ class TypeWritersTest {
             "\tField   string `json:\"\"`"
         )
     }
+
+    @Test
+    fun aJsonSchemaAllowsNullWhereAValueIsNullAndRequiresOnlyWhatEveryObjectHas() {
+        val schema = textOf(
+            "{ \"name\": \"a\", \"tags\": [\"x\", null], \"parent\": null, \"children\": [{ \"name\": \"b\", \"size\": 1.5 }, { \"name\": \"c\" }] }",
+            TypeLanguage.JsonSchema
+        )
+        assertEquals(
+            lines(
+                "{",
+                "  \"\$schema\": \"https://json-schema.org/draft/2020-12/schema\",",
+                "  \"title\": \"Root\",",
+                "  \"type\": \"object\",",
+                "  \"properties\": {",
+                "    \"name\": { \"type\": \"string\" },",
+                "    \"tags\": { \"type\": \"array\", \"items\": { \"type\": [\"string\", \"null\"] } },",
+                "    \"parent\": {},",
+                "    \"children\": { \"type\": \"array\", \"items\": { \"\$ref\": \"#/\$defs/Child\" } }",
+                "  },",
+                "  \"required\": [\"name\", \"tags\", \"parent\", \"children\"],",
+                "  \"\$defs\": {",
+                "    \"Child\": {",
+                "      \"type\": \"object\",",
+                "      \"properties\": {",
+                "        \"name\": { \"type\": \"string\" },",
+                "        \"size\": { \"type\": \"number\" }",
+                "      },",
+                "      \"required\": [\"name\"]",
+                "    }",
+                "  }",
+                "}"
+            ),
+            schema
+        )
+    }
+
+    @Test
+    fun aJsonSchemaNamesANullableObjectByAnyOf() {
+        val schema = textOf("{ \"a\": [{ \"next\": { \"id\": 1 } }, { \"next\": null }] }", TypeLanguage.JsonSchema)
+        assertEquals(true, "\"next\": { \"anyOf\": [{ \"\$ref\": \"#/\$defs/Next\" }, { \"type\": \"null\" }] }" in schema, schema)
+    }
 }

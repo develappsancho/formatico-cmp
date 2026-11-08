@@ -9,6 +9,18 @@ enum class OpenSourceLicence(val title: String, internal val file: String) {
     /** navigation3-browser's: the MIT License with its author's notice. */
     MitNavigation("MIT License", "files/licenses/navigation3-browser.txt"),
 
+    /** The MIT License with json-schema-validator's notice. */
+    MitSchemaValidator("MIT License", "files/licenses/json-schema-validator.txt"),
+
+    /** The MIT License with karacteristics' notice. */
+    MitKaracteristics("MIT License", "files/licenses/karacteristics.txt"),
+
+    /** The MIT License with doistx-normalize's notice. */
+    MitNormalize("MIT License", "files/licenses/doistx-normalize.txt"),
+
+    /** The MIT License with kotlin-codepoints' notice. */
+    MitCodepoints("MIT License", "files/licenses/kotlin-codepoints.txt"),
+
     Ofl("SIL Open Font License 1.1", "files/licenses/geist-ofl.txt")
 }
 
@@ -25,6 +37,11 @@ enum class OpenSourceLibrary(val title: String, val licence: OpenSourceLicence, 
     KSafe("KSafe", OpenSourceLicence.Apache),
     Cryptography("cryptography-kotlin", OpenSourceLicence.Apache),
     SnakeYaml("snakeyaml-engine-kmp", OpenSourceLicence.Apache),
+    SchemaValidator("json-schema-validator", OpenSourceLicence.MitSchemaValidator),
+    Karacteristics("karacteristics", OpenSourceLicence.MitKaracteristics),
+    UriKmp("uri-kmp", OpenSourceLicence.Apache),
+    Normalize("doistx-normalize", OpenSourceLicence.MitNormalize),
+    Codepoints("kotlin-codepoints", OpenSourceLicence.MitCodepoints),
     NavigationBrowser("navigation3-browser", OpenSourceLicence.MitNavigation, inTheWebApp = true),
     Geist("Geist and Geist Mono", OpenSourceLicence.Ofl)
 }

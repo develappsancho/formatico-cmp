@@ -35,6 +35,7 @@ private fun TypesStrings.libraryOf(language: TypeLanguage): String = when (langu
     TypeLanguage.TypeScript -> typeScriptLibrary
     TypeLanguage.Swift -> swiftLibrary
     TypeLanguage.Go -> goLibrary
+    TypeLanguage.JsonSchema -> jsonSchemaLibrary
 }
 
 /** The sentence of [note], in types written in [language], the root one [root]. */
@@ -69,11 +70,13 @@ private fun TypesStrings.namesOf(names: List<String>): String = when (names.size
 /**
  * What a value whose type cannot be told is written as in [language]: Kotlin's `JsonElement`, nullable where it is
  * [onlyNull], TypeScript's `unknown`, Go's `any`; Swift has none in Codable, so a value only ever null is a `String?`
- * marked as a guess and any other `JSONValue`, which the types bring along.
+ * marked as a guess and any other `JSONValue`, which the types bring along; a JSON Schema's is `{}`, which allows
+ * anything.
  */
 private fun TypesStrings.unknownOf(language: TypeLanguage, onlyNull: Boolean): String = when (language) {
     TypeLanguage.Kotlin -> if (onlyNull) "JsonElement?" else "JsonElement"
     TypeLanguage.TypeScript -> "unknown"
     TypeLanguage.Swift -> if (onlyNull) swiftGuess else "JSONValue"
     TypeLanguage.Go -> "any"
+    TypeLanguage.JsonSchema -> "{}"
 }

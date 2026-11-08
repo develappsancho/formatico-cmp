@@ -760,6 +760,25 @@ class WorkspaceScreenTest {
     }
 
     @Test
+    fun aTabletRepairsInThePlaceOfMinifyWhereItCannotBeUsed() = runComposeUiTest {
+        setContent {
+            PantrixTestTheme(window = tablet, clock = clock) {
+                WorkspaceScreen(
+                    state = stateOf("{\n  \"id\": 1\n  \"total\": 129,\n}\n", Format.Json),
+                    onIntent = {},
+                    commands = rememberDocumentCommands(Workbench())
+                )
+            }
+        }
+
+        awaitText("2 problems", substring = true)
+        onPantrixNode("Button", "repair").assertExists()
+        onPantrixNode("Button", "format").assertIsNotEnabled()
+        onPantrixNode("Button", "minify").assertDoesNotExist()
+        onPantrixNode("Button", "schema").assertExists()
+    }
+
+    @Test
     fun aDocumentBeingReadSaysSo() = runComposeUiTest {
         setContent {
             PantrixTestTheme(window = desktop, clock = clock) {

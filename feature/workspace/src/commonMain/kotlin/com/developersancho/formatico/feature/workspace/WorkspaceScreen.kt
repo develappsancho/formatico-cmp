@@ -25,7 +25,6 @@ import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.base.MviScreen
 import com.developersancho.formatico.core.format.Format
 import com.developersancho.formatico.feature.workspace.editor.DocumentEditor
-import com.developersancho.formatico.feature.workspace.strings.typesStrings
 import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.components.container.twopane.PaneSize
 import com.pantrixui.components.container.twopane.PantrixTwoPane
@@ -106,6 +105,8 @@ internal fun WorkspaceScreen(
 
             DocumentPane.Types -> PhoneTypes(state = state, onIntent = onIntent, commands = commands, modifier = modifier)
 
+            DocumentPane.Schema -> PhoneSchema(state = state, editor = text, onIntent = onIntent, modifier = modifier)
+
             DocumentPane.Compare -> PhoneCompare(
                 state = state,
                 onIntent = onIntent,
@@ -151,6 +152,12 @@ internal fun WorkspaceScreen(
             StatusBar(state = state, layout = layout, onIntent = onIntent)
             return@Column
         }
+        if (document.view.pane == DocumentPane.Schema && !wide) {
+            // And its validation, as Schema-834 draws it.
+            SchemaPane(state, text, layout, onIntent, Modifier.weight(1f).fillMaxWidth())
+            StatusBar(state = state, layout = layout, onIntent = onIntent)
+            return@Column
+        }
         DocumentPanes(state, text, layout, onIntent, commands, Modifier.weight(1f).fillMaxWidth())
         StatusBar(state = state, layout = layout, editor = text, onIntent = onIntent)
     }
@@ -175,7 +182,7 @@ private fun DocumentPanes(
     val problems = pane == DocumentPane.Problems && state.problems.isNotEmpty()
     val summary = pane == DocumentPane.Summary
     val query = pane == DocumentPane.Query
-    if (wide && (pane == DocumentPane.Convert || pane == DocumentPane.Types)) {
+    if (wide && pane in MadeBesideTextPanes) {
         MadeBesideText(state, editor, onIntent, commands, modifier)
         return
     }
@@ -229,6 +236,9 @@ private fun DocumentPanes(
     )
 }
 
+/** The panes a wide window shows beside the text, each a document of its own made of it. */
+private val MadeBesideTextPanes = setOf(DocumentPane.Convert, DocumentPane.Types, DocumentPane.Schema)
+
 /** The design's toolbar heights: 48 in a wide window, 56 on a tablet. */
 private fun toolbarHeight(layout: WorkspaceLayout): Dp = if (layout == WorkspaceLayout.Wide) 48.dp else 56.dp
 
@@ -255,39 +265,7 @@ private fun Toolbar(
         if (wide) ToolbarDivider(wide)
         EditButtons(state = state, layout = layout, onIntent = onIntent)
         ToolbarDivider(wide)
-        val querying = document.view.pane == DocumentPane.Query
-        PantrixButton(
-            text = workspaceStrings.query,
-            // Pressed again, it gives the view the document opens with back.
-            onClick = { onIntent(WorkspaceIntent.ShowPane(if (querying) openingPane(document.format) else DocumentPane.Query)) },
-            variant = if (querying) ButtonVariant.Soft else ButtonVariant.Text,
-            size = size,
-            enabled = document.format != null,
-            leadingIcon = { PantrixIcon(imageVector = PantrixIcons.Search, contentDescription = null) },
-            tagKey = "query"
-        )
-        val converting = document.view.pane == DocumentPane.Convert
-        PantrixButton(
-            text = workspaceStrings.convert,
-            // Pressed again, it gives the view the document opens with back, as Query does.
-            onClick = { onIntent(WorkspaceIntent.ShowPane(if (converting) openingPane(document.format) else DocumentPane.Convert)) },
-            variant = if (converting) ButtonVariant.Soft else ButtonVariant.Text,
-            size = size,
-            enabled = document.format != null,
-            leadingIcon = { PantrixIcon(imageVector = PantrixIcons.ArrowForward, contentDescription = null) },
-            tagKey = "convert"
-        )
-        val typing = document.view.pane == DocumentPane.Types
-        PantrixButton(
-            text = typesStrings.types,
-            // Pressed again, it gives the view the document opens with back, as Convert does. PantrixIcons has no
-            // icon of code: it stands in words alone, as Compare does.
-            onClick = { onIntent(WorkspaceIntent.ShowPane(if (typing) openingPane(document.format) else DocumentPane.Types)) },
-            variant = if (typing) ButtonVariant.Soft else ButtonVariant.Text,
-            size = size,
-            enabled = document.format != null,
-            tagKey = "types"
-        )
+        MadeButtons(document = document, size = size, onIntent = onIntent)
         if (wide) {
             PantrixButton(
                 text = workspaceStrings.compare,
@@ -306,8 +284,9 @@ private fun Toolbar(
 @Composable
 private fun EditButtons(state: WorkspaceState, layout: WorkspaceLayout, onIntent: (WorkspaceIntent) -> Unit) {
     val size = layout.buttons
+    val repairing = state.repairable > 0
     // An invalid document is repaired before it is formatted: the Invalid boards put Repair first.
-    if (state.repairable > 0) {
+    if (repairing) {
         PantrixButton(
             text = workspaceStrings.repair,
             onClick = { onIntent(WorkspaceIntent.RepairAll) },
@@ -322,6 +301,9 @@ private fun EditButtons(state: WorkspaceState, layout: WorkspaceLayout, onIntent
         enabled = DocumentEdit.Format in state.edits,
         tagKey = "format"
     )
+    // A tablet has no room for Minify beside Repair where it cannot be used: Repair takes its place, as Invalid-834
+    // draws it.
+    if (repairing && state.edits.isEmpty() && layout != WorkspaceLayout.Wide) return
     PantrixButton(
         text = workspaceStrings.minify,
         onClick = { onIntent(WorkspaceIntent.Edit(DocumentEdit.Minify)) },
@@ -447,6 +429,7 @@ internal fun TextPane(
         onWrite = { onIntent(WorkspaceIntent.Write(it)) },
         onSelect = { onIntent(WorkspaceIntent.Select(it)) },
         modifier = modifier,
-        problems = state.problems
+        problems = state.problems,
+        schemaIssues = state.schema.issues
     )
 }

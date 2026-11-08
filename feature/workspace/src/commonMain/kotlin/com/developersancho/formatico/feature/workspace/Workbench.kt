@@ -49,6 +49,8 @@ data class OpenDocument(
  * @property convert how the document is converted, kept when Convert is left for another view.
  * @property compare how the document is compared with another, kept when Compare is left for another view.
  * @property types how the document's types are written, kept when Types is left for another view.
+ * @property schema the schema the document is validated against, kept while other views are shown: its problems stay
+ *   marked in the text and counted in the status bar.
  */
 data class DocumentView(
     val expanded: Set<String>? = null,
@@ -62,15 +64,16 @@ data class DocumentView(
     val query: String = "",
     val convert: ConvertChoice = ConvertChoice(),
     val compare: CompareChoice = CompareChoice(),
-    val types: TypesChoice = TypesChoice()
+    val types: TypesChoice = TypesChoice(),
+    val schema: SchemaChoice = SchemaChoice()
 )
 
 /**
  * What is shown of a document: on a phone one at a time, elsewhere the tree, the table, its problems, its summary, its
- * query or its conversion beside the text; a tablet's conversion, and a phone's, take the whole room, and the
- * comparison with another document takes it everywhere.
+ * query, its conversion, its types or its schema beside the text; a tablet's conversion, types and schema, and a
+ * phone's, take the whole room, and the comparison with another document takes it everywhere.
  */
-enum class DocumentPane { Text, Tree, Table, Problems, Summary, Query, Convert, Types, Compare }
+enum class DocumentPane { Text, Tree, Table, Problems, Summary, Query, Convert, Types, Schema, Compare }
 
 /** The view a document of [format] opens on: a table its table, any other its tree. */
 internal fun openingPane(format: Format?): DocumentPane =
@@ -141,12 +144,13 @@ class Workbench(
      * open already with the same name and text is chosen instead of opened twice.
      *
      * @param historyId the document's place in Start's history, where it has one.
+     * @param choose whether its tab is chosen: a schema opened beside the document it validates is not.
      * @return the document's id.
      */
-    fun open(name: String?, text: String, format: Format?, historyId: Long? = null): Long {
+    fun open(name: String?, text: String, format: Format?, historyId: Long? = null, choose: Boolean = true): Long {
         val open = mutableState.value.documents.firstOrNull { it.name == name && it.text == text }
         if (open != null) {
-            select(open.id)
+            if (choose) select(open.id)
             return open.id
         }
         val pane = openingPane(format)
@@ -158,7 +162,7 @@ class Workbench(
             view = DocumentView(pane = pane),
             historyId = historyId
         )
-        mutableState.update { it.copy(documents = it.documents + document, selectedId = document.id) }
+        mutableState.update { it.copy(documents = it.documents + document, selectedId = if (choose) document.id else it.selectedId) }
         return document.id
     }
 
@@ -197,7 +201,10 @@ class Workbench(
         mutableState.update { state ->
             val index = state.documents.indexOfFirst { it.id == id }
             if (index < 0) return@update state
-            val documents = state.documents - state.documents[index]
+            // A document validated against the one closed is validated against none.
+            val documents = (state.documents - state.documents[index]).map { other ->
+                if (other.view.schema.with == id) other.copy(view = other.view.copy(schema = SchemaChoice())) else other
+            }
             val selectedId = if (state.selectedId != id) {
                 state.selectedId
             } else {

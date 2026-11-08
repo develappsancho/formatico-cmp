@@ -103,7 +103,8 @@ class WorkbenchKeeperTest {
                 tableSort = TableSort("price", descending = true),
                 hiddenColumns = setOf("name"),
                 tableFilter = "1",
-                types = TypesChoice(language = TypeLanguage.Swift, root = "Purchase")
+                types = TypesChoice(language = TypeLanguage.Swift, root = "Purchase"),
+                schema = SchemaChoice(with = 7)
             )
         }
         settle()
@@ -117,6 +118,7 @@ class WorkbenchKeeperTest {
         assertEquals(setOf("name"), view.hiddenColumns)
         assertEquals("1", view.tableFilter)
         assertEquals(TypesChoice(language = TypeLanguage.Swift, root = "Purchase"), view.types)
+        assertEquals(SchemaChoice(with = 7), view.schema)
     }
 
     @Test

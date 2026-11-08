@@ -21,6 +21,7 @@ import com.developersancho.formatico.core.format.text.LineEnding
 import com.developersancho.formatico.core.format.text.LineMap
 import com.developersancho.formatico.feature.workspace.strings.convertStrings
 import com.developersancho.formatico.feature.workspace.strings.queryStrings
+import com.developersancho.formatico.feature.workspace.strings.schemaStrings
 import com.developersancho.formatico.feature.workspace.strings.typesStrings
 import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.components.data.codeeditor.CodeEditorState
@@ -145,28 +146,33 @@ private fun lineEndingName(lineEnding: LineEnding): String = when (lineEnding) {
     LineEnding.Cr -> "CR"
 }
 
-/** Whether the document is valid, how many problems it has, or that it is plain text: a tag in its colour. */
+/**
+ * Whether the document is valid, how many problems it has, or that it is plain text: a tag in its colour. A document
+ * validated against a schema says what the schema found: how many problems, or that it is valid against it.
+ */
 @Composable
 internal fun StatusTag(state: WorkspaceState) {
-    val (text, tone) = when (val reading = state.reading) {
-        Reading.Pending -> {
-            workspaceStrings.statusReading to TagTone.Neutral
-        }
-
-        Reading.PlainText -> {
-            workspaceStrings.plainText to TagTone.Neutral
-        }
-
-        is Reading.Read -> {
-            if (reading.errors == 0) {
-                workspaceStrings.statusValid(reading.format.displayName) to TagTone.Success
-            } else {
-                workspaceStrings.statusProblems(reading.errors, reading.errors) to
-                    TagTone.Danger
-            }
-        }
+    val schema = state.schema
+    val (text, tone) = when {
+        schema is SchemaCheck.Failed -> schemaStrings.statusProblems(schema.total, schema.total) to TagTone.Danger
+        schema is SchemaCheck.Valid -> schemaStrings.statusValid to TagTone.Success
+        else -> readingStatus(state.reading)
     }
     PantrixTag(text = text, tone = tone, dot = true, tagKey = "status")
+}
+
+/** Whether a document read as [reading] is valid, how many problems it has, or that it is plain text, in words and a tone. */
+@Composable
+private fun readingStatus(reading: Reading): Pair<String, TagTone> = when (reading) {
+    Reading.Pending -> workspaceStrings.statusReading to TagTone.Neutral
+
+    Reading.PlainText -> workspaceStrings.plainText to TagTone.Neutral
+
+    is Reading.Read -> if (reading.errors == 0) {
+        workspaceStrings.statusValid(reading.format.displayName) to TagTone.Success
+    } else {
+        workspaceStrings.statusProblems(reading.errors, reading.errors) to TagTone.Danger
+    }
 }
 
 /**

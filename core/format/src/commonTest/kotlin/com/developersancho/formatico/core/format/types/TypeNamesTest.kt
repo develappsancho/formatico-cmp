@@ -67,6 +67,8 @@ class TypeNamesTest {
         assertEquals("httpServer.ts", typesFileName("HTTPServer", TypeLanguage.TypeScript))
         assertEquals("Root.kt", typesFileName("", TypeLanguage.Kotlin))
         assertEquals("sales2026.go", typesFileName("2026 sales", TypeLanguage.Go))
+        assertEquals("order.schema.json", typesFileName("Order", TypeLanguage.JsonSchema))
+        assertEquals("user-profile.schema.json", typesFileName("UserProfile", TypeLanguage.JsonSchema))
     }
 
     @Test

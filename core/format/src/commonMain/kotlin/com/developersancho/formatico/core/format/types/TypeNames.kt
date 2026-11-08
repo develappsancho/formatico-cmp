@@ -25,7 +25,8 @@ fun typeNameOf(typed: String): String = pascalName(wordsOf(typed), ::capitalised
  * it: the type name for Kotlin and Swift (`Order.kt`, `UserProfile.swift`); in lower camel case for TypeScript
  * (`order.ts`, `userProfile.ts`); in small letters with nothing between its words for Go (`order.go`,
  * `userprofile.go`), as Go names its packages, since a `_` would make a name such as `order_test.go` or
- * `user_linux.go` a test or a file of one system.
+ * `user_linux.go` a test or a file of one system; and a JSON Schema in small letters, its words joined by `-`, before
+ * `.schema.json` (`order.schema.json`, `user-profile.schema.json`), as schemas are commonly named.
  */
 fun typesFileName(rootName: String, language: TypeLanguage): String {
     val name = typeNameOf(rootName)
@@ -34,6 +35,7 @@ fun typesFileName(rootName: String, language: TypeLanguage): String {
         TypeLanguage.TypeScript -> "${camelName(wordsOf(name))}.ts"
         TypeLanguage.Swift -> "$name.swift"
         TypeLanguage.Go -> "${lowered(name)}.go"
+        TypeLanguage.JsonSchema -> wordsOf(name).joinToString("-") { lowered(it) } + ".schema.json"
     }
 }
 

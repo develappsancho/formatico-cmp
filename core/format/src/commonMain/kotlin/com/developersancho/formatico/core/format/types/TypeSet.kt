@@ -49,7 +49,7 @@ private val TypeLanguage.reservedTypeNames: Set<String>
     get() = when (this) {
         TypeLanguage.Kotlin -> KotlinTypeNames
         TypeLanguage.Swift -> SwiftTypeNames
-        TypeLanguage.TypeScript, TypeLanguage.Go -> emptySet()
+        TypeLanguage.TypeScript, TypeLanguage.Go, TypeLanguage.JsonSchema -> emptySet()
     }
 
 /**

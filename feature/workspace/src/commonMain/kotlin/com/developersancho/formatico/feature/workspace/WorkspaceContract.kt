@@ -22,6 +22,9 @@ import com.developersancho.formatico.core.share.ShareKeep
  * @property conversion what converting the document came to, while its Convert is shown, or null.
  * @property types what writing the document's types came to, while its Types is shown, or null.
  * @property comparison what comparing the document with another came to, while its Compare is shown, or null.
+ * @property schema what validating the document against its schema came to, while its Schema is shown or a schema is
+ *   chosen for it, or null.
+ * @property schemas the other open documents that are JSON Schemas, which it can be validated against.
  * @property others the other open documents, which it can be compared with, in the order of their tabs.
  */
 internal data class WorkspaceState(
@@ -39,6 +42,8 @@ internal data class WorkspaceState(
     val conversion: ConvertOutcome? = null,
     val types: TypesOutcome? = null,
     val comparison: CompareOutcome? = null,
+    val schema: SchemaCheck? = null,
+    val schemas: List<OfferedSchema> = emptyList(),
     val others: List<OtherDocument> = emptyList(),
     val share: DocumentShare? = null
 ) {
@@ -152,6 +157,9 @@ internal sealed interface WorkspaceIntent {
 
     /** Compare the document with another as [choice] says. */
     data class Compare(val choice: CompareChoice) : WorkspaceIntent
+
+    /** Validate the document against the schema [choice] names. */
+    data class Schema(val choice: SchemaChoice) : WorkspaceIntent
 
     /** The document's text is now [text], as its editor wrote it. */
     data class Write(val text: String) : WorkspaceIntent

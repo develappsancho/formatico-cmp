@@ -4,6 +4,8 @@ import androidx.compose.ui.graphics.Color
 import com.developersancho.formatico.core.designsystem.SyntaxColors
 import com.developersancho.formatico.core.format.Format
 import com.developersancho.formatico.core.format.FormatDetector
+import com.developersancho.formatico.core.format.types.TypeLanguage
+import com.developersancho.formatico.core.format.types.generateTypes
 import com.pantrixui.components.data.treeview.TreeNode
 import java.io.File
 import kotlin.test.Test
@@ -72,6 +74,7 @@ class LargeDocumentsMeasure {
             }
             step(format, size, "table") { tableOf(root, null) }
             step(format, size, "summary") { summaryOf(root) }
+            if (format in SchemaFormats) measureSchema(format, size, document, reading, root)
         }
         // What the main thread works out each time the document's view changes: a branch opened, a value chosen.
         step(format, size, "view arranged") { WorkspaceState(document = document, reading = reading).arranged() }
@@ -89,6 +92,27 @@ class LargeDocumentsMeasure {
         }
         step(format, size, "compare as text", note = ::differences) {
             comparisonOf(document, reading, other, otherReading, CompareBy.Text)
+        }
+    }
+
+    /**
+     * The document validated against the JSON Schema Types writes of it (Faz 19): the schema written, read as one, and
+     * the document validated against it, valid as it must be.
+     */
+    private fun measureSchema(format: Format, size: Int, document: OpenDocument, reading: Reading, root: ValueNode) {
+        val text = step(format, size, "schema written", note = { written: String? -> "${written?.length ?: 0} characters" }) {
+            generateTypes(dataValueOf(root, format), TypeLanguage.JsonSchema, "Large")?.text
+        } ?: return
+        val schema =
+            schemaDocumentOf(
+                OpenDocument(id = 3, name = "large.schema.json", text = text, format = Format.Json),
+                readDocument(text, Format.Json)
+            )
+                ?: return
+        step(format, size, "validated against its schema", note = { validation: SchemaValidation ->
+            validation.check::class.simpleName.orEmpty()
+        }) {
+            schemaCheckOf(document, reading, SchemaChoice(with = schema.id), listOf(schema))
         }
     }
 
