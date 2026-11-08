@@ -203,6 +203,22 @@ class WorkspaceViewModelTest {
     }
 
     @Test
+    fun findInTheTextShowsTheTextAndTheWishIsLetGoOnceTheBarIsOpen() {
+        val id = workbench.open("order.json", "{\"a\": 1}", Format.Json)
+        val viewModel = viewModel(id)
+
+        viewModel.dispatch(WorkspaceIntent.FindInText(open = true))
+        val asked = workbench.state.value.documents.single().view
+        assertEquals(DocumentPane.Text, asked.pane)
+        assertTrue(asked.findingText)
+
+        viewModel.dispatch(WorkspaceIntent.FindInText(open = false))
+        val done = workbench.state.value.documents.single().view
+        assertEquals(DocumentPane.Text, done.pane)
+        assertFalse(done.findingText)
+    }
+
+    @Test
     fun closingTheDocumentLeavesTheWorkspaceWithNone() {
         val id = workbench.open(null, "{}", Format.Json)
         val viewModel = viewModel(id)

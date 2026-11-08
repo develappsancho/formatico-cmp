@@ -21,6 +21,7 @@ import com.pantrixui.components.elements.buttongroup.PantrixButtonGroup
 import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.foundation.theme.PantrixTheme
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 /** The levels the tree is opened to by a press, from the root's: the root alone open, its children too, and theirs. */
@@ -186,8 +187,10 @@ internal fun rememberTreeSearch(state: WorkspaceState, onIntent: (WorkspaceInten
     val text = query.text.toString()
     val root = state.root
     // Looked for off the main thread, as a large document has a million values to fold to small letters; a letter
-    // typed before the search ends sets it aside for the next.
+    // typed before the search ends sets it aside for the next. Letters typed one after another wait for the typing to
+    // pause: every search marks the tree's rows again.
     val search = produceState(Searched(), root, text, language) {
+        if (text.isNotBlank() && value.query.isNotBlank() && value.query != text) delay(TYPING_PAUSE)
         value = Searched(text, withContext(Dispatchers.Default) { matchesOf(root, text, language) })
     }
     val intents = rememberUpdatedState(onIntent)

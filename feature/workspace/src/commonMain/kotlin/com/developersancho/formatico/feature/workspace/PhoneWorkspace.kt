@@ -159,7 +159,7 @@ private fun UnderTheViews(
                 horizontalArrangement = Arrangement.spacedBy(spacing.sm)
             ) {
                 PathTrail(state = state, onIntent = onIntent, modifier = Modifier.weight(1f))
-                StatusTag(state)
+                StatusFormatMenu(state = state, onChange = { onIntent(WorkspaceIntent.ChangeFormat(it)) })
             }
         }
     }
@@ -177,18 +177,27 @@ private fun PhonePane(
     val spacing = PantrixTheme.spacing
     val document = state.document
     when {
-        pane == DocumentPane.Text && document != null -> DocumentEditor(
-            document = document,
-            editor = editor,
-            indentation = state.stats?.layout?.indentation,
-            root = state.root,
-            selected = state.selected,
-            onWrite = { onIntent(WorkspaceIntent.Write(it)) },
-            onSelect = { onIntent(WorkspaceIntent.Select(it)) },
-            modifier = Modifier.fillMaxSize(),
-            problems = state.problems,
-            schemaIssues = state.schema.issues
-        )
+        pane == DocumentPane.Text && document != null -> {
+            DocumentEditor(
+                document = document,
+                editor = editor,
+                indentation = state.stats?.layout?.indentation,
+                root = state.root,
+                selected = state.selected,
+                onWrite = { onIntent(WorkspaceIntent.Write(it)) },
+                onSelect = { onIntent(WorkspaceIntent.Select(it)) },
+                modifier = Modifier.fillMaxSize(),
+                problems = state.problems,
+                schemaIssues = state.schema.issues
+            )
+            // The "more" menu's Find in the text: the editor's own bar opens over the text, and the wish is let go.
+            if (document.view.findingText) {
+                LaunchedEffect(Unit) {
+                    editor.find.open()
+                    onIntent(WorkspaceIntent.FindInText(open = false))
+                }
+            }
+        }
 
         pane == DocumentPane.Problems && state.problems.isNotEmpty() ->
             ProblemsList(state = state, editor = editor, layout = WorkspaceLayout.Phone, onIntent = onIntent)
@@ -409,6 +418,7 @@ internal fun PhoneMoreMenu(state: WorkspaceState, document: OpenDocument, onInte
         items = DocumentMenuItems.FindSummarySortCompareClose,
         size = ButtonSize.Large,
         read = document.format != null,
+        onFindText = { onIntent(WorkspaceIntent.FindInText(open = true)) },
         onFind = {
             onIntent(WorkspaceIntent.ShowPane(DocumentPane.Tree))
             onIntent(WorkspaceIntent.Search(open = true))

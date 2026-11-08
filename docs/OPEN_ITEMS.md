@@ -243,29 +243,34 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Ne: YAML ağaçta okunuyor; Format, Minify ve Sort keys YAML'da kapalı, çünkü sahibinin kararıyla YAML Formatico'nun kendi yazıcısıyla yazılacak ve o yazıcı henüz yok. Kapalı düğmeler nedenini söylemiyor.
     *   Öneri: sıradaki iş olarak YAML yazıcısı (yorumlar, anchor'lar ve skaler biçimleri korunarak); o zamana kadar düğmelere bir ipucu.
     *   Durum: kapandı (2026-11-03). `core:format`'ta `YamlDocument.formatted` (blok biçimi; yorumlar, boş satırlar, anchor, alias, etiket, skalerin yazılışı, belge işaretleri korunuyor) ve `minified` (tek satır, akış biçimi). Sıralama bir alias'ı anchor'ının önüne koyacaksa yapılmıyor ve nedeni söyleniyor.
-*   [ ] **YAML yazıcısının yorum ve biçim kuralları (2026-11-03).**
+*   [x] **YAML yazıcısının yorum ve biçim kuralları (2026-11-03).**
     *   Ne: Bir yorum, satırın sonundaysa o satırın sonunda, kendi satırındaysa altındaki girdinin önünde kalıyor. Bunun sonucunda bir dizinin tirelerinden sonra gelen yorum (`- # not`) kendi satırına geçiyor; Sort keys'te dosyanın en üstündeki yorum ilk anahtarla birlikte taşınıyor. Tek satırlık bir akış koleksiyonu (`[a, b]`, `{a: 1}`) olduğu gibi kalıyor, blok biçimine açılmıyor; birkaç satıra yayılmış olanı tek satıra iniyor (içinde yorum varsa olduğu gibi kalıyor). Birkaç satıra yayılmış düz ya da tırnaklı bir skaler tek satıra iniyor. `...` belge sonu işareti yazılmıyor. Dört boşlukla girintilenen bir belgede dizinin öğeleri `-   a: 1` biçiminde, tireden sonra üç boşlukla yazılıyor.
     *   Öneri: Settings'e "akış koleksiyonlarını blok biçimine aç" seçeneği; diğerleri için kullanıcıların ne beklediğine bakmak.
-    *   Durum: açık. Düzeltilenler (2026-11-04): tireden sonraki yorum tirenin satırında kalıyor; altında boş satır olan baştaki yorumlar belgenin, Sort keys'te başta kalıyor; `...` yazılıyor. Kalanlar sahibinin kararını ya da Settings'i bekliyor (Faz 12): akış koleksiyonlarının blok biçimine açılması, birkaç satıra yayılan skalerin tek satıra inmesi, dört boşlukla girintide `-   a: 1`.
-*   [ ] **Sıralama bir alias'ı anchor'ının önüne koyacaksa yapılmıyor (2026-11-03).**
+    *   Durum: kapandı (2026-11-10, Faz 21, sahibinin kararı: YAML yazıcısının kuralları olduğu gibi kalıyor; Settings'e bir seçenek gelmiyor). Önceki durum: açık. Düzeltilenler (2026-11-04): tireden sonraki yorum tirenin satırında kalıyor; altında boş satır olan baştaki yorumlar belgenin, Sort keys'te başta kalıyor; `...` yazılıyor. Kalanlar sahibinin kararını ya da Settings'i bekliyor (Faz 12): akış koleksiyonlarının blok biçimine açılması, birkaç satıra yayılan skalerin tek satıra inmesi, dört boşlukla girintide `-   a: 1`.
+*   [x] **Sıralama bir alias'ı anchor'ının önüne koyacaksa yapılmıyor (2026-11-03).**
     *   Ne: YAML'da alias'ın anchor'ından sonra gelmesi gerekiyor. Sort keys sonucu okuyup bunu bulursa belgeyi değiştirmiyor ve "sıralamak bir alias'ı anchor'ının önüne koyardı" diyor.
     *   Öneri: sıralamadan sonra anchor'ı ilk geçtiği yere, alias'ı sonrakine taşımak (değer aynı kalır).
-    *   Durum: açık.
+    *   Durum: kapandı (2026-11-10, Faz 21). Sort keys artık anchor'ı ilk alias'ın yerine taşıyor: sıralanmış
+        belgede bir alias anchor'ından önce gelecekse, anchor'lı değer (kendi anahtarları da sıralı) o alias'ın yerine,
+        alias da değerin eski yerine yazılıyor; değer aynı kalıyor (`YamlAnchorSwaps.kt`). Bir akış koleksiyonunun
+        içindeki alias ya da anchor taşınmıyor, çünkü akış olduğu gibi yazılıyor: orada sıralama yine yapılmıyor ve
+        "sıralamak bir alias'ı anchor'ının önüne koyardı" deniyor. `YamlAnchorSwapsTest`, `YamlPrinterTest` ve
+        `WorkbenchTest` sınıyor.
 *   [x] **YAML'da yalnızca ilk sözdizimi hatası bulunuyor (2026-11-03).**
     *   Ne: `snakeyaml-engine-kmp` ilk sözdizimi hatasında duruyor; Formatico o hatayı, ondan önce okunanı ve yinelenen anahtarlar ile anchor'ı olmayan alias'ları gösteriyor. Hatanın kütüphanedeki İngilizce açıklaması saklanmıyor (`ProblemCode.YamlSyntax`): problem listesi yazılınca neyin yanlış olduğunu söyleyecek bir yol gerekecek.
     *   Öneri: Invalid ekranıyla birlikte kütüphanenin sorun türlerini (`ScannerException`, `ParserException`) kendi kodlarımıza eşlemek.
     *   Durum: kapandı (2026-11-04). Kütüphanenin hatası kendi kodlarımıza eşleniyor, her birinin iletisi ve yapılabildiği yerde onarımı var: değerdeki iki nokta (`YamlColonInValue`, "Quote the value"), girintideki sekme (`YamlTab`, "Use spaces"), kapanmayan akış (`YamlUnclosedFlow`, parantez satırın sonunda kapanıyor), kapanmayan dizgi, eksik iki nokta, geçersiz kaçış, girinti, anchor'ı olmayan alias; kalanı yine `YamlSyntax`. Okuyucu ilk hatada durmaya devam ediyor (sahibinin kararı); Repair all metni her onarımdan sonra yeniden okuduğu için sıradaki hataya da geçiyor.
-*   [ ] **YAML'ın birleştirme anahtarı ve YAML 1.1 değerleri (2026-11-03).**
+*   [x] **YAML'ın birleştirme anahtarı ve YAML 1.1 değerleri (2026-11-03).**
     *   Ne: YAML 1.2'nin çekirdek şemasıyla okunuyor: `<<: *defaults` birleştirilmiyor, ağaçta `<<` adlı bir anahtar ve bir alias olarak duruyor; `yes`, `no`, `on`, `off` mantıksal değil metin. Kubernetes gibi YAML 1.1 alışkanlığıyla yazılmış belgelerde bu şaşırtabilir.
     *   Öneri: Settings'e "YAML 1.1" seçeneği ya da ağaçta birleştirilmiş anahtarları gösteren bir görünüm.
-    *   Durum: açık. Bir seçenek olarak Settings'le (Faz 12); sahibinin kararı.
+    *   Durum: kapandı (2026-11-10, Faz 21, sahibinin kararı: YAML 1.2 olduğu gibi kalıyor; YAML 1.1 seçeneği yok).
 *   [x] **Ağaç seçilen satıra kaydırılamıyor (2026-11-03).**
     *   Ne: "Go to the anchor" ve izin adımları bir değeri seçiyor, üstündeki dalları açıyor; ama satır ekranın dışındaysa ağaç ona kaymıyordu. Bkz. `PANTRIX_FINDINGS.md`.
     *   Durum: kapandı (Faz 21'in denetiminde görüldü, 2026-11-10). Beklenen bulgu 2026-11-04'te kapandı; ağaç seçilen satıra `PantrixLazyTreeView`'in `scrollToKey`'iyle kayıyor (`DocumentTree.kt`). Test: `WorkspaceScreenTest.theChosenValueIsBroughtIntoViewInALongTree`. Önceki durum: açık, Pantrix'i bekliyor (`tıkıyor`, 2026-11-04).
-*   [ ] **CSV'de Format yalnızca tırnakları ve satır sonlarını düzeltiyor (2026-11-03).**
+*   [x] **CSV'de Format yalnızca tırnakları ve satır sonlarını düzeltiyor (2026-11-03).**
     *   Ne: `CsvDocument.formatted` her alanı yalnızca gerektiğinde tırnaklıyor, belgenin ayırıcısını ve satır sonunu koruyor, sona bir satır sonu koyuyor, boş satırları atıyor. Sütunları hizalamıyor. Minify ve Sort keys CSV ile TSV'de kapalı (panodaki gibi); kapalı düğmeler nedenini söylemiyor.
     *   Öneri: Settings'e ya da More menüsüne "ayırıcıyı değiştir" (CSV ↔ TSV dönüşümü Convert'le gelecek); hizalama istenirse ayrı bir eylem.
-    *   Durum: açık. Kapalı Minify ve Sort keys nedenini söylemiyor; panolar da söylemiyor, kapalı bir düğmenin ipucu Pantrix'te sınanmadı. CSV ↔ TSV Convert'te var (2026-11-05), ama yeni bir belge olarak: belgenin kendi ayırıcısını değiştirmek değil.
+    *   Durum: kapandı (2026-11-10, Faz 21, sahibinin kararı: CSV'de ayırıcı ve hizalama seçeneği gelmiyor). Önceki durum: açık. Kapalı Minify ve Sort keys nedenini söylemiyor; panolar da söylemiyor, kapalı bir düğmenin ipucu Pantrix'te sınanmadı. CSV ↔ TSV Convert'te var (2026-11-05), ama yeni bir belge olarak: belgenin kendi ayırıcısını değiştirmek değil.
 *   [ ] **CSV'nin ilk satırı her zaman başlık; sayıya benzeyen alan sayı (2026-11-03).**
     *   Ne: İlk kayıt sütunların adları sayılıyor; başlıksız bir CSV'nin ilk satırı tabloda başlık olur. Bir alan sayıya benziyorsa (`020`, `1e3`) ağaçta ve tabloda sayı: sağa yaslanıyor, sayı olarak sıralanıyor ve özetleniyor (countries.csv'nin `numeric` sütunu, en küçük `004` "4" olarak). Yazılışı korunuyor (`020`).
     *   Öneri: "ilk satır başlık" seçeneği; baştaki sıfırı olan bir alanı kod sayıp metin olarak tutmak.
@@ -341,10 +346,13 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
 *   [x] **Webpack'in ve Karma'nın parçaları değişince derleme kendini yenilemiyordu (2026-11-04).**
     *   Ne: `config/webpack` ve `config/karma` Gradle'ın girdileri değildi: yeni bir parça eklenince web dağıtımı UP-TO-DATE kalıyor, eski betik çıkıyordu.
     *   Durum: kapandı (2026-11-04). İki klasör `KotlinWebpack` ve `KotlinJsTest` görevlerinin girdisi.
-*   [ ] **Telefonda bul ve değiştir açılamıyor (2026-11-04).**
+*   [x] **Telefonda bul ve değiştir açılamıyor (2026-11-04).**
     *   Ne: PantrixCodeEditor'ın bul ve değiştir çubuğu ⌘F ve ⌘H ile açılıyor; masaüstünde, tablette klavyeyle ve web'de çalışıyor. Klavyesi olmayan bir telefonda onu açacak bir düğme yok; panolarda da çizili değil.
     *   Öneri: telefonun "more" menüsüne ya da metin bölmesinin araç çubuğuna "Find" (`CodeEditorState.find`); önce Workspace-390'a çizilir.
-    *   Durum: açık.
+    *   Durum: kapandı (2026-11-10, Faz 21, sahibinin kararı). Telefonun "more" menüsünün ilk satırı "Find in the
+        text": metne geçip editörün kendi bul çubuğunu açıyor (`DocumentView.findingText`, `CodeEditorState.find`),
+        Workspace-390'ın `more` ve `find` hâllerindeki gibi (tuval `1794291668-7e49`). Ağaçtaki arama ikinci satırda
+        kaldı. `PhoneFindAndFormatTest` ve `WorkspaceViewModelTest` sınıyor.
 *   [x] **TOML, INI, properties ve XML'in renklendiricisi basit (2026-11-04).**
     *   Ne: Bu biçimler henüz okunmuyor (Faz 7). Editör onları bir satırda gördüğü kadarıyla renklendiriyor: bölüm adı, anahtar, değer, yorum, etiket ve öznitelik. TOML'un birkaç satıra yayılan dizgisi ve dizisi, XML'in CDATA'sı satır satır renkleniyor.
     *   Öneri: Faz 7'de her biçimin okuyucusuyla birlikte renklendiricisini de tamamlamak.
@@ -373,10 +381,21 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
         *   Tek kökün altındaki dal kendiliğinden açılıyor; XML'de bu, kök öğenin çocukları demek.
     *   Öneri: sahibinin kararı. Ya bu ağaçlar tuvale çizilir, ya koddaki seçim kabul edilir.
     *   Durum: açık.
-*   [ ] **XML, TOML ve INI'de onarım yok (2026-11-04).**
+*   [x] **XML, TOML ve INI'de onarım yok (2026-11-04).**
     *   Ne: `Repairs.of` artık biçimi alıyor; bir kodun onarımı yalnızca o biçimin onarımıysa uygulanıyor. Önceden JSON'un onarımları her biçime uygulanabilirdi: XML'de kapanmayan bir yorum ` */` ile kapatılırdı, tek tırnaklı bir değer `"` ile kapanırdı, metindeki bir `<` silinirdi. Bugün XML'in ve INI'nin hiç onarımı yok. TOML'da yalnızca virgül onarımları var (fazla virgülü çıkarmak, eksik virgülü eklemek), properties'te yalnızca kaçış onarımı var.
     *   Öneri: XML'de kapanmayan öğeye bitiş etiketi, tırnaksız özniteliğe tırnak, `&` yerine `&amp;`; TOML'da dizgiyi kendi tırnağıyla kapatmak; INI'de başlığı `]` ile kapatmak.
-    *   Durum: açık.
+    *   Durum: kapandı (2026-11-10, Faz 21). Önerilen onarımlar geldi (`XmlRepairs.kt`, `Repair.kt`):
+        *   XML'de kapanmayan öğeye bitiş etiketi, okuyucunun onu kapattığı yere: kendini saran öğenin bitiş
+            etiketinden önce ya da metnin sonunda, aradaki boşluktan önce.
+        *   Tırnaksız özniteliğe çift tırnak; değerdeki `"`, `&quot;` olarak.
+        *   Hiçbir başvuruyu başlatmayan `&` yerine `&amp;`. Bilinmeyen bir varlık (`&nbsp;`) onarılmıyor: ne
+            olması gerektiği bilinmiyor.
+        *   TOML'da kapanmayan dizgi kendi tırnağıyla (`"` ya da `'`) satırın sonunda; çok satırlı olan üç
+            tırnağıyla metnin sonunda.
+        *   INI'de başlık, sondaki boşluktan önce `]` ile.
+
+        Düğmeler var olan sözlerle: "Close it", "Quote the value", "Escape it". `XmlTomlIniRepairsTest` sınıyor; her
+        onarımdan sonra metin hatasız okunuyor.
 *   [x] **Telefonda ağaçta aramayı ve Summary'yi açan bir şey panolarda yok (2026-11-04).**
     *   Ne: Workspace-390 panosu ağaçta aramanın çubuğunu ve seçili değer kartında "match 1 of 4"ü çiziyor; Summary-390 panosu Summary'yi çiziyor. Telefonda ikisini neyin açtığı çizilmemiş: telefonda durum çubuğu yok, üst çubuğun arama düğmesi komut paleti ("Search or run a command").
     *   Öneri: ikisi için telefonun "more" menüsüne birer satır; ya da arama için ağacın üstünde bir simge, Summary için görünüm seçicisinde kalıcı bir "Summary".
@@ -407,10 +426,10 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Öneri: konum yazısı daralıp üç noktayla kısalsın (`weight(1f, fill = false)`), ya da alan kalan yere göre küçülsün.
     *   Durum: kapandı (2026-11-10, Faz 21). Çubuk `TreeSearchBar.kt`'de: alan ve konum yazısıyla iki düğme bir satırda kalan yeri paylaşıyor, alan genişte en çok 240, tablette 280 dp ve daralabiliyor, konum yazısı en çok 120 dp ve üç noktayla kısalıyor; kapatma düğmesi o satırın dışında, hiç sıkışmıyor. Önizlemede ve ekran görüntüsünde 340 dp'lik bir bölmede "No matches" durumu; `TreeSearchBarTest` üç düğmenin en az 32 dp olduğunu ve tanılamanın bir şey bulmadığını sınıyor. Önceki durum: açık. Arama sürerken çubuk artık bir şey yazmıyor, bu yüzden test geçiyor; aranan gerçekten bulunmayınca
         sıkışma duruyor.
-*   [ ] **Ağacın satırları her seçimde ve aramanın her harfinde yeniden kuruluyor (2026-11-04).**
+*   [x] **Ağacın satırları her seçimde ve aramanın her harfinde yeniden kuruluyor (2026-11-04).**
     *   Ne: Seçili satırın ve aramanın işaretleri satırın etiketinde (`styledLabel`), bu yüzden `documentRows` seçim ya da aranan değişince bütün düğümleri yeniden kuruyor. Küçük belgelerde fark edilmiyor; Faz 14'ün 50 MB hedefinde ölçülmeli.
     *   Öneri: Faz 14'te ölçmek; gerekirse yalnızca değişen satırların yolunu yeniden kurmak.
-    *   Durum: seçimde ve dal açılınca kapandı, aramada açık (2026-11-06). Ölçüldü: bütün satırları kurmak 10 MB'lık CSV'de (194 bin satır) 53 ms, 50 MB'ta (960 bin) 204 ms (JVM), emülatörde seçim yarım saniye. Ağaç artık kapalı dalların satırlarını kurmuyor, açılışta en çok 500 satırlık dalı açıyor (`OPENED_ROWS`) ve `RowMaker` değişmeyen satırları koruyor: seçimde ve bir dal açılınca yalnızca o satırların yolu yeniden kuruluyor (CSV 10 MB'ta 24 ms, 50 MB'ta 95 ms; çoğu kökün çocuklarını dolaşmak). Satırların biçimleri bütün satırlarca paylaşılıyor, etiketin metni bir kez yazılıyor: 112 bin satırlık NDJSON ağacı 91 MB'tan 47 MB'a indi. Aramanın her harfi hâlâ bütün satırları kuruyor; eşleşmeler artık ana iş parçacığının dışında aranıyor (10 MB CSV'de 76 ms). Seçili satırın renksiz kurulması Pantrix'in bir eksiği (PANTRIX_FINDINGS, "Seçili satırın biçimli etiketi kendi renkleriyle çiziliyor"). `DocumentTreeTest` sınıyor.
+    *   Durum: kapandı (2026-11-10, Faz 21). Aramanın her harfi artık satırları yeniden kurmuyor: arka arkaya yazılan harfler yazım durana kadar (150 ms, `TYPING_PAUSE`) bekliyor, satırlar duraksamadan sonra bir kez işaretleniyor. Yalnızca değişen satırları işaretlemek, sahibinin büyük belgeler kararıyla v1'den sonraya kaldı (`PLAN.md`, Faz 21). Önceki durum: seçimde ve dal açılınca kapandı, aramada açık (2026-11-06). Ölçüldü: bütün satırları kurmak 10 MB'lık CSV'de (194 bin satır) 53 ms, 50 MB'ta (960 bin) 204 ms (JVM), emülatörde seçim yarım saniye. Ağaç artık kapalı dalların satırlarını kurmuyor, açılışta en çok 500 satırlık dalı açıyor (`OPENED_ROWS`) ve `RowMaker` değişmeyen satırları koruyor: seçimde ve bir dal açılınca yalnızca o satırların yolu yeniden kuruluyor (CSV 10 MB'ta 24 ms, 50 MB'ta 95 ms; çoğu kökün çocuklarını dolaşmak). Satırların biçimleri bütün satırlarca paylaşılıyor, etiketin metni bir kez yazılıyor: 112 bin satırlık NDJSON ağacı 91 MB'tan 47 MB'a indi. Aramanın her harfi hâlâ bütün satırları kuruyor; eşleşmeler artık ana iş parçacığının dışında aranıyor (10 MB CSV'de 76 ms). Seçili satırın renksiz kurulması Pantrix'in bir eksiği (PANTRIX_FINDINGS, "Seçili satırın biçimli etiketi kendi renkleriyle çiziliyor"). `DocumentTreeTest` sınıyor.
 
 *   [ ] **Telefonda Query'ye giriş panolarda yok (2026-11-05).**
     *   Ne: Query-390 sorguyu görünümlerin içinde, tablonun yerinde gösteriyor (`Text`, `Tree`, `Query`), ama Workspace-390'da Query'yi açan bir şey yok: araç çubuğunun Query'si telefonda yok, More menüsü hiçbir hâlde çizilmemiş. Tabletin More düğmesinin adı ("More actions: sort keys, compare, save as a file") Query'yi saymıyor; tablette Query araç çubuğunda.
@@ -437,10 +456,10 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Ne: Panoların `order.json`'unda iki kalem var (T-shirt, Mug) ve bir `shipping` nesnesi; kodun önizlemelerindeki siparişte (`PreviewOrder`) üç kalem (Keyboard, Mouse, Desk pad) ve `shipping` yok. Query-1440 "2 matches" diyor, önizlemesi "3 matches"; çizim aynı, içerik değil. Önizlemeler bir zaman panolardan alınmış olmalı; panolar sonra değişmiş.
     *   Öneri: `PreviewOrder`'ı panolardaki belgeye getirmek ve bütün ekran görüntülerini yeniden kaydetmek (Workspace, Table, Summary, Query, Convert, uygulamanın panoları), ayrı bir değişiklikte. Uygulamanın Convert panoları (`app/shared/screenshots/Convert-*`) panolardaki siparişle çiziliyor: uygulamanın örneği o.
     *   Durum: açık.
-*   [ ] **Büyük bir XML'de XPath her sorguda dizinini yeniden kuruyor (2026-11-05).**
+*   [x] **Büyük bir XML'de XPath her sorguda dizinini yeniden kuruyor (2026-11-05).**
     *   Ne: Workspace bir XML metnini her metin için bir kez okuyor, ama `XPath.evaluate` her sorguda belgenin dizinini (ebeveynler, sıra) yeniden kuruyor; her eşleşmenin değeri de (`XPathMatch.value`) hemen yazılıyor: `//*` büyük bir belgede metni derinlik kadar kopyalıyor. Sorgu her harfte soruluyor.
     *   Öneri: Faz 14'te 50 MB'ta ölçmek; gerekirse dizini belgeyle tutmak, değeri gösterilen satırlar için yazmak, sorguyu yazım durunca sormak.
-    *   Durum: açık, ölçüldü (2026-11-06). Ölçümde asıl yük başka çıktı: her eşleşmenin ağaçtaki düğümü kökten, her düzeyde bütün çocuklara bakılarak aranıyordu (`nodeAt`); 25 bin `<order>`'lık 10 MB'ta `//order` karesel, dakikalar sürüyordu. `NodeLocator` sıralı çocukları yarılayarak arıyor; şimdi `//order` 10 MB'ta 442 ms, 50 MB'ta 2 s (JVM, ana iş parçacığının dışında). Dizinin ve değerlerin önerisi duruyor: Query her harfte soruyor ve bir harfin sorgusu öncekinin bitmesini bekliyor (iptal edilen hesap durmuyor), 50 MB'ta harf başına 2 s.
+    *   Durum: kapandı (2026-11-10, Faz 21). Query artık her harfte sormuyor: arka arkaya yazılan harfler yazım durana kadar (150 ms) bekliyor, bir öncekinin hesabı yarıda bırakılıyor. Dizini belgeyle tutmak ve değerleri yalnızca gösterilen satırlar için yazmak, sahibinin büyük belgeler kararıyla v1'den sonraya kaldı. Önceki durum: açık, ölçüldü (2026-11-06). Ölçümde asıl yük başka çıktı: her eşleşmenin ağaçtaki düğümü kökten, her düzeyde bütün çocuklara bakılarak aranıyordu (`nodeAt`); 25 bin `<order>`'lık 10 MB'ta `//order` karesel, dakikalar sürüyordu. `NodeLocator` sıralı çocukları yarılayarak arıyor; şimdi `//order` 10 MB'ta 442 ms, 50 MB'ta 2 s (JVM, ana iş parçacığının dışında). Dizinin ve değerlerin önerisi duruyor: Query her harfte soruyor ve bir harfin sorgusu öncekinin bitmesini bekliyor (iptal edilen hesap durmuyor), 50 MB'ta harf başına 2 s.
 *   [ ] **CSV panosunun `numeric` sütunu `number` diyor, kod `text` (2026-11-05).**
     *   Ne: Table panolarının CSV hâlinde `numeric` sütununun türü `number`; değerleri ise başında sıfır olan kodlar ("004", "020"). Formatico böyle bir sütunu kod olarak, metin diye okuyor (Faz 4'ün kararı: baştaki sıfır kaybolmasın), türü de bu yüzden `text`, değerleri sola dayalı.
     *   Öneri: panoda o sütunu `text` yapmak, ya da sayı gibi görünen kodları sayı saymak (sıfırları kaybetmeden); karar tasarımın.
@@ -561,11 +580,15 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
 *   [x] **Telefonun geçersiz belge şeridindeki "Repair all" Android'in dokunma hedefinden alçaktı (2026-11-06).**
     *   Ne: Şerit panodaki gibi 44 dp yüksekti; Android'in dokunma hedefi 48 dp. Teşhisler `SmallTouchTarget` buldu (pano testi, 390).
     *   Durum: kapandı (2026-11-06). Şerit en az 44 dp: Android'de 48'e uzuyor, iOS'ta 44 kalıyor. Panodan 4 dp'lik bir ayrılık; panoya Android'in hâli çizilmedi.
-*   [ ] **Telefonda biçimi okunamayan bir metnin biçimi seçilemiyor (2026-11-06).**
+*   [x] **Telefonda biçimi okunamayan bir metnin biçimi seçilemiyor (2026-11-06).**
     *   Ne: Telefonda yeni boş belgeye yazılan JSON "Plain text" kalıyor: biçim seçici (`FormatMenu`) yalnızca geniş araç çubuğunda, telefonun "more" menüsünde ve paletinde biçim seçen bir komut yok. Biçim yalnızca açılırken (yapıştırma, dosya) anlaşılıyor. Maestro'nun Invalid akışını kurarken görüldü; akış metni kopyalayıp Start'ta yapıştırarak açıyor.
     *   Nerede: `WorkspaceScreen.kt` (`FormatMenu`), `PhoneWorkspace.kt`, `DocumentPalette.kt`.
     *   Öneri: telefonda durum etiketi ("Plain text") biçim menüsünü açsın, ya da paletin Document grubuna "Read as …" komutları. Önce Workspace-390'a çizilir.
-    *   Durum: açık. Sahibinin kararı.
+    *   Durum: kapandı (2026-11-10, Faz 21, sahibinin kararı). Telefonda durum etiketi ("Plain text", "Valid JSON")
+        yanında bir okla basılıyor ve geniş araç çubuğunun biçim menüsünü açıyor (`StatusFormatMenu`); okunduğu biçim
+        işaretli, Workspace-390'ın `format` hâlindeki gibi (tuval `1794291668-7e49`). İki menü aynı listeyi kullanıyor
+        (`FormatMenuItems`). Pantrix'te basılan bir durum etiketi yok: bulgu, "Bir menü açan durum etiketi yok".
+        `PhoneFindAndFormatTest` sınıyor; ekran görüntüsü `StatusFormatMenu`.
 *   [x] **Enter sorgu yazıldıktan hemen sonra basılırsa önceki sorguyu saklıyor (2026-11-06).**
     *   Ne: Alanın metni görünüm modeline bir kare sonra ulaşıyor (`snapshotFlow`); `UseQuery` sorguyu taşımıyor, durumdakini okuyor. Yazıp o karede Enter'a basan önceki sorguyu "son kullanılanlar"a ekler. Gezinti bunu, eşleşmenin gelmesini bekleyerek aşıyor.
     *   Öneri: `WorkspaceIntent.UseQuery(query)`, alanın o anki metniyle.

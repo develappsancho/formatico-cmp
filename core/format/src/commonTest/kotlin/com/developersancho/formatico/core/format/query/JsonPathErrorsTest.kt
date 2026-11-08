@@ -58,8 +58,8 @@ class JsonPathErrorsTest {
         assertEquals("InvalidEscape 3", jsonPathError("$['\\uDC00']"))
         assertEquals("InvalidEscape 9", jsonPathError("$['\\uD800\\u0041']"))
         assertEquals("UnexpectedCharacter 4", jsonPathError("$['a\u0001']"))
-        // Built as it runs: Kotlin/JS writes a lone surrogate in a string's literal into its script as "?".
-        assertEquals("UnexpectedCharacter 3", jsonPathError("$['" + '\uD800' + "']"))
+        // Made as it runs: Kotlin/JS writes a lone surrogate in a literal, a string's or a character's, as "?".
+        assertEquals("UnexpectedCharacter 3", jsonPathError("$['" + Char(0xD800) + "']"))
     }
 
     @Test

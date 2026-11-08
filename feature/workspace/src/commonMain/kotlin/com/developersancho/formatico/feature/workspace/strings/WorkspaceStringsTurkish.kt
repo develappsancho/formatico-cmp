@@ -26,7 +26,9 @@ internal object WorkspaceStringsTurkish : WorkspaceStrings {
     override val viewTable = "Tablo"
     override val find = "Anahtar ya da değer ara"
     override val findInTree = "Ağaçta ara"
+    override val findInText = "Metinde ara"
     override val showSummaryItem = "Özeti göster"
+    override val changeFormat = "Biçimi değiştir"
 
     override fun match(first: String) = "eşleşme $first"
 

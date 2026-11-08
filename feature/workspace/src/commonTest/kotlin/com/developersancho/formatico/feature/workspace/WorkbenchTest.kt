@@ -132,8 +132,17 @@ class WorkbenchTest {
     }
 
     @Test
-    fun yamlKeysAreNotSortedWhereAnAliasWouldComeBeforeItsAnchor() = runTest {
-        val text = "b: &x 1\na: *x\n"
+    fun sortingYamlKeysMovesAnAnchorUpToTheAliasItWouldComeAfter() = runTest {
+        val id = workbench.open("a.yaml", "b: &x 1\na: *x\n", Format.Yaml)
+
+        assertIs<EditResult.Changed>(workbench.edit(id, DocumentEdit.SortKeys))
+        assertEquals("a: &x 1\nb: *x\n", workbench.state.value.selected!!.text)
+    }
+
+    @Test
+    fun yamlKeysAreNotSortedWhereAnAliasInAFlowWouldComeBeforeItsAnchor() = runTest {
+        // A flow collection is written as it is: its alias cannot take the anchor's place.
+        val text = "b: &x 1\na: [*x]\n"
         val id = workbench.open("a.yaml", text, Format.Yaml)
 
         assertEquals(EditResult.AliasBeforeAnchor, workbench.edit(id, DocumentEdit.SortKeys))

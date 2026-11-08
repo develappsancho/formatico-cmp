@@ -53,6 +53,9 @@ data class Repair(val kind: RepairKind, val edits: List<TextEdit>)
 /** How many times [Repairs.all] reads the text again at most: a repair can bring out a problem it hid. */
 private const val ROUNDS = 20
 
+/** How many quotes open and close a multi-line TOML string. */
+private const val TRIPLE = 3
+
 /** The repair of each problem Formatico knows how to repair. */
 object Repairs {
     /**
@@ -75,7 +78,7 @@ object Repairs {
 
             ProblemCode.SingleQuotedString -> Repair(RepairKind.UseDoubleQuotes, listOf(TextEdit(range, doubleQuoted(at))))
 
-            ProblemCode.UnterminatedString -> Repair(RepairKind.Close, listOf(insert(range.end, "\"")))
+            ProblemCode.UnterminatedString -> Repair(RepairKind.Close, listOf(closingQuote(text, range, format)))
 
             ProblemCode.UnterminatedComment -> Repair(RepairKind.Close, listOf(insert(text.length, " */")))
 
@@ -102,6 +105,14 @@ object Repairs {
             ProblemCode.YamlUnclosedFlow -> closer(at)?.let { Repair(RepairKind.Close, listOf(insert(range.end, it))) }
 
             ProblemCode.YamlTab -> Repair(RepairKind.UseSpaces, listOf(TextEdit(range, "  ")))
+
+            ProblemCode.XmlUnclosedElement -> XmlRepairs.closeElement(text, range)
+
+            ProblemCode.XmlUnquotedAttribute -> XmlRepairs.quoteAttribute(text, range)
+
+            ProblemCode.XmlInvalidReference -> XmlRepairs.escapeAmpersand(text, range)
+
+            ProblemCode.IniUnclosedSection -> Repair(RepairKind.Close, listOf(insert(afterValue(text, range.end), "]")))
 
             else -> null
         }
@@ -146,11 +157,27 @@ object Repairs {
 
         Format.Csv, Format.Tsv -> setOf(ProblemCode.UnclosedQuote, ProblemCode.StrayQuote)
 
-        Format.Toml -> setOf(ProblemCode.TrailingComma, ProblemCode.ExpectedCommaOrEnd)
+        Format.Toml -> setOf(ProblemCode.TrailingComma, ProblemCode.ExpectedCommaOrEnd, ProblemCode.UnterminatedString)
 
         Format.Properties -> setOf(ProblemCode.InvalidEscape)
 
-        Format.Xml, Format.Ini -> emptySet()
+        Format.Xml -> setOf(ProblemCode.XmlUnclosedElement, ProblemCode.XmlUnquotedAttribute, ProblemCode.XmlInvalidReference)
+
+        Format.Ini -> setOf(ProblemCode.IniUnclosedSection)
+    }
+
+    /**
+     * What closes the string never closed that starts in [range]: JSON's and YAML's double quote, where its line ends;
+     * a TOML string's own quote, `"` or `'`, and a multi-line one's three of it at the text's end.
+     */
+    private fun closingQuote(text: String, range: TextRange, format: Format): TextEdit {
+        val quote = text[range.start]
+        val opensThree = text.startsWith("$quote$quote$quote", range.start) && range.end - range.start == TRIPLE
+        return when {
+            format != Format.Toml -> insert(range.end, "\"")
+            opensThree -> insert(afterValue(text, text.length), "$quote$quote$quote")
+            else -> insert(range.end, quote.toString())
+        }
     }
 
     private val JsonRepaired = setOf(

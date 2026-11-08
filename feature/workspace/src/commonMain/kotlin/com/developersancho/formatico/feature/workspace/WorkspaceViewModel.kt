@@ -15,6 +15,7 @@ import com.developersancho.formatico.feature.workspace.strings.convertStringsIn
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
@@ -148,6 +149,7 @@ internal class WorkspaceViewModel(
         // The query is asked while it is shown, off the main thread, and the first of a new query's matches chosen, as
         // the tree's search chooses its first.
         viewModelScope.launch {
+            var asked: String? = null
             workbench.state
                 .map { state -> state.documents.firstOrNull { it.id == documentId }?.takeIf { it.view.pane == DocumentPane.Query } }
                 .map { shown ->
@@ -155,7 +157,14 @@ internal class WorkspaceViewModel(
                 }
                 .distinctUntilChanged()
                 .collectLatest { shown ->
-                    if (shown == null) return@collectLatest setState { copy(query = null) }
+                    if (shown == null) {
+                        asked = null
+                        return@collectLatest setState { copy(query = null) }
+                    }
+                    // A query typed a letter after another waits for the typing to pause: on a large document each
+                    // query takes seconds, and one set aside goes on to its end.
+                    if (asked != null && asked != shown.view.query) delay(TYPING_PAUSE)
+                    asked = shown.view.query
                     val reading = readings.of(documentId, shown.text, shown.format)?.first
                         ?: withContext(reader) { readDocument(shown.text, shown.format) }
                     val outcome = withContext(reader) { queryOutcome(shown, reading, shown.view.query, ::xmlOf) }
@@ -304,6 +313,10 @@ internal class WorkspaceViewModel(
             is WorkspaceIntent.ShowPane -> workbench.changeView(documentId) { it.copy(pane = intent.pane) }
 
             is WorkspaceIntent.Search -> workbench.changeView(documentId) { it.copy(searching = intent.open) }
+
+            is WorkspaceIntent.FindInText -> workbench.changeView(documentId) {
+                if (intent.open) it.copy(pane = DocumentPane.Text, findingText = true) else it.copy(findingText = false)
+            }
 
             is WorkspaceIntent.ChangeFormat -> workbench.changeFormat(documentId, intent.format)
 

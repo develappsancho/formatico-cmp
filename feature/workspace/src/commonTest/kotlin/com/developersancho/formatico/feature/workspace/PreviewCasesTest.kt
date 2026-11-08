@@ -301,7 +301,8 @@ class PreviewCasesTest {
             "long lines" to listOf("title: \"Release checklist\""),
             "long lines wrapped" to listOf("title: \"Release checklist\""),
             "reading" to listOf("Reading…"),
-            "empty" to listOf("The document is empty", "Plain text")
+            "empty" to listOf("The document is empty", "Plain text"),
+            "plain" to listOf("Plain text")
         )
 
         val ShareTexts = mapOf(

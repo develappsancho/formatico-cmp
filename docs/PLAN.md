@@ -415,7 +415,22 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
         *   5 tuval oturumunda (tuvalin bağlamı onda); liste paylaşılan notlarda,
             `2026-11-10-faz21-canvas-redraws.md`. Telefonun iki panosu çizildi: durum çubuğundan biçim menüsü, More'da
             "Find in the text" (tuval sürümü 1794291668-7e49).
-        *   6, 7 ve 8 sırada.
+        *   6 sürüyor. Bitenler:
+            *   Telefonda biçim, durum etiketinden açılan menüyle seçiliyor (`StatusFormatMenu`). "More" menüsünün ilk
+                satırı "Find in the text": editörün bul çubuğunu açıyor. Pantrix'te menü açan bir durum etiketi yok;
+                bulgusu yazıldı.
+            *   XML, TOML ve INI onarımları (`XmlRepairs.kt`).
+            *   YAML'da Sort keys, alias'ı anchor'ının önüne düşürecekse anchor'ı ilk alias'ın yerine taşıyor
+                (`YamlAnchorSwaps.kt`). Bir akış koleksiyonunun içinde ise yine reddediliyor.
+            *   Ağacın araması ve Query, yazım durunca çalışıyor (150 ms).
+            *   JavaScript'te düşen JSONPath testindeki tek başına vekil karakter, çalışırken üretiliyor.
+        *   6'da kalanlar:
+            *   Panosu önce çizilecek üç karar (tuval oturumunda): resim değerinin küçük resmi, CSV'de "First row is the
+                header" seçeneği, açık belgeye dosya bırakmak.
+            *   Ölçümler: masaüstü penceresinde 50 MB ve JavaScript yedeği.
+            *   Kütüphanenin yerel pakete koyduğu ilk parti düzeltmeyle sökülecek geçici çözümler: paletin arama
+                alanının adı, `FileDrop`'un sözcükleri, dokuz yeni simge, `PantrixToolbar`, `PantrixStatusBar`.
+        *   7 ve 8 sırada.
     *   **Sahibinin kararları (2026-11-10):** sahibi önerileri kabul etti ("önerilerin olsun"):
         *   **Kodda seçilip panolarda olmayanlar: kod onaylandı, panolar koda göre çizilir.**
             *   Query'nin, Convert'in ve Compare'in hâlleri ve kuralları.

@@ -219,6 +219,19 @@ internal val PreviewSettings =
     max size = 50 MB
     """.trimIndent() + "\n"
 
+/**
+ * What is typed into a new document, as Workspace-390's `format` state has it: JSON, read as plain text until its format
+ * is chosen from the status.
+ */
+internal val PreviewTyped =
+    """
+    {
+      "name": "formatico-web",
+      "port": 8080,
+      "debug": true
+    }
+    """.trimIndent() + "\n"
+
 /** VS Code's settings for Formatico, as JSONC keeps them: comments among the keys. */
 internal val PreviewJsonc =
     """
@@ -376,7 +389,8 @@ internal class WorkspaceScreenCases :
         "long lines" to ScreenCase(LongLines),
         "long lines wrapped" to ScreenCase(LongLines, wrapLines = true),
         "reading" to ScreenCase(BeingRead),
-        "empty" to ScreenCase(Empty)
+        "empty" to ScreenCase(Empty),
+        "plain" to ScreenCase(previewState(null, PreviewTyped, null, DocumentView(pane = DocumentPane.Text)))
     )
 
 @BoardPreviews

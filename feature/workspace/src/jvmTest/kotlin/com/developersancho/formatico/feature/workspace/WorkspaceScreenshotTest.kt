@@ -152,6 +152,11 @@ class WorkspaceScreenshotTest {
                 captureOpenMenu("ColumnsChooser", case, Board.Desktop, opener = "columns") { WorkspaceScreenPreview(case) }
                 captureOpenMenu("TableOutMenu", case, Board.Desktop, opener = "table_out") { WorkspaceScreenPreview(case) }
             }
+
+            // Workspace-390's `format` state: a new document's text, still plain text, and the formats its status opens.
+            "plain" -> {
+                captureOpenMenu("StatusFormatMenu", case, Board.Phone, opener = "status_format") { WorkspaceScreenPreview(case) }
+            }
         }
     }
 }

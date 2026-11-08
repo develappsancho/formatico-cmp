@@ -39,7 +39,6 @@ import com.pantrixui.components.elements.divider.PantrixVerticalDivider
 import com.pantrixui.components.elements.icon.PantrixIcon
 import com.pantrixui.components.elements.iconbutton.PantrixIconButton
 import com.pantrixui.components.overlay.menu.PantrixMenu
-import com.pantrixui.components.overlay.menu.PantrixMenuItem
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.theme.PantrixTheme
 import org.koin.compose.koinInject
@@ -384,20 +383,7 @@ internal fun FormatMenu(format: Format?, size: ButtonSize, onChange: (Format?) -
         },
         tagKey = "formats"
     ) {
-        Format.entries.forEach { entry ->
-            PantrixMenuItem(
-                text = entry.displayName,
-                onClick = { onChange(entry) },
-                selected = entry == format,
-                tagKey = entry.name.lowercase()
-            )
-        }
-        PantrixMenuItem(
-            text = workspaceStrings.plainText,
-            onClick = { onChange(null) },
-            selected = format == null,
-            tagKey = "plain"
-        )
+        FormatMenuItems(format = format, onChange = onChange)
     }
 }
 

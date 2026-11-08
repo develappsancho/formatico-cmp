@@ -32,6 +32,9 @@ data class OpenDocument(
     val historyId: Long? = null
 )
 
+/** How long a search or a query waits after a letter for the next before it is looked for, in milliseconds. */
+internal const val TYPING_PAUSE = 150L
+
 /**
  * How a document's tree and table were left.
  *
@@ -42,6 +45,8 @@ data class OpenDocument(
  * @property hiddenColumns the names of the table's columns that are not shown.
  * @property tableFilter what the table's rows are filtered by, kept when the table is left for the tree.
  * @property searching whether the tree's search bar is open: a phone's "more" menu opens it from the top bar.
+ * @property findingText whether the editor's find bar is asked for: a phone's "more" menu asks from the top bar, the
+ *   text's editor opens its bar and lets the wish go. Like [searching], it is not kept when the app closes.
  * @property sharing whether the document is being shared: its link shown, to copy or send. Like [searching], it is not
  *   kept when the app closes.
  * @property query what the document is queried with, in its language: JSONPath, or XPath for XML; kept when the query
@@ -60,6 +65,7 @@ data class DocumentView(
     val hiddenColumns: Set<String> = emptySet(),
     val tableFilter: String = "",
     val searching: Boolean = false,
+    val findingText: Boolean = false,
     val sharing: Boolean = false,
     val query: String = "",
     val convert: ConvertChoice = ConvertChoice(),

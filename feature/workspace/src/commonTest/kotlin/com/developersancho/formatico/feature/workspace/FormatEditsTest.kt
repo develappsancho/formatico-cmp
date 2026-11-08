@@ -78,12 +78,15 @@ class FormatEditsTest {
 
     @Test
     fun formatLeavesTheKeysWhereTheyAreWhereSortingThemCannotBeDone() {
-        // Sorting would put the alias before its anchor: Format writes the document as it is.
-        val yaml = OpenDocument(id = 1, name = null, text = "b: &x 1\na: *x\n", format = Format.Yaml)
+        // Sorting would put an alias in a flow, written as it is, before its anchor: Format writes the document as it is.
+        val yaml = OpenDocument(id = 1, name = null, text = "b: &x 1\na: [*x]\n", format = Format.Yaml)
         val csv = OpenDocument(id = 2, name = null, text = "b,a\n1,2\n", format = Format.Csv)
+        // Where the anchor can move up to its first alias, the keys are sorted.
+        val movable = OpenDocument(id = 3, name = null, text = "b: &x 1\na: *x\n", format = Format.Yaml)
 
-        assertEquals("b: &x 1\na: *x\n", assertIs<Edited.Text>(edited(yaml, DocumentEdit.Format, FormatOptions(sortKeys = true))).text)
+        assertEquals("b: &x 1\na: [*x]\n", assertIs<Edited.Text>(edited(yaml, DocumentEdit.Format, FormatOptions(sortKeys = true))).text)
         assertIs<Edited.Text>(edited(csv, DocumentEdit.Format, FormatOptions(sortKeys = true)))
+        assertEquals("a: &x 1\nb: *x\n", assertIs<Edited.Text>(edited(movable, DocumentEdit.Format, FormatOptions(sortKeys = true))).text)
     }
 
     @Test

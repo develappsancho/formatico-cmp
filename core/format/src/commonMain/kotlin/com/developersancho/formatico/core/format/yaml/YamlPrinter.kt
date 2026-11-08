@@ -17,8 +17,9 @@ import com.developersancho.formatico.core.format.text.TextRange
  * line, at the end of that line; one on a line of its own, before what comes under it. Sorting the keys takes each
  * entry's comments with it.
  *
- * Sorting the keys can put an alias before the anchor it points at, which YAML does not allow: whoever sorts reads the
- * result again to find out.
+ * Sorting the keys can put an alias before the anchor it points at, which YAML does not allow: the anchored value is
+ * then written where its first alias comes, and that alias where the value stood, so that every value stays the same
+ * ([anchorSwaps]). An alias or an anchor in a flow collection is not moved: whoever sorts reads the result again.
  *
  * @throws IllegalArgumentException when the document is not valid: there is no value to write out.
  */
@@ -30,10 +31,6 @@ fun YamlDocument.formatted(indentation: Indentation = Indentation.Spaces(2), sor
 }
 
 private const val DEFAULT_INDENT = 2
-
-/** What a key is sorted by: its value, or its text where it is no scalar. */
-private fun sortName(node: YamlNode, text: String): String =
-    (node as? YamlScalar)?.value ?: text.substring(node.range.start, node.range.end)
 
 private fun String.onOneLine(from: Int, to: Int): Boolean = (from until to).none {
     this[it] == '\n' || this[it] == '\r'
@@ -174,6 +171,9 @@ private class YamlFormatter(
 ) {
     private val text = document.text
     private val comments = CommentBook(text, document.comments)
+
+    /** What is written in a node's place where sorting the keys would put an alias before its anchor. */
+    private val swaps: Map<YamlNode, YamlNode> = if (sortKeys) anchorSwaps(document.documents, text) else emptyMap()
     private val out = StringBuilder(text.length + text.length / 2)
 
     fun print(): String {
@@ -237,13 +237,7 @@ private class YamlFormatter(
     private fun mapping(node: YamlMapping, depth: Int, inlineFirst: Boolean, regionStart: Int) {
         val entries = node.entries
         val leading = comments.leading(entries.map { it.key.start }, entries.map { it.value.range.end }, regionStart)
-        val order = if (sortKeys) {
-            entries.indices.sortedBy {
-                sortName(entries[it].key, text)
-            }
-        } else {
-            entries.indices.toList()
-        }
+        val order = entryOrder(node, text, sortKeys)
         order.forEachIndexed { position, index ->
             val entry = entries[index]
             if (position > 0 || !inlineFirst) {
@@ -288,7 +282,8 @@ private class YamlFormatter(
      * standing at [depth] and its line's own text ending at [headerEnd]. After a dash, a mapping or a sequence with no
      * anchor and no tag starts on the dash's line, its later lines lined up with its first.
      */
-    private fun value(node: YamlNode, depth: Int, headerEnd: Int, afterDash: Boolean) {
+    private fun value(placed: YamlNode, depth: Int, headerEnd: Int, afterDash: Boolean) {
+        val node = swaps[placed] ?: placed
         val properties = propertiesOf(node)
         when {
             isBlockCollection(node) -> {
@@ -315,7 +310,7 @@ private class YamlFormatter(
                     it.isNotEmpty()
                 }.joinToString(" ")
                 if (written.isNotEmpty()) out.append(' ').append(written)
-                endLine(node.range.end)
+                endLine(lineEndOf(node, placed, headerEnd))
             }
         }
     }

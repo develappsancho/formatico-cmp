@@ -128,6 +128,9 @@ internal sealed interface WorkspaceIntent {
     /** Open the tree's search bar, or close it where [open] is false. */
     data class Search(val open: Boolean) : WorkspaceIntent
 
+    /** Show the text with the editor's find bar open over it, or let the wish go once it is open where [open] is false. */
+    data class FindInText(val open: Boolean) : WorkspaceIntent
+
     /** Read the document as [format], or as plain text. */
     data class ChangeFormat(val format: Format?) : WorkspaceIntent
 

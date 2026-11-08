@@ -267,17 +267,17 @@ internal enum class DocumentMenuItems {
     SortCompareSaveClose,
 
     /**
-     * In a phone's bar, where Format, Minify, Copy and Save stand at the bottom: finding in the tree, the Summary, the
-     * query, Convert and Types too.
+     * In a phone's bar, where Format, Minify, Copy and Save stand at the bottom: finding in the text and in the tree, the
+     * Summary, the query, Convert and Types too.
      */
     FindSummarySortCompareClose
 }
 
 /**
  * The "more" button of a phone's bar while the document of [workbench] whose id is [documentId] is shown, and the menu
- * it opens: finding in the tree, showing the Summary, querying, converting, writing types, sorting the keys, comparing
- * and closing the document. A phone has no room for the search's button over its tree, nor a status bar whose size
- * shows the Summary.
+ * it opens: finding in the text and in the tree, showing the Summary, querying, converting, writing types, sorting the
+ * keys, comparing and closing the document. A phone has no room for the search's button over its tree, nor a status bar
+ * whose size shows the Summary, and often no keyboard to open the editor's find bar with.
  */
 @Composable
 fun DocumentMoreMenu(documentId: Long, workbench: Workbench) {
@@ -290,6 +290,7 @@ fun DocumentMoreMenu(documentId: Long, workbench: Workbench) {
         size = ButtonSize.Large,
         // Plain text has no tree to find in, nor values to sum up.
         read = format != null,
+        onFindText = { workbench.changeView(documentId) { it.copy(pane = DocumentPane.Text, findingText = true) } },
         onFind = { workbench.changeView(documentId) { it.copy(pane = DocumentPane.Tree, searching = true) } },
         onSummary = { workbench.changeView(documentId) { it.copy(pane = DocumentPane.Summary) } },
         onQuery = { workbench.changeView(documentId) { it.copy(pane = DocumentPane.Query) } },
@@ -314,6 +315,7 @@ internal fun DocumentMenu(
     items: DocumentMenuItems,
     size: ButtonSize,
     read: Boolean = true,
+    onFindText: () -> Unit = {},
     onFind: () -> Unit = {},
     onSummary: () -> Unit = {},
     onQuery: () -> Unit = {},
@@ -348,7 +350,7 @@ internal fun DocumentMenu(
         tagKey = "document"
     ) {
         if (items == DocumentMenuItems.FindSummarySortCompareClose) {
-            FindAndSummaryItems(read, onFind, onSummary)
+            FindAndSummaryItems(read, onFindText, onFind, onSummary)
             QueryConvertTypesItems(read, onQuery, onConvert, onTypes, onSchema)
         }
         if (items != DocumentMenuItems.Close) {
@@ -387,9 +389,19 @@ internal fun DocumentMenu(
     }
 }
 
-/** A phone's menu items for what its bar has no room for: finding in the tree, and the Summary. Plain text has neither. */
+/**
+ * A phone's menu items for what its bar has no room for: finding in the text, which opens the editor's find bar, as
+ * Workspace-390's `more` state has it (the owner's decision, Faz 21); finding in the tree, and the Summary, which plain
+ * text has neither of.
+ */
 @Composable
-private fun FindAndSummaryItems(read: Boolean, onFind: () -> Unit, onSummary: () -> Unit) {
+private fun FindAndSummaryItems(read: Boolean, onFindText: () -> Unit, onFind: () -> Unit, onSummary: () -> Unit) {
+    PantrixMenuItem(
+        text = workspaceStrings.findInText,
+        onClick = onFindText,
+        icon = PantrixIcons.Search,
+        tagKey = "find_text"
+    )
     PantrixMenuItem(
         text = workspaceStrings.findInTree,
         onClick = onFind,

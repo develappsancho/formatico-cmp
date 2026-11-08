@@ -152,26 +152,31 @@ private fun lineEndingName(lineEnding: LineEnding): String = when (lineEnding) {
  */
 @Composable
 internal fun StatusTag(state: WorkspaceState) {
-    val schema = state.schema
-    val (text, tone) = when {
-        schema is SchemaCheck.Failed -> schemaStrings.statusProblems(schema.total, schema.total) to TagTone.Danger
-        schema is SchemaCheck.Valid -> schemaStrings.statusValid to TagTone.Success
-        else -> readingStatus(state.reading)
-    }
+    val (text, tone) = statusOf(state)
     PantrixTag(text = text, tone = tone, dot = true, tagKey = "status")
 }
 
-/** Whether a document read as [reading] is valid, how many problems it has, or that it is plain text, in words and a tone. */
+/**
+ * The document's status in words and a tone: what its schema found, where it is validated against one; else whether it
+ * is valid, how many problems it has, or that it is plain text.
+ */
 @Composable
-private fun readingStatus(reading: Reading): Pair<String, TagTone> = when (reading) {
-    Reading.Pending -> workspaceStrings.statusReading to TagTone.Neutral
+internal fun statusOf(state: WorkspaceState): Pair<String, TagTone> {
+    val schema = state.schema
+    val reading = state.reading
+    return when {
+        schema is SchemaCheck.Failed -> schemaStrings.statusProblems(schema.total, schema.total) to TagTone.Danger
 
-    Reading.PlainText -> workspaceStrings.plainText to TagTone.Neutral
+        schema is SchemaCheck.Valid -> schemaStrings.statusValid to TagTone.Success
 
-    is Reading.Read -> if (reading.errors == 0) {
-        workspaceStrings.statusValid(reading.format.displayName) to TagTone.Success
-    } else {
-        workspaceStrings.statusProblems(reading.errors, reading.errors) to TagTone.Danger
+        reading is Reading.Read && reading.errors == 0 ->
+            workspaceStrings.statusValid(reading.format.displayName) to TagTone.Success
+
+        reading is Reading.Read -> workspaceStrings.statusProblems(reading.errors, reading.errors) to TagTone.Danger
+
+        reading == Reading.PlainText -> workspaceStrings.plainText to TagTone.Neutral
+
+        else -> workspaceStrings.statusReading to TagTone.Neutral
     }
 }
 

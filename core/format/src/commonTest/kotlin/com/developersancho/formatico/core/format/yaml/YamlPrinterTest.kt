@@ -164,10 +164,12 @@ class YamlPrinterTest {
     }
 
     @Test
-    fun sortingCanPutAnAliasBeforeItsAnchor() {
-        val sorted = format("b: &x 1\na: *x\n", sortKeys = true)
+    fun sortingMovesAnAnchorUpToItsFirstAliasAndKeepsTheValues() {
+        val text = "b: &x 1\na: *x\n"
+        val sorted = format(text, sortKeys = true)
 
-        assertTrue(YamlDocument.parse(sorted).problems.any { it.code == ProblemCode.UndefinedAlias })
+        assertTrue(YamlDocument.parse(sorted).problems.none { it.code == ProblemCode.UndefinedAlias })
+        assertEquals("a: &x 1\nb: *x\n", sorted)
     }
 
     @Test

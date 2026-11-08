@@ -295,11 +295,11 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Öneri: eklentinin metni rehberde, ya da paket deposunda indirilebilir.
     *   Durum: açık.
 
-*   [ ] **Teşhisler, web'de kelimeler yüklenirken adı boş satırları bildiriyor (MissingName, kelimeler yüklenirken) (2026-11-03).**
+*   [x] **Teşhisler, web'de kelimeler yüklenirken adı boş satırları bildiriyor (MissingName, kelimeler yüklenirken) (2026-11-03).**
     *   Ne: Tarayıcıda uygulamanın kendi kelimeleri (Compose kaynakları) ilk kareden sonra geliyor. O arada `PantrixListItem`'ın başlığı boş; teşhisler bunu hemen `MissingName` diye bildiriyor ("ListItem has a blank name"). Kelimeler birkaç kare sonra geliyor, satırın adı oluyor, bulgu ise kalıyor ve `assertNoFindings` başarısız. Sıkışan dokunma alanı yarım saniye, iki düğümdeki etiket bir buçuk saniye bekleniyor; boş ad hiç beklenmiyor. Masaüstünde ve iOS'ta kelimeler ilk karede olduğu için görülmüyor.
     *   Nerede: MCP `guide/diagnostics`, `get_api checkName`; `guide/testing` ("Some findings come late").
     *   Öneri: `MissingName` da kısa bir süre beklesin, ya da bir ad yalnızca boş kalmaya devam ederse bildirilsin.
-    *   Durum: açık. Formatico'nun testleri (2026-11-03) kelimeleri beklemek zorunda kaldıklarında o arada bulunanı `PantrixFindings.clear()` ile unutuyor; yorumda bu bulgu anılıyor. Faz 15'te (2026-11-06) panoların erişilebilirlik testi bunu her basıştan sonra da yapmak zorunda kaldı: telefonda bir menü ya da problem kartı açılınca sözcükleri bir an sonra geliyordu. Aynı gün sözcükler Compose'un kaynaklarından Kotlin'e taşındı (sahibinin isteği); o andan beri Formatico'da bu bulgu hiç çıkmıyor: unutma kapalıyken Wasm'ın 692 testinin hepsi geçti, unutan adımlar (`forgetting`, `forgetWhileWordsCame`) kalktı. Bulgu kaynaklardan okuyan uygulamalar için geçerli.
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-10). Sahibinin kararıyla kütüphaneye bırakıldı ve orada düzeltildi: tanılama boş bir adı ancak bir buçuk saniye boş kalınca bildiriyor (yinelenen etiketle aynı süre), bir an geç gelen ad bulgu değil. Formatico sözcüklerini Kotlin'e taşıdığından beri bununla karşılaşmıyordu; yeni paketle testleri JVM'de, iOS simülatöründe, Wasm'da ve JavaScript'te temiz. Önceki durum: açık. Formatico'nun testleri (2026-11-03) kelimeleri beklemek zorunda kaldıklarında o arada bulunanı `PantrixFindings.clear()` ile unutuyor; yorumda bu bulgu anılıyor. Faz 15'te (2026-11-06) panoların erişilebilirlik testi bunu her basıştan sonra da yapmak zorunda kaldı: telefonda bir menü ya da problem kartı açılınca sözcükleri bir an sonra geliyordu. Aynı gün sözcükler Compose'un kaynaklarından Kotlin'e taşındı (sahibinin isteği); o andan beri Formatico'da bu bulgu hiç çıkmıyor: unutma kapalıyken Wasm'ın 692 testinin hepsi geçti, unutan adımlar (`forgetting`, `forgetWhileWordsCame`) kalktı. Bulgu kaynaklardan okuyan uygulamalar için geçerli.
 
 *   [ ] **Web'de snackbar'ın iletisi ekran okuyucuya gitmiyor (2026-11-06).**
     *   Ne: Compose'un web'de ekran okuyucu için kurduğu ağaçta (`#cmp_a11y_root`) `PantrixSnackbar`'ın öğesi (`Snackbar_<tagKey>`) yalnızca kapatma düğmesini tutuyor: iletinin metni, bir rolü ya da `aria-live`'ı yok. Compose'un anlam ağacında metin var: ortak testler Wasm'da onu `hasText` ile buluyor. Formatico'nun kırık bağlantı uyarısı ("This link holds no document Formatico can read") tarayıcıda bir ekran okuyucuya hiç söylenmiyor olabilir; ekran okuyucuyla dinlenmedi. Tarayıcı testinde bir kez metin göründü, sonraki dört koşuda görünmedi.
@@ -340,7 +340,7 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Ne: Formatico'da metindeki imleç ağaçta bir değeri seçiyor, ağaçta seçilen değer metinde imleci taşıyor. `PantrixJsonView` açık yolları (`expanded`) dışarıya veriyor ama seçili bir yol, `onSelect` ya da "bu yola kaydır" yok. JSON'u kendisi bir `String`'den okuyor ve yalnızca RFC 8259 JSON'u alıyor: JSONC, JSON5, YAML, TOML ağaçları için kullanılamıyor, Formatico'nun kendi okuyucusunun ağacını da alamıyor.
     *   Nerede: [JSON View](https://pantrixui.com/components/json-view); MCP `get_api PantrixJsonView`.
     *   Öneri: düğümlerle beslenen bir belge ağacı (anahtar, değer türü, yol), seçili yol ve `onSelect`, yola kaydırma; değer önizlemesi için satır yuvası.
-    *   Durum: açık.
+    *   Durum: kütüphanede yazılıyor (2026-11-10, sahibinin kararı): `selectedPath`, `onSelect(path)` ve durumda `scrollToPath`; dışarıdan düğüm verme eklenmiyor, başka biçimler ve uygulamanın kendi ağacı için `PantrixLazyTreeView`. Formatico'nun ağacı `PantrixLazyTreeView` olduğundan Formatico'yu artık ilgilendirmiyor; paket gelince denetlenip kapanır. Önceki durum: açık.
 *   [x] **Kısayolun tuşlarını çizen bir öğe yok (2026-11-02).**
     *   Ne: `PantrixShortcut.keysOn` bir kısayolu tuş tuş veriyor (`⌘`, `K`), ama tuşları çizen bir bileşen yok; tasarım sisteminde de yok. Formatico'nun Start ve Workspace panolarındaki `⌘K` ve `⌘V` işaretleme.
     *   Nerede: [Keyboard shortcuts](https://pantrixui.com/docs/guides/keyboard-shortcuts); tasarım sisteminin bileşen listesi.
@@ -355,7 +355,7 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Ne: Formatico'nun Compare ekranı iki belgeyi yan yana gösteriyor: değişen, eklenen ve çıkan satırlar, aynı yerdeki satırlar hizalı, farkların listesi. `PantrixCodeBlock`'ın `CodeMark`'ı bir satırı işaretliyor, ama iki bloğu hizalamak ve bir farkı ikisinde birden göstermek uygulamaya kalıyor. Panolarda karşılaştırma işaretleme.
     *   Nerede: kütüphanenin bileşenleri; tasarım sisteminin `Data` bölümü.
     *   Öneri: `PantrixCodeEditor`'ın yanına iki belgeyi hizalayan bir karşılaştırma görünümü; ya da kütüphanenin rehberlerinde iki `PantrixCodeBlock`'la nasıl kurulacağı.
-    *   Durum: açık. Faz 11'de (2026-11-05) Compare iki salt okunur `PantrixCodeEditor`'la kuruldu: farkların satırları `lineMarks`'la değişenin, eklenenin ve çıkarılanın tonunda, gösterilen fark seçili. İki metin hizalanmıyor (panolarda da hizalı değil); eksikler "Kod editöründe imlecin satırı, satırın işaretini örtüyor" ve "Kod editörünün oluğuna bir işaret konamıyor" bulgularında. O ikisi kapandı (2026-11-05): gösterilen fark bandında ve birincil çubukla, olukta değişikliğin işareti, değişen değer dolgusuyla.
+    *   Durum: kütüphanede yazılacak (2026-11-10, sahibinin kararı): `PantrixDiffView`, iki metni bir fark algoritmasıyla hizalayıp birlikte kaydıran, eklenen, çıkan ve değişen satırları işaretleyen bir görünüm. Formatico'nun Compare'i bugün iki salt okunur `PantrixCodeEditor`; bileşen gelince Compare'in ona geçip geçmeyeceği, panosuyla birlikte, sahibinin kararı. Önceki durum: açık. Faz 11'de (2026-11-05) Compare iki salt okunur `PantrixCodeEditor`'la kuruldu: farkların satırları `lineMarks`'la değişenin, eklenenin ve çıkarılanın tonunda, gösterilen fark seçili. İki metin hizalanmıyor (panolarda da hizalı değil); eksikler "Kod editöründe imlecin satırı, satırın işaretini örtüyor" ve "Kod editörünün oluğuna bir işaret konamıyor" bulgularında. O ikisi kapandı (2026-11-05): gösterilen fark bandında ve birincil çubukla, olukta değişikliğin işareti, değişen değer dolgusuyla.
 *   [ ] **DataTable'da bir hücre seçilemiyor ya da işaretlenemiyor (2026-11-02).**
     *   Ne: Formatico'da metindeki imleç tabloda bir hücreyi gösteriyor (`$.orders[2].total`): satırı seçili, hücresi çerçeveli. `PantrixDataTable` satırları seçiyor (`selected`, `rowTone`), ama hücre düzeyinde bir seçim, odak ya da işaret yok. `cell` yalnızca hücrenin iç dolgusunun içini çiziyor; hücrenin tamamını çevreleyen bir çerçeveyi uygulama çizemez. Table panolarında (1440, 834) seçili hücre bu yüzden işaretleme.
     *   Nerede: [Data Table](https://pantrixui.com/components/data-table); MCP `get_api PantrixDataTable`, `DataTableColumn`.
@@ -653,4 +653,19 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Nerede: MCP `get_api TreeViewStyle` (`rowHeight`); Formatico'da `DocumentTree.kt`.
     *   Öneri: `rowHeight`'ın belgesinde dokunma hedefine çıkarıldığını söylemek (ve hangi platformda kaç), ya da
         istenen boyu çizip basılan alanı ayrıca büyütmek; uygulama gerçekten aldığı boyu isteyebilsin.
+    *   Durum: açık. Formatico'yu tıkamıyor.
+*   [ ] **Bir menü açan durum etiketi yok (2026-11-10).**
+    *   Ne: Workspace-390'ın `format` hâlinde telefonun durumu ("Plain text", "Valid JSON") basılınca biçim menüsünü
+        açıyor: tonlu, noktalı bir etiket ve yanında aşağı bakan bir ok. Pantrix'te bunu karşılayan bileşen yok:
+        *   `PantrixTag` okunmak için, basılmıyor.
+        *   `PantrixChip`'in tonu, noktası ve sondaki simgesi yok.
+
+        Formatico etiketi ve oku basılan bir `Row`'a koydu (`StatusFormatMenu.kt`). Düğmenin adı durumun sözü; basınca
+        ne olduğunu `onClickLabel` söylüyor. Etiket kendi düğümünde kaldığı için ekran okuyucu sözü iki kez duyabilir.
+    *   Nerede: MCP `get_component Tag`, `get_component Chip`; kaynak jar'da `Tag.kt`, `Chip.kt`.
+    *   Öneri: iki yoldan biri:
+        *   `PantrixTag`'e isteğe bağlı bir `onClick` ve sonda bir simge;
+        *   `PantrixChip`'e ton, nokta ve sonda bir simge.
+
+        İkisinde de basılınca bir menü açılabilmeli, tasarım sisteminde de karşılığı olmalı.
     *   Durum: açık. Formatico'yu tıkamıyor.

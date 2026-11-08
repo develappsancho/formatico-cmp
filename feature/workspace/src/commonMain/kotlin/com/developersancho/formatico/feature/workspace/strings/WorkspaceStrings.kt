@@ -35,7 +35,11 @@ internal interface WorkspaceStrings {
     val viewTable: String
     val find: String
     val findInTree: String
+    val findInText: String
     val showSummaryItem: String
+
+    /** What pressing the phone's status does: it opens the formats the document can be read as. */
+    val changeFormat: String
 
     /** "match {first}" */
     fun match(first: String): String

@@ -24,7 +24,9 @@ internal object WorkspaceStringsEnglish : WorkspaceStrings {
     override val viewTable = "Table"
     override val find = "Find a key or a value"
     override val findInTree = "Find in the tree"
+    override val findInText = "Find in the text"
     override val showSummaryItem = "Show the summary"
+    override val changeFormat = "Change the format"
 
     override fun match(first: String) = "match $first"
 
