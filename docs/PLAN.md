@@ -42,7 +42,8 @@ eksikler Faz 4'te.
     *   Workspace: ağaç seçili satıra kaydırılıyor; panolardaki erişilebilirlik etiketleri ("Document tree",
         "Sort by", kayıt listesi, sekme kapatma); Minify yorumları sileceğini önceden söylüyor; sondaki virgül ve
         anahtarla değer arasındaki yorum korunuyor; iOS'ta üst çubuk içerikten önce değişmiyor. Yapıldı (2026-11-04),
-        ağacın kaydırılması `tıkıyor` (Pantrix), bölge adlarının Compose'da karşılığı yok.
+        bölge adlarının Compose'da karşılığı yok; ağacın seçili satıra kaydırılması `PantrixLazyTreeView` ile yapıldı
+        (2026-11-04).
     *   YAML ve CSV: YAML'da bütün hatalar, yorum ve biçim kuralları, anchor'ının önüne düşen alias, birleştirme
         anahtarı ve YAML 1.1 değerleri; CSV'nin başlık ve sayı tahmini, Format'ın kapsamı, tablonun süzgecinin
         kalması, telefonun kaydının başlığı. Yapıldı (2026-11-04): tireden sonraki yorum, baştaki yorumlar, `...`, kod
@@ -86,9 +87,10 @@ eksikler Faz 4'te.
     kararıyla v1'de, 2026-11-04: düzen'den gelenlerin hepsi).
     Büyük bölümü yapıldı (2026-11-04): ağaçta arama (sayı, önceki, sonraki), 1, 2, 3 ve
     tümüne açma, yolu üç biçimde kopyalama, tabloyu CSV olarak kaydetme, CSV ya da Markdown olarak kopyalama, Summary
-    (üç genişlikte, durum çubuğunun boyutundan; gzip boyu platformun kendi sıkıştırıcısıyla). Kalanlar Pantrix'i
-    bekliyor: sütun türleri (DataTable'ın başlığı), renk ve resim önizlemesi ile aramanın vurgusu (TreeView satırı,
-    `tıkıyor`). Telefonda arama ve Summary "more" menüsünden açılıyor (sahibinin kararı, 2026-11-04).
+    (üç genişlikte, durum çubuğunun boyutundan; gzip boyu platformun kendi sıkıştırıcısıyla). Telefonda arama ve
+    Summary "more" menüsünden açılıyor (sahibinin kararı, 2026-11-04). Ağaç `PantrixLazyTreeView`'e geçti
+    (2026-11-04): satırlar sözdizimi renkleriyle, tarih, renk ve resim önizlemesi, aramanın vurgusu, seçili satıra
+    kaydırma. Kalanlar Pantrix'i bekliyor: sütun türleri (DataTable'ın başlığı), bağlantının ve resmin simgesi.
 *   [ ] **Faz 9: Query.** JSONPath ve XPath.
 *   [ ] **Faz 10: Convert.** Biçimler arasında; kaybolacak olan önceden söylenir.
 *   [ ] **Faz 11: Compare.** Anlamsal karşılaştırma.

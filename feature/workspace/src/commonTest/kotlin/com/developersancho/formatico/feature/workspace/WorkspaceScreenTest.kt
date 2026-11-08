@@ -6,12 +6,15 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertWidthIsAtLeast
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
@@ -103,12 +106,12 @@ class WorkspaceScreenTest {
         // How long the document is, which shows its Summary.
         awaitNode(hasPantrixTag("Button", "size") and hasContentDescription("5 lines · ", substring = true), "The size")
         awaitText("UTF-8 · LF · 2 spaces")
-        onPantrixNode("Node", "id", scope = "TreeView_document").assertExists()
+        onPantrixNode("Node", "id", scope = "LazyTreeView_document").assertExists()
         // The text and the tree stand as the board splits them: there is no handle between them.
         onPantrixNode("TwoPaneHandle", "panes").assertDoesNotExist()
         onPantrixNode("Button", "sort_keys").assertIsEnabled()
         onPantrixNode("Button", "format").performClick()
-        onPantrixNode("Node", "customer.name", scope = "TreeView_document").performClick()
+        onPantrixNode("Node", "customer.name", scope = "LazyTreeView_document").performClick()
 
         assertEquals(
             listOf(WorkspaceIntent.Edit(DocumentEdit.Format), WorkspaceIntent.Select("$.customer.name")),
@@ -133,7 +136,7 @@ class WorkspaceScreenTest {
         awaitText("Plain text")
         onPantrixNode("Button", "format").assertIsNotEnabled()
         onPantrixNode("Button", "minify").assertIsNotEnabled()
-        onPantrixNode("TreeView", "document").assertDoesNotExist()
+        onPantrixNode("LazyTreeView", "document").assertDoesNotExist()
     }
 
     @Test
@@ -397,7 +400,76 @@ class WorkspaceScreenTest {
         // A drag makes it taller again.
         handle.performTouchInput { swipeDown(startY = centerY, endY = centerY + 200f) }
         assertTrue(split() > shortest, "The handle is at ${split()}")
-        onPantrixNode("TreeView", "document").assertExists()
+        onPantrixNode("LazyTreeView", "document").assertExists()
+        assertNoFindings(findings)
+    }
+
+    @Test
+    fun onAnAndroidTabletATapOnTheViewsTopEdgeUnderTheHandleIsTheirs() = tapUnderTheHandle(PlatformType.Android)
+
+    @Test
+    fun onAnIpadATapOnTheViewsTopEdgeUnderTheHandleIsTheirs() = tapUnderTheHandle(PlatformType.Ios)
+
+    /** A tap on the top edge of the tree's views, where the handle's strip, wider than the gap, reaches over them. */
+    private fun tapUnderTheHandle(platform: PlatformType) = runComposeUiTest {
+        val intents = mutableListOf<WorkspaceIntent>()
+        setContent {
+            PantrixTestTheme(platform = platform, window = tablet, clock = clock) {
+                WorkspaceScreen(state = stateOf(order, Format.Json), onIntent = {
+                    intents += it
+                }, commands = rememberDocumentCommands(Workbench()))
+            }
+        }
+        awaitText("Valid JSON")
+        val table = onPantrixNode("Segment", "table", scope = "SegmentButton_view")
+        val edge = table.getBoundsInRoot().top + 2.dp
+        assertTrue(onPantrixNode("TwoPaneHandle", "panes").getBoundsInRoot().bottom > edge, "The strip reaches over the views on $platform")
+
+        table.performTouchInput { click(Offset(centerX, 2.dp.toPx())) }
+
+        assertEquals(listOf<WorkspaceIntent>(WorkspaceIntent.ShowPane(DocumentPane.Table)), intents, "On $platform")
+    }
+
+    @Test
+    fun theChosenValueIsBroughtIntoViewInALongTree() = runComposeUiTest {
+        val findings = PantrixFindings()
+        val long = (0 until 80).joinToString(",\n", prefix = "{\n", postfix = "\n}") { "  \"key$it\": $it" }
+        var view by mutableStateOf(DocumentView(selected = "$.key0"))
+        setContent {
+            PantrixTestTheme(window = desktop, findings = findings, clock = clock) {
+                WorkspaceScreen(state = stateOf(long, Format.Json, view = view), onIntent = {
+                }, commands = rememberDocumentCommands(Workbench()))
+            }
+        }
+        awaitText("Valid JSON", forgetting = findings)
+        onPantrixNode("Node", "key0", scope = "LazyTreeView_document").assertIsDisplayed()
+
+        // Chosen in the text or by a search, a value far down the tree is scrolled to.
+        view = view.copy(selected = "$.key79")
+        awaitNode(hasPantrixTag("Node", "key79", scope = "LazyTreeView_document"), "The last row")
+        onPantrixNode("Node", "key79", scope = "LazyTreeView_document").assertIsDisplayed()
+        assertNoFindings(findings)
+    }
+
+    @Test
+    fun theTreesRowsEndInWhatTheirStringsLookLike() = runComposeUiTest {
+        val findings = PantrixFindings()
+        val looks = "{\"createdAt\": \"2026-10-28T14:32:00Z\", \"accent\": \"#0F766E\", " +
+            "\"avatar\": \"https://images.example.com/u/elif.png\", \"website\": \"https://elif.dev\"}"
+        var window by mutableStateOf(desktop)
+        setContent {
+            PantrixTestTheme(window = window, findings = findings, clock = clock) {
+                WorkspaceScreen(state = stateOf(looks, Format.Json), onIntent = {}, commands = rememberDocumentCommands(Workbench()))
+            }
+        }
+
+        awaitNode(hasContentDescription("Colour #0F766E"), "The colour's swatch", forgetting = findings)
+        awaitNode(hasContentDescription("Picture at this address"), "The picture's place")
+        awaitText("14:32 UTC", substring = true)
+        awaitText("Link")
+        // A phone, with less room, shows the date by its icon, which says it.
+        window = phone
+        awaitNode(hasContentDescription("14:32 UTC", substring = true), "The date's icon", forgetting = findings)
         assertNoFindings(findings)
     }
 
@@ -487,7 +559,7 @@ class WorkspaceScreenTest {
         }
 
         awaitNode(hasPantrixTag("CodeEditor", "text"), "The editor")
-        onPantrixNode("TreeView", "document").assertDoesNotExist()
+        onPantrixNode("LazyTreeView", "document").assertDoesNotExist()
         onPantrixNode("Card", "selected_value").assertDoesNotExist()
     }
 

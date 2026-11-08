@@ -318,3 +318,19 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
 *   [ ] **Durum çubuğu, boyutun düğmesiyle panodan uzun (2026-11-04).**
     *   Ne: Boyut Summary'yi açan bir düğme oldu; Pantrix ona platformun dokunma hedefini ayırdığı için çubuk masaüstünde 28'den 32'ye, tablette 32'den platformun hedefine (iOS'ta 44) uzuyor. Bkz. `PANTRIX_FINDINGS.md`, "Sık bir çubuktaki bir düğme dokunma hedefini alamıyor".
     *   Durum: açık.
+*   [ ] **Ağacın satırı panolarda ölçekte olmayan bir boyda (2026-11-04).**
+    *   Ne: Workspace panoları ağacın satırını Geist Mono'yla 13/20 ve normal kalınlıkta yazıyor (telefonda 14/20). Pantrix'in ölçeğinde 13 yok; kodun rolü `code` 14/20 ve orta kalınlıkta. Ağaç `TreeViewStyle(labelRole = TypeRole.Code)` ile o rolü kullanıyor.
+    *   Öneri: tuvalde satırı `code`'a getirmek; ya da bu sapmayı kabul etmek.
+    *   Durum: açık. Kodda temanın `code`'u.
+*   [ ] **Ağacın kökü panolarda `${4}` diye yazılıyor (2026-11-04).**
+    *   Ne: Panolar kökün satırını iki nokta olmadan ve boşluksuz `$` ile boyutunu yan yana yazıyor: `${11}`, `${4}`. JavaScript'in şablon yazısına benziyor; bir boşluk (`$ {11}`) ya da yalnızca `$` daha az karışabilir. Kod panodaki gibi.
+    *   Öneri: sahibinin kararı.
+    *   Durum: açık.
+*   [ ] **Panoda ağaçtaki bağlantı simgesi bir bağlantı; satırın sonu basılamıyor (2026-11-04).**
+    *   Ne: Workspace panolarında bir adresin satırının sonundaki simge bir bağlantı ("Open the link"). `PantrixLazyTreeView`'in `trailing`'i "satırla okunur, kendi basışı yoktur" diyor; satırın içinde ikinci bir basılan şey de ekran okuyucuda ve klavyede satırı ikiye böler. Kodda bağlantının yerinde "Link" sözcüğü (simge yok, bkz. PANTRIX_FINDINGS "Resmin ve bağlantının simgesi yok").
+    *   Öneri: bağlantıyı açmak seçili değerin kartında ve ağacın satır menüsünde ("Open the link"); satırın sonundaki simge yalnızca gösterir.
+    *   Durum: açık.
+*   [ ] **Ağacın satırları her seçimde ve aramanın her harfinde yeniden kuruluyor (2026-11-04).**
+    *   Ne: Seçili satırın ve aramanın işaretleri satırın etiketinde (`styledLabel`), bu yüzden `documentRows` seçim ya da aranan değişince bütün düğümleri yeniden kuruyor. Küçük belgelerde fark edilmiyor; Faz 14'ün 50 MB hedefinde ölçülmeli.
+    *   Öneri: Faz 14'te ölçmek; gerekirse yalnızca değişen satırların yolunu yeniden kurmak.
+    *   Durum: açık.

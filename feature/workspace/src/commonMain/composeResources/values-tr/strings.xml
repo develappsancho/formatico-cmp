@@ -106,6 +106,8 @@
     <string name="workspace_kind_object">Nesne</string>
     <string name="workspace_kind_array">Dizi</string>
     <string name="workspace_kind_alias">Alias</string>
+    <string name="workspace_colour_of">Renk %1$s</string>
+    <string name="workspace_picture_at">Bu adresteki resim</string>
     <string name="workspace_alias_detail">&amp;%1$s anchor’ını gösteriyor</string>
     <string name="workspace_alias_missing">Önünde &amp;%1$s anchor’ı yok</string>
     <string name="workspace_go_to_anchor">Anchor’a git</string>

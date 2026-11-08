@@ -82,14 +82,20 @@ internal fun matchesOf(root: ValueNode?, query: String, language: String): List<
     val found = mutableListOf<ValueNode>()
 
     fun look(node: ValueNode) {
-        val inName = node.path.isNotEmpty() && sought in folded(node.name, language)
-        val inValue = !node.kind.isContainer && sought in folded(node.value ?: node.text, language)
-        if (inName || inValue) found += node
+        if (nameHolds(node, sought, language) || valueHolds(node, sought, language)) found += node
         node.children.forEach(::look)
     }
     look(root)
     return found
 }
+
+/** Whether [sought], in small letters as [language] writes them, is in [node]'s key or its index; never the root's. */
+internal fun nameHolds(node: ValueNode, sought: String, language: String): Boolean =
+    node.path.isNotEmpty() && sought in folded(node.name, language)
+
+/** Whether [sought], in small letters as [language] writes them, is in a value of [node]'s that holds no others. */
+internal fun valueHolds(node: ValueNode, sought: String, language: String): Boolean =
+    !node.kind.isContainer && sought in folded(node.value ?: node.text, language)
 
 /** [text] in small letters as [language] writes them: Turkish and Azerbaijani have a dotted and a dotless i. */
 internal fun folded(text: String, language: String): String = if (language == "tr" || language == "az") {
@@ -190,18 +196,18 @@ internal fun TreeSearchBar(
 }
 
 /**
- * A search in the tree: whether its bar is [open], what is looked for in [query], the values it is [found] in and which
- * of them is chosen. Opening and closing the bar goes to [onOpen]; going to a match chooses it through [onSelect],
- * which opens the branches it is in.
+ * A search in the tree: whether its bar is [open], what is looked for in [query], matched in [language]'s small
+ * letters, the values it is [found] in and which of them is chosen. Opening and closing the bar and choosing a match,
+ * which opens the branches it is in, go to [onIntent].
  */
 @Stable
 internal class TreeSearch(
     val open: Boolean,
     private val chosen: MutableIntState,
     val query: TextFieldState,
+    private val language: String,
     private val found: State<List<ValueNode>>,
-    private val onOpen: (Boolean) -> Unit,
-    private val onSelect: (String) -> Unit
+    private val onIntent: (WorkspaceIntent) -> Unit
 ) {
     val matches: List<ValueNode> get() = found.value
 
@@ -209,10 +215,10 @@ internal class TreeSearch(
     val current: Int get() = chosen.intValue
 
     /** Opens the bar, or closes it and forgets what was looked for. */
-    fun toggle() = if (open) close() else onOpen(true)
+    fun toggle() = if (open) close() else onIntent(WorkspaceIntent.Search(open = true))
 
     fun close() {
-        onOpen(false)
+        onIntent(WorkspaceIntent.Search(open = false))
         query.clearText()
     }
 
@@ -220,13 +226,20 @@ internal class TreeSearch(
     fun step(by: Int) {
         if (matches.isEmpty()) return
         chosen.intValue = (chosen.intValue + by).mod(matches.size)
-        onSelect(matches[chosen.intValue].key)
+        onIntent(WorkspaceIntent.Select(matches[chosen.intValue].key))
     }
 
     /** Goes to the first match of a new search. */
     fun restart() {
         chosen.intValue = 0
-        matches.firstOrNull()?.let { onSelect(it.key) }
+        matches.firstOrNull()?.let { onIntent(WorkspaceIntent.Select(it.key)) }
+    }
+
+    /** What the tree's rows mark of this search, or null while nothing is looked for. */
+    fun marks(): TreeMarks? {
+        val text = query.text.toString()
+        if (!open || text.isBlank()) return null
+        return TreeMarks(sought = folded(text.trim(), language), language = language, current = matches.getOrNull(current)?.key)
     }
 
     /** Which match of how many is chosen, "No matches", or nothing while nothing is looked for. */
@@ -251,14 +264,14 @@ internal fun rememberTreeSearch(state: WorkspaceState, onIntent: (WorkspaceInten
     val found = rememberUpdatedState(remember(state.root, text, language) { matchesOf(state.root, text, language) })
     val intents = rememberUpdatedState(onIntent)
     val open = state.document?.view?.searching == true
-    val search = remember(open, query, chosen, found) {
+    val search = remember(open, query, chosen, found, language) {
         TreeSearch(
             open = open,
             chosen = chosen,
             query = query,
+            language = language,
             found = found,
-            onOpen = { intents.value(WorkspaceIntent.Search(it)) },
-            onSelect = { intents.value(WorkspaceIntent.Select(it)) }
+            onIntent = { intents.value(it) }
         )
     }
     // A new search goes to its first match.

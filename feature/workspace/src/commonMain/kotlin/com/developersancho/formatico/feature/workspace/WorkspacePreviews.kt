@@ -221,8 +221,23 @@ private val PreviewSettings =
 private fun previewState(name: String?, text: String, format: Format?, view: DocumentView = DocumentView()) =
     readState(OpenDocument(id = 1, name = name, text = text, format = format, view = view))
 
-private val Order = previewState("order.json", PreviewOrder, Format.Json, DocumentView(selected = "$.customer.avatar"))
-private val OrderUnchosen = previewState("order.json", PreviewOrder, Format.Json)
+internal val Order = previewState("order.json", PreviewOrder, Format.Json, DocumentView(selected = "$.customer.avatar"))
+internal val OrderUnchosen = previewState("order.json", PreviewOrder, Format.Json)
+
+/** The order searched for "elif", as the Workspace boards' search state has it: its first match chosen. */
+internal val OrderSearched =
+    previewState("order.json", PreviewOrder, Format.Json, DocumentView(selected = "$.customer.name", searching = true))
+
+/** The deployment with an alias chosen, its anchor and the alias open, as the Workspace boards' YAML state has it. */
+internal val DeploymentAlias = previewState(
+    "deployment.yaml",
+    PreviewDeployment,
+    Format.Yaml,
+    DocumentView(
+        selected = "$.spec.selector.matchLabels",
+        expanded = setOf("$", "$.metadata", "$.metadata.labels", "$.spec", "$.spec.selector")
+    )
+)
 private val Deployment = previewState(
     "deployment.yaml",
     PreviewDeployment,

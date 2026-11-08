@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -36,7 +35,6 @@ import com.pantrixui.components.elements.button.PantrixButton
 import com.pantrixui.components.elements.divider.PantrixHorizontalDivider
 import com.pantrixui.components.elements.icon.PantrixIcon
 import com.pantrixui.components.elements.iconbutton.PantrixIconButton
-import com.pantrixui.components.elements.scrollbar.pantrixVerticalScroll
 import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.theme.PantrixTheme
@@ -93,7 +91,7 @@ internal fun PhoneWorkspace(
         UnderTheViews(state, pane, problemsInText, search, onIntent)
         PantrixHorizontalDivider()
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
-            PhonePane(state = state, editor = editor, pane = pane, onIntent = onIntent)
+            PhonePane(state = state, editor = editor, pane = pane, search = search, onIntent = onIntent)
         }
         if (problemsInText) {
             ProblemCard(state, editor, onIntent, Modifier.fillMaxWidth().padding(start = spacing.sm, end = spacing.sm, top = spacing.sm))
@@ -160,12 +158,13 @@ private fun UnderTheViews(
     }
 }
 
-/** The pane the phone shows: the editor's place, the tree, or what stands in for the tree. */
+/** The pane the phone shows: the editor's place, the tree with what [search] found marked, or what stands in for it. */
 @Composable
 private fun PhonePane(
     state: WorkspaceState,
     editor: CodeEditorState,
     pane: DocumentPane,
+    search: TreeSearch,
     onIntent: (WorkspaceIntent) -> Unit
 ) {
     val spacing = PantrixTheme.spacing
@@ -197,10 +196,8 @@ private fun PhonePane(
         state = state,
         layout = WorkspaceLayout.Phone,
         onIntent = onIntent,
-        modifier = Modifier
-            .fillMaxSize()
-            .pantrixVerticalScroll(rememberScrollState())
-            .padding(horizontal = spacing.sm, vertical = spacing.xs)
+        modifier = Modifier.fillMaxSize().padding(horizontal = spacing.sm, vertical = spacing.xs),
+        marks = search.marks()
     )
 }
 

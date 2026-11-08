@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -21,16 +20,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.developersancho.formatico.core.format.json.jsonPath
-import com.pantrixui.components.data.treeview.PantrixTreeView
-import com.pantrixui.components.data.treeview.TreeNode
-import com.pantrixui.components.data.treeview.TreeSelection
-import com.pantrixui.components.data.treeview.TreeViewStyle
 import com.pantrixui.components.elements.button.ButtonVariant
 import com.pantrixui.components.elements.divider.PantrixHorizontalDivider
 import com.pantrixui.components.elements.icon.PantrixIcon
 import com.pantrixui.components.elements.iconbutton.PantrixIconButton
-import com.pantrixui.components.elements.scrollbar.pantrixVerticalScroll
 import com.pantrixui.components.elements.segmentbutton.PantrixSegmentButton
 import com.pantrixui.components.elements.segmentbutton.SegmentOption
 import com.pantrixui.components.elements.text.PantrixText
@@ -197,8 +190,8 @@ internal fun TreePane(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
-                .pantrixVerticalScroll(rememberScrollState())
-                .padding(start = spacing.sm, end = spacing.sm, bottom = spacing.sm)
+                .padding(start = spacing.sm, end = spacing.sm, bottom = spacing.sm),
+            marks = search.marks()
         )
     }
 }
@@ -297,62 +290,6 @@ internal fun ViewChoice(
         modifier = modifier,
         fullWidth = fullWidth,
         tagKey = "view"
-    )
-}
-
-/** The document's tree: a value to a row, its strings previewed. */
-@Composable
-internal fun DocumentTree(
-    state: WorkspaceState,
-    layout: WorkspaceLayout,
-    onIntent: (WorkspaceIntent) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val root = state.root ?: return
-    val words = previewWords()
-    val nodes = remember(root, words) { listOf(treeNodeOf(root, words)) }
-    PantrixTreeView(
-        nodes = nodes,
-        expanded = state.expanded,
-        onExpandedChange = { onIntent(WorkspaceIntent.Expand(it)) },
-        modifier = modifier,
-        selection = TreeSelection.Single,
-        selected = setOfNotNull(state.selected?.key),
-        onSelectionChange = { onIntent(WorkspaceIntent.Select(it.firstOrNull())) },
-        style = TreeViewStyle(
-            rowHeight = when (layout) {
-                WorkspaceLayout.Wide -> 32.dp
-                WorkspaceLayout.Tablet -> 36.dp
-                WorkspaceLayout.Phone -> 44.dp
-            },
-            indent = PantrixTheme.spacing.lg
-        ),
-        tagKey = "document"
-    )
-}
-
-/**
- * A node as the tree draws it: an object or an array by its name, with how much it holds at the row's end; any other
- * value as `name: value`, with what it looks like it holds at the row's end.
- */
-private fun treeNodeOf(node: ValueNode, words: PreviewWords): TreeNode = if (node.kind.isContainer) {
-    TreeNode(
-        key = node.key,
-        label = node.name,
-        children = node.children.map { treeNodeOf(it, words) },
-        trailing = listOfNotNull(node.text, node.anchor?.let { "&$it" }).joinToString(" · "),
-        tagKey = tagOf(node)
-    )
-} else {
-    TreeNode(
-        key = node.key,
-        label = if (node.path.isEmpty()) node.text else "${node.name}: ${node.text}",
-        trailing = listOfNotNull(
-            node.anchor?.let { "&$it" },
-            node.target?.let { "→ ${jsonPath(it.path)}" },
-            node.preview?.let(words::of)
-        ).joinToString(" · ").ifEmpty { null },
-        tagKey = tagOf(node)
     )
 }
 

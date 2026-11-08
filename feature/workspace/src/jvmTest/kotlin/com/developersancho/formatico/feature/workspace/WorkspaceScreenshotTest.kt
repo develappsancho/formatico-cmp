@@ -57,6 +57,11 @@ class WorkspaceScreenshotTest {
     }
 
     @Test
+    fun documentTree() = DocumentTreeCases().values.forEach { case ->
+        capturePreview("DocumentTree", case, case.value.board) { DocumentTreePreview(case) }
+    }
+
+    @Test
     fun treeSearchBar() = TreeSearchBarCases().values.forEach { case ->
         capturePreview("TreeSearchBar", case, case.value.board) { TreeSearchBarPreview(case) }
     }
