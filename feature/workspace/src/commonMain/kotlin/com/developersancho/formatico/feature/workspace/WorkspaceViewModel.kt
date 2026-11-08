@@ -56,6 +56,8 @@ internal class WorkspaceViewModel(
 
             is WorkspaceIntent.SortTable -> workbench.changeView(documentId) { it.copy(tableSort = intent.sort) }
 
+            is WorkspaceIntent.FilterTable -> workbench.changeView(documentId) { it.copy(tableFilter = intent.filter) }
+
             is WorkspaceIntent.HideColumns -> workbench.changeView(documentId) {
                 it.copy(hiddenColumns = intent.hidden)
             }

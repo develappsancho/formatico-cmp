@@ -113,19 +113,22 @@ class WorkspaceViewModelTest {
     }
 
     @Test
-    fun theTableFollowsTheChoiceAndKeepsItsOrderAndItsColumns() {
+    fun theTableFollowsTheChoiceAndKeepsItsOrderItsColumnsAndItsFilter() {
         val id = workbench.open(null, """{"rows": [{"a": 2, "b": 1}, {"a": 1}]}""", Format.Json)
         val viewModel = viewModel(id)
 
         viewModel.dispatch(WorkspaceIntent.Select("$.rows[1].a"))
         viewModel.dispatch(WorkspaceIntent.SortTable(TableSort("a", descending = true)))
         viewModel.dispatch(WorkspaceIntent.HideColumns(setOf("b")))
+        viewModel.dispatch(WorkspaceIntent.FilterTable("2"))
+        viewModel.dispatch(WorkspaceIntent.ShowPane(DocumentPane.Tree))
 
         val state = viewModel.state.value
         assertEquals("$.rows", state.table?.source?.key)
         assertEquals(TableChoice(row = 1, column = "a"), state.tableChoice)
         assertEquals(TableSort("a", descending = true), state.document?.view?.tableSort)
         assertEquals(setOf("b"), state.document?.view?.hiddenColumns)
+        assertEquals("2", state.document?.view?.tableFilter)
     }
 
     @Test

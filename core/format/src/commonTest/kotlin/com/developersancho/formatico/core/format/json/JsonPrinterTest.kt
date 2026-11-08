@@ -45,7 +45,7 @@ class JsonPrinterTest {
     }
 
     @Test
-    fun commentsStayWithTheValuesTheyAreWrittenAgainst() {
+    fun commentsStayWithTheValuesTheyAreWrittenAgainstAndATrailingCommaStays() {
         val text = """
             // The settings
             {
@@ -61,17 +61,29 @@ class JsonPrinterTest {
             {
               // Leading
               "a": 1, // after a
-              /* inner */
-              "b": 2,
+              "b": /* inner */ 2,
               "c": [
                 /* first */
                 3,
                 4 /* after 4 */
-              ]
+              ],
               // left over
             } // the end
         """.trimIndent()
         assertEquals(expected, format(text, JsonDialect.Jsonc))
+    }
+
+    @Test
+    fun aLineCommentBetweenAKeyAndItsValueGoesBeforeTheMember() {
+        assertEquals("{\n  // why\n  \"a\": 1\n}", format("{\"a\": // why\n 1}", JsonDialect.Jsonc))
+    }
+
+    @Test
+    fun aTrailingCommaStaysOnTheLastEntryWhenTheKeysAreSorted() {
+        assertEquals(
+            "[\n  {\n    b: 1,\n    c: 2,\n  },\n]",
+            format("[{c: 2, b: 1,},]", JsonDialect.Json5, sortKeys = true)
+        )
     }
 
     @Test
@@ -109,7 +121,7 @@ class JsonPrinterTest {
     @Test
     fun json5KeepsItsOwnSpelling() {
         val formatted = format("{unquoted: 'single', hex: 0x1F, half: .5,}", JsonDialect.Json5)
-        assertEquals("{\n  unquoted: 'single',\n  hex: 0x1F,\n  half: .5\n}", formatted)
+        assertEquals("{\n  unquoted: 'single',\n  hex: 0x1F,\n  half: .5,\n}", formatted)
     }
 
     @Test

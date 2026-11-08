@@ -1,5 +1,10 @@
 package com.developersancho.formatico
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -115,11 +120,12 @@ internal fun AppTopBar(
             horizontalArrangement = Arrangement.spacedBy(spacing.xs)
         ) {
             when {
-                phone -> PhoneBar(
+                phone -> AnimatedPhoneBar(
                     workbench = workbench,
                     onSelectTab = onSelectTab,
                     darkTheme = darkTheme,
-                    onToggleTheme = onToggleTheme
+                    onToggleTheme = onToggleTheme,
+                    modifier = Modifier.weight(1f)
                 )
 
                 else -> {
@@ -143,6 +149,39 @@ internal fun AppTopBar(
             }
         }
         PantrixHorizontalDivider()
+    }
+}
+
+/**
+ * A phone's bar, changing as its screen does and over the same time: on iOS the screen slides in, and a bar that
+ * changed at once stood over the screen it had left.
+ */
+@Composable
+private fun AnimatedPhoneBar(
+    workbench: WorkbenchState,
+    onSelectTab: (Long?) -> Unit,
+    darkTheme: Boolean,
+    onToggleTheme: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val motion = PantrixTheme.motion
+    AnimatedContent(
+        targetState = workbench,
+        modifier = modifier,
+        transitionSpec = {
+            val time = tween<Float>(motion.duration(motion.slow))
+            fadeIn(time) togetherWith fadeOut(time)
+        },
+        contentKey = { it.selectedId to it.documents.isEmpty() },
+        label = "phone bar"
+    ) { shown ->
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(PantrixTheme.spacing.xs)
+        ) {
+            PhoneBar(workbench = shown, onSelectTab = onSelectTab, darkTheme = darkTheme, onToggleTheme = onToggleTheme)
+        }
     }
 }
 

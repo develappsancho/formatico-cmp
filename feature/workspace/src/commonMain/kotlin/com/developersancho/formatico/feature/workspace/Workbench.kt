@@ -50,13 +50,15 @@ data class OpenDocument(
  * @property pane what is shown of it: its tree or its table beside its text, and on a phone one of the three.
  * @property tableSort the column the table's rows are ordered by, or null for their own order.
  * @property hiddenColumns the names of the table's columns that are not shown.
+ * @property tableFilter what the table's rows are filtered by, kept when the table is left for the tree.
  */
 data class DocumentView(
     val expanded: Set<String>? = null,
     val selected: String? = null,
     val pane: DocumentPane = DocumentPane.Tree,
     val tableSort: TableSort? = null,
-    val hiddenColumns: Set<String> = emptySet()
+    val hiddenColumns: Set<String> = emptySet(),
+    val tableFilter: String = ""
 )
 
 /** What is shown of a document: on a phone one at a time, elsewhere the tree or the table beside the text. */
@@ -89,8 +91,11 @@ enum class DocumentEdit {
 
 /** What came of a [DocumentEdit]. */
 sealed interface EditResult {
-    /** The text changed; [previous] is the document as it was, to undo it with [Workbench.restore]. */
-    data class Changed(val previous: OpenDocument) : EditResult
+    /**
+     * The text changed; [previous] is the document as it was, to undo it with [Workbench.restore]. [commentsRemoved]
+     * says how many of its comments went with the change, as Minify takes them all.
+     */
+    data class Changed(val previous: OpenDocument, val commentsRemoved: Int = 0) : EditResult
 
     /** The text was as the edit would make it already. */
     data object Unchanged : EditResult
@@ -218,17 +223,17 @@ class Workbench(private val worker: CoroutineDispatcher = Dispatchers.Default) {
     suspend fun edit(id: Long, edit: DocumentEdit): EditResult {
         val document = mutableState.value.documents.firstOrNull { it.id == id } ?: return EditResult.NotPossible
         return when (val outcome = withContext(worker) { edited(document, edit) }) {
-            is Edited.Text -> keep(document, outcome.text)
+            is Edited.Text -> keep(document, outcome.text, outcome.commentsRemoved)
             Edited.NotPossible -> EditResult.NotPossible
             Edited.AliasBeforeAnchor -> EditResult.AliasBeforeAnchor
         }
     }
 
     /** Gives [document] the [text] an edit made of it, where it is another. */
-    private fun keep(document: OpenDocument, text: String): EditResult {
+    private fun keep(document: OpenDocument, text: String, commentsRemoved: Int): EditResult {
         if (text == document.text) return EditResult.Unchanged
         change(document.id) { it.copy(text = text, edited = true) }
-        return EditResult.Changed(previous = document)
+        return EditResult.Changed(previous = document, commentsRemoved = commentsRemoved)
     }
 
     /** Gives the document [previous]'s text back, as an edit's undo does, where it is still open. */
@@ -245,7 +250,7 @@ class Workbench(private val worker: CoroutineDispatcher = Dispatchers.Default) {
 
 /** What an edit makes of a document's text, before it is kept. */
 private sealed interface Edited {
-    class Text(val text: String) : Edited
+    class Text(val text: String, val commentsRemoved: Int = 0) : Edited
 
     data object NotPossible : Edited
 
@@ -266,13 +271,11 @@ private fun edited(document: OpenDocument, edit: DocumentEdit): Edited {
 private fun editedJson(text: String, dialect: JsonDialect, edit: DocumentEdit, indentation: Indentation): Edited {
     val json = JsonDocument.parse(text, dialect)
     if (!json.isValid) return Edited.NotPossible
-    return Edited.Text(
-        when (edit) {
-            DocumentEdit.Format -> json.formatted(indentation)
-            DocumentEdit.Minify -> json.minified()
-            DocumentEdit.SortKeys -> json.formatted(indentation, sortKeys = true)
-        }
-    )
+    return when (edit) {
+        DocumentEdit.Format -> Edited.Text(json.formatted(indentation))
+        DocumentEdit.Minify -> Edited.Text(json.minified(), commentsRemoved = json.comments.size)
+        DocumentEdit.SortKeys -> Edited.Text(json.formatted(indentation, sortKeys = true))
+    }
 }
 
 /** What [edit] makes of a CSV or a TSV [text]: Format alone, which quotes only what needs it. */
@@ -288,7 +291,7 @@ private fun editedYaml(text: String, edit: DocumentEdit, indentation: Indentatio
     return when (edit) {
         DocumentEdit.Format -> Edited.Text(yaml.formatted(indentation))
 
-        DocumentEdit.Minify -> Edited.Text(yaml.minified())
+        DocumentEdit.Minify -> Edited.Text(yaml.minified(), commentsRemoved = yaml.comments.size)
 
         DocumentEdit.SortKeys -> {
             val sorted = yaml.formatted(indentation, sortKeys = true)

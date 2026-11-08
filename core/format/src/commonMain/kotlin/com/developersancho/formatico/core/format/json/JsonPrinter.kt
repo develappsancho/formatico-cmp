@@ -7,10 +7,13 @@ import com.developersancho.formatico.core.format.text.TextLayout
 /**
  * The document written out again, a value to a line and each level indented by [indentation]: its keys in their
  * order, or sorted by name where [sortKeys] says so, its strings and numbers as they are written, and its comments
- * where they stand. A trailing comma is left out.
+ * where they stand. A container that ends with a trailing comma, as JSONC and JSON5 allow, keeps it after its last
+ * entry.
  *
  * A comment stays with the value it is written against: one on the line of a value, after it, follows it; one on a
- * line of its own goes before the value under it. Sorting the keys takes each member's comments with it.
+ * line of its own goes before the value under it. A block comment between a member's key and its value stays there; a
+ * line comment there goes before the member, since it would end the line the value is on. Sorting the keys takes each
+ * member's comments with it.
  *
  * The lines end as the document's first line does, and the text ends with a line break where the document's did.
  *
@@ -85,11 +88,12 @@ private class JsonPrinter(
     private val comments: List<JsonToken> = document.comments
     private val out = StringBuilder(text.length + text.length / 2)
 
-    /** A member or an item, with the comments that go before it and after it. */
+    /** A member or an item, with the comments that go before it, between its key and its value, and after it. */
     private class Entry(
         val member: JsonMember?,
         val value: JsonValue,
         val leading: List<JsonToken>,
+        val inner: List<JsonToken>,
         val trailing: List<JsonToken>
     )
 
@@ -100,7 +104,7 @@ private class JsonPrinter(
         printValue(root, depth = 0)
         val after = commentsIn(root.range.end, text.length)
         after.forEachIndexed { index, comment ->
-            if (index == 0 && onOneLine(root.range.end, comment.start)) out.append(' ') else out.append(newline)
+            if (index == 0 && text.onOneLine(root.range.end, comment.start)) out.append(' ') else out.append(newline)
             out.append(text, comment.start, comment.end)
         }
         if (text.endsWith('\n') || text.endsWith('\r')) out.append(newline)
@@ -133,7 +137,7 @@ private class JsonPrinter(
         val dangling = if (lastEnd == null) {
             commentsIn(inside, closing)
         } else {
-            commentsIn(lastEnd, closing).filterNot { onOneLine(lastEnd, it.start) }
+            commentsIn(lastEnd, closing).filterNot { text.onOneLine(lastEnd, it.start) }
         }
         if (entries.isEmpty() && dangling.isEmpty()) {
             out.append(open).append(close)
@@ -141,23 +145,33 @@ private class JsonPrinter(
         }
         val written = if (sortKeys && container is JsonObject) entries.sortedBy { it.member?.key?.name } else entries
         out.append(open).append(newline)
-        written.forEachIndexed { position, entry ->
-            entry.leading.forEach { comment -> line(depth + 1, comment) }
-            indent(depth + 1)
-            entry.member?.let { out.append(it.key.raw).append(": ") }
-            printValue(entry.value, depth + 1)
-            if (position < written.lastIndex) out.append(',')
-            entry.trailing.forEach { comment -> out.append(' ').append(text, comment.start, comment.end) }
-            out.append(newline)
-        }
+        printEntries(written, depth + 1, trailingComma = lastEnd != null && hasComma(lastEnd, closing))
         dangling.forEach { comment -> line(depth + 1, comment) }
         indent(depth)
         out.append(close)
     }
 
     /**
+     * Writes [entries] at [depth], a line each with their comments, and a comma after the last where [trailingComma]
+     * says so.
+     */
+    private fun printEntries(entries: List<Entry>, depth: Int, trailingComma: Boolean) {
+        entries.forEachIndexed { position, entry ->
+            entry.leading.forEach { comment -> line(depth, comment) }
+            indent(depth)
+            entry.member?.let { out.append(it.key.raw).append(": ") }
+            entry.inner.forEach { comment -> out.append(text, comment.start, comment.end).append(' ') }
+            printValue(entry.value, depth)
+            if (position < entries.lastIndex || trailingComma) out.append(',')
+            entry.trailing.forEach { comment -> out.append(' ').append(text, comment.start, comment.end) }
+            out.append(newline)
+        }
+    }
+
+    /**
      * The entry at [index] of [parts], with its comments: before it, those after the entry before it that do not stand
-     * on that entry's line, and those inside a member between its key and its value; after it, those on its own line.
+     * on that entry's line, and the line comments between a member's key and its value; between them, the block
+     * comments there; after it, those on its own line.
      *
      * @param inside where the container's inside starts, after its opening bracket.
      * @param closing where its closing bracket stands.
@@ -167,13 +181,15 @@ private class JsonPrinter(
         val start = member?.range?.start ?: value.range.start
         val end = value.range.end
         val previousEnd = if (index == 0) inside else parts[index - 1].second.range.end
-        val before = commentsIn(previousEnd, start).filterNot { index > 0 && onOneLine(previousEnd, it.start) }
-        val inner = if (member != null) commentsIn(member.key.range.end, value.range.start) else emptyList()
+        val before = commentsIn(previousEnd, start).filterNot { index > 0 && text.onOneLine(previousEnd, it.start) }
+        val (lineComments, blockComments) =
+            (if (member != null) commentsIn(member.key.range.end, value.range.start) else emptyList())
+                .partition { text.startsWith("//", it.start) }
         val next = parts.getOrNull(index + 1)
         val nextStart =
             next?.let { (nextMember, nextValue) -> nextMember?.range?.start ?: nextValue.range.start } ?: closing
-        val after = commentsIn(end, nextStart).filter { onOneLine(end, it.start) }
-        return Entry(member, value, before + inner, after)
+        val after = commentsIn(end, nextStart).filter { text.onOneLine(end, it.start) }
+        return Entry(member, value, before + lineComments, blockComments, after)
     }
 
     /** The comments that start at [from] or after it and before [until]. */
@@ -194,8 +210,15 @@ private class JsonPrinter(
         return low
     }
 
-    /** Whether no line break stands between [from] and [to]. */
-    private fun onOneLine(from: Int, to: Int): Boolean = (from until to).none { text[it] == '\n' || text[it] == '\r' }
+    /** Whether a comma stands between [from] and [to], outside the comments there. */
+    private fun hasComma(from: Int, to: Int): Boolean {
+        var at = from
+        for (comment in commentsIn(from, to)) {
+            if ((at until comment.start).any { text[it] == ',' }) return true
+            at = comment.end
+        }
+        return (at until to).any { text[it] == ',' }
+    }
 
     private fun indent(depth: Int) {
         repeat(depth) { out.append(indent) }
@@ -207,3 +230,7 @@ private class JsonPrinter(
         out.append(text, comment.start, comment.end).append(newline)
     }
 }
+
+/** Whether no line break stands between [from] and [to]. */
+private fun String.onOneLine(from: Int, to: Int): Boolean =
+    (from until to).none { this[it] == '\n' || this[it] == '\r' }

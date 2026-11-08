@@ -36,7 +36,9 @@ import formatico.feature.workspace.generated.resources.workspace_edit_impossible
 import formatico.feature.workspace.generated.resources.workspace_formatted
 import formatico.feature.workspace.generated.resources.workspace_keys_sorted
 import formatico.feature.workspace.generated.resources.workspace_minified
+import formatico.feature.workspace.generated.resources.workspace_minified_comments
 import formatico.feature.workspace.generated.resources.workspace_more_actions
+import formatico.feature.workspace.generated.resources.workspace_more_actions_sort_compare_save
 import formatico.feature.workspace.generated.resources.workspace_save_failed
 import formatico.feature.workspace.generated.resources.workspace_save_file
 import formatico.feature.workspace.generated.resources.workspace_sort_keys
@@ -46,6 +48,7 @@ import formatico.feature.workspace.generated.resources.workspace_value_copied
 import formatico.feature.workspace.generated.resources.workspace_value_copy_failed
 import formatico.feature.workspace.generated.resources.workspace_value_label
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.getPluralString
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 
@@ -167,8 +170,13 @@ internal fun rememberDocumentCommands(workbench: Workbench): DocumentCommands {
                 scope.launch {
                     when (result) {
                         is EditResult.Changed -> {
+                            val removed = result.commentsRemoved
                             val answer = snackbars?.show(
-                                message = words.edits.done.getValue(edit),
+                                message = if (removed > 0) {
+                                    getPluralString(Res.plurals.workspace_minified_comments, removed, removed)
+                                } else {
+                                    words.edits.done.getValue(edit)
+                                },
                                 actionLabel = words.edits.undo,
                                 tagKey = "edited"
                             )
@@ -253,7 +261,13 @@ internal fun DocumentMenu(
         anchor = {
             PantrixIconButton(
                 imageVector = PantrixIcons.MoreHorizontal,
-                contentDescription = stringResource(Res.string.workspace_more_actions),
+                // What the menu holds, where a tablet has moved its actions there, as Workspace-834 names it.
+                contentDescription = stringResource(
+                    when (items) {
+                        DocumentMenuItems.SortCompareSaveClose -> Res.string.workspace_more_actions_sort_compare_save
+                        else -> Res.string.workspace_more_actions
+                    }
+                ),
                 onClick = { open = true },
                 size = size,
                 tagKey = "more"

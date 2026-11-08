@@ -3,6 +3,9 @@ package com.developersancho.formatico.core.format.yaml
 /** The marker a document starts with: `---`. */
 internal const val DOCUMENT_START = "---"
 
+/** The marker a document ends with, where it says so: `...`. */
+internal const val DOCUMENT_END = "..."
+
 private const val ESCAPE_DIGITS = 4
 private const val HEX_RADIX = 16
 

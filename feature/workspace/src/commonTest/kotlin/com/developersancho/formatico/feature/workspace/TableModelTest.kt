@@ -23,15 +23,29 @@ class TableModelTest {
 
     @Test
     fun aCsvIsAnArrayOfItsRecordsKeyedByTheHeader() {
-        val root = root("code,name,numeric\nAD,\"Andorra, Principality\",020\nAL,Albania,008\n", Format.Csv)!!
+        val root = root(
+            "code,name,numeric,area\nAD,\"Andorra, Principality\",020,468\nAL,Albania,008,0.5\nAX,Åland,248,1580\n",
+            Format.Csv
+        )!!
 
-        assertEquals("[2]", root.text)
+        assertEquals("[3]", root.text)
         val first = root.children.first()
-        assertEquals(listOf("code", "name", "numeric"), first.children.map { it.name })
+        assertEquals(listOf("code", "name", "numeric", "area"), first.children.map { it.name })
         assertEquals("Andorra, Principality", first.children[1].value)
-        assertEquals(ValueKind.Number, first.children[2].kind)
-        assertEquals("020", first.children[2].text)
         assertEquals("$[0].name", first.children[1].key)
+        // A column with a leading zero in it is a column of codes, 248 and all; a column of numbers is one.
+        assertEquals(ValueKind.String, first.children[2].kind)
+        assertEquals("020", first.children[2].value)
+        assertEquals(ValueKind.String, root.children[2].children[2].kind)
+        assertEquals(ValueKind.Number, first.children[3].kind)
+        assertEquals(ValueKind.Number, root.children[1].children[3].kind)
+    }
+
+    @Test
+    fun aPhonesRecordIsHeadedByTheColumnThatNamesIt() {
+        assertEquals(listOf("name", "code", "numeric"), recordOrder(listOf("code", "name", "numeric")))
+        assertEquals(listOf("Title", "id"), recordOrder(listOf("id", "Title")))
+        assertEquals(listOf("id", "customer", "total"), recordOrder(listOf("id", "customer", "total")))
     }
 
     @Test

@@ -54,6 +54,17 @@ class WorkbenchTest {
     }
 
     @Test
+    fun minifyingSaysHowManyCommentsWentWithIt() = runTest {
+        val jsonc = workbench.open("settings.jsonc", "{\n  // the size\n  \"a\": 1 /* px */\n}\n", Format.Jsonc)
+        val yaml = workbench.open("values.yaml", "a: 1 # one\n", Format.Yaml)
+        val plain = workbench.open("order.json", "{\n  \"a\": 1\n}\n", Format.Json)
+
+        assertEquals(2, assertIs<EditResult.Changed>(workbench.edit(jsonc, DocumentEdit.Minify)).commentsRemoved)
+        assertEquals(1, assertIs<EditResult.Changed>(workbench.edit(yaml, DocumentEdit.Minify)).commentsRemoved)
+        assertEquals(0, assertIs<EditResult.Changed>(workbench.edit(plain, DocumentEdit.Minify)).commentsRemoved)
+    }
+
+    @Test
     fun anEditChangesTheTextAndCanBeUndone() = runTest {
         val id = workbench.open("order.json", """{"b":1,"a":[true]}""", Format.Json)
 

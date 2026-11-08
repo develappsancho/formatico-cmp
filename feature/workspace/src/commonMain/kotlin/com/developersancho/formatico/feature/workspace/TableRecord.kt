@@ -33,13 +33,24 @@ private val RecordSecondWidth = 144.dp
 /** What a record shows for a key its object does not have. */
 private const val MISSING = "—"
 
+/** The names of the columns that name a record, in any case: the one a phone's record is headed by. */
+private val TitleColumns = setOf("name", "title", "label")
+
+/** [columns] in the order a phone's record shows them: the one that names the record first, where there is one. */
+internal fun recordOrder(columns: List<String>): List<String> {
+    val title = columns.firstOrNull { it.lowercase() in TitleColumns } ?: return columns
+    return listOf(title) + columns.filter { it != title }
+}
+
 /**
- * A row as a phone's list shows it: its index, the value under its first column and the one under its second, and
- * under them the other columns as `key: value`, on a line cut where the screen ends. On that line a string is written
- * as the document writes it, with its quotes where it is [asWritten], and a CSV field as its value.
+ * A row as a phone's list shows it: its index, the value under the column that names it (or else its first column)
+ * and the one under the next, and under them the other columns as `key: value`, on a line cut where the screen ends.
+ * On that line a string is written as the document writes it, with its quotes where it is [asWritten], and a CSV
+ * field as its value.
  */
 @Composable
-internal fun TableRecord(row: TableRow, columns: List<String>, chosen: Boolean, asWritten: Boolean) {
+internal fun TableRecord(row: TableRow, shown: List<String>, chosen: Boolean, asWritten: Boolean) {
+    val columns = recordOrder(shown)
     val spacing = PantrixTheme.spacing
     val colors = PantrixTheme.colors
     val code = PantrixTheme.typography.code

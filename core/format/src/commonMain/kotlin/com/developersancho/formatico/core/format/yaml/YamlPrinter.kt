@@ -113,6 +113,32 @@ private class CommentBook(private val text: String, private val ranges: List<Tex
         between(from, starts[index]).filter { index == 0 || !text.onOneLine(ends[index - 1], ranges[it].start) }
     }
 
+    /**
+     * The first of [indices] that a blank line stands under, with those before them, before the next comment or
+     * [until]: the comments at a document's head, which are its own and not its first entry's.
+     */
+    fun header(indices: List<Int>, until: Int): List<Int> {
+        val last = indices.indices.lastOrNull { position ->
+            val next = indices.getOrNull(position + 1)?.let { ranges[it].start } ?: until
+            text.hasBlankLine(ranges[indices[position]].end, next)
+        } ?: return emptyList()
+        return indices.subList(0, last + 1)
+    }
+
+    /** The comment of [indices] that stands after a sequence's dash on the dash's own line, or null for none. */
+    fun afterDash(indices: List<Int>): Int? = indices.firstOrNull { index ->
+        val start = ranges[index].start
+        val lineStart = text.lastIndexOfAny(charArrayOf('\n', '\r'), start - 1) + 1
+        text.substring(lineStart, start).trim() == "-"
+    }
+
+    /** Writes the comment [index] where the line has got to, as the end of that line, and says where it ends. */
+    fun writeInline(index: Int, out: StringBuilder): Int {
+        used[index] = true
+        out.append(text, ranges[index].start, ranges[index].end)
+        return ranges[index].end
+    }
+
     /** Where the first comment of [indices] starts, or null for none. */
     fun firstStart(indices: List<Int>): Int? = indices.firstOrNull()?.let { ranges[it].start }
 
@@ -158,13 +184,22 @@ private class YamlFormatter(
             start.directives.forEach { out.append(it).append(newline) }
             if (index > 0 || start.explicit || start.directives.isNotEmpty()) out.append(DOCUMENT_START).append(newline)
             if (root != null) {
-                // The comments before a block collection's first entry go with that entry, and move with it.
+                val before = comments.between(regionStart, root.start)
                 if (!isBlockCollection(root) || root.anchor != null || root.tag != null) {
-                    comments.write(comments.between(regionStart, root.start), out, columns = 0, newline = newline)
+                    comments.write(before, out, columns = 0, newline = newline)
+                } else {
+                    // The comments before a block collection's first entry go with that entry, and move with it; those
+                    // a blank line stands under are the document's own, and stay at its head.
+                    val header = comments.header(before, until = root.start)
+                    if (header.isNotEmpty()) {
+                        comments.write(header, out, columns = 0, newline = newline)
+                        out.append(newline)
+                    }
                 }
                 root(root, regionStart)
                 regionStart = root.range.end
             }
+            if (start.explicitEnd) out.append(DOCUMENT_END).append(newline)
         }
         comments.write(comments.remaining(), out, columns = 0, newline = newline)
         return out.toString()
@@ -226,13 +261,25 @@ private class YamlFormatter(
         val items = node.items
         val leading = comments.leading(items.map { it.start }, items.map { it.range.end }, regionStart)
         items.forEachIndexed { index, item ->
+            // A comment on the dash's own line stays there, the collection the item is under it.
+            val onDash = if (isBlockCollection(item) && propertiesOf(item).isEmpty()) {
+                comments.afterDash(leading[index])
+            } else {
+                null
+            }
             if (index > 0 || !inlineFirst) {
                 if (index > 0) blankLine(items[index - 1], leading[index], item.start)
-                comments.write(leading[index], out, depth * unit, newline)
+                comments.write(leading[index] - setOfNotNull(onDash), out, depth * unit, newline)
                 out.indent(depth * unit)
             }
             out.append('-')
-            value(item, depth, headerEnd = item.start, afterDash = true)
+            if (onDash != null) {
+                out.append(' ')
+                val commentEnd = comments.writeInline(onDash, out)
+                value(item, depth, headerEnd = commentEnd, afterDash = false)
+            } else {
+                value(item, depth, headerEnd = item.start, afterDash = true)
+            }
         }
     }
 

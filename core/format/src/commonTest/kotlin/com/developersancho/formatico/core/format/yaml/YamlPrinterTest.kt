@@ -136,7 +136,7 @@ class YamlPrinterTest {
     fun everyDocumentAndItsMarkersAreKept() {
         val text = "%YAML 1.2\n---\na: 1\n---\n- 2\n...\n"
 
-        assertEquals("%YAML 1.2\n---\na: 1\n---\n- 2\n", format(text))
+        assertEquals("%YAML 1.2\n---\na: 1\n---\n- 2\n...\n", format(text))
     }
 
     @Test
@@ -222,5 +222,34 @@ class YamlPrinterTest {
             val minified = YamlDocument.parse(text).minified()
             assertEquals(valuesOf(text), valuesOf(minified), "Minify of <$text> gave <$minified>")
         }
+    }
+
+    @Test
+    fun theCommentsAtTheHeadOfADocumentStayThereWhenTheKeysAreSorted() {
+        val text = "# Settings of the web service\n\n# how many\nzebra: 1\napple: 2\n"
+
+        val sorted = YamlDocument.parse(text).formatted(sortKeys = true)
+
+        assertEquals("# Settings of the web service\n\napple: 2\n# how many\nzebra: 1\n", sorted)
+    }
+
+    @Test
+    fun aCommentAfterADashStaysOnTheDashsLine() {
+        val text = "items:\n  - # the first\n    a: 1 # one\n    b: 2\n  - c: 3\n"
+
+        val formatted = YamlDocument.parse(text).formatted()
+
+        assertEquals("items:\n  - # the first\n    a: 1 # one\n    b: 2\n  - c: 3\n", formatted)
+        assertEquals(valuesOf(text), valuesOf(formatted))
+    }
+
+    @Test
+    fun aDocumentThatEndsWithItsMarkerKeepsIt() {
+        val text = "---\na: 1\n...\n---\nb: 2\n"
+
+        val formatted = YamlDocument.parse(text).formatted()
+
+        assertEquals("---\na: 1\n...\n---\nb: 2\n", formatted)
+        assertEquals(listOf(true, false), YamlDocument.parse(text).starts.map { it.explicitEnd })
     }
 }

@@ -12,6 +12,7 @@
     <string name="workspace_copy_document">Belgeyi kopyala</string>
     <string name="workspace_save_file">Dosya olarak kaydet</string>
     <string name="workspace_more_actions">Diğer işlemler</string>
+    <string name="workspace_more_actions_sort_compare_save">Diğer işlemler: anahtarları sırala, karşılaştır, dosya olarak kaydet</string>
     <string name="workspace_close_document">Belgeyi kapat</string>
 
     <string name="workspace_view_text">Metin</string>
@@ -53,6 +54,10 @@
 
     <string name="workspace_formatted">Biçimlendirildi</string>
     <string name="workspace_minified">Küçültüldü</string>
+    <plurals name="workspace_minified_comments">
+        <item quantity="one">Küçültüldü, yorumu silindi</item>
+        <item quantity="other">Küçültüldü, %1$d yorumu silindi</item>
+    </plurals>
     <string name="workspace_keys_sorted">Anahtarlar sıralandı</string>
     <string name="workspace_undo">Geri al</string>
     <string name="workspace_already_formatted">Zaten biçimli</string>

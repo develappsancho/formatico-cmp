@@ -133,6 +133,11 @@ private class YamlReader(private val text: String) {
             is DocumentEndEvent -> {
                 documents += root
                 inDocument = false
+                if (event.isExplicit &&
+                    starts.isNotEmpty()
+                ) {
+                    starts[starts.lastIndex] = starts.last().copy(explicitEnd = true)
+                }
                 lastDocumentEnd = event.endMark?.let(offsets::of) ?: lastDocumentEnd
             }
 

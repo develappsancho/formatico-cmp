@@ -63,6 +63,9 @@ internal sealed interface WorkspaceIntent {
     /** Hide the table's columns named in [hidden], and show the others. */
     data class HideColumns(val hidden: Set<String>) : WorkspaceIntent
 
+    /** Filter the table's rows by [filter], or show them all where it is empty. */
+    data class FilterTable(val filter: String) : WorkspaceIntent
+
     /** Close the document. */
     data object Close : WorkspaceIntent
 }

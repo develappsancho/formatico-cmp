@@ -16,10 +16,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -62,6 +64,7 @@ import formatico.feature.workspace.generated.resources.workspace_save_csv
 import formatico.feature.workspace.generated.resources.workspace_separated
 import formatico.feature.workspace.generated.resources.workspace_table_columns
 import formatico.feature.workspace.generated.resources.workspace_value_column
+import kotlinx.coroutines.flow.drop
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -93,9 +96,13 @@ internal fun TablePane(
 ) {
     val document = state.document ?: return
     key(document.id) {
-        val filter = rememberTextFieldState()
-        val table = state.table
         val view = document.view
+        // The field holds what is typed; the document's view keeps it for when the table is come back to.
+        val filter = rememberTextFieldState(initialText = view.tableFilter)
+        LaunchedEffect(filter) {
+            snapshotFlow { filter.text.toString() }.drop(1).collect { onIntent(WorkspaceIntent.FilterTable(it)) }
+        }
+        val table = state.table
         val visible = table?.columns?.filterNot { it in view.hiddenColumns }.orEmpty()
         val query = filter.text.toString()
         val shown = remember(table, visible, query, view.tableSort) {

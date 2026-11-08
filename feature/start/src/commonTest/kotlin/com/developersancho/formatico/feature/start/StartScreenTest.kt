@@ -16,6 +16,8 @@ import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.format.Format
 import com.pantrixui.foundation.adaptive.PantrixWindow
 import com.pantrixui.foundation.diagnostics.PantrixFindings
+import com.pantrixui.foundation.platform.PlatformType
+import com.pantrixui.foundation.platform.currentPlatformType
 import com.pantrixui.testing.PantrixTestTheme
 import com.pantrixui.testing.TestClock
 import com.pantrixui.testing.assertNoFindings
@@ -41,20 +43,22 @@ class StartScreenTest {
      * Waits for [text] to be shown once, letting the platform run meanwhile: in a browser the screen's words are
      * fetched after its first frame, and the fetch ends only while the page's event loop runs, which `waitUntil` holds.
      *
-     * Where the screen has had to wait for its words, what the diagnostics found on it meanwhile is [forgetting]'s to
-     * forget: a row is nameless until its words come (PANTRIX_FINDINGS: "MissingName, kelimeler yüklenirken").
+     * In a browser a row or a button has no name until its words come, and the diagnostics say so a frame later: what
+     * they found until then is [forgetting]'s to forget (PANTRIX_FINDINGS: "MissingName, kelimeler yüklenirken").
+     * Elsewhere the words are there from the first frame, and every finding is kept.
      */
     private suspend fun ComposeUiTest.awaitText(text: String, forgetting: PantrixFindings? = null) {
         val waited = TimeSource.Monotonic.markNow()
-        var shown = onAllNodes(hasText(text)).fetchSemanticsNodes().size == 1
-        if (shown) return
-        while (!shown) {
+        while (onAllNodes(hasText(text)).fetchSemanticsNodes().size != 1) {
             check(waited.elapsedNow() < 10.seconds) { "\"$text\" was not shown in 10 seconds" }
             withContext(Dispatchers.Default) { delay(20.milliseconds) }
             awaitIdle()
-            shown = onAllNodes(hasText(text)).fetchSemanticsNodes().size == 1
         }
-        forgetting?.clear()
+        if (forgetting != null && currentPlatformType() == PlatformType.Web) {
+            withContext(Dispatchers.Default) { delay(100.milliseconds) }
+            awaitIdle()
+            forgetting.clear()
+        }
     }
 
     @Test

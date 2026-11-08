@@ -12,6 +12,7 @@
     <string name="workspace_copy_document">Copy the document</string>
     <string name="workspace_save_file">Save as a file</string>
     <string name="workspace_more_actions">More actions</string>
+    <string name="workspace_more_actions_sort_compare_save">More actions: sort keys, compare, save as a file</string>
     <string name="workspace_close_document">Close the document</string>
 
     <string name="workspace_view_text">Text</string>
@@ -53,6 +54,10 @@
 
     <string name="workspace_formatted">Formatted</string>
     <string name="workspace_minified">Minified</string>
+    <plurals name="workspace_minified_comments">
+        <item quantity="one">Minified, and its comment removed</item>
+        <item quantity="other">Minified, and its %1$d comments removed</item>
+    </plurals>
     <string name="workspace_keys_sorted">Keys sorted</string>
     <string name="workspace_undo">Undo</string>
     <string name="workspace_already_formatted">It is formatted already</string>

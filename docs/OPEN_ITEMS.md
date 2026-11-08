@@ -103,6 +103,10 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
 *   [x] **Belge sekmelerinin altında panoda olmayan bir çizgi (2026-11-03).**
     *   Ne: Geniş pencerede üst çubuğun sekmelerinin altında, "+" düğmesine kadar bir çizgi var; çubuğun kendi alt kenarıyla iki çizgi oluyor. Panolarda yalnızca seçili sekmenin çizgisi var. Çizgi `PantrixTabs`'ın; `TabsStyle`'da onu kaldıran bir alan yok, `TabsColors.divider` onun rengi. Masaüstünün ekran görüntüsünde görüldü (`Workspace-1440.png`).
     *   Durum: kapandı (2026-11-03). Üst çubuk `TabsColors(divider = Color.Transparent)` veriyor; ekran görüntüleri yeniden yazıldı. Bkz. `PANTRIX_FINDINGS.md`.
+*   [ ] **Panoların bölge adları Compose'da karşılıksız (2026-11-04).**
+    *   Ne: Panolar bölgelere ad veriyor: ağaç "Document tree", telefonda tablonun sıralama düğmeleri "Sort by", kayıtların listesi "$.orders, 248 records". HTML'de bu bir `aria-label`; Compose'da bir bölgeye ad verecek bir anlam (landmark) yok, `PantrixTreeView` de bir ad almıyor; Pantrix'in belgeleri bunun yolunu söylemiyor.
+    *   Öneri: ekran okuyucuyla Android'de ve iOS'ta denemek; gerekirse bölümün başlığını bir başlık (`TextRole.Heading`) yapmak.
+    *   Durum: açık. Tabletin More düğmesi panodaki gibi içindekileri söylüyor (2026-11-04): "More actions: sort keys, compare, save as a file".
 *   [ ] **Metin bölmesi editörü bekliyor (2026-11-03).**
     *   Ne: Sahibinin kararıyla (2026-11-03) metin bölmesi `PantrixCodeEditor` bir sürümde gelene kadar boş: "Text editing is on its way". Metin ile ağacın seçimi birlikte yürümüyor; durum çubuğunda "Ln, Col" yok; telefondaki "Show in text" basılmıyor. Belge yalnızca ağaçta okunuyor, Format, Minify, Sort keys, Copy ve Save as a file metnin tamamında çalışıyor.
     *   Öneri: Pantrix'in editörü yayımlanınca metin bölmesi, seçimin iki yönlü bağı ve imlecin satırı ile sütunu.
@@ -114,7 +118,7 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
 *   [ ] **Geri alma tek adım ve yalnızca bildirimden (2026-11-03).**
     *   Ne: Format, Minify ve Sort keys bir "Undo" bildirimi gösteriyor; bildirim kapanınca önceki metin gidiyor. Minify yorumları siliyor: bildirim kapandıktan sonra JSONC'nin ve YAML'ın yorumları geri gelmez. Telefonda eylemli bildirim, kapatılana kadar alttaki araç çubuğunun üstünde duruyor (Pantrix'in kuralı: eylemli bildirim kendiliğinden kapanmaz).
     *   Öneri: editörle birlikte belge başına bir geri alma geçmişi (`⌘Z`); o zamana kadar yorumu olan bir belgeyi küçültmeden önce uyarmak ya da yorumlar silinecekse bildirimde söylemek.
-    *   Durum: açık.
+    *   Durum: açık. Minify artık sildiği yorumları söylüyor (2026-11-04): "Minified, and its 2 comments removed", Undo ile. Belge başına geri alma geçmişi editörle (Faz 5).
 *   [x] **Açık belgeler uygulama kapanınca gidiyor (2026-11-03).**
     *   Ne: `Workbench` belgeleri bellekte tutuyor; uygulama kapanınca sekmeler de içerikleri de gidiyor. Android süreci öldürülürse geri yığını `Workspace(id)`'yi geri getiriyor, `Workbench` boş olduğu için Start'a dönülüyor.
     *   Öneri: kalıcı geçmişle aynı depo: açık sekmelerin listesi ve içerikleri cihazda.
@@ -139,10 +143,10 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Ne: Recent'in ve açık sekmelerin listesi KSafe'te şifreli, metinler ise uygulamanın klasöründe (web'de IndexedDB'de) düz metin. Yapıştırılan bir belge bir anahtar ya da parola taşıyabilir.
     *   Öneri: sahibinin kararı: metinleri de şifrelemek (KSafe'in anahtarıyla) ya da Settings'e "geçmişi tutma" seçeneği.
     *   Durum: açık.
-*   [ ] **Biçimlendirme sondaki virgülü siliyor, anahtarla değer arasındaki yorumu öne alıyor (2026-11-03).**
+*   [x] **Biçimlendirme sondaki virgülü siliyor, anahtarla değer arasındaki yorumu öne alıyor (2026-11-03).**
     *   Ne: `JsonDocument.formatted` JSONC ve JSON5'te sondaki virgülü yazmıyor; bir üyenin anahtarıyla değeri arasındaki yorum (`"b": /* not */ 2`) üyenin önüne kendi satırına geçiyor. İkisi de belgeyi geçerli bırakıyor, ama yazanın biçimi değil.
     *   Öneri: Settings'e "sondaki virgülü koru" seçeneği; ya da JSON5'te varsayılan olarak korumak.
-    *   Durum: açık.
+    *   Durum: kapandı (2026-11-04). Format, belgede sondaki virgül olan bir kabın son girdisinden sonra onu koruyor (JSONC, JSON5), anahtarlar sıralanınca da; bir üyenin anahtarıyla değeri arasındaki blok yorumu yerinde kalıyor. Satır yorumu orada kalsa değeri satırdan atacağı için üyenin önüne geçiyor. Settings'e seçenek gerekmedi.
 *   [ ] **Değer önizlemesi yalnızca sözcük (2026-11-03).**
     *   Ne: Panolarda ağacın satırı bir renk örneği, bir bağlantı simgesi ve bir küçük resim gösteriyor; `PantrixTreeView` satırın sonuna yalnızca metin aldığı için Formatico "Colour", "Link", "Picture" yazıyor. Tarih, okuyucunun dilinde UTC olarak yazılıyor. Bkz. `PANTRIX_FINDINGS.md`.
     *   Durum: açık.
@@ -160,7 +164,7 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
 *   [ ] **YAML yazıcısının yorum ve biçim kuralları (2026-11-03).**
     *   Ne: Bir yorum, satırın sonundaysa o satırın sonunda, kendi satırındaysa altındaki girdinin önünde kalıyor. Bunun sonucunda bir dizinin tirelerinden sonra gelen yorum (`- # not`) kendi satırına geçiyor; Sort keys'te dosyanın en üstündeki yorum ilk anahtarla birlikte taşınıyor. Tek satırlık bir akış koleksiyonu (`[a, b]`, `{a: 1}`) olduğu gibi kalıyor, blok biçimine açılmıyor; birkaç satıra yayılmış olanı tek satıra iniyor (içinde yorum varsa olduğu gibi kalıyor). Birkaç satıra yayılmış düz ya da tırnaklı bir skaler tek satıra iniyor. `...` belge sonu işareti yazılmıyor. Dört boşlukla girintilenen bir belgede dizinin öğeleri `-   a: 1` biçiminde, tireden sonra üç boşlukla yazılıyor.
     *   Öneri: Settings'e "akış koleksiyonlarını blok biçimine aç" seçeneği; diğerleri için kullanıcıların ne beklediğine bakmak.
-    *   Durum: açık.
+    *   Durum: açık. Düzeltilenler (2026-11-04): tireden sonraki yorum tirenin satırında kalıyor; altında boş satır olan baştaki yorumlar belgenin, Sort keys'te başta kalıyor; `...` yazılıyor. Kalanlar sahibinin kararını ya da Settings'i bekliyor (Faz 12): akış koleksiyonlarının blok biçimine açılması, birkaç satıra yayılan skalerin tek satıra inmesi, dört boşlukla girintide `-   a: 1`.
 *   [ ] **Sıralama bir alias'ı anchor'ının önüne koyacaksa yapılmıyor (2026-11-03).**
     *   Ne: YAML'da alias'ın anchor'ından sonra gelmesi gerekiyor. Sort keys sonucu okuyup bunu bulursa belgeyi değiştirmiyor ve "sıralamak bir alias'ı anchor'ının önüne koyardı" diyor.
     *   Öneri: sıralamadan sonra anchor'ı ilk geçtiği yere, alias'ı sonrakine taşımak (değer aynı kalır).
@@ -168,34 +172,34 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
 *   [ ] **YAML'da yalnızca ilk sözdizimi hatası bulunuyor (2026-11-03).**
     *   Ne: `snakeyaml-engine-kmp` ilk sözdizimi hatasında duruyor; Formatico o hatayı, ondan önce okunanı ve yinelenen anahtarlar ile anchor'ı olmayan alias'ları gösteriyor. Hatanın kütüphanedeki İngilizce açıklaması saklanmıyor (`ProblemCode.YamlSyntax`): problem listesi yazılınca neyin yanlış olduğunu söyleyecek bir yol gerekecek.
     *   Öneri: Invalid ekranıyla birlikte kütüphanenin sorun türlerini (`ScannerException`, `ParserException`) kendi kodlarımıza eşlemek.
-    *   Durum: açık.
+    *   Durum: açık. `snakeyaml-engine-kmp` ilk hatada duruyor; YAML'ı onun okuması sahibinin kararı. Hatanın türünü kendi kodlarımıza eşlemek, problem listesiyle birlikte Faz 6'da (Invalid).
 *   [ ] **YAML'ın birleştirme anahtarı ve YAML 1.1 değerleri (2026-11-03).**
     *   Ne: YAML 1.2'nin çekirdek şemasıyla okunuyor: `<<: *defaults` birleştirilmiyor, ağaçta `<<` adlı bir anahtar ve bir alias olarak duruyor; `yes`, `no`, `on`, `off` mantıksal değil metin. Kubernetes gibi YAML 1.1 alışkanlığıyla yazılmış belgelerde bu şaşırtabilir.
     *   Öneri: Settings'e "YAML 1.1" seçeneği ya da ağaçta birleştirilmiş anahtarları gösteren bir görünüm.
-    *   Durum: açık.
+    *   Durum: açık. Bir seçenek olarak Settings'le (Faz 12); sahibinin kararı.
 *   [ ] **Ağaç seçilen satıra kaydırılamıyor (2026-11-03).**
     *   Ne: "Go to the anchor" ve izin adımları bir değeri seçiyor, üstündeki dalları açıyor; ama satır ekranın dışındaysa ağaç ona kaymıyor. Bkz. `PANTRIX_FINDINGS.md`.
-    *   Durum: açık.
+    *   Durum: açık, Pantrix'i bekliyor: "TreeView satırının sonunda yalnızca bir metin var…" bulgusu `tıkıyor` (2026-11-04).
 *   [ ] **CSV'de Format yalnızca tırnakları ve satır sonlarını düzeltiyor (2026-11-03).**
     *   Ne: `CsvDocument.formatted` her alanı yalnızca gerektiğinde tırnaklıyor, belgenin ayırıcısını ve satır sonunu koruyor, sona bir satır sonu koyuyor, boş satırları atıyor. Sütunları hizalamıyor. Minify ve Sort keys CSV ile TSV'de kapalı (panodaki gibi); kapalı düğmeler nedenini söylemiyor.
     *   Öneri: Settings'e ya da More menüsüne "ayırıcıyı değiştir" (CSV ↔ TSV dönüşümü Convert'le gelecek); hizalama istenirse ayrı bir eylem.
-    *   Durum: açık.
+    *   Durum: açık. Kapalı Minify ve Sort keys nedenini söylemiyor; panolar da söylemiyor, kapalı bir düğmenin ipucu Pantrix'te sınanmadı. Ayırıcı değiştirme Convert'le (Faz 10).
 *   [ ] **CSV'nin ilk satırı her zaman başlık; sayıya benzeyen alan sayı (2026-11-03).**
     *   Ne: İlk kayıt sütunların adları sayılıyor; başlıksız bir CSV'nin ilk satırı tabloda başlık olur. Bir alan sayıya benziyorsa (`020`, `1e3`) ağaçta ve tabloda sayı: sağa yaslanıyor, sayı olarak sıralanıyor ve özetleniyor (countries.csv'nin `numeric` sütunu, en küçük `004` "4" olarak). Yazılışı korunuyor (`020`).
     *   Öneri: "ilk satır başlık" seçeneği; baştaki sıfırı olan bir alanı kod sayıp metin olarak tutmak.
-    *   Durum: açık.
-*   [ ] **Tablonun süzgeci bölmeden çıkınca siliniyor (2026-11-03).**
+    *   Durum: açık. Baştaki sıfırı olan bir alan sütununu kod sütunu yapıyor (2026-11-04): countries.csv'nin `numeric` sütunu `004` ile `248` birlikte metin, sola yaslı, metin gibi sıralanıyor; sayı sütunları sayı. "İlk satır başlık" seçeneği kaldı (Settings ya da tablonun araç çubuğu; önce panoya).
+*   [x] **Tablonun süzgeci bölmeden çıkınca siliniyor (2026-11-03).**
     *   Ne: Sıralama ve gizlenen sütunlar belgenin görünümünde (`DocumentView`) tutuluyor, Tree'ye gidip gelince kalıyor. Süzgecin metni ise bölmenin kendisinde: Tree'ye geçince, başka bir belgeye geçince ya da uygulama yeniden başlayınca boşalıyor. Sürüklenen sütun genişlikleri de tutulmuyor.
     *   Öneri: süzgeci de `DocumentView`'a almak; genişlikleri `DataTableState`'ten okuyup saklamak.
-    *   Durum: açık.
-*   [ ] **Telefonun kaydı ilk iki sütunu başlık alıyor (2026-11-03).**
+    *   Durum: kapandı (2026-11-04). Süzgecin metni belgenin görünümünde (`DocumentView.tableFilter`): Tree'ye ya da başka bir belgeye gidip gelince kalıyor. Uygulama yeniden açılınca gelmiyor (bkz. "Bir belgenin ağacının hâli saklanmıyor"); sütun genişlikleri hâlâ tutulmuyor.
+*   [x] **Telefonun kaydı ilk iki sütunu başlık alıyor (2026-11-03).**
     *   Ne: Table-390 panosunda bir kaydın başlığı veriye göre seçilmiş: siparişte `id` ve tutar, ülkede `name` ve kodlar. Kod genel bir kural kullanıyor: ilk görünen sütun kalın başlık, ikincisi sağda, gerisi `key: value` satırında. countries.csv'de başlık bu yüzden "AF", ad satırın içinde.
     *   Öneri: sütun seçicide "kaydın başlığı" seçimi ya da `name`, `title`, `id` gibi adları öne alan bir kural.
-    *   Durum: açık.
+    *   Durum: kapandı (2026-11-04). Kaydın başlığı, varsa kaydı adlandıran sütun (`name`, `title`, `label`), yoksa ilk sütun: countries.csv'de "Afghanistan", yanında kodu; siparişte `id`.
 *   [ ] **iOS'ta belge açılırken üst çubuk içerikten önce değişiyor (2026-11-03).**
     *   Ne: Start'tan bir örnek açılırken bir an üst çubuk belgenin çubuğu ("countries.csv", sayaç, more) olurken içerik hâlâ Start'ı gösteriyor; geçiş bitince Table geliyor. Android'de gözle görülmedi.
     *   Öneri: çubuğu geri yığının o an gösterdiği hedefe göre değil, geçişin vardığı hedefe göre seçmek ya da çubuğu da geçişle birlikte değiştirmek.
-    *   Durum: açık.
+    *   Durum: düzeltildi, gözle doğrulanacak (2026-11-04). Telefonun çubuğu ekranla birlikte, temanın yavaş süresinde (350 ms) bir kararmayla değişiyor; azaltılmış harekette hemen. Simülatörde geçişin ortası gözle görülmedi.
 *   [ ] **Panolar düzen'den alınanlarla genişledi, kod henüz değil (2026-11-03).**
     *   Ne: Sahibinin yaptırdığı ayrı tasarımdan ("düzen") seçilenler tuvale çizildi (sürüm 59).
         *   Workspace (1440, 834, 390): ağaçta arama, eşleşme sayısı ve önceki/sonraki (durum `search`); ağacı 1, 2, 3 ya da bütün düzeylere açma (1440, 834); seçili değerin yolunu JSONPath, JSON Pointer ya da jq olarak kopyalama (durum `path`).

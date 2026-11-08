@@ -97,12 +97,13 @@ class AnchorSlot internal constructor() {
 }
 
 /**
- * How a document of a stream starts.
+ * How a document of a stream starts, and how it ends.
  *
  * @property explicit whether it starts with `---`.
  * @property directives its directives, `%YAML 1.2`, as they are written.
+ * @property explicitEnd whether it ends with `...`.
  */
-data class YamlDocumentStart(val explicit: Boolean, val directives: List<String>)
+data class YamlDocumentStart(val explicit: Boolean, val directives: List<String>, val explicitEnd: Boolean = false)
 
 /** What YAML 1.2's core schema reads a scalar as. */
 enum class YamlScalarKind {
