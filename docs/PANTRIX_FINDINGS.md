@@ -6,6 +6,8 @@ Bir bulgu kapanınca silinmez: işaretlenir, ne zaman ve neyle kapandığı yaz�
 
 Her madde: **ne**, **nerede** (sitenin sayfası ya da aracı), **öneri**, **durum**. "Doğrulanacak" diyen bir madde, derlemede ya da cihazda görülünce kesinleşir.
 
+Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açık, tıkıyor.`): kütüphanede önce o düzeltilir, yerel paket yenilenir. Formatico'da onun için yazılan geçici bir çözüm, yorumunda maddenin başlığını anar ve düzeltme gelince sökülür.
+
 ## 1. Kurulum
 
 *   [ ] **Sihirbazdan gelen proje Material'la başlıyor; Kurulum sayfası bunu anmıyor (2026-11-02).**

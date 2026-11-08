@@ -16,9 +16,27 @@ Formatico is also a test of Pantrix UI: it is built the way a developer who foun
 
 - **Learn Pantrix UI only from what an outsider has:** pantrixui.com (its Installation, Docs and For AI pages, the
   guides and the component pages), the Claude Code plugin and skill the site describes, the MCP server, and the
-  published artifacts (the jars and source jars Gradle downloads).
+  packages (the jars and source jars Gradle resolves): the published ones, and for now the local build below.
+- **Until the release before production, Pantrix's local build stands in for the published one** (the owner's
+  decision, 2026-11-03). Fixes for the findings go into it as they come; the real release is made once, before
+  production.
+  - **Packages:** 0.1.2-SNAPSHOT from `mavenLocal`, which `settings.gradle.kts` reads for `com.pantrixui` SNAPSHOTs
+    only; GitHub Packages stays listed for the release.
+  - **Plugin:** `pantrix-ui@pantrix-ui-local` from `~/.pantrix/marketplace`, installed with `--scope local`, in place
+    of the disabled `pantrix-ui@pantrix-ui`. Its MCP server is the jar in the plugin's folder, run with `java` over
+    stdio, not `pantrixui.com/mcp`; its `get_changelog` says under Unreleased what is new, which the site does not
+    show yet.
+  - **A new local build:** reload the plugins (`/reload-plugins`, or a new session) and sync Gradle again; a SNAPSHOT
+    in `mavenLocal` is read as it is, with no cache in the way.
+  - **A finding that blocks the work** is marked `tıkıyor` in `docs/PANTRIX_FINDINGS.md`; it is fixed first and the
+    local package rebuilt.
+  - **A workaround in Formatico's code** says in a comment which finding it is for, and is removed when the fix
+    lands.
+  - **Before production:** the version goes back to the released one and the `mavenLocal` block is removed;
+    `claude plugin enable pantrix-ui@pantrix-ui --scope local` and `claude plugin marketplace remove pantrix-ui-local`
+    are run; Formatico is built again on every target with the package from GitHub Packages.
 - **Never read the library's or the site's repositories** on this machine (`../pantrix-ui-cmp`, `../pantrix-ui-site`)
-  or anything of theirs that is not published.
+  or anything of theirs that is not published, beyond the local packages and plugin above.
 - **Every gap goes into `docs/PANTRIX_FINDINGS.md`**, as its header says: what was looked for, where on the site, what
   was missing, what is proposed. The library and the site are fixed in another session, with the owner's yes; this
   project never edits them.
