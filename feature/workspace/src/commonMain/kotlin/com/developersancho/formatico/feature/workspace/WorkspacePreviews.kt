@@ -333,6 +333,7 @@ internal class WorkspaceScreenCases :
         "convert" to ScreenCase(OrderToYaml),
         "convert toml" to ScreenCase(OrderToToml),
         "schema" to ScreenCase(OrderAgainstSchema, caret = SchemaCaret),
+        "graph" to ScreenCase(OrderGraph),
         "compare" to ScreenCase(OrdersCompared),
         "compare text" to ScreenCase(OrdersComparedAsText),
         "long lines" to ScreenCase(LongLines),

@@ -250,7 +250,7 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
         sözcükler, boş dizi, kimi öğede olan alan, iki türlü değer, dizi dizisi, yalnızca null, rakamla başlayan ad).
         Üçü geçti. Derleyicisi verilmeyen test atlanıyor. Açık kalan, Faz 17'yi bekletmeden: tablette menünün
         düğmesindeki odak halkası (`OPEN_ITEMS.md`, gerçek bir tablette denenecek).
-*   [ ] **Faz 18: Grafik görünümü.** Panolar kanvasta (2026-11-09, sürüm 117–118): Graph-1440, Graph-834,
+*   [x] **Faz 18: Grafik görünümü.** Panolar kanvasta (2026-11-09, sürüm 117–118): Graph-1440, Graph-834,
     Graph-390. Kararlar, sahibinin onayıyla (2026-11-09: "Evet, onaylıyorum"):
     *   **Yeri:** Graph, Tree ve Table'ın yanında üçüncü görünüm (`DocumentPane.Graph`): masaüstünde metnin yanında,
         tablette metnin altında, telefonda Text, Tree, Table, Graph seçiminde.
@@ -264,19 +264,27 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
         telefonda alttaki kart, Show in text ve Copy the value ile.
     *   **Büyük belgeler:** açılan düzey kartların sayısına göre; öneri, 200'den çok kartta 2. düzeye kadar, gerisi
         kartın okuyla ya da Open to ile açılır.
-    *   **Pantrix:** düğümleri ve bağları çizen, kaydırılıp yakınlaştırılan bir grafik bileşeni yok; bulgu,
-        `tıkıyor` (`PANTRIX_FINDINGS.md`, önerilen bir `PantrixGraph` ile). Kod, bileşen yerel pakete girince
-        yazılır; öteki panoların görünüm seçimine Graph o zaman eklenir.
-    *   **Durum (2026-11-09):** panolar ve kararlar onaylandı; kod, Pantrix'in `PantrixGraph`'ını bekliyor. Bulgu,
-        sahibinin sözüyle ("bunu pantrixui oturumuna pasla orada geliştirme başlasın"), kütüphanenin oturumuna
-        ("Formatico ve PantrixCodeEditor geliştirmesi") iletildi; bileşen yerel pakete girince Faz 18'e dönülür, bu
-        arada Faz 19. Kütüphanenin oturumu `PantrixGraph`'a sahibinin cevaplarıyla başladı (2026-11-09):
-        `GraphNode` ve `GraphLink`, ağaç ve katmanlı yerleşim, kartın boyu verilirse yalnızca görünen kartlar
-        çiziliyor (Formatico'nunki 32 + 24 × satır), kartın içi ve katlama oku Formatico'nun, başlık için
-        `PantrixGraphZoom` (Fit, yeni `PantrixIcons.FitScreen` ile), `rememberGraphState`'te `initialZoom` (telefonun
-        %70'i) ve `bringIntoView(key)` (metinden ve ağaçtan gelen seçim), `expandedToLevel` (Open to). Tasarım
-        sistemi de bir Graph alacak: Graph panoları o zaman işaretleme yerine onu kullanır. Formatico'nun seçimin
-        dışarıdan yönetilmesi, otomasyon etiketleri ve ekran okuyucu üzerine soruları kütüphanenin oturumunda.
+    *   **Pantrix:** düğümleri ve bağları çizen, kaydırılıp yakınlaştırılan bir grafik bileşeni yoktu; bulgu
+        `tıkıyor`du (`PANTRIX_FINDINGS.md`). Kütüphanenin oturumu `PantrixGraph`'ı yerel pakete koydu (2026-11-09),
+        bulgu kapandı. Tasarım sisteminde Graph ve `FitScreen` hâlâ yok: panolarda işaretleme, ayrı ve tıkamayan bir
+        bulgu.
+    *   **Durum (2026-11-09):** Workspace'te Graph görünümü (`DocumentPane.Graph`, `GraphPane.kt`,
+        `DocumentGraph.kt`): masaüstünde metnin yanında soldan sağa (%85), tablette metnin altında (%100), telefonda
+        yukarıdan aşağıya (%70), seçili değerin kartı altta, ağacınkiyle aynı. Kartın başı adı ve sayısı, seçili
+        kartta markanın yumuşak dolgusu ve katlama oku; satırları ağacın renkleri ve önizlemeleriyle (takvim, renk
+        örneği, bağlantı, resim), en çok 50 satır ve "and N more". Seçim metinle ve ağaçla, açık kartlar ağaçla
+        birlikte yürüyor; seçilen değeri taşıyan en yakın kart seçili ve görünür kılınıyor. Açılış: bütün kartlar,
+        200'den çok kartta 2. düzeye kadar; Open to 1, 2, 3, All. Yakınlaşma başlıkta (`PantrixGraphZoom`); bölme
+        600 dp'den darsa ve telefonda grafiğin köşesinde, başlık 520 dp'den darsa "Open to" sözcüğü düşüyor.
+        Görünüm seçiminde Graph her yerde (telefonda sorunlar varken Problems onun yerinde), komut paletinde ve
+        Settings'in kısayollarında "Show the graph" ⌘3 (telefonda yok, tarayıcıda kısayolsuz). Telefonun metninde
+        şema işaretleri de artık çiziliyor (Faz 19'dan kalan bir eksik). Panolar sürüm 149–170: Graph panoları kodun
+        çizdiği gibi (Fit simgesi, telefonun seçili değer kartı, durum çubuğu Ln 14, Col 4), öteki panoların görünüm
+        seçimlerinde Graph, palette ve Settings'te ⌘3. Denetim: Workspace'in testleri JVM'de 319, iOS simülatöründe ve
+        Wasm'da 297, uygulamanınkiler JVM'de 105, hepsi geçti; web'in JavaScript yedeği derleniyor, web testleri (10) geçti; ekran görüntüleri
+        masaüstünde doğrulandı, Graph panoları iOS'ta ve Android'de (Robolectric) kaydedildi; lint, detekt ve görünmeyen
+        karakter denetimi temiz. Açık kalan, Faz 18'i bekletmeden: büyük bir dizinin grafiği kök kartı görünmeden
+        açılıyor (`OPEN_ITEMS.md`).
 *   [x] **Faz 19: JSON Schema.** Panolar kanvasta (2026-11-09, sürüm 119–122): Schema-1440, Schema-834, Schema-390;
     dört durum (`state`): problems, valid, none, unreadable. Kararlar, sahibinin onayıyla (2026-11-09: "Evet, başla";
     JavaScript varyantlarıyla en çok 4,9 MB'lık indirme de: "Evet, indir"):

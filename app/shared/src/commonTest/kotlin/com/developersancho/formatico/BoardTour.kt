@@ -11,6 +11,7 @@ import androidx.compose.ui.test.click
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isSelected
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performScrollTo
@@ -34,7 +35,7 @@ import com.pantrixui.testing.onPantrixNode
 import kotlin.test.assertTrue
 
 /**
- * A board of the canvas, as the app is brought to it: Formatico's twelve screens, the YAML document's workspace, and
+ * A board of the canvas, as the app is brought to it: Formatico's thirteen screens, the YAML document's workspace, and
  * Start's two answers to what is pasted (a text of no format told, a link cut short). [fileName] is its screenshots'.
  */
 internal enum class AppBoard(val fileName: String) {
@@ -47,6 +48,7 @@ internal enum class AppBoard(val fileName: String) {
     Convert("Convert"),
     Types("Types"),
     Schema("Schema"),
+    Graph("Graph"),
     Compare("Compare"),
     Summary("Summary"),
     Palette("Palette"),
@@ -205,6 +207,8 @@ private class Trip(
             AppBoard.Types -> types()
 
             AppBoard.Schema -> schema()
+
+            AppBoard.Graph -> graph()
 
             AppBoard.Compare -> compare()
 
@@ -393,6 +397,14 @@ private class Trip(
         test.awaitNode(schema, "the menu's order.schema.json")
         test.onNode(schema).performTouchInput { click() }
         awaitShown(words.schemaProblems)
+    }
+
+    /** The order's graph, as the Graph boards draw it: shown from the views' choice, its customer's card chosen. */
+    private suspend fun graph() {
+        openSample("order")
+        press("Segment", "graph", scope = "SegmentButton_view")
+        press("Node", "7", scope = "Graph_document")
+        test.awaitNode(hasPantrixTag("Node", "7", "Graph_document") and isSelected(), "the customer's card chosen")
     }
 
     /** Presses the document's "more" menu's row [key]: a phone's in its bar, a wider window's in its toolbar. */

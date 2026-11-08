@@ -95,7 +95,7 @@ internal fun PhoneWorkspace(
             ProblemCard(state, editor, onIntent, Modifier.fillMaxWidth().padding(start = spacing.sm, end = spacing.sm, top = spacing.sm))
         }
         val selected = state.selected
-        if (pane == DocumentPane.Tree && selected != null) {
+        if ((pane == DocumentPane.Tree || pane == DocumentPane.Graph) && selected != null) {
             SelectedValueCard(
                 node = selected,
                 document = document,
@@ -169,8 +169,8 @@ private fun PhonePane(
 ) {
     val spacing = PantrixTheme.spacing
     val document = state.document
-    if (pane == DocumentPane.Text && document != null) {
-        DocumentEditor(
+    when {
+        pane == DocumentPane.Text && document != null -> DocumentEditor(
             document = document,
             editor = editor,
             indentation = state.stats?.layout?.indentation,
@@ -179,26 +179,27 @@ private fun PhonePane(
             onWrite = { onIntent(WorkspaceIntent.Write(it)) },
             onSelect = { onIntent(WorkspaceIntent.Select(it)) },
             modifier = Modifier.fillMaxSize(),
-            problems = state.problems
+            problems = state.problems,
+            schemaIssues = state.schema.issues
         )
-        return
-    }
-    if (pane == DocumentPane.Problems && state.problems.isNotEmpty()) {
-        ProblemsList(state = state, editor = editor, layout = WorkspaceLayout.Phone, onIntent = onIntent)
-        return
-    }
-    if (state.root == null) {
+
+        pane == DocumentPane.Problems && state.problems.isNotEmpty() ->
+            ProblemsList(state = state, editor = editor, layout = WorkspaceLayout.Phone, onIntent = onIntent)
+
         // The wide layouts' pane says why there is no tree; on a phone the same pane is the whole room.
-        TreePaneMessage(state = state, modifier = Modifier.fillMaxSize())
-        return
+        state.root == null -> TreePaneMessage(state = state, modifier = Modifier.fillMaxSize())
+
+        // Graph-390: the cards from the top down, the zoom in their corner.
+        pane == DocumentPane.Graph -> DocumentGraphView(state = state, layout = WorkspaceLayout.Phone, onIntent = onIntent)
+
+        else -> DocumentTree(
+            state = state,
+            layout = WorkspaceLayout.Phone,
+            onIntent = onIntent,
+            modifier = Modifier.fillMaxSize().padding(horizontal = spacing.sm, vertical = spacing.xs),
+            marks = search.marks()
+        )
     }
-    DocumentTree(
-        state = state,
-        layout = WorkspaceLayout.Phone,
-        onIntent = onIntent,
-        modifier = Modifier.fillMaxSize().padding(horizontal = spacing.sm, vertical = spacing.xs),
-        marks = search.marks()
-    )
 }
 
 /** Repair where there is something to repair, Format, Minify, Copy and Save as a file, along the bottom. */

@@ -164,7 +164,7 @@ internal fun WorkspaceScreen(
 }
 
 /**
- * The text and, beside it in a wide window, the tree, the table or the problems; on a tablet the tree or the problems
+ * The text and, beside it in a wide window, the tree, the table, the graph or the problems; on a tablet the tree or the problems
  * under it, past a strip of the page's background whose handle makes the text taller and shorter.
  */
 @Composable
@@ -179,24 +179,13 @@ private fun DocumentPanes(
     val wide = layout == WorkspaceLayout.Wide
     val pane = state.document?.view?.pane
     val table = pane == DocumentPane.Table
-    val problems = pane == DocumentPane.Problems && state.problems.isNotEmpty()
-    val summary = pane == DocumentPane.Summary
-    val query = pane == DocumentPane.Query
     if (wide && pane in MadeBesideTextPanes) {
         MadeBesideText(state, editor, onIntent, commands, modifier)
         return
     }
     // How tall the text stands on a tablet, as its handle leaves it.
     var textHeight by rememberSaveable { mutableFloatStateOf(TextHeight.value) }
-    val second: @Composable () -> Unit = {
-        when {
-            table -> TablePane(state, layout, onIntent, commands)
-            problems -> ProblemsPane(state = state, editor = editor, layout = layout, onIntent = onIntent)
-            summary -> SummaryPane(state = state, layout = layout, onIntent = onIntent, commands = commands)
-            query -> QueryPane(state = state, layout = layout, onIntent = onIntent, commands = commands)
-            else -> TreePane(state = state, layout = layout, onIntent = onIntent, commands = commands)
-        }
-    }
+    val second: @Composable () -> Unit = { PaneBesideText(state, editor, layout, onIntent, commands) }
     if (wide) {
         PantrixTwoPane(
             first = {

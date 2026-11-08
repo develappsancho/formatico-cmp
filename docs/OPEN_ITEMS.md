@@ -543,6 +543,16 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Nerede: `app/shared/screenshots/android/Invalid-834-dark.png`; turu `BoardTour.invalid()`.
     *   Öneri: tur, görüntüden önce durum çubuğunun "Ln 10, Col 5"ini beklesin.
     *   Durum: açık.
+*   [ ] **Büyük bir dizinin grafiğinde kök kart görünmeden açılıyor (2026-11-09).**
+    *   Ne: Faz 18'in Graph görünümü, hiçbir değer seçili değilken grafiği sol üstünden gösteriyor. 150 kişilik bir
+        dizide (`GraphCases`'in "large" durumu) `PantrixGraph` kök kartı çocuklarının ortasına koyuyor: ekranda
+        `people.json[0]`'dan `[5]`'e kartlar ve soldan gelen bağlar var, kökün kartı birkaç bin dp aşağıda. Seçili
+        bir değer olunca grafik ona gidiyor; Fit hepsini gösteriyor ama okunmayacak kadar küçük.
+    *   Nerede: `feature/workspace/screenshots/Graph/large-light-1440.png`; `DocumentGraphView`'ın açılışı.
+    *   Öneri: seçili değer yokken açılışta kökü görünür kılmak (`bringIntoView(root)`), ya da Pantrix'e bir öneri:
+        `GraphStyle`'da ebeveynin çocuklarının ortasına değil ilkinin hizasına konması (ağacın satırları gibi).
+        Hangisinin daha iyi okunduğu sahibinin kararı.
+    *   Durum: açık.
 
 ## Üst çubuk
 

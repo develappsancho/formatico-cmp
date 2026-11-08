@@ -1,6 +1,7 @@
 package com.developersancho.formatico.feature.workspace
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,7 +21,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.developersancho.formatico.feature.workspace.strings.graphStrings
 import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
+import com.pantrixui.components.data.codeeditor.CodeEditorState
 import com.pantrixui.components.elements.button.ButtonVariant
 import com.pantrixui.components.elements.divider.PantrixHorizontalDivider
 import com.pantrixui.components.elements.icon.PantrixIcon
@@ -192,40 +195,47 @@ private fun TreeHeader(
 ) {
     val spacing = PantrixTheme.spacing
     val wide = layout == WorkspaceLayout.Wide
-    Row(
-        modifier = Modifier.fillMaxWidth().height(if (wide) 48.dp else 52.dp).padding(horizontal = spacing.md),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(spacing.sm)
-    ) {
-        ViewChoice(
-            selected = DocumentPane.Tree,
-            withText = false,
-            onSelect = { onIntent(WorkspaceIntent.ShowPane(it)) },
-            problems = state.problems.size
-        )
-        val chosen = state.selected ?: state.root
-        if (!wide && read && chosen != null) {
-            PathTrail(state = state, onIntent = onIntent, modifier = Modifier.padding(start = spacing.sm))
-            CopyPathMenu(node = chosen, layout = layout, onCopy = { commands.copyText(Copied.Path, it) })
+    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+        // A wide window only a little wider than a tablet leaves the tree less room than its board: "Open to" goes first.
+        val roomy = maxWidth >= RoomyHeader
+        Row(
+            modifier = Modifier.fillMaxWidth().height(if (wide) 48.dp else 52.dp).padding(horizontal = spacing.md),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(spacing.sm)
+        ) {
+            ViewChoice(
+                selected = DocumentPane.Tree,
+                withText = false,
+                onSelect = { onIntent(WorkspaceIntent.ShowPane(it)) },
+                problems = state.problems.size
+            )
+            val chosen = state.selected ?: state.root
+            if (!wide && read && chosen != null) {
+                PathTrail(state = state, onIntent = onIntent, modifier = Modifier.padding(start = spacing.sm))
+                CopyPathMenu(node = chosen, layout = layout, onCopy = { commands.copyText(Copied.Path, it) })
+            }
+            Spacer(modifier = Modifier.weight(1f))
+            val root = state.root
+            if (read && root != null) TreeLevels(root = root, layout = layout, onIntent = onIntent, withLabel = roomy)
+            PantrixIconButton(
+                imageVector = PantrixIcons.Search,
+                contentDescription = workspaceStrings.find,
+                onClick = search::toggle,
+                variant = if (search.open) ButtonVariant.Soft else ButtonVariant.Text,
+                size = layout.buttons,
+                enabled = read,
+                tagKey = "find"
+            )
         }
-        Spacer(modifier = Modifier.weight(1f))
-        val root = state.root
-        if (read && root != null) TreeLevels(root = root, layout = layout, onIntent = onIntent)
-        PantrixIconButton(
-            imageVector = PantrixIcons.Search,
-            contentDescription = workspaceStrings.find,
-            onClick = search::toggle,
-            variant = if (search.open) ButtonVariant.Soft else ButtonVariant.Text,
-            size = layout.buttons,
-            enabled = read,
-            tagKey = "find"
-        )
     }
 }
 
+/** How wide a pane's header is for "Open to" to stand in it beside the views, the levels and the pane's own buttons. */
+internal val RoomyHeader = 520.dp
+
 /**
- * The views of a document: its text where [withText] says so, its tree, its table where [withTable] says so, its
- * [problems] where it has any, and its query where [withQuery] says so, while it is shown. It fills its place's width
+ * The views of a document: its text where [withText] says so, its tree, its table where [withTable] says so, its graph,
+ * its [problems] where it has any, and its query where [withQuery] says so, while it is shown. It fills its place's width
  * where [fullWidth] says so, by default where it shows the text: on a row of its own.
  */
 @Composable
@@ -245,6 +255,7 @@ internal fun ViewChoice(
     val tree = SegmentOption<DocumentPane?>(value = DocumentPane.Tree, label = treeLabel, tagKey = "tree")
     val tableLabel = workspaceStrings.viewTable
     val table = SegmentOption<DocumentPane?>(value = DocumentPane.Table, label = tableLabel, tagKey = "table")
+    val graph = SegmentOption<DocumentPane?>(value = DocumentPane.Graph, label = graphStrings.graph, tagKey = "graph")
     // A phone has no room for the count beside its three views.
     val problemsLabel = if (withText) {
         workspaceStrings.viewProblemsShort
@@ -270,6 +281,8 @@ internal fun ViewChoice(
             text.takeIf { withText },
             tree,
             table.takeIf { withTable && !(withText && (summaryShown || withQuery)) },
+            // A phone has no room for the graph beside an invalid document's problems, which take its place.
+            graph.takeIf { !(withText && problems > 0) },
             problemList.takeIf { problems > 0 },
             summary.takeIf { summaryShown },
             query.takeIf { withQuery }
@@ -284,3 +297,29 @@ internal fun ViewChoice(
 
 /** Whether a value of this kind holds others. */
 internal val ValueKind.isContainer: Boolean get() = this == ValueKind.Object || this == ValueKind.Array
+
+/** What stands beside the text in a wide window and under it on a tablet: the pane the document's view shows. */
+@Composable
+internal fun PaneBesideText(
+    state: WorkspaceState,
+    editor: CodeEditorState,
+    layout: WorkspaceLayout,
+    onIntent: (WorkspaceIntent) -> Unit,
+    commands: DocumentCommands
+) {
+    val pane = state.document?.view?.pane
+    when {
+        pane == DocumentPane.Table -> TablePane(state, layout, onIntent, commands)
+
+        pane == DocumentPane.Problems && state.problems.isNotEmpty() ->
+            ProblemsPane(state = state, editor = editor, layout = layout, onIntent = onIntent)
+
+        pane == DocumentPane.Summary -> SummaryPane(state = state, layout = layout, onIntent = onIntent, commands = commands)
+
+        pane == DocumentPane.Query -> QueryPane(state = state, layout = layout, onIntent = onIntent, commands = commands)
+
+        pane == DocumentPane.Graph -> GraphPane(state = state, layout = layout, onIntent = onIntent, commands = commands)
+
+        else -> TreePane(state = state, layout = layout, onIntent = onIntent, commands = commands)
+    }
+}

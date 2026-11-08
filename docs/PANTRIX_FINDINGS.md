@@ -68,6 +68,14 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Nerede: kütüphanenin bileşenleri; tasarım sisteminin `Data` bölümü.
     *   Öneri: kütüphaneye `PantrixCodeEditor`, kendi tasarım önerisiyle (sahibinin kararı, 2026-11-02); tasarım sistemine web karşılığı.
     *   Durum: Compose'da kapandı (0.1.2-SNAPSHOT, `PantrixCodeEditor`, 2026-11-03); tasarım sisteminde (`1793640513-8bb4`, 2026-11-04'te bakıldı) hâlâ `CodeEditor` yok, panolarda editör işaretleme kalıyor. açık, öneri bekliyor. Workspace panolarında (1440, 834) editör yine işaretleme; tasarım sisteminin 2026-11-02'deki sürümünde (`1793640513-8bb4`) de `CodeEditor` yok. Invalid, Table ve Query panoları (2026-11-02) editörden beklenenleri gösteriyor: imlecin satırı ve seçim, bir problemin dalgalı alt çizgisi ve oluktaki işareti, imlecin altında düğmeli bir problem kartı, bir aramanın bütün eşleşmeleri ve şimdiki eşleşme, XML'in kendi renkleri (öğe, öznitelik, değer). Table · 1440 (yeniden çizildi, 2026-11-02) bir şey daha istiyor: tabloda seçili kaydın satırlarını oluktaki bir bantla işaretlemek. Kodda (2026-11-03) Workspace'in metin bölmesi, sahibinin kararıyla, editörü bekleyen boş bir hâl: tuvalde Workspace panolarının "state" ayarında `waiting`.
+*   [ ] **Tasarım sisteminde Graph ve `FitScreen` yok (2026-11-09).**
+    *   Ne: Compose'a `PantrixGraph`, `PantrixGraphZoom` ve `PantrixIcons.FitScreen` geldi (bölüm 3, "Düğümleri ve
+        bağları çizen bir grafik bileşeni yok"). Tuvalin tasarım sistemi kopyasında (2026-11-02) ikisi de yok:
+        Graph panolarında kartlar, bağlar, noktalı zemin ve Fit'in simgesi işaretleme.
+    *   Nerede: kanvasın `project/ds/pantrix/components`'i; Graph-1440, Graph-834 ve Graph-390 panoları.
+    *   Öneri: tasarım sistemine `Graph` (düğümler, bağlar, yön, seçili düğüm, zemin) ve `FitScreen` simgesi; panolar
+        işaretleme yerine onları kullansın. Kütüphanenin oturumu tasarım sisteminin de bir Graph alacağını söyledi.
+    *   Durum: açık. Formatico'yu tıkamıyor.
 *   [ ] **Tasarım sistemindeki DataTable, Compose'dakinin gerisinde (2026-11-02).**
     *   Ne: Compose'un `PantrixDataTable`'ı `onRowClick`, `rowTone` (bir satırı bir rolün yumuşak dolgusuna yatırır), tek seçim, sabitlenen sütunlar, `toolbar` ve `footer` yuvaları ve yükseklik verilince yalnızca görünen satırları kuran bir kaydırma sunuyor. Tasarım sistemindeki `DataTable`'da bunların hiçbiri yok: `columns`, `rows`, `sort`, onay kutulu seçim, `striped`, `bordered`, `renderDetail`. Formatico'nun Table panolarında metindeki imlecin satırı (`$[2]`) `rowTone` ile işaretlenebilirdi; tuvalde işaretlenemedi, filtre ve sayfalama tablonun dışına kondu.
     *   Ne (ek, 2026-11-02): Table panoları yeniden çizilince eksik büyüdü. Compose'da bir sütunun `cell`'i bir `@Composable`: bir değer türüne göre yazılır (sayı, `true`/`false`, `null`, olmayan anahtar), iç içe bir dizi açılan bir düğme olur. Tasarım sistemindeki sütunun `render`'ı ise bir JavaScript işlevi; tuvaldeki bir pano işaretlemeden ibaret olduğu için ona öğe veremiyor. Bunlar da yok: `DataTableVariant.Grid` (sütunların arasında çizgi), genişliği sürüklenen sütunlar, `headerTextStyle` ve `DataTableColors.headerContainer`, yükseklik verilen tabloda yerinde kalan başlık, dar ekranda kayıtların listesi (`DataTableLayout.Auto`), listenin üstünde sıralama şeridi ve `listContent`. Table panoları (1440, 834, 390) bu yüzden tabloyu bileşenle değil işaretlemeyle çiziyor; kodda karşılığı `PantrixDataTable`.
@@ -482,7 +490,7 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Öneri: `PantrixStrings`'e dile göre liste birleştirme (`list(items)`, `listOf(first, more)`), Unicode CLDR'ın
         "list patterns"i gibi.
     *   Durum: açık.
-*   [ ] **Düğümleri ve bağları çizen bir grafik bileşeni yok (2026-11-09).** `tıkıyor`
+*   [x] **Düğümleri ve bağları çizen bir grafik bileşeni yok (2026-11-09).**
     *   Ne: Faz 18'in Graph görünümü belgenin yapısını kartlar ve bağlar olarak gösteriyor: her nesne ve dizi bir
         düğüm, içindeki nesne ve dizi bir çocuk düğüm, bağ anahtarıyla ya da sırasıyla etiketli; masaüstünde ve
         tablette soldan sağa, telefonda yukarıdan aşağıya; sürükleyerek kaydırma, yakınlaşma, sığdırma, düzeye kadar
@@ -509,7 +517,18 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
         *   Tema: düğüm, seçili düğüm, bağ ve etiketin renkleri; noktalı zemin isteğe bağlı.
         *   Tasarım sisteminin web karşılığı (`Graph`), panolar işaretleme yerine onu kullansın; PantrixIcons'a bir
             sığdırma simgesi (`FitScreen`): Fit düğmesi şimdilik sözcükle.
-    *   Durum: açık. Faz 18'in kodu bu bileşen yerel pakete girene kadar bekliyor.
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-09). Önerildiği gibi geldi: `PantrixGraph` (`GraphNode` anahtarı,
+        etiketi, boyu ve `tagKey`'iyle; `GraphLink` etiketiyle; `GraphDirection.StartToEnd` ve `TopToBottom`;
+        `GraphStyle`'ın katman ve kardeş boşlukları; noktalı zemin), `rememberGraphState` (`zoom`, `zoomIn`, `zoomOut`,
+        `zoomTo`, `fit`, `bringIntoView(key)`), dışarıdan yönetilen seçim (`selectedKey`, `onSelect`) ve açma kapama
+        (`expanded`, `onExpandedChange`, `expandedToLevel`), kartın içinde `GraphNodeScope` ve `GraphFoldButton`,
+        başlık için `PantrixGraphZoom`, `PantrixIcons.FitScreen`. Boyu verilen kartlardan yalnızca görünenler
+        oluşturuluyor; ekran okuyucu kartı etiketiyle, açık ya da kapalı, yeri ve düzeyiyle okuyor. Faz 18'in Graph
+        görünümü bununla yazıldı: masaüstünde metnin yanında, tablette altında, telefonda yukarıdan aşağıya; seçim
+        metinle ve ağaçla, açılan kartlar ağaçla birlikte yürüyor. Bilinmesi gereken: kartın otomasyon etiketi
+        `GraphNode.tagKey ?: key`'den, 32 karakterde kesiliyor; JSON yolları çakışacağı için Formatico her karta
+        ağaçtaki yerini (`9_0`) veriyor. Denendi: JVM, iOS simülatörü ve Wasm testleri; ekran görüntüleri. Tasarım
+        sisteminin Graph'ı ve `FitScreen`'i ayrı bir maddede (bölüm 2). Önceki durum: açık, tıkıyor (2026-11-09).
 *   [ ] **Sığmayan eylemleri menüsüne alan bir araç çubuğu yok (2026-11-09).**
     *   Ne: Faz 19'da Workspace'in araç çubuğuna Schema eklenince tablette (834) iki yerde sığmadı: Türkçede
         ("Biçimlendir", "Sorgu", "Dönüştür", "Tipler", "Şema") sondaki "more" düğmesi 46 dp kaldı, onarılacak bir

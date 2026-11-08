@@ -99,15 +99,20 @@ internal fun folded(text: String, language: String): String = if (language == "t
     text.lowercase()
 }
 
-/** "Open to" and the levels the tree is opened to by a press: 1, 2, 3 and all of it. */
+/**
+ * "Open to", where [withLabel] says there is room for it, and the levels the tree is opened to by a press: 1, 2, 3 and
+ * all of it. Each level says what it does to a screen reader without the label.
+ */
 @Composable
-internal fun TreeLevels(root: ValueNode, layout: WorkspaceLayout, onIntent: (WorkspaceIntent) -> Unit) {
-    PantrixText(
-        text = workspaceStrings.openTo,
-        style = PantrixTheme.typography.footnote.copy(fontWeight = FontWeight.Medium),
-        color = PantrixTheme.colors.textSecondary,
-        maxLines = 1
-    )
+internal fun TreeLevels(root: ValueNode, layout: WorkspaceLayout, onIntent: (WorkspaceIntent) -> Unit, withLabel: Boolean = true) {
+    if (withLabel) {
+        PantrixText(
+            text = workspaceStrings.openTo,
+            style = PantrixTheme.typography.footnote.copy(fontWeight = FontWeight.Medium),
+            color = PantrixTheme.colors.textSecondary,
+            maxLines = 1
+        )
+    }
     val levels = Levels.map { level ->
         GroupButton(
             text = "$level",

@@ -83,6 +83,11 @@ class WorkspaceScreenshotTest {
     }
 
     @Test
+    fun graph() = GraphCases().values.forEach { case ->
+        capturePreview("Graph", case, case.value.board) { GraphPreview(case) }
+    }
+
+    @Test
     fun schema() = SchemaCases().values.forEach { case ->
         capturePreview("Schema", case, case.value.board) { SchemaPreview(case) }
     }

@@ -7,6 +7,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.input.key.Key
 import com.developersancho.formatico.core.format.Format
 import com.developersancho.formatico.core.format.types.TypeLanguage
+import com.developersancho.formatico.feature.workspace.strings.graphStrings
 import com.developersancho.formatico.feature.workspace.strings.paletteStrings
 import com.developersancho.formatico.feature.workspace.strings.schemaStrings
 import com.developersancho.formatico.feature.workspace.strings.typesStrings
@@ -29,6 +30,7 @@ internal object DocumentCommandKeys {
     const val COMPARE = "compare"
     const val TREE = "tree"
     const val TABLE = "table"
+    const val GRAPH = "graph"
     const val QUERY = "query"
     const val SCHEMA = "schema"
 
@@ -51,6 +53,7 @@ internal object DocumentShortcuts {
     val Save = PantrixShortcut(Key.S, command = true)
     val Tree = PantrixShortcut(Key.One, command = true)
     val Table = PantrixShortcut(Key.Two, command = true)
+    val Graph = PantrixShortcut(Key.Three, command = true)
     val Query = PantrixShortcut(Key.F, command = true, shift = true)
 }
 
@@ -138,7 +141,7 @@ private fun documentGroup(format: Format?, phone: Boolean, keys: (PantrixShortcu
 }
 
 /**
- * The View group: the tree and the table (not on a phone, whose screen has them at hand), and the query, JSONPath's or
+ * The View group: the tree, the table and the graph (not on a phone, whose screen has them at hand), and the query, JSONPath's or
  * XPath's; none of them of plain text. A [browser] keeps Command and a number for its own tabs.
  */
 @Composable
@@ -163,6 +166,13 @@ private fun viewGroup(
             label = paletteStrings.table,
             group = group,
             shortcut = keys(DocumentShortcuts.Table).takeUnless { browser },
+            enabled = read
+        ).takeUnless { phone },
+        PantrixCommand(
+            key = DocumentCommandKeys.GRAPH,
+            label = graphStrings.showGraph,
+            group = group,
+            shortcut = keys(DocumentShortcuts.Graph).takeUnless { browser },
             enabled = read
         ).takeUnless { phone },
         PantrixCommand(
@@ -252,6 +262,8 @@ class DocumentPalette internal constructor(
             key == DocumentCommandKeys.TREE -> show(documentId, DocumentPane.Tree)
 
             key == DocumentCommandKeys.TABLE -> show(documentId, DocumentPane.Table)
+
+            key == DocumentCommandKeys.GRAPH -> show(documentId, DocumentPane.Graph)
 
             key == DocumentCommandKeys.QUERY -> show(documentId, DocumentPane.Query)
 

@@ -58,7 +58,7 @@ class DocumentPaletteTest {
     fun settingsListsTheKeysOfAJsonDocumentsCommands() = runComposeUiTest {
         val commands = shortcutsOf()
 
-        assertEquals(listOf("format", "minify", "copy", "save", "tree", "table", "query"), commands.map { it.key })
+        assertEquals(listOf("format", "minify", "copy", "save", "tree", "table", "graph", "query"), commands.map { it.key })
         assertEquals(listOf("Document", "View"), commands.mapNotNull { it.group }.distinct())
         assertEquals("Query with JSONPath", commands.last().label)
         assertEquals(DocumentShortcuts.Query, commands.last().shortcut)
@@ -79,7 +79,7 @@ class DocumentPaletteTest {
         val commands = commandsOf(order).single()
 
         assertEquals(
-            listOf("format", "minify", "sort", "copy", "save", "compare", "tree", "table", "query") +
+            listOf("format", "minify", "sort", "copy", "save", "compare", "tree", "table", "graph", "query") +
                 listOf("convert_yaml", "convert_toml", "convert_xml", "convert_csv") +
                 listOf("types_kotlin", "types_typescript", "types_swift", "types_go", "types_jsonschema", "schema"),
             commands.map { it.key }
@@ -159,6 +159,8 @@ class DocumentPaletteTest {
         assertTrue(palette.run("types_go", id))
         assertEquals(DocumentPane.Types, view().pane)
         assertEquals(TypeLanguage.Go, view().types.language)
+        assertTrue(palette.run("graph", id))
+        assertEquals(DocumentPane.Graph, view().pane)
         assertTrue(palette.run("query", id))
         assertEquals(DocumentPane.Query, view().pane)
         assertTrue(palette.run("schema", id))

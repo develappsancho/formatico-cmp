@@ -69,11 +69,11 @@ data class DocumentView(
 )
 
 /**
- * What is shown of a document: on a phone one at a time, elsewhere the tree, the table, its problems, its summary, its
+ * What is shown of a document: on a phone one at a time, elsewhere the tree, the table, the graph, its problems, its summary, its
  * query, its conversion, its types or its schema beside the text; a tablet's conversion, types and schema, and a
  * phone's, take the whole room, and the comparison with another document takes it everywhere.
  */
-enum class DocumentPane { Text, Tree, Table, Problems, Summary, Query, Convert, Types, Schema, Compare }
+enum class DocumentPane { Text, Tree, Table, Graph, Problems, Summary, Query, Convert, Types, Schema, Compare }
 
 /** The view a document of [format] opens on: a table its table, any other its tree. */
 internal fun openingPane(format: Format?): DocumentPane =

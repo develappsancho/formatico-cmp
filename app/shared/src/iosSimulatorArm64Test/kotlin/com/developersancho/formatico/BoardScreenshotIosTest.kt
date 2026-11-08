@@ -64,6 +64,9 @@ class BoardScreenshotIosTest {
     fun schema() = boards(AppBoard.Schema)
 
     @Test
+    fun graph() = boards(AppBoard.Graph)
+
+    @Test
     fun summary() = boards(AppBoard.Summary)
 
     @Test
