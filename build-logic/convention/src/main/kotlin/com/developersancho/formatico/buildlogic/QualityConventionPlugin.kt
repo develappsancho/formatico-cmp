@@ -14,6 +14,7 @@ import org.jmailen.gradle.kotlinter.tasks.LintTask
  *
  * Detekt reads the whole of `src` but the tests, so that a multiplatform module's `commonMain`, `androidMain`,
  * `iosMain`… are all looked at by the plain `detekt` task. Kotlinter checks the form (`lintKotlin`, `formatKotlin`).
+ * `checkInvisibleCharacters`, part of `check`, keeps the characters that cannot be seen out of the Kotlin sources.
  */
 class QualityConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
@@ -36,6 +37,12 @@ class QualityConventionPlugin : Plugin<Project> {
             tasks.withType<FormatTask>().configureEach {
                 exclude { it.file.invariantSeparatorsPath.contains("/build/") }
             }
+
+            val invisibleCharacters = tasks.register("checkInvisibleCharacters", InvisibleCharactersTask::class.java) {
+                sources.from(fileTree("src") { include("**/*.kt", "**/*.kts") })
+                passed.set(layout.buildDirectory.file("invisible-characters/passed.txt"))
+            }
+            tasks.matching { it.name == "check" }.configureEach { dependsOn(invisibleCharacters) }
 
             tasks.withType<Detekt>().configureEach {
                 exclude("**/*Test/**", "**/build/**")

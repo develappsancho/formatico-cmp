@@ -1,0 +1,12 @@
+# A CSV sample opens as a table of its records.
+appId: ${APP_ID}
+name: The countries open as a table
+---
+- launchApp:
+    clearState: true
+    stopApp: true
+- runFlow:
+    file: ../subflows/open_sample.yaml
+    env:
+      SAMPLE: countries
+- assertVisible: ".*Afghanistan.*"

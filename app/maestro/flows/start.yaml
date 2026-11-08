@@ -1,0 +1,13 @@
+# Start on a first launch: nothing opened yet, and the samples to try.
+appId: ${APP_ID}
+name: Start offers the samples
+tags:
+  - smoke
+---
+- launchApp:
+    clearState: true
+    stopApp: true
+- assertVisible:
+    id: "ListItem_sample_order"
+- assertVisible:
+    id: "ListItem_sample_deployment"

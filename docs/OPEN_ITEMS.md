@@ -17,10 +17,10 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Ne: Yığının ikisi de sahibinin kararı; ama tuvalde ekran panosu yok, ilk özellik modülü de yok. Boş bir Koin modülü ve tek hedefli bir gezinti, sınanamayan kod olurdu.
     *   Öneri: ilk özellik (Start ya da Workspace) panosu çizilince bir `formatico.kmp.feature` convention eklentisi: `core:base`, `core:designsystem`, `koin-compose-viewmodel`, `navigation3-ui`. Sürümler bugün Koin 4.2.2, navigation3 1.2.0.
     *   Durum: kapandı (2026-11-03). `formatico.feature` eklentisi `core:base`, `core:designsystem`, coroutines, lifecycle ve Koin'i getiriyor; gezinti özelliklerde değil uygulamada (`app:shared`): `Destination` anahtarları, `rememberNavBackStack` ve `NavDisplay`. İlk özellik `feature:start`.
-*   [ ] **Web: derleyen makinenin yolları betiklerde kalabilir (2026-11-02).**
+*   [x] **Web: derleyen makinenin yolları betiklerde kalabilir (2026-11-02).**
     *   Ne: Klib'lerin yolları `-Xklib-relative-path-base` ile köke göre yazılıyor (convention eklentilerinde). Ama Skia'nın betiğindeki `import.meta.url`, webpack'in yazdığı `file:///Users/…` yolu olarak kalıyor; Pantrix'in rehberi bunu bir webpack eklentisiyle (`stripFilePaths.js`) siliyor, eklentinin kendisini vermiyor (bulgu 1.x).
     *   Öneri: yayından önce `webpack.config.d/` altına kendi eklentimiz ve dağıtımda `strings | grep /Users/` denetimi.
-    *   Durum: açık.
+    *   Durum: kapandı (2026-11-03). Dağıtımda iki betikte `file:///Users/…/kotlin/skiko.mjs` vardı. `config/webpack/strip-file-paths.js` (her iki derlemenin `configDirectory`'si) betiklerdeki `file:///…/` yollarını dosyanın adına indiriyor; `copyJsApp` bittikten sonra dağıtım klasörü deponun yolunu ya da kullanıcının ev klasörünü içeriyorsa derleme duruyor.
 *   [x] **Web: yükleme ekranının zemini temanınkinden farklıydı (2026-11-02).**
     *   Ne: `styles.css` koyu zemini `#0f172a` diye yazıyordu; Pantrix'in koyu `background`'ı `#020617` (Android ekran görüntüsünden okundu; açık zemin `#f8fafc`, aynı). İlk karede bir renk sıçraması olurdu.
     *   Durum: kapandı (2026-11-02). `styles.css` koyu zemini `#020617`. Değerler elle yazılı: Pantrix'in renkleri değişirse burası da değişmeli.
@@ -31,10 +31,15 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
 *   [ ] **iOS: ilk kare beyaz (2026-11-02).**
     *   Ne: Simülatörde uygulama açılırken Compose çizene kadar ekran bir an beyaz; koyu temada bu bir parlama olur. `Info.plist`'in açılış ekranı boş.
     *   Öneri: açılış ekranına temanın zemini (`#f8fafc` / `#020617`) için bir renk varlığı.
-    *   Durum: açık.
+    *   Durum: düzeltildi, gözle doğrulanacak (2026-11-03). `Assets.xcassets/LaunchBackground` açıkta `#F8FAFC`, koyuda `#020617`; `Info.plist`'in `UILaunchScreen`'i onu gösteriyor. Derlenen uygulamanın `Info.plist`'inde görüldü; açılışın ilk karesi gözle görülmedi.
 *   [ ] **Uygulama simgeleri sihirbazınki (2026-11-02).**
     *   Ne: Android'in açılış ekranında ve başlatıcıda sihirbazın Android simgesi, iOS'ta sihirbazın simgesi, web'de favicon yok.
     *   Öneri: tuvalin kimlik panosundaki `{ }` işaretinden bir simge seti; tuvale bir "simge" panosu.
+    *   Durum: açık.
+
+*   [ ] **Ekran görüntüleri yalnızca masaüstünde (2026-11-03).**
+    *   Ne: Roborazzi 1.77.0 `app/shared`'in masaüstü testlerinde: `BoardScreenshotTest` uygulamayı panoların üç genişliğinde (1440×900, 834×1194, 390×844) açık temada çiziyor, Start, Workspace, YAML ve Table olarak 12 resim `app/shared/screenshots/`'ta. `recordRoborazziJvm` yazıyor, `verifyRoborazziJvm` karşılaştırıyor. Android (Robolectric) ve iOS'un kendi resimleri, koyu tema ve panolarla gözle karşılaştırma yok.
+    *   Öneri: Faz 15'te (`PLAN.md`) her pano ve her platform.
     *   Durum: açık.
 
 ## core:format
@@ -47,10 +52,10 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Ne: `TextPosition.column` UTF-16 birimi sayıyor; bir emoji iki sütun sayılır. Editörlerin çoğu kod noktası ya da görünen karakter sayar.
     *   Öneri: PantrixCodeEditor'ın imleci neyi sayıyorsa onu sayan bir dönüşüm.
     *   Durum: açık.
-*   [ ] **Kaynaklarda görünmeyen karakterler kaçış dizisiyle yazılmalı (2026-11-02).**
+*   [x] **Kaynaklarda görünmeyen karakterler kaçış dizisiyle yazılmalı (2026-11-02).**
     *   Ne: `'﻿'`, `' '` gibi karakterler dosyaya kendileri olarak girerse Kotlinter'ın biçimlendiricisi BOM'u siliyor ve `''` derlenmiyor. Bu oturumda öyle oldu ve düzeltildi.
     *   Öneri: detekt'e ya da bir teste "Kotlin kaynağında görünmeyen karakter yok" denetimi.
-    *   Durum: açık.
+    *   Durum: kapandı (2026-11-03). `formatico.quality` her modüle `checkInvisibleCharacters`'ı ekliyor (`check`'in parçası): `src` altındaki her `.kt` ve `.kts`'te bayt sırası işareti, bölünmeyen boşluk, yumuşak tire, genişliği olmayan boşluk ve birleştiriciler, yazı yönü işaretleri aranıyor; bulunan her biri dosya, satır ve sütunuyla, kaçış dizisi önerilerek bildiriliyor. Dikilmiş bir `\u00A0` ile denendi, yakaladı.
 *   [ ] **Biçimlerin yalnızca JSON ailesi okunuyor (2026-11-02).**
     *   Ne: `core:format`'ta bugün JSON, JSONC ve JSON5 okuyucusu, biçim algılama, satır ve sütunlu problemler var. Biçimlendirme, küçültme, onarım, NDJSON okuyucusu, XML, YAML (`snakeyaml-engine-kmp` ve kendi yazıcımız), TOML, CSV/TSV, properties/INI sırada.
     *   Durum: açık. Biçimlendirme, küçültme ve anahtar sıralama JSON ailesinde yazıldı (2026-11-03); YAML `snakeyaml-engine-kmp` 5.0.0 ile okunuyor ve Formatico'nun kendi yazıcısıyla yazılıyor (2026-11-03). CSV ve TSV kendi okuyucumuzla okunuyor ve biçimlendiriliyor (2026-11-03): ayırıcı tahmini (`,` `;` sekme `|`), tırnaklı alanlar, BOM, kapanmayan tırnak ve alan sayısı problemleri. NDJSON, XML, TOML, properties/INI ve onarım sırada.
@@ -61,6 +66,10 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Ne: Start bir belgeyi açınca `StartEffect.OpenDocument` gönderiyor; uygulama onu şimdilik bırakıyor (`App.kt`, `StartRoute(onOpenDocument = {})`). Belge yalnızca Recent'e ekleniyor.
     *   Öneri: Workspace yazılınca `Destination.Workspace` ve belgenin sekmesi.
     *   Durum: kapandı (2026-11-03). Açılan belge `Workbench`'e giriyor, kendi sekmesinde seçiliyor ve geri yığınında Start'ın üstüne `Destination.Workspace(documentId)` geliyor.
+*   [ ] **Bırakma alanının sözcükleri panodakinden farklı (2026-11-03).**
+    *   Ne: Start panoları "Drop a file here" ve "Choose a file" diyor, destek metni ("JSON, JSONC, … up to 50 MB") alanın içinde. Kodda `PantrixFileDrop` kendi sözcüklerini yazıyor: "Drop files here", "or choose files" (tek dosya alırken de çoğul); destek metni alanın altında. Masaüstünün ekran görüntüsünde görüldü (`app/shared/screenshots/Start-1440.png`).
+    *   Öneri: Pantrix'in bulgusu kapanınca panodaki sözcükler; o zamana kadar ya pano koda uyar ya `label` panonun ilk satırını alır. Bkz. `PANTRIX_FINDINGS.md`.
+    *   Durum: açık.
 *   [ ] **Recent yalnızca uygulama açıkken tutuluyor (2026-11-03).**
     *   Ne: `SessionDocumentHistory` bellekte; uygulama kapanınca geçmiş gidiyor. Her açılışta Recent'in boş hâli görünüyor. Tasarım "History stays on this device" diyor.
     *   Öneri: cihazda bir depo: üst bilgiler için küçük bir anahtar-değer deposu, içerik için dosyalar (web'de tarayıcının deposu). 50 MB'lık bir belgenin içeriği bir ayar deposuna sığmaz; ayrı bir tasarım kararı.
@@ -80,10 +89,10 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
 *   [x] **Ülkeler örneği 249 satır (2026-11-03).**
     *   Ne: Panolar "250 rows" diyordu; ISO 3166-1'de 249 kayıt var. Panolar ve metin 249'a düzeltildi.
     *   Durum: kapandı (2026-11-03).
-*   [ ] **Tarayıcıda metne bakan UI testleri atlanıyor (2026-11-03).**
+*   [x] **Tarayıcıda metne bakan UI testleri atlanıyor (2026-11-03).**
     *   Ne: `StartScreenTest` ve `AppTest` masaüstünde ve iOS'ta geçiyor; `wasmJsBrowserTest`'te ekranın metinleri (Compose kaynakları) test beklerken hiç gelmiyor. Karma'nın kaynakları sunup `/composeResources/`'u oraya yönlendirmesi ve Mocha'nın süresini uzatmak sonucu değiştirmedi. Olası neden: `waitUntil` tarayıcının olay döngüsünü bırakmıyor, `fetch` tamamlanamıyor. İki sınıf web'de `@IgnoreInBrowser` ile atlanıyor (`kotlin.test.Ignore`, yalnız `webTest`'te); görünüm modeli ve zaman testleri tarayıcıda koşuyor.
     *   Öneri: Compose'un web testlerinde kaynakları önceden yükleme yolu (`preloadResources` ya da askıya alınan bir bekleme) ya da metne değil etikete bakan ayrı bir tarayıcı testi; Maestro'nun web akışı da bir yol.
-    *   Durum: açık.
+    *   Durum: kapandı (2026-11-03). Üç şey birlikte: testler `waitUntil` yerine kendi askıya alınan beklemeleriyle bekliyor (`awaitText`: `Dispatchers.Default`'ta kısa bir `delay`, sonra `awaitIdle`), böylece tarayıcının olay döngüsü dönüyor ve `fetch` bitiyor; Karma test paketinin `kotlin/composeResources/`'unu sunuyor ve `/composeResources/`'u oraya yönlendiriyor (`config/karma/compose-resources.js`); Mocha'nın süresi 30 saniye (`config/karma/mocha-timeout.js`). `@IgnoreInBrowser` kalktı: 161 testin hepsi Wasm'da koşuyor. Kelimeler gelene kadar adı boş kalan satırları teşhislerin bildirmesi bir bulgu (`PANTRIX_FINDINGS.md`, "MissingName, kelimeler yüklenirken"); testler o arada bulunanı unutuyor.
 *   [ ] **Compose'un kütüphane modülleri Wasm'da çalıştırılabilir ikili üretiyor (2026-11-03).**
     *   Ne: Compose, `commonTest`'te UI testi olan bir modülün Wasm testini, hedef `binaries.executable()` demedikçe çalıştırmıyor (CMP-4906). `formatico.kmp.compose` bunu her çizen modüle ekliyor; kütüphane yine kütüphane olarak derleniyor, ama her modül için bir de çalıştırılabilir çıktı kuruluyor.
     *   Öneri: Compose bu kısıtı kaldırınca geri almak.
@@ -91,6 +100,9 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
 
 ## Workspace
 
+*   [x] **Belge sekmelerinin altında panoda olmayan bir çizgi (2026-11-03).**
+    *   Ne: Geniş pencerede üst çubuğun sekmelerinin altında, "+" düğmesine kadar bir çizgi var; çubuğun kendi alt kenarıyla iki çizgi oluyor. Panolarda yalnızca seçili sekmenin çizgisi var. Çizgi `PantrixTabs`'ın; `TabsStyle`'da onu kaldıran bir alan yok, `TabsColors.divider` onun rengi. Masaüstünün ekran görüntüsünde görüldü (`Workspace-1440.png`).
+    *   Durum: kapandı (2026-11-03). Üst çubuk `TabsColors(divider = Color.Transparent)` veriyor; ekran görüntüleri yeniden yazıldı. Bkz. `PANTRIX_FINDINGS.md`.
 *   [ ] **Metin bölmesi editörü bekliyor (2026-11-03).**
     *   Ne: Sahibinin kararıyla (2026-11-03) metin bölmesi `PantrixCodeEditor` bir sürümde gelene kadar boş: "Text editing is on its way". Metin ile ağacın seçimi birlikte yürümüyor; durum çubuğunda "Ln, Col" yok; telefondaki "Show in text" basılmıyor. Belge yalnızca ağaçta okunuyor, Format, Minify, Sort keys, Copy ve Save as a file metnin tamamında çalışıyor.
     *   Öneri: Pantrix'in editörü yayımlanınca metin bölmesi, seçimin iki yönlü bağı ve imlecin satırı ile sütunu.
@@ -121,10 +133,10 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
 *   [ ] **Tabletin metin ile ağaç arasındaki ayırıcısı sürüklenmiyor (2026-11-03).**
     *   Ne: Workspace-834 panosundaki "Resize the text and the tree" tutamacı çizilmiyor; metin 480 dp, ağaç geri kalanı. Bkz. `PANTRIX_FINDINGS.md`.
     *   Durum: açık.
-*   [ ] **Koin'in bağlamı `App()` bitince kapanmıyor (2026-11-03).**
+*   [x] **Koin'in bağlamı `App()` bitince kapanmıyor (2026-11-03).**
     *   Ne: Masaüstünün UI testlerinde bir testin açtığı belgeler bir sonraki testin `App()`'inde açık duruyor: `KoinApplication` (Koin 4.2.2) aynı süreçte bağlamını yeniden kullanıyor, `Workbench` tekil olarak yaşıyor. Uygulamada istenen bu (döndürmede sekmeler kalıyor), testlerde ise sıra bağımlılığı demek. `AppTest` bugün geçiyor, çünkü belge açan tek test sonunda yeni sekmeye dönüyor.
     *   Öneri: `App()`'e testin vereceği bir Koin yapılandırması ya da testlerde `stopKoin()`; Koin'in `KoinApplication` belgesinde bu davranışa bakmak.
-    *   Durum: açık.
+    *   Durum: kapandı (2026-11-03). Koin 4.2.2'nin `CompositionKoinApplicationLoader`'ı kaynağında okundu: bileşim bitince bağlamı bırakıyor ama durdurmuyor. Uygulamada bu isteniyor; `AppTest` ve `BoardScreenshotTest` her testten sonra `stopKoin()` diyor, her test boş bir uygulamayla başlıyor.
 *   [x] **YAML okunuyor, yazılmıyor (2026-11-03).**
     *   Ne: YAML ağaçta okunuyor; Format, Minify ve Sort keys YAML'da kapalı, çünkü sahibinin kararıyla YAML Formatico'nun kendi yazıcısıyla yazılacak ve o yazıcı henüz yok. Kapalı düğmeler nedenini söylemiyor.
     *   Öneri: sıradaki iş olarak YAML yazıcısı (yorumlar, anchor'lar ve skaler biçimleri korunarak); o zamana kadar düğmelere bir ipucu.

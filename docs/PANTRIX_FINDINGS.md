@@ -129,12 +129,18 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Ne: Rehber "The common tests run on every target: jvmTest, iosSimulatorArm64Test, jsBrowserTest, wasmJsBrowserTest" diyor. Formatico'da `runComposeUiTest`'li ortak testler tarayıcıda iki yerde takıldı: Compose, Wasm hedefi `binaries.executable()` demedikçe UI testini hiç çalıştırmıyor (`checkComposeUiTestConfigurationForWasmJs`, CMP-4906); çalıştırınca da uygulamanın kendi kaynaklarından gelen metinler (`stringResource`) test boyunca hiç görünmüyor. `PantrixTestTheme` ve Pantrix'in kendi metinleri bunu yaşamıyor, çünkü onlar kaynaktan okunmuyor. Bu Compose'un davranışı, ama rehber bir uygulamanın ekranlarının tarayıcıda öyle sınanacağını söylüyor.
     *   Nerede: `skill/testing` ("Running"); MCP `search_documentation testing`.
     *   Öneri: rehberde `binaries.executable()` şartı ve uygulama kaynaklı metinlerin tarayıcıda nasıl beklenip yükleneceği; olmuyorsa tarayıcı testlerinin etiketle sınanması gerektiği.
-    *   Durum: açık.
+    *   Durum: açık. Formatico'da çözüldü (2026-11-03), rehbere girecek olan bu: metin `waitUntil` ile değil, askıya alınan bir beklemeyle beklenmeli (`withContext(Dispatchers.Default) { delay(…) }` ve `awaitIdle()`), çünkü `waitUntil` tarayıcının olay döngüsünü tutuyor ve kaynakların `fetch`'i bitmiyor; Karma test paketinin `kotlin/composeResources/`'unu sunmalı ve `/composeResources/`'u oraya yönlendirmeli; Mocha'nın 2 saniyesi yetmiyor. Formatico'nun 161 testi böyle Wasm'da koşuyor.
 *   [ ] **Test temasına verilen pencere, testin çizdiği boy değil (2026-11-03).**
     *   Ne: `PantrixTestTheme(window = PantrixWindow(DpSize(1440.dp, 900.dp)))` ekrana 1440'lık bir pencerede olduğunu söylüyor, ama masaüstünde `runComposeUiTest` ekranı kendi 1024×768 piksellik yüzeyinde çiziyor. Formatico'nun geniş Table testi bu yüzden 1024'te koştu: araç çubuğu sığmadı, sondaki "Save as CSV" düğmesi sıfır genişlikte kaldı ve tıklama hiçbir şey yapmadı. Test ekranın kendisi değil, düzenin pencereden küçük olduğu bir hâli sınıyordu; hata bulunana kadar "düğme çalışmıyor" gibi göründü. `window`'un belgesi "the window the screen is told it is in" diyor, yani söylenen bu; ama test rehberi, ekranı o boyda çizmek için `PantrixWindowFrame`'in boyutlu bir kutuyla kullanılacağını söylemiyor (yalnızca uyarlanabilir rehberde, katlanan pencere örneğinde geçiyor).
     *   Nerede: MCP `get_api PantrixTestTheme` (`window`); `guide/testing`; `guide/adaptive` ("A folding window in a preview and a test").
     *   Öneri: test rehberine "bir genişlikteki düzeni sınamak için ekranı o boyda bir `PantrixWindowFrame`'e koyun" cümlesi ve örneği; ya da `PantrixTestTheme`'in `window` verildiğinde içeriği o boyda çizmesi.
     *   Durum: açık. Formatico (2026-11-03) araç çubuğunu dar genişlikte de sığacak biçimde düzeltti (yol izi önce daralıyor); testler 1024'te koşmaya devam ediyor.
+
+*   [ ] **Ekran görüntüsü testinin kurulumu sitede yok; Maestro görevleri yayımlanmıyor (2026-11-03).**
+    *   Ne: Test rehberi Roborazzi için "Pantrix's own setup is in the Roborazzi guide" diyor ve deponun bir dosyasına bağlıyor; dışarıdan biri o depoyu okuyamıyor, sitede ve MCP'de o rehber yok. Kurulum özetin üç maddesinden çıkarıldı (eklenti, `roborazzi-compose-desktop`, `captureRoboImage`, `runDesktopComposeUiTest(width, height)`). Maestro'da rehber `maestroTest` ve `maestroIosTest` görevlerini anlatıyor; görevler Pantrix'in kendi `build-logic`'inde (`pantrix.demo.maestro`), bir uygulamaya verilmiyor. Formatico akışlarını `maestro test` ile koşturuyor.
+    *   Nerede: MCP `get_documentation_page guide/testing`, bölüm 3.6 ve 3.7.
+    *   Öneri: Roborazzi rehberi sitede ve MCP'de; Maestro görevleri yayımlanan bir Gradle eklentisi ya da rehberde kopyalanabilir bir görev.
+    *   Durum: açık.
 
 ## 5. Web
 
@@ -143,6 +149,12 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Nerede: [Old Browsers and a Wasm That Will Not Start](https://pantrixui.com/docs/guides/web-compatibility), bölüm 7 ve 9.
     *   Öneri: eklentinin metni rehberde, ya da paket deposunda indirilebilir.
     *   Durum: açık.
+
+*   [ ] **Teşhisler, web'de kelimeler yüklenirken adı boş satırları bildiriyor (MissingName, kelimeler yüklenirken) (2026-11-03).**
+    *   Ne: Tarayıcıda uygulamanın kendi kelimeleri (Compose kaynakları) ilk kareden sonra geliyor. O arada `PantrixListItem`'ın başlığı boş; teşhisler bunu hemen `MissingName` diye bildiriyor ("ListItem has a blank name"). Kelimeler birkaç kare sonra geliyor, satırın adı oluyor, bulgu ise kalıyor ve `assertNoFindings` başarısız. Sıkışan dokunma alanı yarım saniye, iki düğümdeki etiket bir buçuk saniye bekleniyor; boş ad hiç beklenmiyor. Masaüstünde ve iOS'ta kelimeler ilk karede olduğu için görülmüyor.
+    *   Nerede: MCP `guide/diagnostics`, `get_api checkName`; `guide/testing` ("Some findings come late").
+    *   Öneri: `MissingName` da kısa bir süre beklesin, ya da bir ad yalnızca boş kalmaya devam ederse bildirilsin.
+    *   Durum: açık. Formatico'nun testleri (2026-11-03) kelimeleri beklemek zorunda kaldıklarında o arada bulunanı `PantrixFindings.clear()` ile unutuyor; yorumda bu bulgu anılıyor.
 
 ## 6. Bileşenler
 
@@ -216,3 +228,13 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Nerede: MCP `search_icons "chevron up"`; tasarım sistemi, `project/components/index.d.ts` (`IconName`).
     *   Öneri: dönmeyen bir `ChevronUp`.
     *   Durum: açık.
+*   [ ] **FileDrop'un sözcükleri tasarım sistemindekinden farklı ve tek dosyada da çoğul (2026-11-03).**
+    *   Ne: Tasarım sistemindeki `FileDrop` bir başlık (`title`), bir eylem (`action`) ve alanın içinde bir destek metni alıyor; Start panoları "Drop a file here", "Choose a file" ve biçimlerin listesini alanın içinde çiziyor. Compose'daki `PantrixFileDrop`'ta yalnızca `label` ("what the zone says first") var, eylemin sözcükleri verilemiyor, `supportingText` alanın altında. `multiple = false` iken de alan "Drop files here", "or choose files" diyor.
+    *   Nerede: MCP `get_component_metadata PantrixFileDrop`; tasarım sistemi, `FileDrop`'un özellikleri.
+    *   Öneri: tek dosya alan bir alanın sözcükleri tekil; eylemin sözcükleri için bir parametre; tasarım sistemi ile Compose aynı yerleşimde.
+    *   Durum: açık.
+*   [ ] **PantrixTabs'ın altındaki çizgi yalnızca saydam bir renkle gizleniyor (2026-11-03).**
+    *   Ne: Formatico'nun belge sekmeleri üst çubuğun içinde bir `PantrixTabs` (kaydırılabilir). Sekmelerin altında satır boyunca bir çizgi çiziliyor; çubuğun kendi alt kenarıyla iki çizgi oluyordu. `TabsStyle`'da bu çizgi için bir alan yok; `TabsColors.divider` "the hairline under the row" diyor, çizgi ancak ona `Color.Transparent` verilerek gizleniyor. Sayfası bir çubuğun içindeki sekmeleri anmıyor.
+    *   Nerede: MCP `get_api TabsStyle`, `get_api TabsColors`, `get_component tabs`.
+    *   Öneri: `TabsStyle`'da çizgiyi kapatan bir alan, ya da sayfada "bir çubuğun içinde: `TabsColors(divider = Color.Transparent)`".
+    *   Durum: açık. Formatico (2026-11-03) üst çubukta `TabsColors(divider = Color.Transparent)` veriyor.

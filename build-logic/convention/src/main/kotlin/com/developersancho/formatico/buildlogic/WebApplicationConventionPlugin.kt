@@ -1,5 +1,7 @@
 package com.developersancho.formatico.buildlogic
 
+import java.io.File
+import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.Copy
@@ -27,11 +29,17 @@ class WebApplicationConventionPlugin : Plugin<Project> {
 
             val jsScript = "${project.name}-js.js"
             val wasmScript = "${project.name}-wasm.js"
+            // Formatico's own webpack plugins: strip-file-paths.js keeps the building machine's paths out of the scripts.
+            val webpackConfig = rootDir.resolve("config/webpack")
+            val machinePaths = listOf(rootDir.absolutePath, System.getProperty("user.home"))
 
             extensions.configure<KotlinMultiplatformExtension> {
                 js {
                     browser {
-                        commonWebpackConfig { outputFileName = jsScript }
+                        commonWebpackConfig {
+                            outputFileName = jsScript
+                            configDirectory = webpackConfig
+                        }
                         testTask { enabled = false }
                     }
                     binaries.executable()
@@ -39,7 +47,10 @@ class WebApplicationConventionPlugin : Plugin<Project> {
                 @OptIn(ExperimentalWasmDsl::class)
                 wasmJs {
                     browser {
-                        commonWebpackConfig { outputFileName = wasmScript }
+                        commonWebpackConfig {
+                            outputFileName = wasmScript
+                            configDirectory = webpackConfig
+                        }
                     }
                     binaries.executable()
                 }
@@ -57,6 +68,8 @@ class WebApplicationConventionPlugin : Plugin<Project> {
                     exclude("skiko.wasm")
                 }
                 into(layout.buildDirectory.dir("dist/wasmJs/productionExecutable"))
+                // What goes out with the app names no folder of the machine that built it.
+                doLast { destinationDir.assertNamesNone(machinePaths) }
             }
             // The JS distribution is a dependency, the copy only a finalizer: a finalizer that waited on Kotlin's JS
             // tasks, which have finalizers of their own, would stop Gradle with "Unable to make progress".
@@ -65,5 +78,16 @@ class WebApplicationConventionPlugin : Plugin<Project> {
                 finalizedBy(copyJs)
             }
         }
+    }
+}
+
+/** Fails where a file in this folder holds one of [paths]: the place a build was made, or its user's home. */
+private fun File.assertNamesNone(paths: List<String>) {
+    val found = walkTopDown().filter { it.isFile }.flatMap { file ->
+        val content = file.readText(Charsets.ISO_8859_1)
+        paths.filter { it in content }.map { "${file.relativeTo(this)}: $it" }
+    }.toList()
+    if (found.isNotEmpty()) {
+        throw GradleException("The web build names the machine that built it:\n" + found.joinToString("\n"))
     }
 }

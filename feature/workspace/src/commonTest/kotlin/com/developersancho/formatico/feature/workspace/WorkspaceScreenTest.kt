@@ -11,7 +11,6 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.v2.runComposeUiTest
-import androidx.compose.ui.test.waitUntilExactlyOneExists
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.format.Format
@@ -24,12 +23,17 @@ import com.pantrixui.testing.TestClock
 import com.pantrixui.testing.TestFileSaver
 import com.pantrixui.testing.assertNoFindings
 import com.pantrixui.testing.onPantrixNode
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
+import kotlin.time.TimeSource
 
 @OptIn(ExperimentalTestApi::class)
-@IgnoreInBrowser
 class WorkspaceScreenTest {
     private val desktop = PantrixWindow(DpSize(1440.dp, 900.dp))
     private val tablet = PantrixWindow(DpSize(834.dp, 1194.dp))
@@ -72,8 +76,25 @@ class WorkspaceScreenTest {
         )
     }
 
-    /** Waits for [text]: in a browser the screen's words are fetched after its first frame. */
-    private fun ComposeUiTest.awaitText(text: String) = waitUntilExactlyOneExists(hasText(text), timeoutMillis = 10_000)
+    /**
+     * Waits for [text] to be shown once, letting the platform run meanwhile: in a browser the screen's words are
+     * fetched after its first frame, and the fetch ends only while the page's event loop runs, which `waitUntil` holds.
+     *
+     * Where the screen has had to wait for its words, what the diagnostics found on it meanwhile is [forgetting]'s to
+     * forget: a row is nameless until its words come (PANTRIX_FINDINGS: "MissingName, kelimeler yüklenirken").
+     */
+    private suspend fun ComposeUiTest.awaitText(text: String, forgetting: PantrixFindings? = null) {
+        val waited = TimeSource.Monotonic.markNow()
+        var shown = onAllNodes(hasText(text)).fetchSemanticsNodes().size == 1
+        if (shown) return
+        while (!shown) {
+            check(waited.elapsedNow() < 10.seconds) { "\"$text\" was not shown in 10 seconds" }
+            withContext(Dispatchers.Default) { delay(20.milliseconds) }
+            awaitIdle()
+            shown = onAllNodes(hasText(text)).fetchSemanticsNodes().size == 1
+        }
+        forgetting?.clear()
+    }
 
     @Test
     fun aWideWindowShowsTheTreeBesideTheEditorsPlace() = runComposeUiTest {
@@ -89,7 +110,7 @@ class WorkspaceScreenTest {
             }
         }
 
-        awaitText("Text editing is on its way")
+        awaitText("Text editing is on its way", forgetting = findings)
         onNodeWithText("Valid JSON").assertExists()
         onNodeWithText("5 lines · ", substring = true).assertExists()
         onNodeWithText("UTF-8 · LF · 2 spaces").assertExists()
@@ -138,7 +159,7 @@ class WorkspaceScreenTest {
             }
         }
 
-        awaitText("Valid JSON")
+        awaitText("Valid JSON", forgetting = findings)
         onNodeWithText("$.customer.name").assertExists()
         onPantrixNode("Button", "sort_keys").assertDoesNotExist()
         onPantrixNode("Item", "customer", scope = "Breadcrumb_path").performClick()
@@ -161,7 +182,7 @@ class WorkspaceScreenTest {
             }
         }
 
-        awaitText("Copy the value")
+        awaitText("Copy the value", forgetting = findings)
         onPantrixNode("Tag", "kind").assertExists()
         onNodeWithText("Date").assertExists()
         onPantrixNode("Button", "show_in_text").assertIsNotEnabled()
@@ -189,7 +210,7 @@ class WorkspaceScreenTest {
             }
         }
 
-        awaitText("Valid YAML")
+        awaitText("Valid YAML", forgetting = findings)
         onNodeWithText("matchLabels: *labels").assertExists()
         onPantrixNode("Button", "format").assertIsEnabled()
         onPantrixNode("Button", "sort_keys").assertIsEnabled()
@@ -267,7 +288,7 @@ class WorkspaceScreenTest {
             }
         }
 
-        awaitText("3 rows · 3 columns")
+        awaitText("3 rows · 3 columns", forgetting = findings)
         onNodeWithText("3 numbers").assertExists()
         onNodeWithText("1,250.00").assertExists()
         onPantrixNode("Header", "total", scope = "DataTable_table").performClick()

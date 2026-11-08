@@ -35,6 +35,7 @@ import com.pantrixui.components.container.surface.PantrixSurface
 import com.pantrixui.components.container.tab.PantrixTabs
 import com.pantrixui.components.container.tab.TabBadge
 import com.pantrixui.components.container.tab.TabItem
+import com.pantrixui.components.container.tab.TabsColors
 import com.pantrixui.components.elements.badge.BadgeTone
 import com.pantrixui.components.elements.badge.PantrixBadge
 import com.pantrixui.components.elements.button.ButtonColors
@@ -192,6 +193,9 @@ private fun DocumentTabs(
             onSelect = { index -> onSelectTab(documents.getOrNull(index)?.id) },
             modifier = Modifier.weight(1f, fill = false),
             scrollable = true,
+            // The bar draws its own edge: the row's hairline would be a second one (PANTRIX_FINDINGS: "PantrixTabs'ın
+            // altındaki çizgi yalnızca saydam bir renkle gizleniyor").
+            colors = TabsColors(divider = Color.Transparent),
             tagKey = "documents"
         )
         PantrixIconButton(

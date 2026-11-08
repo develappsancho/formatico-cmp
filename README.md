@@ -44,8 +44,14 @@ loads it.
 - Tests: `./gradlew jvmTest` (and `iosSimulatorArm64Test`, `wasmJsBrowserTest`)
 - Detekt, with Pantrix UI's rules: `./gradlew detekt`
 - Kotlinter: `./gradlew lintKotlin`, and `./gradlew formatKotlin` to fix the form
+- Characters that cannot be seen, in the Kotlin sources: `./gradlew checkInvisibleCharacters` (part of `check`)
+- The boards' screens on the desktop (Roborazzi): `./gradlew :app:shared:verifyRoborazziJvm` compares against
+  [`app/shared/screenshots`](app/shared/screenshots), `./gradlew :app:shared:recordRoborazziJvm` writes them again
+- On a device (Maestro, installed apart): install the debug build, then
+  `maestro --device <id> test -e APP_ID=com.developersancho.formatico app/maestro/flows`
 
 ## Documents
 
 - [`docs/PANTRIX_FINDINGS.md`](docs/PANTRIX_FINDINGS.md): every gap met while learning Pantrix UI from its site.
 - [`docs/OPEN_ITEMS.md`](docs/OPEN_ITEMS.md): what is open in Formatico itself.
+- [`docs/PLAN.md`](docs/PLAN.md): the phases, in order.

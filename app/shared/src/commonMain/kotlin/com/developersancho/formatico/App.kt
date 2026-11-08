@@ -45,8 +45,13 @@ private val Modules = koinConfiguration {
  */
 @Composable
 fun App() {
+    App(systemDark = isSystemInDarkTheme())
+}
+
+/** The app with the system's dark mode given: a test pins it, as it pins the rest of the theme. */
+@Composable
+internal fun App(systemDark: Boolean) {
     KoinApplication(configuration = Modules, logLevel = Level.ERROR) {
-        val systemDark = isSystemInDarkTheme()
         var chosenDark by rememberSaveable { mutableStateOf<Boolean?>(null) }
         val darkTheme = chosenDark ?: systemDark
         FormaticoTheme(darkTheme = darkTheme) {

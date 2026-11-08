@@ -11,7 +11,6 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.v2.runComposeUiTest
-import androidx.compose.ui.test.waitUntilExactlyOneExists
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.format.Format
@@ -21,20 +20,42 @@ import com.pantrixui.testing.PantrixTestTheme
 import com.pantrixui.testing.TestClock
 import com.pantrixui.testing.assertNoFindings
 import com.pantrixui.testing.onPantrixNode
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
+import kotlin.time.TimeSource
 
 @OptIn(ExperimentalTestApi::class)
-@IgnoreInBrowser
 class StartScreenTest {
     private val desktop = PantrixWindow(DpSize(1440.dp, 900.dp))
     private val phone = PantrixWindow(DpSize(390.dp, 844.dp))
     private val now = Instant.parse("2026-11-03T09:41:00Z")
 
-    /** Waits for [text]: in a browser the screen's words are fetched after its first frame. */
-    private fun ComposeUiTest.awaitText(text: String) = waitUntilExactlyOneExists(hasText(text), timeoutMillis = 10_000)
+    /**
+     * Waits for [text] to be shown once, letting the platform run meanwhile: in a browser the screen's words are
+     * fetched after its first frame, and the fetch ends only while the page's event loop runs, which `waitUntil` holds.
+     *
+     * Where the screen has had to wait for its words, what the diagnostics found on it meanwhile is [forgetting]'s to
+     * forget: a row is nameless until its words come (PANTRIX_FINDINGS: "MissingName, kelimeler yüklenirken").
+     */
+    private suspend fun ComposeUiTest.awaitText(text: String, forgetting: PantrixFindings? = null) {
+        val waited = TimeSource.Monotonic.markNow()
+        var shown = onAllNodes(hasText(text)).fetchSemanticsNodes().size == 1
+        if (shown) return
+        while (!shown) {
+            check(waited.elapsedNow() < 10.seconds) { "\"$text\" was not shown in 10 seconds" }
+            withContext(Dispatchers.Default) { delay(20.milliseconds) }
+            awaitIdle()
+            shown = onAllNodes(hasText(text)).fetchSemanticsNodes().size == 1
+        }
+        forgetting?.clear()
+    }
 
     @Test
     fun aFirstStartSaysNothingWasOpenedAndOffersTheSamples() = runComposeUiTest {
@@ -47,7 +68,7 @@ class StartScreenTest {
         }
 
         awaitText("Paste anything")
-        onNodeWithText("Nothing opened yet").assertExists()
+        awaitText("Nothing opened yet", forgetting = findings)
         onNodeWithText("Clear history").assertDoesNotExist()
         onPantrixNode("ListItem", "sample_countries").performClick()
 

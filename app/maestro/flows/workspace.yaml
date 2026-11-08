@@ -1,0 +1,15 @@
+# A JSON sample opens in the workspace, its tree showing the document's keys.
+appId: ${APP_ID}
+name: The order opens with its tree
+tags:
+  - smoke
+---
+- launchApp:
+    clearState: true
+    stopApp: true
+- runFlow:
+    file: ../subflows/open_sample.yaml
+    env:
+      SAMPLE: order
+- assertVisible: "customer"
+- assertVisible: "createdAt: .*"

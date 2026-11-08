@@ -1,0 +1,16 @@
+# Opens the sample whose key is ${SAMPLE} from Start: a phone shows two samples until "All samples" is pressed.
+appId: ${APP_ID}
+---
+- runFlow:
+    when:
+      visible:
+        id: "Link_all_samples"
+    commands:
+      - tapOn:
+          id: "Link_all_samples"
+- scrollUntilVisible:
+    element:
+      id: "ListItem_sample_${SAMPLE}"
+    centerElement: true
+- tapOn:
+    id: "ListItem_sample_${SAMPLE}"

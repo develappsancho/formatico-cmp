@@ -43,7 +43,10 @@ class KmpLibraryConventionPlugin : Plugin<Project> {
                 wasmJs {
                     browser {
                         testTask {
-                            useKarma { useChromeHeadless() }
+                            useKarma {
+                                useChromeHeadless()
+                                useConfigDirectory(rootDir.resolve("config/karma"))
+                            }
                         }
                     }
                 }

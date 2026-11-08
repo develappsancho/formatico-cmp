@@ -1,0 +1,13 @@
+# A YAML sample opens in the workspace, read by snakeyaml-engine-kmp.
+appId: ${APP_ID}
+name: The deployment opens with its tree
+---
+- launchApp:
+    clearState: true
+    stopApp: true
+- runFlow:
+    file: ../subflows/open_sample.yaml
+    env:
+      SAMPLE: deployment
+- assertVisible: "apiVersion: .*"
+- assertVisible: "metadata"
