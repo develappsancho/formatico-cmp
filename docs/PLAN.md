@@ -730,7 +730,14 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
             zincirinde atılacak adlarla bir denemede eski anahtarla yazılmış değer ve şifreli metin yeni adla okundu.
             Açılış denetimi anahtarlarını kendi geçici klasöründe tutuyor (`-Dksafe.jvm.keyVault=software`) ve
             pencereye her masaüstü alanında (Space) bakıyor: önde tam ekran bir uygulama varken pencere başka alanda
-            açılıyordu. Henüz bir sürümde değil.
+            açılıyordu.
+        *   **Formatico 1.0.2 yayımlandı** (2026-11-12, sahibinin onayıyla): etiketi `v1.0.2` (`addca45`), GitHub'ın son
+            sürümü, anahtar zinciri düzeltmesiyle. DMG 97,5 MB (iki denetimden geçti, Apple onaylı; açılış denetimi
+            anahtar zincirine kayıt eklemedi), APK 1.0.2 (`versionCode` 10002); GitHub'ın verdiği SHA-256'lar yerel
+            dosyalarınkiyle aynı, `releases/latest/download` bağlantıları 1.0.2'nin dosyalarını veriyor. Notlarının
+            başında neyi düzelttiği yazıyor. Sahibinin Mac'inde 1.0.2'nin ilk açılışta bir kez sorup sonra sormadığı
+            henüz görülmedi. Kalan: web'in 1.0.2'ye geçmesi (`deploy.sh web`), arkadaşın MSI'ı `addca45`'ten, Coolify
+            panelinin portları.
 
 ## Sahibinin kararını bekleyenler
 
