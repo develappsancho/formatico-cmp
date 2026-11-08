@@ -1,12 +1,16 @@
 package com.developersancho.formatico.feature.workspace
 
 import com.developersancho.formatico.core.format.Format
+import com.developersancho.formatico.core.format.ProblemCode
 import com.developersancho.formatico.core.format.json.JsonDialect
 import com.developersancho.formatico.core.format.json.JsonDocument
 import com.developersancho.formatico.core.format.json.formatted
 import com.developersancho.formatico.core.format.json.minified
 import com.developersancho.formatico.core.format.text.Indentation
 import com.developersancho.formatico.core.format.text.TextLayout
+import com.developersancho.formatico.core.format.yaml.YamlDocument
+import com.developersancho.formatico.core.format.yaml.formatted
+import com.developersancho.formatico.core.format.yaml.minified
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -80,9 +84,15 @@ sealed interface EditResult {
     /** The text was as the edit would make it already. */
     data object Unchanged : EditResult
 
-    /** The document is not one Formatico can change so: a format it does not read yet, or one with errors. */
+    /** The document is not one Formatico can change so: a format it does not write yet, or one with errors. */
     data object NotPossible : EditResult
+
+    /** Sorting a YAML document's keys would put an alias before the anchor it points at, which YAML does not allow. */
+    data object AliasBeforeAnchor : EditResult
 }
+
+/** Whether Formatico writes a document of this format out again: formats it, minifies it and sorts its keys. */
+internal val Format.isWritten: Boolean get() = jsonDialect != null || this == Format.Yaml
 
 /** The JSON a format is read as, or null for a format Formatico does not read yet. */
 internal val Format.jsonDialect: JsonDialect?
@@ -156,9 +166,17 @@ class Workbench(private val worker: CoroutineDispatcher = Dispatchers.Default) {
     /** Makes [edit] to the document whose id is [id], reading it and writing it out off the main thread. */
     suspend fun edit(id: Long, edit: DocumentEdit): EditResult {
         val document = mutableState.value.documents.firstOrNull { it.id == id } ?: return EditResult.NotPossible
-        val text = withContext(worker) { edited(document, edit) } ?: return EditResult.NotPossible
+        return when (val outcome = withContext(worker) { edited(document, edit) }) {
+            is Edited.Text -> keep(document, outcome.text)
+            Edited.NotPossible -> EditResult.NotPossible
+            Edited.AliasBeforeAnchor -> EditResult.AliasBeforeAnchor
+        }
+    }
+
+    /** Gives [document] the [text] an edit made of it, where it is another. */
+    private fun keep(document: OpenDocument, text: String): EditResult {
         if (text == document.text) return EditResult.Unchanged
-        change(id) { it.copy(text = text, edited = true) }
+        change(document.id) { it.copy(text = text, edited = true) }
         return EditResult.Changed(previous = document)
     }
 
@@ -172,17 +190,52 @@ class Workbench(private val worker: CoroutineDispatcher = Dispatchers.Default) {
             state.copy(documents = state.documents.map { if (it.id == id) change(it) else it })
         }
     }
+}
 
-    /** The text [edit] makes of [document], or null where it cannot be made. */
-    private fun edited(document: OpenDocument, edit: DocumentEdit): String? {
-        val dialect = document.format?.jsonDialect ?: return null
-        val json = JsonDocument.parse(document.text, dialect)
-        if (!json.isValid) return null
-        val indentation = TextLayout.of(document.text).indentation ?: Indentation.Spaces(2)
-        return when (edit) {
+/** What an edit makes of a document's text, before it is kept. */
+private sealed interface Edited {
+    class Text(val text: String) : Edited
+
+    data object NotPossible : Edited
+
+    data object AliasBeforeAnchor : Edited
+}
+
+/** What [edit] makes of [document]. */
+private fun edited(document: OpenDocument, edit: DocumentEdit): Edited {
+    val indentation = TextLayout.of(document.text).indentation ?: Indentation.Spaces(2)
+    return when (val format = document.format) {
+        null -> Edited.NotPossible
+        Format.Yaml -> editedYaml(document.text, edit, indentation)
+        else -> format.jsonDialect?.let { editedJson(document.text, it, edit, indentation) } ?: Edited.NotPossible
+    }
+}
+
+private fun editedJson(text: String, dialect: JsonDialect, edit: DocumentEdit, indentation: Indentation): Edited {
+    val json = JsonDocument.parse(text, dialect)
+    if (!json.isValid) return Edited.NotPossible
+    return Edited.Text(
+        when (edit) {
             DocumentEdit.Format -> json.formatted(indentation)
             DocumentEdit.Minify -> json.minified()
             DocumentEdit.SortKeys -> json.formatted(indentation, sortKeys = true)
+        }
+    )
+}
+
+/** What [edit] makes of a YAML [text]; its keys are not sorted where an alias would come before its anchor. */
+private fun editedYaml(text: String, edit: DocumentEdit, indentation: Indentation): Edited {
+    val yaml = YamlDocument.parse(text)
+    if (!yaml.isValid) return Edited.NotPossible
+    return when (edit) {
+        DocumentEdit.Format -> Edited.Text(yaml.formatted(indentation))
+
+        DocumentEdit.Minify -> Edited.Text(yaml.minified())
+
+        DocumentEdit.SortKeys -> {
+            val sorted = yaml.formatted(indentation, sortKeys = true)
+            val again = YamlDocument.parse(sorted).problems
+            if (again.any { it.code == ProblemCode.UndefinedAlias }) Edited.AliasBeforeAnchor else Edited.Text(sorted)
         }
     }
 }

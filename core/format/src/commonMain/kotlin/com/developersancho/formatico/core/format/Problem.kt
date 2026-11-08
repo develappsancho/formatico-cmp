@@ -87,6 +87,12 @@ enum class ProblemCode {
     /** Values nested deeper than Formatico reads. */
     TooDeep,
 
-    /** A key given twice in one object: the later one wins in most readers. */
-    DuplicateKey
+    /** A key given twice in one object: the later one wins in most readers. In YAML, an error. */
+    DuplicateKey,
+
+    /** YAML that cannot be read: what is wrong, the reader of YAML says in English, and it is not kept. */
+    YamlSyntax,
+
+    /** A YAML alias whose anchor is not given before it. */
+    UndefinedAlias
 }

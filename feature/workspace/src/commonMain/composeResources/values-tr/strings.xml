@@ -22,8 +22,9 @@
     <string name="workspace_editor_title">Metin düzenleme yolda</string>
     <string name="workspace_editor_body">Sonraki bir sürümle geliyor. O zamana kadar belge ağaçta görünüyor; Biçimlendir, Küçült ve Kopyala belgenin tamamında çalışıyor.</string>
     <string name="workspace_editor_body_unread">Sonraki bir sürümle geliyor. O zamana kadar Kopyala ve Dosya olarak kaydet belgenin tamamında çalışıyor.</string>
+    <string name="workspace_editor_body_read">Sonraki bir sürümle geliyor. O zamana kadar belge ağaçta görünüyor; Kopyala ve Dosya olarak kaydet belgenin tamamında çalışıyor.</string>
     <string name="workspace_unread_title">%1$s henüz okunmuyor</string>
-    <string name="workspace_unread_body">Formatico bugün JSON, JSONC ve JSON5 okuyor; sırada %1$s var.</string>
+    <string name="workspace_unread_body">Formatico bugün JSON, JSONC, JSON5 ve YAML okuyor; sırada %1$s var.</string>
     <string name="workspace_plain_title">Düz metnin ağacı yok</string>
     <string name="workspace_plain_body">Hangi biçimde yazıldığını seçersen öyle okunur.</string>
     <string name="workspace_empty_title">Belge boş</string>
@@ -57,7 +58,8 @@
     <string name="workspace_already_formatted">Zaten biçimli</string>
     <string name="workspace_already_minified">Zaten küçültülmüş</string>
     <string name="workspace_already_sorted">Anahtarları zaten sıralı</string>
-    <string name="workspace_edit_impossible">Formatico yalnızca geçerli bir JSON, JSONC ya da JSON5 belgesini değiştirir</string>
+    <string name="workspace_edit_impossible">Formatico yalnızca geçerli bir JSON, JSONC, JSON5 ya da YAML belgesini değiştirir</string>
+    <string name="workspace_alias_before_anchor">Anahtarlar olduğu gibi bırakıldı: sıralamak bir alias’ı anchor’ının önüne koyardı</string>
     <string name="workspace_copied">Belge kopyalandı</string>
     <string name="workspace_copy_failed">Belge kopyalanamadı</string>
     <string name="workspace_value_copied">Değer kopyalandı</string>
@@ -78,6 +80,10 @@
     <string name="workspace_kind_null">Boş</string>
     <string name="workspace_kind_object">Nesne</string>
     <string name="workspace_kind_array">Dizi</string>
+    <string name="workspace_kind_alias">Alias</string>
+    <string name="workspace_alias_detail">&amp;%1$s anchor’ını gösteriyor</string>
+    <string name="workspace_alias_missing">Önünde &amp;%1$s anchor’ı yok</string>
+    <string name="workspace_go_to_anchor">Anchor’a git</string>
     <plurals name="workspace_keys">
         <item quantity="one">%1$d anahtar</item>
         <item quantity="other">%1$d anahtar</item>

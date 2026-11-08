@@ -24,8 +24,15 @@ internal data class WorkspaceState(
     /** The document's value, where it was read. */
     val root: ValueNode? get() = (reading as? Reading.Read)?.root
 
-    /** Whether Format, Minify and Sort keys can change the document: it is read, and has no error. */
-    val editable: Boolean get() = reading is Reading.Read && reading.errors == 0 && reading.root != null
+    /**
+     * Whether Format, Minify and Sort keys can change the document: it is in a format Formatico writes out, it is read,
+     * and it has no error.
+     */
+    val editable: Boolean
+        get() = reading is Reading.Read &&
+            reading.format.isWritten &&
+            reading.errors == 0 &&
+            reading.root != null
 }
 
 /** What the user did, or asked for, in a workspace. */

@@ -53,7 +53,7 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Durum: açık.
 *   [ ] **Biçimlerin yalnızca JSON ailesi okunuyor (2026-11-02).**
     *   Ne: `core:format`'ta bugün JSON, JSONC ve JSON5 okuyucusu, biçim algılama, satır ve sütunlu problemler var. Biçimlendirme, küçültme, onarım, NDJSON okuyucusu, XML, YAML (`snakeyaml-engine-kmp` ve kendi yazıcımız), TOML, CSV/TSV, properties/INI sırada.
-    *   Durum: açık.
+    *   Durum: açık. Biçimlendirme, küçültme ve anahtar sıralama JSON ailesinde yazıldı (2026-11-03); YAML `snakeyaml-engine-kmp` 5.0.0 ile okunuyor ve Formatico'nun kendi yazıcısıyla yazılıyor (2026-11-03). NDJSON, XML, TOML, CSV/TSV, properties/INI ve onarım sırada.
 
 ## Start
 
@@ -98,9 +98,9 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
 *   [ ] **Yalnızca JSON ailesi okunuyor; dört örneğin üçü okunmuyor (2026-11-03).**
     *   Ne: Workspace'in ağacı ve düzenlemeleri JSON, JSONC ve JSON5'te çalışıyor. YAML, TOML, CSV ve diğerleri "isn’t read yet" diyor; Start'ın dört örneğinden üçü (deployment.yaml, Cargo.toml, countries.csv) bugün yalnızca bu hâli gösteriyor. NDJSON da okunmuyor.
     *   Öneri: `core:format`'ın sıradaki okuyucuları; ilk olarak YAML (`snakeyaml-engine-kmp`) ve CSV, çünkü örnekleri var.
-    *   Durum: açık.
+    *   Durum: açık. YAML okunuyor (2026-11-03): deployment.yaml'ın ağacı, anchor'ları ve alias'ları görünüyor. Cargo.toml ve countries.csv hâlâ "isn’t read yet" diyor.
 *   [ ] **Geri alma tek adım ve yalnızca bildirimden (2026-11-03).**
-    *   Ne: Format, Minify ve Sort keys bir "Undo" bildirimi gösteriyor; bildirim kapanınca önceki metin gidiyor. Minify yorumları siliyor: bildirim kapandıktan sonra JSONC'nin yorumları geri gelmez. Telefonda eylemli bildirim, kapatılana kadar alttaki araç çubuğunun üstünde duruyor (Pantrix'in kuralı: eylemli bildirim kendiliğinden kapanmaz).
+    *   Ne: Format, Minify ve Sort keys bir "Undo" bildirimi gösteriyor; bildirim kapanınca önceki metin gidiyor. Minify yorumları siliyor: bildirim kapandıktan sonra JSONC'nin ve YAML'ın yorumları geri gelmez. Telefonda eylemli bildirim, kapatılana kadar alttaki araç çubuğunun üstünde duruyor (Pantrix'in kuralı: eylemli bildirim kendiliğinden kapanmaz).
     *   Öneri: editörle birlikte belge başına bir geri alma geçmişi (`⌘Z`); o zamana kadar yorumu olan bir belgeyi küçültmeden önce uyarmak ya da yorumlar silinecekse bildirimde söylemek.
     *   Durum: açık.
 *   [ ] **Açık belgeler uygulama kapanınca gidiyor (2026-11-03).**
@@ -124,4 +124,27 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
 *   [ ] **Koin'in bağlamı `App()` bitince kapanmıyor (2026-11-03).**
     *   Ne: Masaüstünün UI testlerinde bir testin açtığı belgeler bir sonraki testin `App()`'inde açık duruyor: `KoinApplication` (Koin 4.2.2) aynı süreçte bağlamını yeniden kullanıyor, `Workbench` tekil olarak yaşıyor. Uygulamada istenen bu (döndürmede sekmeler kalıyor), testlerde ise sıra bağımlılığı demek. `AppTest` bugün geçiyor, çünkü belge açan tek test sonunda yeni sekmeye dönüyor.
     *   Öneri: `App()`'e testin vereceği bir Koin yapılandırması ya da testlerde `stopKoin()`; Koin'in `KoinApplication` belgesinde bu davranışa bakmak.
+    *   Durum: açık.
+*   [x] **YAML okunuyor, yazılmıyor (2026-11-03).**
+    *   Ne: YAML ağaçta okunuyor; Format, Minify ve Sort keys YAML'da kapalı, çünkü sahibinin kararıyla YAML Formatico'nun kendi yazıcısıyla yazılacak ve o yazıcı henüz yok. Kapalı düğmeler nedenini söylemiyor.
+    *   Öneri: sıradaki iş olarak YAML yazıcısı (yorumlar, anchor'lar ve skaler biçimleri korunarak); o zamana kadar düğmelere bir ipucu.
+    *   Durum: kapandı (2026-11-03). `core:format`'ta `YamlDocument.formatted` (blok biçimi; yorumlar, boş satırlar, anchor, alias, etiket, skalerin yazılışı, belge işaretleri korunuyor) ve `minified` (tek satır, akış biçimi). Sıralama bir alias'ı anchor'ının önüne koyacaksa yapılmıyor ve nedeni söyleniyor.
+*   [ ] **YAML yazıcısının yorum ve biçim kuralları (2026-11-03).**
+    *   Ne: Bir yorum, satırın sonundaysa o satırın sonunda, kendi satırındaysa altındaki girdinin önünde kalıyor. Bunun sonucunda bir dizinin tirelerinden sonra gelen yorum (`- # not`) kendi satırına geçiyor; Sort keys'te dosyanın en üstündeki yorum ilk anahtarla birlikte taşınıyor. Tek satırlık bir akış koleksiyonu (`[a, b]`, `{a: 1}`) olduğu gibi kalıyor, blok biçimine açılmıyor; birkaç satıra yayılmış olanı tek satıra iniyor (içinde yorum varsa olduğu gibi kalıyor). Birkaç satıra yayılmış düz ya da tırnaklı bir skaler tek satıra iniyor. `...` belge sonu işareti yazılmıyor. Dört boşlukla girintilenen bir belgede dizinin öğeleri `-   a: 1` biçiminde, tireden sonra üç boşlukla yazılıyor.
+    *   Öneri: Settings'e "akış koleksiyonlarını blok biçimine aç" seçeneği; diğerleri için kullanıcıların ne beklediğine bakmak.
+    *   Durum: açık.
+*   [ ] **Sıralama bir alias'ı anchor'ının önüne koyacaksa yapılmıyor (2026-11-03).**
+    *   Ne: YAML'da alias'ın anchor'ından sonra gelmesi gerekiyor. Sort keys sonucu okuyup bunu bulursa belgeyi değiştirmiyor ve "sıralamak bir alias'ı anchor'ının önüne koyardı" diyor.
+    *   Öneri: sıralamadan sonra anchor'ı ilk geçtiği yere, alias'ı sonrakine taşımak (değer aynı kalır).
+    *   Durum: açık.
+*   [ ] **YAML'da yalnızca ilk sözdizimi hatası bulunuyor (2026-11-03).**
+    *   Ne: `snakeyaml-engine-kmp` ilk sözdizimi hatasında duruyor; Formatico o hatayı, ondan önce okunanı ve yinelenen anahtarlar ile anchor'ı olmayan alias'ları gösteriyor. Hatanın kütüphanedeki İngilizce açıklaması saklanmıyor (`ProblemCode.YamlSyntax`): problem listesi yazılınca neyin yanlış olduğunu söyleyecek bir yol gerekecek.
+    *   Öneri: Invalid ekranıyla birlikte kütüphanenin sorun türlerini (`ScannerException`, `ParserException`) kendi kodlarımıza eşlemek.
+    *   Durum: açık.
+*   [ ] **YAML'ın birleştirme anahtarı ve YAML 1.1 değerleri (2026-11-03).**
+    *   Ne: YAML 1.2'nin çekirdek şemasıyla okunuyor: `<<: *defaults` birleştirilmiyor, ağaçta `<<` adlı bir anahtar ve bir alias olarak duruyor; `yes`, `no`, `on`, `off` mantıksal değil metin. Kubernetes gibi YAML 1.1 alışkanlığıyla yazılmış belgelerde bu şaşırtabilir.
+    *   Öneri: Settings'e "YAML 1.1" seçeneği ya da ağaçta birleştirilmiş anahtarları gösteren bir görünüm.
+    *   Durum: açık.
+*   [ ] **Ağaç seçilen satıra kaydırılamıyor (2026-11-03).**
+    *   Ne: "Go to the anchor" ve izin adımları bir değeri seçiyor, üstündeki dalları açıyor; ama satır ekranın dışındaysa ağaç ona kaymıyor. Bkz. `PANTRIX_FINDINGS.md`.
     *   Durum: açık.

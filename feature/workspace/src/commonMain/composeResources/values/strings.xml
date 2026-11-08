@@ -22,8 +22,9 @@
     <string name="workspace_editor_title">Text editing is on its way</string>
     <string name="workspace_editor_body">It comes in a later version. Until then, the tree shows the document, and Format, Minify and Copy work on all of it.</string>
     <string name="workspace_editor_body_unread">It comes in a later version. Until then, Copy and Save as a file work on all of the document.</string>
+    <string name="workspace_editor_body_read">It comes in a later version. Until then, the tree shows the document, and Copy and Save as a file work on all of it.</string>
     <string name="workspace_unread_title">%1$s isn’t read yet</string>
-    <string name="workspace_unread_body">Formatico reads JSON, JSONC and JSON5 today; %1$s comes next.</string>
+    <string name="workspace_unread_body">Formatico reads JSON, JSONC, JSON5 and YAML today; %1$s comes next.</string>
     <string name="workspace_plain_title">Plain text has no tree</string>
     <string name="workspace_plain_body">Choose the format it is written in, and it is read as one.</string>
     <string name="workspace_empty_title">The document is empty</string>
@@ -57,7 +58,8 @@
     <string name="workspace_already_formatted">It is formatted already</string>
     <string name="workspace_already_minified">It is minified already</string>
     <string name="workspace_already_sorted">Its keys are in order already</string>
-    <string name="workspace_edit_impossible">Formatico changes only a valid JSON, JSONC or JSON5 document</string>
+    <string name="workspace_edit_impossible">Formatico changes only a valid JSON, JSONC, JSON5 or YAML document</string>
+    <string name="workspace_alias_before_anchor">The keys are left as they are: sorting them would put an alias before its anchor</string>
     <string name="workspace_copied">Document copied</string>
     <string name="workspace_copy_failed">The document couldn’t be copied</string>
     <string name="workspace_value_copied">Value copied</string>
@@ -78,6 +80,10 @@
     <string name="workspace_kind_null">Null</string>
     <string name="workspace_kind_object">Object</string>
     <string name="workspace_kind_array">Array</string>
+    <string name="workspace_kind_alias">Alias</string>
+    <string name="workspace_alias_detail">Points to the anchor &amp;%1$s</string>
+    <string name="workspace_alias_missing">No anchor &amp;%1$s comes before it</string>
+    <string name="workspace_go_to_anchor">Go to the anchor</string>
     <plurals name="workspace_keys">
         <item quantity="one">%1$d key</item>
         <item quantity="other">%1$d keys</item>

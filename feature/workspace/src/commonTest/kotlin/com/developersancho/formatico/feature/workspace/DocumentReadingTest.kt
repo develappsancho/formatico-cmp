@@ -97,8 +97,49 @@ class DocumentReadingTest {
 
     @Test
     fun aFormatNotReadYetAndPlainTextAreNotRead() {
-        assertEquals(Reading.Unread(Format.Yaml), readDocument("a: 1", Format.Yaml))
+        assertEquals(Reading.Unread(Format.Toml), readDocument("a = 1", Format.Toml))
         assertEquals(Reading.Unread(null), readDocument("hello", null))
+    }
+
+    @Test
+    fun aYamlTreeKeepsItsAnchorsAndItsAliases() {
+        val yaml = """
+            metadata:
+              labels: &labels
+                app: formatico
+            spec:
+              replicas: 3
+              size: "50"
+              selector:
+                matchLabels: *labels
+        """.trimIndent()
+        val root = assertIs<Reading.Read>(readDocument(yaml, Format.Yaml)).root!!
+
+        assertEquals("labels", root.find("$.metadata.labels").anchor)
+        val alias = root.find("$.spec.selector.matchLabels")
+        assertEquals(ValueKind.Alias, alias.kind)
+        assertEquals("*labels", alias.text)
+        assertEquals("$.metadata.labels", alias.target?.key)
+        assertEquals(ValueKind.Number, root.find("$.spec.replicas").kind)
+        assertEquals("\"50\"", root.find("$.spec.size").text)
+        assertEquals("50", root.find("$.spec.size").value)
+    }
+
+    @Test
+    fun aStreamOfYamlDocumentsIsAnArrayOfThem() {
+        val root = assertIs<Reading.Read>(readDocument("a: 1\n---\nb: 2\n", Format.Yaml)).root!!
+
+        assertEquals(ValueKind.Array, root.kind)
+        assertEquals(listOf("$[0]", "$[1]"), root.children.map { it.key })
+        assertEquals("$[1].b", root.find("$[1].b").key)
+    }
+
+    @Test
+    fun brokenYamlCountsItsErrorAndKeepsWhatWasRead() {
+        val reading = assertIs<Reading.Read>(readDocument("a: 1\nb: [1, 2\n", Format.Yaml))
+
+        assertEquals(1, reading.errors)
+        assertEquals("a", reading.root?.children?.first()?.name)
     }
 
     @Test

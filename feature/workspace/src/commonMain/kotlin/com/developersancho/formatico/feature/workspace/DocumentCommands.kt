@@ -23,6 +23,7 @@ import com.pantrixui.foundation.files.rememberFileSaver
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.platform.rememberPantrixClipboard
 import formatico.feature.workspace.generated.resources.Res
+import formatico.feature.workspace.generated.resources.workspace_alias_before_anchor
 import formatico.feature.workspace.generated.resources.workspace_already_formatted
 import formatico.feature.workspace.generated.resources.workspace_already_minified
 import formatico.feature.workspace.generated.resources.workspace_already_sorted
@@ -67,7 +68,8 @@ private data class EditWords(
     val done: Map<DocumentEdit, String>,
     val already: Map<DocumentEdit, String>,
     val undo: String,
-    val impossible: String
+    val impossible: String,
+    val aliasBeforeAnchor: String
 )
 
 /** The words [DocumentCommands] say, read once from the resources. */
@@ -105,7 +107,8 @@ private fun commandWords() = CommandWords(
             DocumentEdit.SortKeys to stringResource(Res.string.workspace_already_sorted)
         ),
         undo = stringResource(Res.string.workspace_undo),
-        impossible = stringResource(Res.string.workspace_edit_impossible)
+        impossible = stringResource(Res.string.workspace_edit_impossible),
+        aliasBeforeAnchor = stringResource(Res.string.workspace_alias_before_anchor)
     ),
     saveFailed = stringResource(Res.string.workspace_save_failed),
     untitled = stringResource(Res.string.workspace_untitled)
@@ -179,6 +182,13 @@ internal fun rememberDocumentCommands(workbench: Workbench): DocumentCommands {
                                 tone = SnackbarTone.Warning,
                                 tagKey = "not_possible"
                             )
+
+                        EditResult.AliasBeforeAnchor ->
+                            snackbars?.show(
+                                message = words.edits.aliasBeforeAnchor,
+                                tone = SnackbarTone.Warning,
+                                tagKey = "alias_before_anchor"
+                            )
                     }
                 }
             }
@@ -213,7 +223,7 @@ fun DocumentMoreMenu(documentId: Long) {
         items = DocumentMenuItems.SortCompareClose,
         size = ButtonSize.Large,
         // Whether the document is valid is the workspace's to know; one with errors is told why it is not sorted.
-        canSort = format?.jsonDialect != null,
+        canSort = format?.isWritten == true,
         onSortKeys = {
             scope.launch { commands.report(DocumentEdit.SortKeys, workbench.edit(documentId, DocumentEdit.SortKeys)) }
         },

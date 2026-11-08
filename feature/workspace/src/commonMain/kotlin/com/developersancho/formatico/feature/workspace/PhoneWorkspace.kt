@@ -36,6 +36,7 @@ import formatico.feature.workspace.generated.resources.Res
 import formatico.feature.workspace.generated.resources.workspace_copy_document
 import formatico.feature.workspace.generated.resources.workspace_copy_value
 import formatico.feature.workspace.generated.resources.workspace_format
+import formatico.feature.workspace.generated.resources.workspace_go_to_anchor
 import formatico.feature.workspace.generated.resources.workspace_minify
 import formatico.feature.workspace.generated.resources.workspace_save_file
 import formatico.feature.workspace.generated.resources.workspace_show_in_text
@@ -82,6 +83,7 @@ internal fun PhoneWorkspace(
                 node = selected,
                 document = document,
                 onCopy = commands.copyValue,
+                onGoTo = { onIntent(WorkspaceIntent.Select(it)) },
                 modifier = Modifier.fillMaxWidth().padding(start = spacing.sm, end = spacing.sm, top = spacing.sm)
             )
         }
@@ -94,7 +96,7 @@ internal fun PhoneWorkspace(
 private fun PhonePane(state: WorkspaceState, pane: DocumentPane, onIntent: (WorkspaceIntent) -> Unit) {
     val spacing = PantrixTheme.spacing
     if (pane == DocumentPane.Text) {
-        EditorComing(readable = state.reading !is Reading.Unread, modifier = Modifier.fillMaxSize())
+        EditorComing(state = state, modifier = Modifier.fillMaxSize())
         return
     }
     if (state.root == null) {
@@ -173,6 +175,7 @@ private fun SelectedValueCard(
     node: ValueNode,
     document: OpenDocument,
     onCopy: (String) -> Unit,
+    onGoTo: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val spacing = PantrixTheme.spacing
@@ -212,16 +215,21 @@ private fun SelectedValueCard(
                 )
             }
             ValueActions(
+                target = node.target?.key,
                 onCopy = { onCopy(node.value ?: document.text.substring(node.range.start, node.range.end)) },
+                onGoTo = onGoTo,
                 modifier = Modifier.padding(top = spacing.xs)
             )
         }
     }
 }
 
-/** The chosen value's actions: showing it in the text, which waits for the editor, and copying it. */
+/**
+ * The chosen value's actions: showing it in the text, which waits for the editor, and copying it, or for an alias,
+ * going to the value its anchor is given, whose key is [target].
+ */
 @Composable
-private fun ValueActions(onCopy: () -> Unit, modifier: Modifier = Modifier) {
+private fun ValueActions(target: String?, onCopy: () -> Unit, onGoTo: (String) -> Unit, modifier: Modifier = Modifier) {
     FlowRow(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(PantrixTheme.spacing.sm),
@@ -234,12 +242,22 @@ private fun ValueActions(onCopy: () -> Unit, modifier: Modifier = Modifier) {
             enabled = false,
             tagKey = "show_in_text"
         )
-        PantrixButton(
-            text = stringResource(Res.string.workspace_copy_value),
-            onClick = onCopy,
-            variant = ButtonVariant.Text,
-            leadingIcon = { PantrixIcon(imageVector = PantrixIcons.Copy, contentDescription = null) },
-            tagKey = "copy_value"
-        )
+        if (target != null) {
+            PantrixButton(
+                text = stringResource(Res.string.workspace_go_to_anchor),
+                onClick = { onGoTo(target) },
+                variant = ButtonVariant.Text,
+                leadingIcon = { PantrixIcon(imageVector = PantrixIcons.ArrowForward, contentDescription = null) },
+                tagKey = "go_to_anchor"
+            )
+        } else {
+            PantrixButton(
+                text = stringResource(Res.string.workspace_copy_value),
+                onClick = onCopy,
+                variant = ButtonVariant.Text,
+                leadingIcon = { PantrixIcon(imageVector = PantrixIcons.Copy, contentDescription = null) },
+                tagKey = "copy_value"
+            )
+        }
     }
 }

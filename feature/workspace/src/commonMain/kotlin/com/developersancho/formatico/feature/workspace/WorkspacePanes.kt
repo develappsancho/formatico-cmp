@@ -42,6 +42,7 @@ import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.theme.PantrixTheme
 import formatico.feature.workspace.generated.resources.Res
 import formatico.feature.workspace.generated.resources.workspace_editor_body
+import formatico.feature.workspace.generated.resources.workspace_editor_body_read
 import formatico.feature.workspace.generated.resources.workspace_editor_body_unread
 import formatico.feature.workspace.generated.resources.workspace_editor_title
 import formatico.feature.workspace.generated.resources.workspace_empty_body
@@ -97,15 +98,18 @@ internal fun PaneMessage(icon: ImageVector, title: String, body: String, modifie
     }
 }
 
-/** Where the text editor will stand: [readable] says whether the tree shows the document meanwhile. */
+/** Where the text editor will stand: what works on the document meanwhile, by what Formatico makes of it. */
 @Composable
-internal fun EditorComing(readable: Boolean, modifier: Modifier = Modifier) {
+internal fun EditorComing(state: WorkspaceState, modifier: Modifier = Modifier) {
+    val body = when {
+        state.editable -> Res.string.workspace_editor_body
+        state.reading is Reading.Read -> Res.string.workspace_editor_body_read
+        else -> Res.string.workspace_editor_body_unread
+    }
     PaneMessage(
         icon = PantrixIcons.File,
         title = stringResource(Res.string.workspace_editor_title),
-        body = stringResource(
-            if (readable) Res.string.workspace_editor_body else Res.string.workspace_editor_body_unread
-        ),
+        body = stringResource(body),
         modifier = modifier
     )
 }
@@ -293,14 +297,18 @@ private fun treeNodeOf(node: ValueNode, words: PreviewWords): TreeNode = if (nod
         key = node.key,
         label = node.name,
         children = node.children.map { treeNodeOf(it, words) },
-        trailing = node.text,
+        trailing = listOfNotNull(node.text, node.anchor?.let { "&$it" }).joinToString(" · "),
         tagKey = tagOf(node)
     )
 } else {
     TreeNode(
         key = node.key,
         label = if (node.path.isEmpty()) node.text else "${node.name}: ${node.text}",
-        trailing = node.preview?.let(words::of),
+        trailing = listOfNotNull(
+            node.anchor?.let { "&$it" },
+            node.target?.let { "→ ${jsonPath(it.path)}" },
+            node.preview?.let(words::of)
+        ).joinToString(" · ").ifEmpty { null },
         tagKey = tagOf(node)
     )
 }

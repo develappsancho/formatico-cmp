@@ -38,6 +38,15 @@ class WorkspaceScreenTest {
         }
     """.trimIndent()
 
+    private val deployment = """
+        metadata:
+          labels: &labels
+            app: formatico
+        spec:
+          selector:
+            matchLabels: *labels
+    """.trimIndent()
+
     /** A workspace's state as its view model makes it, for [text] read as [format]. */
     private fun stateOf(
         text: String,
@@ -94,15 +103,15 @@ class WorkspaceScreenTest {
         setContent {
             PantrixTestTheme(window = desktop, clock = clock) {
                 WorkspaceScreen(
-                    state = stateOf("a: 1\n", Format.Yaml, name = "deployment.yaml"),
+                    state = stateOf("a = 1\n", Format.Toml, name = "Cargo.toml"),
                     onIntent = {},
                     commands = rememberDocumentCommands(Workbench())
                 )
             }
         }
 
-        awaitText("YAML isn’t read yet")
-        onNodeWithText("YAML, not checked").assertExists()
+        awaitText("TOML isn’t read yet")
+        onNodeWithText("TOML, not checked").assertExists()
         onPantrixNode("Button", "format").assertIsNotEnabled()
         onPantrixNode("Button", "minify").assertIsNotEnabled()
         onPantrixNode("TreeView", "document").assertDoesNotExist()
@@ -153,6 +162,55 @@ class WorkspaceScreenTest {
 
         assertEquals(listOf<WorkspaceIntent>(WorkspaceIntent.ShowPane(DocumentPane.Text)), intents)
         assertNoFindings(findings)
+    }
+
+    @Test
+    fun aYamlDocumentShowsItsTreeAndCanBeChanged() = runComposeUiTest {
+        val findings = PantrixFindings()
+        setContent {
+            PantrixTestTheme(window = desktop, findings = findings, clock = clock) {
+                WorkspaceScreen(
+                    state = stateOf(
+                        deployment,
+                        Format.Yaml,
+                        name = "deployment.yaml",
+                        view = DocumentView(expanded = setOf("$", "$.spec", "$.spec.selector"))
+                    ),
+                    onIntent = {},
+                    commands = rememberDocumentCommands(Workbench())
+                )
+            }
+        }
+
+        awaitText("Valid YAML")
+        onNodeWithText("matchLabels: *labels").assertExists()
+        onPantrixNode("Button", "format").assertIsEnabled()
+        onPantrixNode("Button", "sort_keys").assertIsEnabled()
+        assertNoFindings(findings)
+    }
+
+    @Test
+    fun aPhoneGoesFromAnAliasToItsAnchor() = runComposeUiTest {
+        val intents = mutableListOf<WorkspaceIntent>()
+        setContent {
+            PantrixTestTheme(window = phone, clock = clock) {
+                WorkspaceScreen(
+                    state = stateOf(
+                        deployment,
+                        Format.Yaml,
+                        name = "deployment.yaml",
+                        view = DocumentView(selected = "$.spec.selector.matchLabels")
+                    ),
+                    onIntent = { intents += it },
+                    commands = rememberDocumentCommands(Workbench())
+                )
+            }
+        }
+
+        awaitText("Points to the anchor &labels")
+        onPantrixNode("Button", "go_to_anchor").performClick()
+
+        assertEquals(listOf<WorkspaceIntent>(WorkspaceIntent.Select("$.metadata.labels")), intents)
     }
 
     @Test

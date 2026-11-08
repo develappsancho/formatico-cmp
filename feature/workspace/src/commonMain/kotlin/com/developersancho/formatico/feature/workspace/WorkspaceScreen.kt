@@ -305,6 +305,6 @@ internal fun FormatMenu(format: Format?, size: ButtonSize, onChange: (Format?) -
 @Composable
 private fun TextPane(state: WorkspaceState, modifier: Modifier = Modifier) {
     Box(modifier = modifier) {
-        EditorComing(readable = state.reading !is Reading.Unread, modifier = Modifier.fillMaxSize())
+        EditorComing(state = state, modifier = Modifier.fillMaxSize())
     }
 }

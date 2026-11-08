@@ -64,6 +64,18 @@ class WorkspaceViewModelTest {
     }
 
     @Test
+    fun choosingAValueOpensTheBranchesItStandsIn() {
+        val id = workbench.open(null, """{"a": [{"b": 1}], "c": 2}""", Format.Json)
+        val viewModel = viewModel(id)
+        assertEquals(setOf("$"), viewModel.state.value.expanded)
+
+        viewModel.dispatch(WorkspaceIntent.Select("$.a[0].b"))
+
+        assertEquals(setOf("$", "$.a", "$.a[0]"), viewModel.state.value.expanded)
+        assertEquals("$.a[0].b", viewModel.state.value.selected?.key)
+    }
+
+    @Test
     fun anEditIsMadeAndReportedAndTheDocumentReadAgain() = runTest {
         val id = workbench.open(null, """{"b": 1, "a": 2}""", Format.Json)
         val viewModel = viewModel(id)
@@ -80,12 +92,24 @@ class WorkspaceViewModelTest {
 
     @Test
     fun aFormatNotReadYetIsNotEditable() {
-        val id = workbench.open("deployment.yaml", "a: 1", Format.Yaml)
+        val id = workbench.open("Cargo.toml", "a = 1", Format.Toml)
 
         val state = viewModel(id).state.value
 
-        assertEquals(Reading.Unread(Format.Yaml), state.reading)
+        assertEquals(Reading.Unread(Format.Toml), state.reading)
         assertFalse(state.editable)
+    }
+
+    @Test
+    fun aYamlDocumentIsReadAndFormatted() = runTest {
+        val id = workbench.open("deployment.yaml", "a:    &x 1\nb:   *x\n", Format.Yaml)
+        val viewModel = viewModel(id)
+
+        val reading = assertIs<Reading.Read>(viewModel.state.value.reading)
+        assertEquals(0, reading.errors)
+        assertTrue(viewModel.state.value.editable)
+        assertIs<EditResult.Changed>(workbench.edit(id, DocumentEdit.Format))
+        assertEquals("a: &x 1\nb: *x\n", workbench.state.value.selected!!.text)
     }
 
     @Test

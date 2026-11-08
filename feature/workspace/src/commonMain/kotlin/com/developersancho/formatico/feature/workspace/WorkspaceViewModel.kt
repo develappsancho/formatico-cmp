@@ -44,7 +44,7 @@ internal class WorkspaceViewModel(
         when (intent) {
             is WorkspaceIntent.Expand -> workbench.changeView(documentId) { it.copy(expanded = intent.keys) }
 
-            is WorkspaceIntent.Select -> workbench.changeView(documentId) { it.copy(selected = intent.key) }
+            is WorkspaceIntent.Select -> select(intent.key)
 
             is WorkspaceIntent.ShowPane -> workbench.changeView(documentId) { it.copy(pane = intent.pane) }
 
@@ -56,6 +56,14 @@ internal class WorkspaceViewModel(
 
             WorkspaceIntent.Close -> workbench.close(documentId)
         }
+    }
+
+    /** Chooses the value whose key is [key], and opens the branches it stands in, so that its row is shown. */
+    private fun select(key: String?) {
+        val ancestors = trail(state.value.root, key).dropLast(1).map { it.key }
+        val expanded = state.value.expanded
+        val opened = if (expanded.containsAll(ancestors)) null else expanded + ancestors
+        workbench.changeView(documentId) { view -> view.copy(selected = key, expanded = opened ?: view.expanded) }
     }
 
     /** The state with its open branches and the trail to its chosen value, from its document's view and its tree. */

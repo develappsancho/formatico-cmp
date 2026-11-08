@@ -3,17 +3,21 @@ package com.developersancho.formatico.feature.workspace
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.developersancho.formatico.core.format.json.jsonPath
 import com.pantrixui.foundation.date.LocalPantrixClock
 import com.pantrixui.foundation.date.PantrixDate
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.l10n.PantrixStrings
 import com.pantrixui.foundation.theme.PantrixTheme
 import formatico.feature.workspace.generated.resources.Res
+import formatico.feature.workspace.generated.resources.workspace_alias_detail
+import formatico.feature.workspace.generated.resources.workspace_alias_missing
 import formatico.feature.workspace.generated.resources.workspace_characters
 import formatico.feature.workspace.generated.resources.workspace_days_ago
 import formatico.feature.workspace.generated.resources.workspace_days_ahead
 import formatico.feature.workspace.generated.resources.workspace_items
 import formatico.feature.workspace.generated.resources.workspace_keys
+import formatico.feature.workspace.generated.resources.workspace_kind_alias
 import formatico.feature.workspace.generated.resources.workspace_kind_array
 import formatico.feature.workspace.generated.resources.workspace_kind_boolean
 import formatico.feature.workspace.generated.resources.workspace_kind_colour
@@ -180,6 +184,20 @@ private fun plainReading(node: ValueNode): ValueReading {
         ValueKind.Boolean -> ValueReading(stringResource(Res.string.workspace_kind_boolean), null, node.text, null)
 
         ValueKind.Null -> ValueReading(stringResource(Res.string.workspace_kind_null), null, node.text, null)
+
+        ValueKind.Alias -> {
+            val anchor = node.text.removePrefix("*")
+            val target = node.target
+            ValueReading(
+                kind = stringResource(Res.string.workspace_kind_alias),
+                icon = null,
+                headline = target?.let { jsonPath(it.path) } ?: node.text,
+                detail = stringResource(
+                    if (target != null) Res.string.workspace_alias_detail else Res.string.workspace_alias_missing,
+                    anchor
+                )
+            )
+        }
     }
 }
 

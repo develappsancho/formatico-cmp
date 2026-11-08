@@ -15,8 +15,11 @@ import com.developersancho.formatico.core.format.text.LineMap
 import com.developersancho.formatico.core.format.text.TextLayout
 import com.developersancho.formatico.core.format.text.TextRange
 
-/** What kind of value a node of the tree is. */
-internal enum class ValueKind { Object, Array, String, Number, Boolean, Null }
+/** What kind of value a node of the tree is: a YAML alias among them, which stands for the value it points at. */
+internal enum class ValueKind { Object, Array, String, Number, Boolean, Null, Alias }
+
+/** Where another node of the tree is: its key, and its path from the root. */
+internal data class ValueReference(val key: String, val path: List<PathStep>)
 
 /**
  * A value of a document, as its tree shows it.
@@ -30,6 +33,8 @@ internal enum class ValueKind { Object, Array, String, Number, Boolean, Null }
  * @property preview what a string looks like it is: a date, a colour, a link, a picture.
  * @property children what an object or an array holds, in order.
  * @property range where the value is written in the document's text.
+ * @property anchor the YAML anchor the value is given, `labels` for `&labels`, or null.
+ * @property target where the value a YAML alias points at is, or null for any other value and an alias with no anchor.
  */
 internal data class ValueNode(
     val key: String,
@@ -40,7 +45,9 @@ internal data class ValueNode(
     val value: String?,
     val preview: ValuePreview?,
     val children: List<ValueNode>,
-    val range: TextRange
+    val range: TextRange,
+    val anchor: String? = null,
+    val target: ValueReference? = null
 )
 
 /** What Formatico could make of a document. */
@@ -78,6 +85,7 @@ internal data class TextStats(val lines: Int, val bytes: Long, val layout: TextL
 
 /** Reads [text] as [format], for its tree. */
 internal fun readDocument(text: String, format: Format?): Reading {
+    if (format == Format.Yaml) return readYaml(text)
     val dialect = format?.jsonDialect ?: return Reading.Unread(format)
     val document = JsonDocument.parse(text, dialect)
     return Reading.Read(
@@ -87,7 +95,11 @@ internal fun readDocument(text: String, format: Format?): Reading {
     )
 }
 
-private const val ROOT = "$"
+internal const val ROOT = "$"
+
+/** The key of a child of the node keyed [parent], at [step]; [duplicate], a key's place where it is given again. */
+internal fun childKey(parent: String, step: PathStep, duplicate: Int? = null): String =
+    parent + jsonPath(listOf(step)).drop(1) + (duplicate?.let { "#$it" } ?: "")
 
 /**
  * The node of [value], at [path] and keyed [key]. A child's key is its parent's and its own step: a key given twice in
@@ -99,15 +111,15 @@ private fun node(value: JsonValue, path: List<PathStep>, name: String, key: Stri
             val seen = HashSet<String>()
             val children = value.members.mapIndexedNotNull { index, member ->
                 val step = PathStep.Key(member.key.name)
-                val own = jsonPath(listOf(step)).drop(1) + if (seen.add(member.key.name)) "" else "#$index"
-                member.value?.let { node(it, path + step, member.key.name, key + own) }
+                val own = childKey(key, step, duplicate = index.takeUnless { seen.add(member.key.name) })
+                member.value?.let { node(it, path + step, member.key.name, own) }
             }
             ValueNode(key, path, name, ValueKind.Object, "{${value.members.size}}", null, null, children, value.range)
         }
 
         is JsonArray -> {
             val children = value.items.mapIndexed { index, item ->
-                node(item, path + PathStep.Index(index), "$index", "$key[$index]")
+                node(item, path + PathStep.Index(index), "$index", childKey(key, PathStep.Index(index)))
             }
             ValueNode(key, path, name, ValueKind.Array, "[${value.items.size}]", null, null, children, value.range)
         }

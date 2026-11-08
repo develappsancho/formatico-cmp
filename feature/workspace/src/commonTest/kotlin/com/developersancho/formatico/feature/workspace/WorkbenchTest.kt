@@ -79,10 +79,35 @@ class WorkbenchTest {
     @Test
     fun aDocumentWithErrorsOrInAFormatNotReadYetIsNotEdited() = runTest {
         val broken = workbench.open("broken.json", """{"a": }""", Format.Json)
-        val yaml = workbench.open("a.yaml", "a: 1", Format.Yaml)
+        val toml = workbench.open("Cargo.toml", "a = 1", Format.Toml)
+        val yaml = workbench.open("broken.yaml", "a: [1\n", Format.Yaml)
 
         assertEquals(EditResult.NotPossible, workbench.edit(broken, DocumentEdit.Format))
+        assertEquals(EditResult.NotPossible, workbench.edit(toml, DocumentEdit.Format))
         assertEquals(EditResult.NotPossible, workbench.edit(yaml, DocumentEdit.Format))
+    }
+
+    @Test
+    fun yamlIsFormattedMinifiedAndSortedWithItsIndentation() = runTest {
+        val id = workbench.open("a.yaml", "b:\n    d: 1 # one\n    c: [2, 3]\na: x\n", Format.Yaml)
+
+        assertIs<EditResult.Changed>(workbench.edit(id, DocumentEdit.SortKeys))
+        assertEquals("a: x\nb:\n    c: [2, 3]\n    d: 1 # one\n", workbench.state.value.selected!!.text)
+
+        assertIs<EditResult.Changed>(workbench.edit(id, DocumentEdit.Minify))
+        assertEquals("{a: x,b: {c: [2,3],d: 1}}\n", workbench.state.value.selected!!.text)
+
+        // A flow collection on one line stays as it is written.
+        assertEquals(EditResult.Unchanged, workbench.edit(id, DocumentEdit.Format))
+    }
+
+    @Test
+    fun yamlKeysAreNotSortedWhereAnAliasWouldComeBeforeItsAnchor() = runTest {
+        val text = "b: &x 1\na: *x\n"
+        val id = workbench.open("a.yaml", text, Format.Yaml)
+
+        assertEquals(EditResult.AliasBeforeAnchor, workbench.edit(id, DocumentEdit.SortKeys))
+        assertEquals(text, workbench.state.value.selected!!.text)
     }
 
     @Test
