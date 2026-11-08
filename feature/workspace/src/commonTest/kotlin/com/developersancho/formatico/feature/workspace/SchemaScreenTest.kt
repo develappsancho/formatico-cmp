@@ -71,7 +71,7 @@ class SchemaScreenTest {
         awaitNode(hasText("No schema"), "The menu of schemas")
         onPantrixNode("MenuItem", "no_schema", scope = "Menu_schemas").performClick()
         // Pressed again, the toolbar's Schema gives the tree back.
-        onPantrixNode("Button", "schema").performClick()
+        onPantrixNode("Action", "schema", scope = "Toolbar_document").performClick()
         assertEquals(listOf(WorkspaceIntent.Schema(SchemaChoice()), WorkspaceIntent.ShowPane(DocumentPane.Tree)), intents)
         assertNoFindings(findings)
     }

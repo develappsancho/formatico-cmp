@@ -6,11 +6,7 @@ internal object WorkspaceStringsTurkish : WorkspaceStrings {
     override val untitled = "Adsız"
     override val plainText = "Düz metin"
 
-    override fun formatMenu(first: String) = "Biçim: $first. Biçimi değiştir"
-
-    // Shorter than "Biçimlendir" so that the tablet's toolbar holds Schema too
-    // (PANTRIX_FINDINGS, "Sığmayan eylemleri menüsüne alan bir araç çubuğu yok").
-    override val format = "Biçimle"
+    override val format = "Biçimlendir"
     override val minify = "Küçült"
     override val sortKeys = "Anahtarları sırala"
     override val query = "Sorgu"
@@ -19,7 +15,6 @@ internal object WorkspaceStringsTurkish : WorkspaceStrings {
     override val copyDocument = "Belgeyi kopyala"
     override val saveFile = "Dosya olarak kaydet"
     override val moreActions = "Diğer işlemler"
-    override val moreActionsSortCompareSave = "Diğer işlemler: anahtarları sırala, karşılaştır, dosya olarak kaydet"
     override val closeDocument = "Belgeyi kapat"
     override val viewText = "Metin"
     override val viewTree = "Ağaç"

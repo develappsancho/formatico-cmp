@@ -7,8 +7,6 @@ import com.developersancho.formatico.core.designsystem.Board
 import com.developersancho.formatico.core.designsystem.PreviewCase
 import com.developersancho.formatico.core.testing.awaitTexts
 import com.developersancho.formatico.core.testing.checkPreviewCases
-import com.pantrixui.foundation.diagnostics.PantrixCheck
-import com.pantrixui.foundation.diagnostics.PantrixFinding
 import com.pantrixui.testing.onPantrixNode
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -20,13 +18,6 @@ import kotlin.test.fail
  */
 @OptIn(ExperimentalTestApi::class)
 class PreviewCasesTest {
-    /**
-     * The tablet's toolbar has no room for its "more" button beside a long format's name: Pantrix has no toolbar that
-     * moves what does not fit into a menu (PANTRIX_FINDINGS, "Sığmayan eylemleri menüsüne alan bir araç çubuğu yok").
-     */
-    private fun squeezedMore(finding: PantrixFinding, board: Board) =
-        board == Board.Tablet && finding.check == PantrixCheck.SmallTouchTarget && finding.testTag == "IconButton_more"
-
     /** The texts each case is known by, at every board it is drawn at. */
     private fun <T> textsOf(case: PreviewCase<T>, texts: Map<String, List<String>>): List<String> =
         texts[case.name] ?: fail("No texts are given for the case \"${case.name}\"")
@@ -35,8 +26,7 @@ class PreviewCasesTest {
     fun theScreenShowsEachDocumentAndPane() = checkPreviewCases(
         WorkspaceScreenCases(),
         boardsOf = { Board.entries },
-        content = { WorkspaceScreenPreview(it) },
-        known = { finding, _, board -> squeezedMore(finding, board) }
+        content = { WorkspaceScreenPreview(it) }
     ) { case, _ ->
         awaitTexts(*textsOf(case, ScreenTexts).toTypedArray())
     }
@@ -45,8 +35,7 @@ class PreviewCasesTest {
     fun theShareDialogSaysWhereEachShareStands() = checkPreviewCases(
         ShareCases(),
         boardsOf = { Board.entries },
-        content = { SharePreview(it) },
-        known = { finding, _, board -> squeezedMore(finding, board) }
+        content = { SharePreview(it) }
     ) { case, _ ->
         awaitTexts(*textsOf(case, ShareTexts).toTypedArray())
     }
@@ -331,7 +320,7 @@ class PreviewCasesTest {
             "toml" to listOf("Valid TOML", "Ln 9, Col 21"),
             "plain text" to listOf("Plain text"),
             "csv on a tablet" to listOf("Valid CSV"),
-            "yaml on a phone" to listOf("Valid YAML", "Ln 21, Col 21")
+            "yaml on a tablet" to listOf("Valid YAML", "Ln 21, Col 21")
         )
 
         val TrailTexts = mapOf(

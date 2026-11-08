@@ -47,7 +47,8 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
                 derin bir YAML yolunda dört adım aynı etiketi alıyordu. Artık derinlik ve son adım: `1_customer`.
             *   Tablette ağacın başlığında uzun bir yol düzey düğmelerini ve aramayı 0 dp'ye sıkıştırıyordu.
             *   Tablette araç çubuğunun "more"u 36–45 dp kalıyordu. Bu PANTRIX_FINDINGS'in "Sığmayan eylemleri
-                menüsüne alan bir araç çubuğu yok" bulgusu; test onu adıyla anarak geçiriyor.
+                menüsüne alan bir araç çubuğu yok" bulgusu. O kapandı (2026-11-10): araç çubuğu `PantrixToolbar`'a
+                geçti ve testin istisnası kalktı.
         *   JavaScript'in testleri açıldı (`jsBrowserTest`). Compose UI testleri için JS hedefi de Wasm gibi
             `binaries.executable()`. Karma Skiko'nun işlevlerini sayfaya koyup wasm'ı yüklenene kadar testleri
             bekletiyor (`config/karma/skiko-on-js.js`). JS kilit dosyasına Karma'nın paketleri eklendi.
@@ -148,10 +149,10 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Ne: Start bir belgeyi açınca `StartEffect.OpenDocument` gönderiyor; uygulama onu şimdilik bırakıyor (`App.kt`, `StartRoute(onOpenDocument = {})`). Belge yalnızca Recent'e ekleniyor.
     *   Öneri: Workspace yazılınca `Destination.Workspace` ve belgenin sekmesi.
     *   Durum: kapandı (2026-11-03). Açılan belge `Workbench`'e giriyor, kendi sekmesinde seçiliyor ve geri yığınında Start'ın üstüne `Destination.Workspace(documentId)` geliyor.
-*   [ ] **Bırakma alanının sözcükleri panodakinden farklı (2026-11-03).**
+*   [x] **Bırakma alanının sözcükleri panodakinden farklı (2026-11-03).**
     *   Ne: Start panoları "Drop a file here" ve "Choose a file" diyor, destek metni ("JSON, JSONC, … up to 50 MB") alanın içinde. Kodda `PantrixFileDrop` kendi sözcüklerini yazıyor: "Drop files here", "or choose files" (tek dosya alırken de çoğul); destek metni alanın altında. Masaüstünün ekran görüntüsünde görüldü (`app/shared/screenshots/Start-1440.png`).
     *   Öneri: Pantrix'in bulgusu kapanınca panodaki sözcükler; o zamana kadar ya pano koda uyar ya `label` panonun ilk satırını alır. Bkz. `PANTRIX_FINDINGS.md`.
-    *   Durum: açık.
+    *   Durum: kapandı (2026-11-10, Faz 21). Pantrix'in bulgusu kapandı: Start'ın bırakma alanı panodaki gibi "Drop a file here" ve "Choose a file" diyor (`StartStrings.dropAFile`, `chooseAFile`). Destek metni Pantrix'in çizdiği gibi alanın altında; tasarım sisteminin `FileDrop`'u da yardım satırını öyle çiziyor. Önceki durum: açık.
 *   [x] **Recent yalnızca uygulama açıkken tutuluyor (2026-11-03).**
     *   Ne: `SessionDocumentHistory` bellekte; uygulama kapanınca geçmiş gidiyor. Her açılışta Recent'in boş hâli görünüyor. Tasarım "History stays on this device" diyor.
     *   Öneri: cihazda bir depo: üst bilgiler için küçük bir anahtar-değer deposu, içerik için dosyalar (web'de tarayıcının deposu). 50 MB'lık bir belgenin içeriği bir ayar deposuna sığmaz; ayrı bir tasarım kararı.

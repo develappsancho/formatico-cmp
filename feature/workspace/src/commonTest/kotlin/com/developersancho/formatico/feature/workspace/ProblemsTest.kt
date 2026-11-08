@@ -50,7 +50,7 @@ class ProblemsTest {
         onPantrixNode("Button", "repair_1").performClick()
         onPantrixNode("Button", "repair_all").performClick()
         onPantrixNode("Button", "read_as_json5").performClick()
-        onPantrixNode("Button", "repair").performClick()
+        onPantrixNode("Action", "repair", scope = "Toolbar_document").performClick()
 
         assertEquals(
             listOf(
@@ -91,7 +91,7 @@ class ProblemsTest {
         awaitText("Valid JSON")
 
         onPantrixNode("Segment", "problems", scope = "SegmentButton_view").assertDoesNotExist()
-        onPantrixNode("Button", "repair").assertDoesNotExist()
+        onPantrixNode("Action", "repair", scope = "Toolbar_document").assertDoesNotExist()
     }
 
     @Test

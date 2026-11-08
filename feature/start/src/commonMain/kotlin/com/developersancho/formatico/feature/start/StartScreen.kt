@@ -301,9 +301,11 @@ private fun FileZone(refusal: FileRefusal?, onIntent: (StartIntent) -> Unit) {
         onRejected = { rejected ->
             rejected.firstNotNullOfOrNull { it.toRefusal(maxSize) }?.let { onIntent(StartIntent.RefuseFile(it)) }
         },
+        label = startStrings.dropAFile,
         supportingText = refusal?.let { refusalText(it) }
             ?: startStrings.fileDropSupporting(PantrixTheme.strings.fileSize(maxSize)),
         error = refusal != null,
+        actionLabel = startStrings.chooseAFile,
         tagKey = "file"
     )
 }

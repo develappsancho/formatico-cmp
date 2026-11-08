@@ -15,6 +15,8 @@ internal object StartStringsTurkish : StartStrings {
     override val newEmptyDocument = "Yeni boş belge"
     override val newDocument = "Yeni belge"
     override val openFile = "Dosya aç"
+    override val dropAFile = "Bir dosyayı buraya bırakın"
+    override val chooseAFile = "Bir dosya seçin"
     override val clipboardEmpty = "Panodan metin okunamadı"
 
     override fun pasteTooLarge(first: String) = "Yapıştırılan metin $first sınırından büyük"

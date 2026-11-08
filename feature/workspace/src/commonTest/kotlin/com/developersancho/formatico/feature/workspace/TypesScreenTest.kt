@@ -67,7 +67,7 @@ class TypesScreenTest {
         onPantrixNode("MenuItem", "typescript", scope = "Menu_languages").performClick()
         onPantrixNode("TextField", "root_type").performTextReplacement("Purchase")
         // Pressed again, the toolbar's Types gives the tree back.
-        onPantrixNode("Button", "types").performClick()
+        onPantrixNode("Action", "types", scope = "Toolbar_document").performClick()
         assertEquals(
             listOf(
                 WorkspaceIntent.Types(TypesChoice(language = TypeLanguage.TypeScript)),
@@ -154,12 +154,10 @@ class TypesScreenTest {
         setContent {
             PantrixTestTheme(window = phone, clock = clock) {
                 DocumentMenu(
-                    items = DocumentMenuItems.FindSummarySortCompareClose,
                     size = ButtonSize.Large,
                     onTypes = { typing = true },
                     canSort = true,
                     onSortKeys = {},
-                    onSave = {},
                     onClose = {}
                 )
             }

@@ -6,6 +6,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.v2.runComposeUiTest
@@ -155,7 +156,8 @@ class AppSettingsTest {
 
         awaitText("What format is this?")
         onPantrixNode("Button", "leave_as_text").performClick()
-        awaitText("Plain text")
+        // The toolbar's format and the status both say it.
+        awaitNode(hasPantrixTag("Tag", "status") and hasText("Plain text"), "Plain text")
         onPantrixNode("Tab", "document_1", scope = "Tabs_documents").assertExists()
     }
 }

@@ -336,11 +336,11 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Nerede: MCP `get_api TreeViewState`; kaynak jar'da `TreeViewState.kt` (`reveal`).
     *   Öneri: `scrollToKey` listenin ilk yerleşimini beklesin (ya da yerleşimden önce gelen isteği o zaman uygulasın); belge ilk çizimdeki hâli söylesin.
     *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-05). Önerildiği gibi geldi: `scrollToKey` ağacın kompoze edilip ilk kez yerleşmesini bekliyor, o anda görünen bir satır yerinde kalıyor; belgesi de ilk çizimdeki hâli söylüyor. Formatico'nun beklemesi kaldırıldı; `DocumentTree` `LaunchedEffect`'ten doğrudan `scrollToKey` çağırıyor. Denendi: telefonda bir belge açılışta görünen bir değer seçili açılınca ağaç `$`'dan başlıyor (`WorkspaceScreenTest`, JVM, iOS simülatörü ve Wasm; eski davranış taklit edilince düşüyor); ekran görüntüleri ve uzun ağaçta son satıra kaydırma değişmedi. Önceki durum: açık; Formatico `scrollToKey`'den önce `snapshotFlow { layoutInfo.totalItemsCount > 0 }` ile ilk yerleşimi bekliyordu.
-*   [ ] **JsonView seçili bir yolu tutmuyor; metinle birlikte yürüyemiyor (2026-11-02).**
+*   [x] **JsonView seçili bir yolu tutmuyor; metinle birlikte yürüyemiyor (2026-11-02).**
     *   Ne: Formatico'da metindeki imleç ağaçta bir değeri seçiyor, ağaçta seçilen değer metinde imleci taşıyor. `PantrixJsonView` açık yolları (`expanded`) dışarıya veriyor ama seçili bir yol, `onSelect` ya da "bu yola kaydır" yok. JSON'u kendisi bir `String`'den okuyor ve yalnızca RFC 8259 JSON'u alıyor: JSONC, JSON5, YAML, TOML ağaçları için kullanılamıyor, Formatico'nun kendi okuyucusunun ağacını da alamıyor.
     *   Nerede: [JSON View](https://pantrixui.com/components/json-view); MCP `get_api PantrixJsonView`.
     *   Öneri: düğümlerle beslenen bir belge ağacı (anahtar, değer türü, yol), seçili yol ve `onSelect`, yola kaydırma; değer önizlemesi için satır yuvası.
-    *   Durum: kütüphanede yazılıyor (2026-11-10, sahibinin kararı): `selectedPath`, `onSelect(path)` ve durumda `scrollToPath`; dışarıdan düğüm verme eklenmiyor, başka biçimler ve uygulamanın kendi ağacı için `PantrixLazyTreeView`. Formatico'nun ağacı `PantrixLazyTreeView` olduğundan Formatico'yu artık ilgilendirmiyor; paket gelince denetlenip kapanır. Önceki durum: açık.
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-10). Sahibinin kararıyla geldi: `PantrixJsonView`'de `selectedPath` ve `onSelect(path)` (yol `jsonViewPaths`'in yazdığı gibi), `state = rememberJsonViewState()` ile `scrollToPath(path)`, renklerde `JsonViewColors.selectedContainer` ve `selectedContent`; dışarıdan düğüm verme eklenmedi, başka biçimler ve uygulamanın kendi ağacı için `PantrixLazyTreeView`. Formatico `PantrixJsonView`'i kullanmıyor (ağacı `PantrixLazyTreeView`); denendi: API kaynak jar'da var, Formatico yeni paketle derleniyor ve JVM testlerinin hepsi geçiyor. Önceki durum: kütüphanede yazılıyor (2026-11-10, sahibinin kararı); ondan önce açık.
 *   [x] **Kısayolun tuşlarını çizen bir öğe yok (2026-11-02).**
     *   Ne: `PantrixShortcut.keysOn` bir kısayolu tuş tuş veriyor (`⌘`, `K`), ama tuşları çizen bir bileşen yok; tasarım sisteminde de yok. Formatico'nun Start ve Workspace panolarındaki `⌘K` ve `⌘V` işaretleme.
     *   Nerede: [Keyboard shortcuts](https://pantrixui.com/docs/guides/keyboard-shortcuts); tasarım sisteminin bileşen listesi.
@@ -422,11 +422,17 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
         *   **Önbellek:** aynı adres bir oturumda bir kez indirilmeli.
     *   Öneri: `PantrixImage(url = …, placeholder = …, error = …)` ya da ayrı bir `PantrixAsyncImage`; ya da Pantrix'in bir yükleyiciyle (Coil 3) nasıl kullanılacağını gösteren bir sayfa.
     *   Durum: kapandı, sahibinin kararıyla (2026-11-04, Pantrix oturumundan iletildi: "coil kullanılacak ihtiyaç olursa"). Pantrix'e bir yükleyici eklenmeyecek. Formatico gerçek bir küçük resme geçerse Coil 3'ü kendisi ekler: `rememberAsyncImagePainter(url)` ile `PantrixImage(painter = …)`; yüklenirken ve yüklenemeyince yer tutucu, web'de CORS, önbellek ve adresi indirmeden önce sormak o zaman Formatico'nun işi. Şimdilik kodda resim adresi panodaki yer tutucuyla gösterilecek; resim simgesi yok (bkz. "Resmin ve bağlantının simgesi yok").
-*   [ ] **Sık bir çubuktaki bir düğme dokunma hedefini alamıyor (2026-11-04).**
+*   [x] **Sık bir çubuktaki bir düğme dokunma hedefini alamıyor (2026-11-04).**
     *   Ne: Workspace panolarının durum çubuğu 1440'ta 28, 834'te 32 piksel; Summary'yi açan boyut bu çubukta bir düğme. Pantrix bir denetime platformun dokunma hedefini yerleşimde ayırıyor (masaüstünde 32, iOS'ta 44, Android'de 48 dp); daha az yer verilen düğme teşhislerde `SmallTouchTarget` oluyor. Masaüstü uygulamalarının durum çubukları (bir düzenleyicinin satır, sütun ve kodlama düğmeleri) işaretçiyle kullanılan sık çubuklar.
     *   Nerede: MCP `get_documentation_page skill/accessibility` ("Touch targets", `Modifier.minTouchTarget`).
     *   Öneri: dokunma hedefini yerleşimi büyütmeden, çizilenin dışına taşan bir basma alanıyla sağlamak (komşusuyla çakışmadığı sürece), ya da sık çubuklar için bir `PantrixStatusBar` ve öğesi.
-    *   Durum: açık. Kodda çubuk düğmeye yetecek kadar uzuyor: masaüstünde 32, tablette platformun hedefi kadar.
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-10). `PantrixStatusBar` geldi: işaretçiyle 28, dokunmayla 32 dp; 24 dp'lik
+        düğmeleri çizdiğinin dışına, platformun dokunma hedefine kadar basılıyor, çubuk boyunu koruyor; sığmayan sondaki
+        "…" menüsüne düşüyor. Formatico'nun durum çubuğu ona geçti (`StatusBar.kt`): panolardaki gibi geniş pencerede 28,
+        tablette 32, her platformda (`StatusBarStyle(height = …)`); çubuğu uzatan geçici çözüm kalktı. Denendi: JVM, iOS
+        simülatörü, Wasm ve JS testleri; ekran görüntüleri. Ondan doğan bir bulgu: "Durum çubuğunun "…" düğmesi
+        telefonda dokunma hedefini tutturamıyor". Önceki durum: açık. Kodda çubuk düğmeye yetecek kadar uzuyordu:
+        masaüstünde 32, tablette platformun hedefi kadar.
 *   [ ] **Temanın diline göre küçük harfe çevirme dışarıya açık değil (2026-11-04).**
     *   Ne: Pantrix aramalarında harfleri temanın dilinde küçültüyor (`PantrixSelect`, `PantrixJsonView`: Türkçede "i" "İzmir"i buluyor). Ağaçta arama için aynısı gerekti; bunu yapan işlev dışarıya açık değil. Formatico Türkçe ve Azerice için I ile İ'yi kendisi çeviriyor (`folded`).
     *   Nerede: MCP `search_api "lowercase language compare"`; `textOrder` sıralıyor, küçültmüyor.
@@ -452,11 +458,11 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Nerede: MCP `search_icons "chevron up"`; tasarım sistemi, `project/components/index.d.ts` (`IconName`).
     *   Öneri: dönmeyen bir `ChevronUp`.
     *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-10). `PantrixIcons.ChevronUp` geldi (sağdan sola düzende aynalanmıyor), tasarım sisteminde de var (`1794307114-8e1c`). Ağaç aramasının önceki eşleşmesi `ChevronUp`, sonrakisi `ChevronDown` (`TreeSearchBar.kt`); Workspace panoları da öyle (tuval `1794308207-6da3`). Görüntüler yeniden kaydedildi. Önceki durum: açık.
-*   [ ] **FileDrop'un sözcükleri tasarım sistemindekinden farklı ve tek dosyada da çoğul (2026-11-03).**
+*   [x] **FileDrop'un sözcükleri tasarım sistemindekinden farklı ve tek dosyada da çoğul (2026-11-03).**
     *   Ne: Tasarım sistemindeki `FileDrop` bir başlık (`title`), bir eylem (`action`) ve alanın içinde bir destek metni alıyor; Start panoları "Drop a file here", "Choose a file" ve biçimlerin listesini alanın içinde çiziyor. Compose'daki `PantrixFileDrop`'ta yalnızca `label` ("what the zone says first") var, eylemin sözcükleri verilemiyor, `supportingText` alanın altında. `multiple = false` iken de alan "Drop files here", "or choose files" diyor.
     *   Nerede: MCP `get_component_metadata PantrixFileDrop`; tasarım sistemi, `FileDrop`'un özellikleri.
     *   Öneri: tek dosya alan bir alanın sözcükleri tekil; eylemin sözcükleri için bir parametre; tasarım sistemi ile Compose aynı yerleşimde.
-    *   Durum: açık.
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-10). `PantrixFileDrop`'a `actionLabel` ve `dragOverLabel` geldi; `label` ile birlikte alanın üç sözü de uygulamanın. Varsayılanlar değişmedi (tek dosyada kendiliğinden tekile geçmiyor). Formatico'nun bırakma alanı Start panolarının sözlerini veriyor: "Drop a file here" ve "Choose a file" (Türkçesi "Bir dosyayı buraya bırakın", "Bir dosya seçin"). Önceki durum: açık.
 *   [ ] **PantrixTabs'ın altındaki çizgi yalnızca saydam bir renkle gizleniyor (2026-11-03).**
     *   Ne: Formatico'nun belge sekmeleri üst çubuğun içinde bir `PantrixTabs` (kaydırılabilir). Sekmelerin altında satır boyunca bir çizgi çiziliyor; çubuğun kendi alt kenarıyla iki çizgi oluyordu. `TabsStyle`'da bu çizgi için bir alan yok; `TabsColors.divider` "the hairline under the row" diyor, çizgi ancak ona `Color.Transparent` verilerek gizleniyor. Sayfası bir çubuğun içindeki sekmeleri anmıyor.
     *   Nerede: MCP `get_api TabsStyle`, `get_api TabsColors`, `get_component tabs`.
@@ -567,11 +573,11 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Öneri: `TreeNode.childCount: Int?`, yüklenmemiş bir dalın kaç çocuğu olacağı; ekran okuyucu onu söylesin.
     *   Durum: açık. Formatico'yu tıkamıyor.
 
-*   [ ] **Komut paletinin arama alanının adı yok (2026-11-06).**
+*   [x] **Komut paletinin arama alanının adı yok (2026-11-06).**
     *   Ne: `PantrixCommandPalette`'in alanı (`CommandPalette_<tagKey>.TextField_query`) ekran okuyucuya boş adla gidiyor: teşhisler her panoda `MissingName TextField … has a blank name` buluyor. Palet alana bir `placeholder` veriyor ("Type a command or a format"), ama yer tutucu ad değil; paletin alanın adını vermek için bir parametresi (`label`, `contentDescription`) yok. Pantrix'in kendi metin alanı adsız bir arama alanı için `contentDescription`'ı öneriyor, palet onu kullanmıyor.
     *   Nerede: MCP `get_api PantrixCommandPalette`; `get_component_metadata TextField` (`contentDescription`: "its name where it has no label, as a search field has none").
     *   Öneri: palet alanına yer tutucusunu (ya da temanın komut arama sözcüklerini) `contentDescription` olarak versin.
-    *   Durum: açık. Formatico'nun pano testleri (`BoardTour.assertNoFindingsOnBoard`) yalnızca bu bulguyu, yorumunda bu başlığı anarak, saymıyor. Erişilebilirliğin bir eksiği: sahibi `tıkıyor` derse önce düzeltilir.
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-10). `PantrixCommandPalette`'in arama alanı yer tutucusunun sözleriyle adlanıyor; MissingName çıkmıyor. Formatico'nun pano testlerindeki istisna (`BoardTour.isPantrixs`) silindi; paletin panoları JVM'de istisnasız geçiyor. Önceki durum: açık. Formatico'nun pano testleri (`BoardTour.assertNoFindingsOnBoard`) yalnızca bu bulguyu, yorumunda bu başlığı anarak, saymıyor. Erişilebilirliğin bir eksiği: sahibi `tıkıyor` derse önce düzeltilir.
 *   [x] **PantrixIcons'ta kod simgesi yok (2026-11-07).**
     *   Ne: Faz 17'nin Types düğmesi (belgenin değerlerinden Kotlin, TypeScript, Swift, Go tipleri) Convert'in ok
         simgesi gibi bir simge istiyor; PantrixIcons'ta `</>` ya da `{ }` gibi bir kod simgesi yok (`search_icons
@@ -627,7 +633,7 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
         ağaçtaki yerini (`9_0`) veriyor. Denendi: JVM, iOS simülatörü ve Wasm testleri; ekran görüntüleri. Tasarım
         sisteminin Graph'ı ve `FitScreen`'i ayrı bir maddede (bölüm 2); o da kapandı (2026-11-09). Önceki durum:
         açık, tıkıyor (2026-11-09).
-*   [ ] **Sığmayan eylemleri menüsüne alan bir araç çubuğu yok (2026-11-09).**
+*   [x] **Sığmayan eylemleri menüsüne alan bir araç çubuğu yok (2026-11-09).**
     *   Ne: Faz 19'da Workspace'in araç çubuğuna Schema eklenince tablette (834) iki yerde sığmadı: Türkçede
         ("Biçimlendir", "Sorgu", "Dönüştür", "Tipler", "Şema") sondaki "more" düğmesi 46 dp kaldı, onarılacak bir
         belgede Repair ile birlikte kopyalama ve "more" 30 ve 0 dp'ye düştü; Pantrix'in tanılaması ikisini de
@@ -640,10 +646,17 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Öneri: bir `PantrixToolbar` (ya da `PantrixTopBar`'ın eylemlerine bir seçenek): eylemler öncelikleriyle
         verilir, sığmayanlar sondaki "more" menüsüne düşer, menüdeki satırları eylemin sözcüğü ve simgesiyle; ekran
         okuyucu ve otomasyon etiketleri iki yerde de aynı.
-    *   Durum: açık. Formatico'nun işini tıkamıyor. Önizlemelerin her hâlini gezen testler (2026-11-10) tablette
-        sondaki "more" düğmesini İngilizcede de 36–45 dp buldu: biçimin adı uzunsa (NDJSON, Properties, Plain text)
-        ve paylaşma penceresinin arkasındaki araç çubuğunda. Formatico'nun `PreviewCasesTest`'i bu bulguyu adıyla
-        anarak geçiriyor; kütüphanenin araç çubuğu gelince o istisna kalkacak.
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-10). `PantrixToolbar` geldi: `ToolbarItem.Button`, `IconButton`,
+        `Menu` ve `Divider`, her birinin önceliği; sığmayan önce simgesine dönüyor, sonra sondaki "…" menüsüne düşüyor,
+        menüde sözcüğü, simgesi ve bardaki etiketiyle; `menuItems` menünün her zaman tuttuğu satırlar. Formatico'da
+        Workspace'in araç çubuğu ona geçti (`WorkspaceToolbar.kt`): Türkçede Format yine "Biçimlendir", tablette onarılacak
+        bir belgede Minify yerinde kalıyor, Types tablette de simgesiyle; tabletin menüsü Sort keys, Compare ve Save'i
+        panodaki gibi kendi satırları olarak tutuyor. `PreviewCasesTest`'in istisnası kalktı. Denendi: JVM, iOS
+        simülatörü, Wasm ve JS testleri; ekran görüntüleri. Ondan doğan iki bulgu ayrı maddelerde: "Araç çubuğunun menü
+        düğmesine ayrı bir ad verilemiyor" ve "Araç çubuğu bir düğmeyi simgesine çevirirken önceliğe bakmıyor". Önceki
+        durum: açık. Önizlemelerin her hâlini gezen testler (2026-11-10) tablette sondaki "more" düğmesini İngilizcede
+        de 36–45 dp buldu: biçimin adı uzunsa (NDJSON, Properties, Plain text) ve paylaşma penceresinin arkasındaki araç
+        çubuğunda. Formatico'nun `PreviewCasesTest`'i bu bulguyu adıyla anarak geçiriyordu.
 *   [ ] **Ağacın satır yüksekliği dokunma hedefinin altında verilince sessizce büyüyor (2026-11-10).**
     *   Ne: Formatico tablette ağaca `TreeViewStyle(rowHeight = 36.dp)` veriyor (`DocumentTree.kt`); kaydedilen
         ekran görüntülerinde (Workspace-834, `DocumentTree/json-on-a-tablet-light-834.png`) satırlar 48 piksel
@@ -669,3 +682,41 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
 
         İkisinde de basılınca bir menü açılabilmeli, tasarım sisteminde de karşılığı olmalı.
     *   Durum: açık. Formatico'yu tıkamıyor.
+*   [ ] **Araç çubuğunun menü düğmesine ayrı bir ad verilemiyor (2026-11-10).**
+    *   Ne: Workspace'in biçim düğmesi seçili biçimin adını yazıyor ("JSON", "Plain text") ve biçimlerin menüsünü açıyor.
+        Eski düğmenin ekran okuyucuya adı "Format: JSON. Change the format" idi. `ToolbarItem.Menu`'nün yalnızca
+        `label`'ı var, `contentDescription`'ı yok. Okuyucu düğmeyi yalnızca "JSON" diye duyuyor; neyi seçtiği
+        söylenmiyor. Düz metinde de "Plain text" iki yerde yazıyor: düğmede ve durum etiketinde. `ToolbarItem.Button`
+        için de aynı eksik var.
+    *   Nerede: kaynak jar'da `ToolbarItem.kt` (`Menu`, `Button`); `get_api ToolbarItem`.
+    *   Öneri: `ToolbarItem.Menu`'ye ve `Button`'a isteğe bağlı bir `contentDescription`. Bu ad hem barda hem "…"
+        menüsündeki satırda okunsun.
+    *   Durum: açık. Formatico'yu tıkamıyor. Kodda düğme yalnızca biçimin adını taşıyor; yorum bu bulguyu anıyor
+        (`WorkspaceToolbar.kt`).
+*   [ ] **Araç çubuğu bir düğmeyi simgesine çevirirken önceliğe bakmıyor (2026-11-10).**
+    *   Ne: `PantrixToolbar` yer daralınca simgesi olan her düğmeyi önce simgesine çeviriyor, ancak ondan sonra bir
+        düğmeyi menüye alıyor. Öncelik yalnızca her adımın kendi içinde gözetiliyor. Bu yüzden simgesi olmayan ve önceliği
+        düşük bir düğme sözcükleriyle kalırken önceliği yüksek düğmeler sözcüklerini yitiriyor. Örnek: tablette (834)
+        onarılacak bir belgede Repair eklenince Convert (öncelik 6) ile Types (4) yalnızca simgeleriyle kalıyor; Schema
+        (3) ise "Schema" diye yazılmaya devam ediyor. Türkçede de durum aynı. Bileşenin belgesi "give the actions that
+        matter most the highest priority" diyor, ama bu sırada önceliği düşük olan düğme daha çok yer tutuyor.
+    *   Nerede: kaynak jar'da `container/common/Folding.kt` (`planFolding`: "take their narrower forms one step at a
+        time; and where even that is too wide, they fold"); Formatico'da `Invalid-834.png`, `Invalid-834-tr.png`.
+    *   Öneri: iki adım tek bir öncelik sırasında yürüsün. Önceliği en düşük düğme ya simgesine dönsün ya da menüye
+        düşsün; ancak ondan sonra daha yüksek öncelikli bir düğme simgesine dönsün. Ya da düğme başına bir seçenek
+        olsun: simgesine dönmeden önce menüye düşebilsin.
+    *   Durum: açık. Formatico'yu tıkamıyor. Panolar da tasarım sisteminin `Toolbar`'ıyla çizilecek; aynı katlanmayı
+        gösterecekler.
+*   [ ] **Durum çubuğunun "…" düğmesi telefonda dokunma hedefini tutturamıyor (2026-11-10).**
+    *   Ne: `PantrixStatusBar` 390 genişlikte, Android platformunda ve sığmayan öğelerle çizildi. Pantrix'in kendi
+        tanılaması çubuğun "…" düğmesini (`StatusBar_document.More_items`) buldu: `SmallTouchTarget`, "More is
+        pressed in 40x48dp, less than the 48dp touch target, even where its press reaches past what it draws". Çubuğun
+        belgesi telefonda 32 dp diyor ve düğmelerin hedefe kadar basıldığını söylüyor; sonundaki "…" düğmesi bunu
+        tutturamıyor. Düğme çubuğun sonunda durduğu için basma alanı yalnızca bir yana açılabiliyor. Bu tabletin 44
+        dp'lik hedefinde de 40 dp'de kalabilir.
+    *   Nerede: kaynak jar'da `container/statusbar/StatusBar.kt` ve `PressReach.kt`; Formatico'nun
+        `StatusBarPreview`'ünün 390'daki eski hâli.
+    *   Öneri: "…" düğmesinin basma alanı çubuğun son dolgusuna (12 dp) da uzansın; ya da düğme dokunmada hedef
+        genişliğinde çizilsin.
+    *   Durum: açık. Formatico'yu tıkamıyor: uygulamada telefonun durum çubuğu yok. Durum çubuğunun telefondaki önizleme
+        hâli bu yüzden tablete taşındı ("yaml on a tablet").

@@ -52,7 +52,10 @@ class AppPaletteTest {
 
     /** Waits for the status bar's size to say [lines], as a screen reader hears it. */
     private suspend fun ComposeUiTest.awaitLines(lines: String) =
-        awaitNode(hasPantrixTag("Button", "size") and hasContentDescription("$lines · ", substring = true), lines)
+        awaitNode(
+            hasPantrixTag("Item", "size", scope = "StatusBar_document") and hasContentDescription("$lines · ", substring = true),
+            lines
+        )
 
     @Test
     fun theLauncherOpensThePaletteAndACommandRunsFromIt() = runComposeUiTest {

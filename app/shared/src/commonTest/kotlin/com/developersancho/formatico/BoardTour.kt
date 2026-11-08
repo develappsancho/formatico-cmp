@@ -23,8 +23,6 @@ import com.developersancho.formatico.core.designsystem.Board
 import com.developersancho.formatico.core.testing.awaitNode
 import com.developersancho.formatico.core.testing.awaitText
 import com.developersancho.formatico.core.testing.awaitUntil
-import com.pantrixui.foundation.diagnostics.PantrixCheck
-import com.pantrixui.foundation.diagnostics.PantrixFinding
 import com.pantrixui.foundation.diagnostics.PantrixFindings
 import com.pantrixui.foundation.files.FilePickRequest
 import com.pantrixui.foundation.files.FilePicker
@@ -150,20 +148,13 @@ internal suspend fun ComposeUiTest.tour(
 internal fun ComposeUiTest.assertNoFindingsOnBoard(findings: PantrixFindings) {
     mainClock.advanceTimeBy(FINDINGS_WAIT)
     waitForIdle()
-    val found = findings.all.filterNot(::isPantrixs)
+    val found = findings.all
     assertTrue(
         found.isEmpty(),
         "The diagnostics found ${found.size}:\n" +
             found.joinToString("\n") { "- ${it.check} ${it.component} (${it.testTag}): ${it.message}" }
     )
 }
-
-/**
- * The palette's field has no name, and `PantrixCommandPalette` takes none to give it, only its placeholder
- * (PANTRIX_FINDINGS: "Komut paletinin arama alanının adı yok").
- */
-private fun isPantrixs(finding: PantrixFinding): Boolean =
-    finding.check == PantrixCheck.MissingName && finding.testTag == "CommandPalette_commands.TextField_query"
 
 /** One way from Start to a board: the test, the board's window, the words waited for and the picker. */
 @OptIn(ExperimentalTestApi::class)
@@ -200,7 +191,7 @@ private class Trip(
             AppBoard.Convert -> {
                 openSample("order")
                 // A phone converts from its bar's "more" menu, a wider window from its toolbar.
-                if (phone) documentMenu("convert") else press("Button", "convert")
+                if (phone) documentMenu("convert") else press("Action", "convert", scope = "Toolbar_document")
                 awaitShown(words.nothingLost)
             }
 
@@ -215,7 +206,7 @@ private class Trip(
             AppBoard.Summary -> {
                 openSample("order")
                 // The status bar's size opens it; a phone, which has no status bar, opens it from its "more" menu.
-                if (phone) documentMenu("summary") else press("Button", "size")
+                if (phone) documentMenu("summary") else press("Item", "size", scope = "StatusBar_document")
                 awaitShown(words.values)
             }
 
@@ -278,7 +269,7 @@ private class Trip(
         openFile("feed.xml", FEED)
         chooseTab("order.json")
         awaitRead()
-        if (phone) documentMenu("query") else press("Button", "query")
+        if (phone) documentMenu("query") else press("Action", "query", scope = "Toolbar_document")
         val field = test.onPantrixNode("TextField", "query")
         listOf(
             "$.items[?(@.qty > 1)]" to "$.items[0]",
@@ -306,7 +297,7 @@ private class Trip(
         chooseTab("order.json")
         awaitRead()
         // Only a wide window's toolbar has Compare; a narrower one has it in the document's "more" menu.
-        if (window == Board.Desktop) press("Button", "compare") else documentMenu("compare")
+        if (window == Board.Desktop) press("Action", "compare", scope = "Toolbar_document") else documentMenu("compare")
         // A wide window heads the differences with their count; each width lists them, the first chosen.
         test.awaitUntil("the differences were listed") {
             test.onAllNodes(hasKeyEnding("difference0")).fetchSemanticsNodes().isNotEmpty()
@@ -363,7 +354,7 @@ private class Trip(
      */
     private suspend fun types() {
         openSample("order")
-        if (phone) documentMenu("types") else press("Button", "types")
+        if (phone) documentMenu("types") else press("Action", "types", scope = "Toolbar_document")
         awaitShown(words.types)
         val (language, file) = when (window) {
             Board.Desktop -> null to "Order.kt"
@@ -389,7 +380,7 @@ private class Trip(
         newTab()
         openFile("order.schema.json", BOARD_SCHEMA)
         chooseTab("order.json")
-        if (phone) documentMenu("schema") else press("Button", "schema")
+        if (phone) documentMenu("schema") else press("Action", "schema", scope = "Toolbar_document")
         press("Button", "schema_against")
         val schema = SemanticsMatcher("the menu's order.schema.json") { node ->
             node.config.getOrNull(SemanticsProperties.TestTag)?.contains("MenuItem_schema_") == true
@@ -409,8 +400,13 @@ private class Trip(
 
     /** Presses the document's "more" menu's row [key]: a phone's in its bar, a wider window's in its toolbar. */
     private suspend fun documentMenu(key: String) {
-        press("IconButton", "more")
-        press("MenuItem", key, scope = "Menu_document")
+        if (phone) {
+            press("IconButton", "more")
+            press("MenuItem", key, scope = "Menu_document")
+        } else {
+            press("More", "actions", scope = "Toolbar_document")
+            press("MenuItem", key, scope = "Menu_document_actions")
+        }
     }
 
     /**

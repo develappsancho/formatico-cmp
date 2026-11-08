@@ -422,7 +422,11 @@ internal class LaidOutState(val state: WorkspaceState, val layout: WorkspaceLayo
         }
 }
 
-/** The status bar's cases: what it says of a document read, with mistakes, being read and in plain text, on each board. */
+/**
+ * The status bar's cases: what it says of a document read, with mistakes, being read and in plain text, in a wide window
+ * and on a tablet. A phone has no status bar; drawn there, its "…" button would miss the touch target (PANTRIX_FINDINGS,
+ * "Durum çubuğunun "…" düğmesi telefonda dokunma hedefini tutturamıyor").
+ */
 internal class StatusBarCases :
     PreviewCases<LaidOutState>(
         "json" to LaidOutState(Order, WorkspaceLayout.Wide),
@@ -431,7 +435,7 @@ internal class StatusBarCases :
         "toml" to LaidOutState(Cargo, WorkspaceLayout.Wide),
         "plain text" to LaidOutState(PlainText, WorkspaceLayout.Wide),
         "csv on a tablet" to LaidOutState(Countries, WorkspaceLayout.Tablet),
-        "yaml on a phone" to LaidOutState(Deployment, WorkspaceLayout.Phone)
+        "yaml on a tablet" to LaidOutState(Deployment, WorkspaceLayout.Tablet)
     )
 
 @Preview

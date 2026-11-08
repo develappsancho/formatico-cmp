@@ -258,21 +258,6 @@ private suspend fun reportEdit(
     }
 }
 
-/** Which of a document's actions its "more" menu holds, by where it stands. */
-internal enum class DocumentMenuItems {
-    /** In a wide window's toolbar, where every other action has a button of its own. */
-    Close,
-
-    /** In a tablet's toolbar: sorting the keys, comparing, saving and closing. */
-    SortCompareSaveClose,
-
-    /**
-     * In a phone's bar, where Format, Minify, Copy and Save stand at the bottom: finding in the text and in the tree, the
-     * Summary, the query, Convert and Types too.
-     */
-    FindSummarySortCompareClose
-}
-
 /**
  * The "more" button of a phone's bar while the document of [workbench] whose id is [documentId] is shown, and the menu
  * it opens: finding in the text and in the tree, showing the Summary, querying, converting, writing types, sorting the
@@ -286,7 +271,6 @@ fun DocumentMoreMenu(documentId: Long, workbench: Workbench) {
     val state by workbench.state.collectAsState()
     val format = state.documents.firstOrNull { it.id == documentId }?.format
     DocumentMenu(
-        items = DocumentMenuItems.FindSummarySortCompareClose,
         size = ButtonSize.Large,
         // Plain text has no tree to find in, nor values to sum up.
         read = format != null,
@@ -303,16 +287,17 @@ fun DocumentMoreMenu(documentId: Long, workbench: Workbench) {
         onSortKeys = {
             scope.launch { commands.report(DocumentEdit.SortKeys, workbench.edit(documentId, DocumentEdit.SortKeys)) }
         },
-        onSave = {},
         onShare = { workbench.changeView(documentId) { it.copy(sharing = true) } },
         onClose = { workbench.close(documentId) }
     )
 }
 
-/** A document's "more" button and its menu, holding [items]. */
+/**
+ * A phone's "more" button and its menu: what its bars have no room for, as Workspace-390 draws it, where Format,
+ * Minify, Copy and Save stand at the bottom. A tablet's and a wide window's are their toolbar's ([WorkspaceToolbar]).
+ */
 @Composable
 internal fun DocumentMenu(
-    items: DocumentMenuItems,
     size: ButtonSize,
     read: Boolean = true,
     onFindText: () -> Unit = {},
@@ -325,7 +310,6 @@ internal fun DocumentMenu(
     canSort: Boolean,
     onSortKeys: () -> Unit,
     onCompare: () -> Unit = {},
-    onSave: () -> Unit,
     onShare: () -> Unit = {},
     onClose: () -> Unit
 ) {
@@ -336,11 +320,7 @@ internal fun DocumentMenu(
         anchor = {
             PantrixIconButton(
                 imageVector = PantrixIcons.MoreHorizontal,
-                // What the menu holds, where a tablet has moved its actions there, as Workspace-834 names it.
-                contentDescription = when (items) {
-                    DocumentMenuItems.SortCompareSaveClose -> workspaceStrings.moreActionsSortCompareSave
-                    else -> workspaceStrings.moreActions
-                },
+                contentDescription = workspaceStrings.moreActions,
                 onClick = { open = true },
                 size = size,
                 tagKey = "more"
@@ -349,31 +329,19 @@ internal fun DocumentMenu(
         alignment = PopoverAlignment.End,
         tagKey = "document"
     ) {
-        if (items == DocumentMenuItems.FindSummarySortCompareClose) {
-            FindAndSummaryItems(read, onFindText, onFind, onSummary)
-            QueryConvertTypesItems(read, onQuery, onConvert, onTypes, onSchema)
-        }
-        if (items != DocumentMenuItems.Close) {
-            PantrixMenuItem(
-                text = workspaceStrings.sortKeys,
-                onClick = onSortKeys,
-                enabled = canSort,
-                tagKey = "sort_keys"
-            )
-            PantrixMenuItem(
-                text = workspaceStrings.compare,
-                onClick = onCompare,
-                tagKey = "compare"
-            )
-        }
-        if (items == DocumentMenuItems.SortCompareSaveClose) {
-            PantrixMenuItem(
-                text = workspaceStrings.saveFile,
-                onClick = onSave,
-                icon = PantrixIcons.Download,
-                tagKey = "save"
-            )
-        }
+        FindAndSummaryItems(read, onFindText, onFind, onSummary)
+        QueryConvertTypesItems(read, onQuery, onConvert, onTypes, onSchema)
+        PantrixMenuItem(
+            text = workspaceStrings.sortKeys,
+            onClick = onSortKeys,
+            enabled = canSort,
+            tagKey = "sort_keys"
+        )
+        PantrixMenuItem(
+            text = workspaceStrings.compare,
+            onClick = onCompare,
+            tagKey = "compare"
+        )
         PantrixMenuItem(
             text = workspaceStrings.share,
             onClick = onShare,

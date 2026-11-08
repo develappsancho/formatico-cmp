@@ -70,7 +70,7 @@ class QueryScreenTest {
         onPantrixNode("Chip", "recent0").performClick()
         awaitUntil("The recent query is asked") { WorkspaceIntent.Query("$..price") in intents }
         // Pressed again, the toolbar's Query gives the tree back.
-        onPantrixNode("Button", "query").performClick()
+        onPantrixNode("Action", "query", scope = "Toolbar_document").performClick()
         assertEquals(WorkspaceIntent.ShowPane(DocumentPane.Tree), intents.last())
         assertNoFindings(findings)
     }
@@ -209,12 +209,10 @@ class QueryScreenTest {
         setContent {
             PantrixTestTheme(window = phone, clock = clock) {
                 DocumentMenu(
-                    items = DocumentMenuItems.FindSummarySortCompareClose,
                     size = ButtonSize.Large,
                     onQuery = { queried = true },
                     canSort = true,
                     onSortKeys = {},
-                    onSave = {},
                     onClose = {}
                 )
             }

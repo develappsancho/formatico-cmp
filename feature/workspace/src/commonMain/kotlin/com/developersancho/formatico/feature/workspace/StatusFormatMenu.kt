@@ -33,7 +33,8 @@ import com.pantrixui.foundation.theme.PantrixTheme
 /**
  * A phone's status beside the trail, pressed to choose how the document is read: the formats of the wide toolbar's menu,
  * the one it is read as checked, as Workspace-390's `format` state draws it (the owner's decision, Faz 21). A phone has
- * no toolbar for [FormatMenu], and a text typed into a new document stays plain text until it is read as a format.
+ * no toolbar for [WorkspaceToolbar]'s format button, and a text typed into a new document stays plain text until it is
+ * read as a format.
  */
 @Composable
 internal fun StatusFormatMenu(state: WorkspaceState, onChange: (Format?) -> Unit) {

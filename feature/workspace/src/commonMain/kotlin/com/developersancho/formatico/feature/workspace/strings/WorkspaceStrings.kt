@@ -16,9 +16,6 @@ internal interface WorkspaceStrings {
     val untitled: String
     val plainText: String
 
-    /** "Format: {first}. Change the format" */
-    fun formatMenu(first: String): String
-
     val format: String
     val minify: String
     val sortKeys: String
@@ -28,7 +25,6 @@ internal interface WorkspaceStrings {
     val copyDocument: String
     val saveFile: String
     val moreActions: String
-    val moreActionsSortCompareSave: String
     val closeDocument: String
     val viewText: String
     val viewTree: String

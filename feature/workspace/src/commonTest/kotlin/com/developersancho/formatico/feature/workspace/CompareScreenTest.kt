@@ -61,7 +61,7 @@ class CompareScreenTest {
         onPantrixNode("Button", "partner").assert(hasContentDescription("B: order-v2.json. Choose another document"))
         onPantrixNode("Segment", "meaning", scope = "SegmentButton_compare_by").assertIsSelected()
         // The comparison takes the toolbar's place.
-        onPantrixNode("Button", "format").assertDoesNotExist()
+        onPantrixNode("Action", "format", scope = "Toolbar_document").assertDoesNotExist()
 
         onPantrixNode("ListItem", "difference3").performClick()
         onPantrixNode("Segment", "text", scope = "SegmentButton_compare_by").performClick()
@@ -182,7 +182,7 @@ class CompareScreenTest {
                 WorkspaceScreen(state = OrderUnchosen, onIntent = { intents += it }, commands = rememberDocumentCommands(Workbench()))
             }
         }
-        onPantrixNode("Button", "compare").performClick()
+        onPantrixNode("Action", "compare", scope = "Toolbar_document").performClick()
         assertEquals(WorkspaceIntent.ShowPane(DocumentPane.Compare), intents.last())
     }
 
@@ -192,12 +192,10 @@ class CompareScreenTest {
         setContent {
             PantrixTestTheme(window = phone, clock = clock) {
                 DocumentMenu(
-                    items = DocumentMenuItems.FindSummarySortCompareClose,
                     size = ButtonSize.Large,
                     canSort = true,
                     onSortKeys = {},
                     onCompare = { comparing = true },
-                    onSave = {},
                     onClose = {}
                 )
             }

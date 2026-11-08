@@ -104,13 +104,16 @@ class WorkspaceScreenTest {
         awaitText("Valid JSON")
         awaitText("Ln 1, Col 1")
         // How long the document is, which shows its Summary.
-        awaitNode(hasPantrixTag("Button", "size") and hasContentDescription("5 lines · ", substring = true), "The size")
+        awaitNode(
+            hasPantrixTag("Item", "size", scope = "StatusBar_document") and hasContentDescription("5 lines · ", substring = true),
+            "The size"
+        )
         awaitText("UTF-8 · LF · 2 spaces")
         onPantrixNode("Node", "id", scope = "LazyTreeView_document").assertExists()
         // The text and the tree stand as the board splits them: there is no handle between them.
         onPantrixNode("TwoPaneHandle", "panes").assertDoesNotExist()
-        onPantrixNode("Button", "sort_keys").assertIsEnabled()
-        onPantrixNode("Button", "format").performClick()
+        onPantrixNode("Action", "sort_keys", scope = "Toolbar_document").assertIsEnabled()
+        onPantrixNode("Action", "format", scope = "Toolbar_document").performClick()
         onPantrixNode("Node", "customer.name", scope = "LazyTreeView_document").performClick()
 
         assertEquals(
@@ -133,9 +136,9 @@ class WorkspaceScreenTest {
         }
 
         awaitText("Plain text has no tree")
-        awaitText("Plain text")
-        onPantrixNode("Button", "format").assertIsNotEnabled()
-        onPantrixNode("Button", "minify").assertIsNotEnabled()
+        awaitNode(hasPantrixTag("Tag", "status") and hasText("Plain text"), "Plain text")
+        onPantrixNode("Action", "format", scope = "Toolbar_document").assertIsNotEnabled()
+        onPantrixNode("Action", "minify", scope = "Toolbar_document").assertIsNotEnabled()
         onPantrixNode("LazyTreeView", "document").assertDoesNotExist()
     }
 
@@ -155,7 +158,7 @@ class WorkspaceScreenTest {
 
         awaitText("Valid JSON")
         awaitText("$.customer.name")
-        onPantrixNode("Button", "sort_keys").assertDoesNotExist()
+        onPantrixNode("Action", "sort_keys", scope = "Toolbar_document").assertDoesNotExist()
         onPantrixNode("Item", "1_customer", scope = "Breadcrumb_path").performClick()
 
         assertEquals(listOf<WorkspaceIntent>(WorkspaceIntent.Select("$.customer")), intents)
@@ -284,7 +287,7 @@ class WorkspaceScreenTest {
         }
         awaitText("Valid JSON")
 
-        onPantrixNode("Button", "size").performClick()
+        onPantrixNode("Item", "size", scope = "StatusBar_document").performClick()
         // In a browser the Summary's words are read as it first shows.
         awaitNode(
             hasPantrixTag("IconButton", "copy_summary") and hasContentDescription("Copy the summary as text"),
@@ -292,7 +295,7 @@ class WorkspaceScreenTest {
         )
         awaitNode(hasPantrixTag("ListItem", "dates") and hasText("1 date"), "The dates")
         awaitNode(
-            hasPantrixTag("Button", "size") and hasContentDescription("The summary is shown", substring = true),
+            hasPantrixTag("Item", "size", scope = "StatusBar_document") and hasContentDescription("The summary is shown", substring = true),
             "The size"
         )
         awaitText("Found in the values")
@@ -320,7 +323,7 @@ class WorkspaceScreenTest {
         view = view.copy(pane = DocumentPane.Summary)
         awaitText("Found in the values")
         intents.clear()
-        onPantrixNode("Button", "size").performClick()
+        onPantrixNode("Item", "size", scope = "StatusBar_document").performClick()
         assertEquals(listOf<WorkspaceIntent>(WorkspaceIntent.ShowPane(DocumentPane.Tree)), intents)
         assertNoFindings(findings)
     }
@@ -536,8 +539,8 @@ class WorkspaceScreenTest {
 
         awaitText("Valid YAML")
         awaitText("matchLabels: *labels")
-        onPantrixNode("Button", "format").assertIsEnabled()
-        onPantrixNode("Button", "sort_keys").assertIsEnabled()
+        onPantrixNode("Action", "format", scope = "Toolbar_document").assertIsEnabled()
+        onPantrixNode("Action", "sort_keys", scope = "Toolbar_document").assertIsEnabled()
         assertNoFindings(findings)
     }
 
@@ -755,12 +758,12 @@ class WorkspaceScreenTest {
         }
 
         awaitText("2 problems", substring = true)
-        onPantrixNode("Button", "format").assertIsNotEnabled()
-        onPantrixNode("Button", "minify").assertIsNotEnabled()
+        onPantrixNode("Action", "format", scope = "Toolbar_document").assertIsNotEnabled()
+        onPantrixNode("Action", "minify", scope = "Toolbar_document").assertIsNotEnabled()
     }
 
     @Test
-    fun aTabletRepairsInThePlaceOfMinifyWhereItCannotBeUsed() = runComposeUiTest {
+    fun aTabletPutsRepairFirstAndKeepsMinifyBesideFormat() = runComposeUiTest {
         setContent {
             PantrixTestTheme(window = tablet, clock = clock) {
                 WorkspaceScreen(
@@ -772,10 +775,10 @@ class WorkspaceScreenTest {
         }
 
         awaitText("2 problems", substring = true)
-        onPantrixNode("Button", "repair").assertExists()
-        onPantrixNode("Button", "format").assertIsNotEnabled()
-        onPantrixNode("Button", "minify").assertDoesNotExist()
-        onPantrixNode("Button", "schema").assertExists()
+        onPantrixNode("Action", "repair", scope = "Toolbar_document").assertExists()
+        onPantrixNode("Action", "format", scope = "Toolbar_document").assertIsNotEnabled()
+        onPantrixNode("Action", "minify", scope = "Toolbar_document").assertIsNotEnabled()
+        onPantrixNode("Action", "schema", scope = "Toolbar_document").assertExists()
     }
 
     @Test
@@ -791,7 +794,7 @@ class WorkspaceScreenTest {
         }
 
         awaitText("Reading…")
-        onPantrixNode("Button", "format").assertIsNotEnabled()
+        onPantrixNode("Action", "format", scope = "Toolbar_document").assertIsNotEnabled()
     }
 
     @Test

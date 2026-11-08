@@ -428,8 +428,10 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
             *   Panosu önce çizilecek üç karar (tuval oturumunda): resim değerinin küçük resmi, CSV'de "First row is the
                 header" seçeneği, açık belgeye dosya bırakmak.
             *   Ölçümler: masaüstü penceresinde 50 MB ve JavaScript yedeği.
-            *   Kütüphanenin yerel pakete koyduğu ilk parti düzeltmeyle sökülecek geçici çözümler: paletin arama
-                alanının adı, `FileDrop`'un sözcükleri, dokuz yeni simge, `PantrixToolbar`, `PantrixStatusBar`.
+            *   Kütüphanenin yerel pakete koyduğu ilk parti düzeltmeyle sökülecek geçici çözümler bitti: paletin
+                arama alanının adı, `FileDrop`'un sözcükleri, dokuz yeni simge, `PantrixToolbar` ve `PantrixStatusBar`
+                (2026-11-10). Workspace'in araç ve durum çubuğu artık Pantrix'in. Panoların bu iki bileşenle yeniden
+                çizilmesi tuval oturumunda; liste paylaşılan notlarda, `2026-11-10-faz21-toolbar-statusbar.md`.
         *   7 ve 8 sırada.
     *   **Sahibinin kararları (2026-11-10):** sahibi önerileri kabul etti ("önerilerin olsun"):
         *   **Kodda seçilip panolarda olmayanlar: kod onaylandı, panolar koda göre çizilir.**

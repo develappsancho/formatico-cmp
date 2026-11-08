@@ -24,6 +24,12 @@ internal interface StartStrings {
     val newEmptyDocument: String
     val newDocument: String
     val openFile: String
+
+    /** What the drop zone says first, as the Start boards have it. */
+    val dropAFile: String
+
+    /** The drop zone's other way in, under its first line. */
+    val chooseAFile: String
     val clipboardEmpty: String
 
     /** "The pasted text is larger than {first}", the most a file may have here. */

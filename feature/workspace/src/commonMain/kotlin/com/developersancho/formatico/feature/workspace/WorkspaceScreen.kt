@@ -1,45 +1,29 @@
 package com.developersancho.formatico.feature.workspace
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.base.MviScreen
-import com.developersancho.formatico.core.format.Format
 import com.developersancho.formatico.feature.workspace.editor.DocumentEditor
-import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.components.container.twopane.PaneSize
 import com.pantrixui.components.container.twopane.PantrixTwoPane
 import com.pantrixui.components.container.twopane.TwoPaneOrientation
 import com.pantrixui.components.data.codeeditor.CodeEditorState
-import com.pantrixui.components.elements.button.ButtonSize
-import com.pantrixui.components.elements.button.ButtonVariant
-import com.pantrixui.components.elements.button.PantrixButton
 import com.pantrixui.components.elements.divider.PantrixHorizontalDivider
 import com.pantrixui.components.elements.divider.PantrixVerticalDivider
-import com.pantrixui.components.elements.icon.PantrixIcon
-import com.pantrixui.components.elements.iconbutton.PantrixIconButton
-import com.pantrixui.components.overlay.menu.PantrixMenu
-import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.theme.PantrixTheme
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -132,7 +116,7 @@ internal fun WorkspaceScreen(
         return
     }
     Column(modifier = modifier.fillMaxSize().background(PantrixTheme.colors.surface)) {
-        Toolbar(state = state, document = document, layout = layout, onIntent = onIntent, commands = commands)
+        WorkspaceToolbar(state = state, document = document, layout = layout, onIntent = onIntent, commands = commands)
         PantrixHorizontalDivider()
         if (document.view.pane == DocumentPane.Table && !wide) {
             // A tablet gives the table the whole room, as its board draws it.
@@ -227,165 +211,6 @@ private fun DocumentPanes(
 
 /** The panes a wide window shows beside the text, each a document of its own made of it. */
 private val MadeBesideTextPanes = setOf(DocumentPane.Convert, DocumentPane.Types, DocumentPane.Schema)
-
-/** The design's toolbar heights: 48 in a wide window, 56 on a tablet. */
-private fun toolbarHeight(layout: WorkspaceLayout): Dp = if (layout == WorkspaceLayout.Wide) 48.dp else 56.dp
-
-/** The actions on the whole document, over its text and its tree. */
-@Composable
-private fun Toolbar(
-    state: WorkspaceState,
-    document: OpenDocument,
-    layout: WorkspaceLayout,
-    onIntent: (WorkspaceIntent) -> Unit,
-    commands: DocumentCommands
-) {
-    val wide = layout == WorkspaceLayout.Wide
-    val size = layout.buttons
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(toolbarHeight(layout))
-            .padding(horizontal = PantrixTheme.spacing.md),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(PantrixTheme.spacing.sm)
-    ) {
-        FormatMenu(format = document.format, size = size, onChange = { onIntent(WorkspaceIntent.ChangeFormat(it)) })
-        if (wide) ToolbarDivider(wide)
-        EditButtons(state = state, layout = layout, onIntent = onIntent)
-        ToolbarDivider(wide)
-        MadeButtons(document = document, size = size, wide = wide, onIntent = onIntent)
-        if (wide) {
-            PantrixButton(
-                text = workspaceStrings.compare,
-                onClick = { onIntent(WorkspaceIntent.ShowPane(DocumentPane.Compare)) },
-                variant = ButtonVariant.Text,
-                size = size,
-                tagKey = "compare"
-            )
-        }
-        Spacer(modifier = Modifier.weight(1f))
-        DocumentButtons(state = state, document = document, layout = layout, onIntent = onIntent, commands = commands)
-    }
-}
-
-/** Repair where there is something to repair, Format, Minify, and in a wide window Sort keys: what changes the whole document. */
-@Composable
-private fun EditButtons(state: WorkspaceState, layout: WorkspaceLayout, onIntent: (WorkspaceIntent) -> Unit) {
-    val size = layout.buttons
-    val repairing = state.repairable > 0
-    // An invalid document is repaired before it is formatted: the Invalid boards put Repair first.
-    if (repairing) {
-        PantrixButton(
-            text = workspaceStrings.repair,
-            onClick = { onIntent(WorkspaceIntent.RepairAll) },
-            size = size,
-            tagKey = "repair"
-        )
-    }
-    PantrixButton(
-        text = workspaceStrings.format,
-        onClick = { onIntent(WorkspaceIntent.Edit(DocumentEdit.Format)) },
-        size = size,
-        enabled = DocumentEdit.Format in state.edits,
-        tagKey = "format"
-    )
-    // A tablet has no room for Minify beside Repair where it cannot be used: Repair takes its place, as Invalid-834
-    // draws it.
-    if (repairing && state.edits.isEmpty() && layout != WorkspaceLayout.Wide) return
-    PantrixButton(
-        text = workspaceStrings.minify,
-        onClick = { onIntent(WorkspaceIntent.Edit(DocumentEdit.Minify)) },
-        variant = ButtonVariant.Outline,
-        size = size,
-        enabled = DocumentEdit.Minify in state.edits,
-        tagKey = "minify"
-    )
-    if (layout == WorkspaceLayout.Wide) {
-        PantrixButton(
-            text = workspaceStrings.sortKeys,
-            onClick = { onIntent(WorkspaceIntent.Edit(DocumentEdit.SortKeys)) },
-            variant = ButtonVariant.Subtle,
-            size = size,
-            enabled = DocumentEdit.SortKeys in state.edits,
-            tagKey = "sort_keys"
-        )
-    }
-}
-
-/** Copy, Save as a file in a wide window, and the "more" menu, at the toolbar's end. */
-@Composable
-private fun DocumentButtons(
-    state: WorkspaceState,
-    document: OpenDocument,
-    layout: WorkspaceLayout,
-    onIntent: (WorkspaceIntent) -> Unit,
-    commands: DocumentCommands
-) {
-    val wide = layout == WorkspaceLayout.Wide
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        PantrixIconButton(
-            imageVector = PantrixIcons.Copy,
-            contentDescription = workspaceStrings.copyDocument,
-            onClick = { commands.copy(document) },
-            size = layout.buttons,
-            tagKey = "copy"
-        )
-        if (wide) {
-            PantrixIconButton(
-                imageVector = PantrixIcons.Download,
-                contentDescription = workspaceStrings.saveFile,
-                onClick = { commands.save(document) },
-                size = layout.buttons,
-                tagKey = "save"
-            )
-        }
-        DocumentMenu(
-            items = if (wide) DocumentMenuItems.Close else DocumentMenuItems.SortCompareSaveClose,
-            size = layout.buttons,
-            canSort = DocumentEdit.SortKeys in state.edits,
-            onSortKeys = { onIntent(WorkspaceIntent.Edit(DocumentEdit.SortKeys)) },
-            onCompare = { onIntent(WorkspaceIntent.ShowPane(DocumentPane.Compare)) },
-            onSave = { commands.save(document) },
-            onShare = { onIntent(WorkspaceIntent.Share(open = true)) },
-            onClose = { onIntent(WorkspaceIntent.Close) }
-        )
-    }
-}
-
-@Composable
-private fun ToolbarDivider(wide: Boolean) {
-    PantrixVerticalDivider(
-        modifier = Modifier
-            .height(if (wide) 24.dp else 28.dp)
-            .padding(horizontal = if (wide) PantrixTheme.spacing.xs else PantrixTheme.spacing.none)
-    )
-}
-
-/** The button that says the document's format and opens the menu of the formats it can be read as. */
-@Composable
-internal fun FormatMenu(format: Format?, size: ButtonSize, onChange: (Format?) -> Unit) {
-    var open by rememberSaveable { mutableStateOf(false) }
-    val name = format?.displayName ?: workspaceStrings.plainText
-    PantrixMenu(
-        visible = open,
-        onDismissRequest = { open = false },
-        anchor = {
-            PantrixButton(
-                text = name,
-                onClick = { open = true },
-                variant = ButtonVariant.Outline,
-                size = size,
-                trailingIcon = { PantrixIcon(imageVector = PantrixIcons.ChevronDown, contentDescription = null) },
-                contentDescription = workspaceStrings.formatMenu(name),
-                tagKey = "format_menu"
-            )
-        },
-        tagKey = "formats"
-    ) {
-        FormatMenuItems(format = format, onChange = onChange)
-    }
-}
 
 /** The document's text in its editor, kept with the document and with the tree's choice. */
 @Composable

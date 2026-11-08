@@ -75,7 +75,7 @@ class ConvertScreenTest {
         awaitNode(hasText("TOML"), "The menu of formats")
         onPantrixNode("MenuItem", "toml", scope = "Menu_targets").performClick()
         // Pressed again, the toolbar's Convert gives the tree back.
-        onPantrixNode("Button", "convert").performClick()
+        onPantrixNode("Action", "convert", scope = "Toolbar_document").performClick()
         assertEquals(
             listOf(
                 WorkspaceIntent.Convert(ConvertChoice(indent = 4)),
@@ -176,12 +176,10 @@ class ConvertScreenTest {
         setContent {
             PantrixTestTheme(window = phone, clock = clock) {
                 DocumentMenu(
-                    items = DocumentMenuItems.FindSummarySortCompareClose,
                     size = ButtonSize.Large,
                     onConvert = { converting = true },
                     canSort = true,
                     onSortKeys = {},
-                    onSave = {},
                     onClose = {}
                 )
             }
@@ -222,11 +220,11 @@ class ConvertScreenTest {
             }
         }
 
-        onPantrixNode("Button", "convert").assertIsEnabled().performClick()
+        onPantrixNode("Action", "convert", scope = "Toolbar_document").assertIsEnabled().performClick()
         assertEquals(WorkspaceIntent.ShowPane(DocumentPane.Convert), intents.last())
         plain = true
         waitForIdle()
-        onPantrixNode("Button", "convert").assertIsNotEnabled()
+        onPantrixNode("Action", "convert", scope = "Toolbar_document").assertIsNotEnabled()
         assertEquals(1, intents.size)
     }
 }

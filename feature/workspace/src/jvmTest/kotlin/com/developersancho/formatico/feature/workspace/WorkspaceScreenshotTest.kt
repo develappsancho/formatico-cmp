@@ -127,7 +127,8 @@ class WorkspaceScreenshotTest {
         when (case.name) {
             "json" -> {
                 captureOpenMenu("FormatMenu", case, Board.Desktop, opener = "format_menu") { WorkspaceScreenPreview(case) }
-                captureOpenMenu("DocumentMenu", case, Board.Desktop, opener = "more") { WorkspaceScreenPreview(case) }
+                captureOpenMenu("DocumentMenu", case, Board.Desktop, opener = "actions") { WorkspaceScreenPreview(case) }
+                captureOpenMenu("DocumentMenu", case, Board.Tablet, opener = "actions") { WorkspaceScreenPreview(case) }
                 captureOpenMenu("CopyPathMenu", case, Board.Desktop, opener = "copy_path") { WorkspaceScreenPreview(case) }
                 captureOpenMenu("CopyPathMenu", case, Board.Tablet, opener = "copy_path") { WorkspaceScreenPreview(case) }
             }

@@ -415,7 +415,6 @@ private fun Modifier.outset(end: Dp, vertical: Dp): Modifier = layout { measurab
 @Composable
 internal fun PhoneMoreMenu(state: WorkspaceState, document: OpenDocument, onIntent: (WorkspaceIntent) -> Unit) {
     DocumentMenu(
-        items = DocumentMenuItems.FindSummarySortCompareClose,
         size = ButtonSize.Large,
         read = document.format != null,
         onFindText = { onIntent(WorkspaceIntent.FindInText(open = true)) },
@@ -430,7 +429,6 @@ internal fun PhoneMoreMenu(state: WorkspaceState, document: OpenDocument, onInte
         onSchema = { onIntent(WorkspaceIntent.ShowPane(DocumentPane.Schema)) },
         canSort = DocumentEdit.SortKeys in state.edits,
         onSortKeys = { onIntent(WorkspaceIntent.Edit(DocumentEdit.SortKeys)) },
-        onSave = {},
         onShare = { onIntent(WorkspaceIntent.Share(open = true)) },
         onClose = { onIntent(WorkspaceIntent.Close) }
     )

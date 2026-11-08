@@ -15,6 +15,8 @@ internal object StartStringsEnglish : StartStrings {
     override val newEmptyDocument = "New empty document"
     override val newDocument = "New document"
     override val openFile = "Open a file"
+    override val dropAFile = "Drop a file here"
+    override val chooseAFile = "Choose a file"
     override val clipboardEmpty = "No text was read from the clipboard"
 
     override fun pasteTooLarge(first: String) = "The pasted text is larger than $first"

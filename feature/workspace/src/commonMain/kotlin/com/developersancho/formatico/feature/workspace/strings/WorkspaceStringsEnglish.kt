@@ -6,8 +6,6 @@ internal object WorkspaceStringsEnglish : WorkspaceStrings {
     override val untitled = "Untitled"
     override val plainText = "Plain text"
 
-    override fun formatMenu(first: String) = "Format: $first. Change the format"
-
     override val format = "Format"
     override val minify = "Minify"
     override val sortKeys = "Sort keys"
@@ -17,7 +15,6 @@ internal object WorkspaceStringsEnglish : WorkspaceStrings {
     override val copyDocument = "Copy the document"
     override val saveFile = "Save as a file"
     override val moreActions = "More actions"
-    override val moreActionsSortCompareSave = "More actions: sort keys, compare, save as a file"
     override val closeDocument = "Close the document"
     override val viewText = "Text"
     override val viewTree = "Tree"
