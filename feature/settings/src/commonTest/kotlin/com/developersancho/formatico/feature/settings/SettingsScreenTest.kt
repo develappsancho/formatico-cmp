@@ -144,7 +144,7 @@ class SettingsScreenTest {
             }
         }
 
-        awaitText("Formatico 1.0.0")
+        awaitText("Formatico ${FormaticoVersions.APP}")
         awaitNode(about and isSelected(), "About chosen, opened at it")
         onNode(general).performClick()
         awaitNode(general and isSelected(), "General chosen, gone to")

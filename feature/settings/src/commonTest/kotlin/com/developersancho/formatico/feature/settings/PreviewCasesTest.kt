@@ -35,9 +35,9 @@ class PreviewCasesTest {
                 *if (board ==
                     Board.Desktop
                 ) {
-                    arrayOf("Formatico 1.0.0", "Get the app", "Download")
+                    arrayOf("Formatico ${FormaticoVersions.APP}", "Get the app", "Download")
                 } else {
-                    arrayOf("Formatico 1.0.0")
+                    arrayOf("Formatico ${FormaticoVersions.APP}")
                 }
             )
 
