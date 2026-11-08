@@ -363,7 +363,8 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
         GitHub sürümlerinde indirilir. Google Play yok. iOS yayımlanmaz; hedefi kodda ve testlerde kalır.
     *   **İndir:** masaüstünde ve web'de bir indirme menüsü, Android'i ve masaüstünü indirmek için; Android
         uygulamasında yok. Sürümü, boyutu ve SHA-256'yı GitHub'ın API'sinden okur, pantrixui.com'un indirme sayfası
-        gibi. Yeni bir ekran: kodundan önce kanvasta 1440, 834 ve 390'da çizilir.
+        gibi. Yeni bir ekran: kodundan önce kanvasta 1440, 834 ve 390'da çizilir. Menünün yeri (sahibinin kararı,
+        2026-11-09): hem Ayarlar'da hem Start ekranında.
 
 ## Sahibinin kararını bekleyenler
 
