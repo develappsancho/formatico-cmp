@@ -143,10 +143,13 @@ internal class RowMaker(private val root: ValueNode, private val inks: RowInks) 
     }
 }
 
-/** A value as its row writes it: `name: value`, an object or an array by its size; the root's `$` with no colon. */
+/**
+ * A value as its row writes it: `name: value`, an object or an array by its size; the root's `$` with a space and no
+ * colon, `$ {4}`, which written together would read as a template (the owner's decision, Faz 21).
+ */
 internal fun rowLabel(node: ValueNode): String = node.name + colonOf(node) + node.text
 
-private fun colonOf(node: ValueNode): String = if (node.path.isEmpty()) "" else ": "
+private fun colonOf(node: ValueNode): String = if (node.path.isEmpty()) " " else ": "
 
 /**
  * [rowLabel] in the document's colours: the key, the colon and the value each in its kind's, or none on a [chosen]

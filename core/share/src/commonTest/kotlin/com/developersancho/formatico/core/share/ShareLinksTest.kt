@@ -114,4 +114,20 @@ class ShareLinksTest {
         assertFalse(long.short)
         assertTrue(long.characters in ShareLinks.SHORT_LENGTH..ShareLinks.MAX_LENGTH, "${long.characters}")
     }
+
+    @Test
+    fun aLinkMadeAtAnotherSiteOpensThereAndIsReadThere() {
+        val local = "http://localhost:4005"
+        val shared = assertIs<ShareOutcome.Link>(ShareLinks.share(order, site = local))
+        assertTrue(shared.link.startsWith("http://localhost:4005/#d=eJ"), shared.link)
+        assertEquals(LinkReading.Read(order), ShareLinks.read(shared.link, site = "$local/"))
+        // Read where links are made at Formatico's site, it is no link of Formatico's.
+        assertEquals(LinkReading.NotALink, ShareLinks.read(shared.link))
+
+        val encrypted = ShareLinks.encrypted("7Qm2xLp9fK", ByteArray(ShareLinks.KEY_BYTES), site = local)
+        assertTrue(encrypted.startsWith("http://localhost:4005/#s=7Qm2xLp9fK&k="), encrypted)
+        assertIs<LinkReading.Encrypted>(ShareLinks.read(encrypted, site = local))
+        // Formatico's own links are read wherever links are made.
+        assertEquals(LinkReading.Read(order), ShareLinks.read(linkOf(order).link, site = local))
+    }
 }

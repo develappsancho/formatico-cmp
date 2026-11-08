@@ -145,7 +145,7 @@ internal fun QueryField(field: TextFieldState, state: WorkspaceState, layout: Wo
         showClearButton = true,
         // The action is named: the default one never reaches the handler, and Enter would use nothing.
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-        onKeyboardAction = { onIntent(WorkspaceIntent.UseQuery) },
+        onKeyboardAction = { onIntent(WorkspaceIntent.UseQuery(field.text.toString())) },
         tagKey = "query"
     )
 }
@@ -220,7 +220,7 @@ private fun ResultsHeader(state: WorkspaceState, layout: WorkspaceLayout, onInte
         Spacer(modifier = Modifier.weight(1f))
         val copy = {
             results?.let { commands.copyText(Copied.Results, it.text) }
-            onIntent(WorkspaceIntent.UseQuery)
+            onIntent(WorkspaceIntent.UseQuery())
         }
         if (wide) {
             PantrixButton(
@@ -257,7 +257,7 @@ internal fun OpenResultsButton(
     PantrixButton(
         text = queryStrings.openResults,
         onClick = {
-            onIntent(WorkspaceIntent.UseQuery)
+            onIntent(WorkspaceIntent.UseQuery())
             results?.let(commands.open)
         },
         variant = ButtonVariant.Outline,
@@ -290,7 +290,7 @@ private fun MatchList(state: WorkspaceState, layout: WorkspaceLayout, onIntent: 
                 onChoose = row.key?.let { key ->
                     {
                         onIntent(WorkspaceIntent.Select(key))
-                        onIntent(WorkspaceIntent.UseQuery)
+                        onIntent(WorkspaceIntent.UseQuery())
                     }
                 },
                 tagKey = "match$index"

@@ -76,7 +76,7 @@ internal fun PhoneQuery(
                     contentDescription = queryStrings.copyResults,
                     onClick = {
                         results?.let { commands.copyText(Copied.Results, it.text) }
-                        onIntent(WorkspaceIntent.UseQuery)
+                        onIntent(WorkspaceIntent.UseQuery())
                     },
                     size = ButtonSize.Large,
                     enabled = results != null,
@@ -128,7 +128,7 @@ private fun PhoneMatches(state: WorkspaceState, onIntent: (WorkspaceIntent) -> U
                 onChoose = row.key?.let { key ->
                     {
                         onIntent(WorkspaceIntent.Select(key))
-                        onIntent(WorkspaceIntent.UseQuery)
+                        onIntent(WorkspaceIntent.UseQuery())
                         onIntent(WorkspaceIntent.ShowPane(DocumentPane.Text))
                     }
                 },

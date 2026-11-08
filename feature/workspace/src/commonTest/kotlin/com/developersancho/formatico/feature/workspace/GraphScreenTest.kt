@@ -4,6 +4,7 @@ import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.performClick
@@ -12,12 +13,14 @@ import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.format.Format
+import com.developersancho.formatico.core.testing.awaitNode
 import com.developersancho.formatico.core.testing.awaitText
 import com.pantrixui.foundation.adaptive.PantrixWindow
 import com.pantrixui.foundation.diagnostics.PantrixFindings
 import com.pantrixui.testing.PantrixTestTheme
 import com.pantrixui.testing.TestClock
 import com.pantrixui.testing.assertNoFindings
+import com.pantrixui.testing.hasPantrixTag
 import com.pantrixui.testing.onPantrixNode
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -60,6 +63,23 @@ class GraphScreenTest {
         assertEquals(WorkspaceIntent.Expand(setOf("$")), intents[2])
         assertEquals(WorkspaceIntent.ShowPane(DocumentPane.Tree), intents[3])
         assertNoFindings(findings)
+    }
+
+    @Test
+    fun aLargeArrayOpensWithItsRootsCardInView() = runComposeUiTest {
+        setContent {
+            PantrixTestTheme(window = desktop, clock = clock) {
+                WorkspaceScreen(
+                    state = graphed("people.json", peopleOf(150), Format.Json),
+                    onIntent = {},
+                    commands = rememberDocumentCommands(Workbench())
+                )
+            }
+        }
+
+        // The root stands across from the middle of its 150 cards: with no value chosen, the graph is brought to it.
+        awaitNode(hasPantrixTag("Node", "root", scope = "Graph_document"), "The root's card")
+        onPantrixNode("Node", "root", scope = "Graph_document").assertIsDisplayed()
     }
 
     @Test

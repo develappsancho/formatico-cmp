@@ -58,8 +58,11 @@ object ShareLinks {
     /** The longest link every browser and app takes whole. */
     const val SHORT_LENGTH = 2_000
 
-    /** The most a link is unpacked to: the largest document a phone or a browser opens, 10 MB. */
-    const val MAX_TEXT = 10 * 1024 * 1024
+    /**
+     * The most a link is unpacked to: the largest document a phone or a browser opens, 10 MB, a million bytes to the MB as
+     * a file's size is counted.
+     */
+    const val MAX_TEXT = 10_000_000
 
     /** An encrypted link's key: 256 bits of AES. */
     const val KEY_BYTES = 32
@@ -73,29 +76,33 @@ object ShareLinks {
     private val Address = Regex("""^https?://formatico\.pantrixui\.com/?(?:index\.html)?(#.*)$""", RegexOption.IGNORE_CASE)
     private val Base64Url = Base64.UrlSafe.withPadding(Base64.PaddingOption.ABSENT_OPTIONAL)
 
-    /** The encrypted link of the share [id] the server keeps, decrypted with [key]. */
-    fun encrypted(id: String, key: ByteArray): String = SITE + "#s=" + id + "&k=" + Base64Url.encode(key)
+    /**
+     * The encrypted link of the share [id] the server keeps, decrypted with [key], opened at [site]: Formatico on the
+     * web, or the page's own address where the web app runs elsewhere, a local stack or a test one.
+     */
+    fun encrypted(id: String, key: ByteArray, site: String = SITE): String = siteOf(site) + "#s=" + id + "&k=" + Base64Url.encode(key)
 
     /** The bytes of an encrypted link's [key], as the link writes it. Throws where it is not a key's. */
     internal fun keyBytes(key: String): ByteArray = Base64Url.decode(key).also { require(it.size == KEY_BYTES) }
 
-    /** The link of [document], or why there is none: it is too large for a link. */
-    fun share(document: SharedDocument): ShareOutcome {
+    /** The link of [document], opened at [site] as [encrypted]'s is, or why there is none: it is too large for a link. */
+    fun share(document: SharedDocument, site: String = SITE): ShareOutcome {
         val bytes = document.text.encodeToByteArray()
         if (bytes.size > MAX_COMPRESSED_TEXT) return ShareOutcome.TooLarge(bytes.size)
-        val link = SITE + fragmentOf(Zlib.compress(bytes), document.name)
+        val link = siteOf(site) + fragmentOf(Zlib.compress(bytes), document.name)
         return if (link.length > MAX_LENGTH) ShareOutcome.TooLarge(bytes.size) else ShareOutcome.Link(link, bytes.size)
     }
 
     /**
-     * [text] read as a link of Formatico's: a whole link, or the part of one from its `#`, as a browser's address
-     * gives it. Spaces around it are let be, as a paste brings them.
+     * [text] read as a link of Formatico's: a whole link, at Formatico's site or at [site], or the part of one from its
+     * `#`, as a browser's address gives it. Spaces around it are let be, as a paste brings them.
      */
-    fun read(text: String): LinkReading {
+    fun read(text: String, site: String = SITE): LinkReading {
         val trimmed = text.trim()
         // A bare fragment is one of Formatico's only where it carries a document: a text may begin with a comment.
         val bare = trimmed.startsWith("#d=") || trimmed.startsWith("#s=")
-        val fragment = if (bare) trimmed else Address.matchEntire(trimmed)?.groupValues?.get(1)
+        val address = Address.matchEntire(trimmed) ?: siteAddress(site)?.matchEntire(trimmed)
+        val fragment = if (bare) trimmed else address?.groupValues?.get(1)
         val parts = fragment?.removePrefix("#")?.split('&')?.associate { part ->
             part.substringBefore('=') to part.substringAfter('=', missingDelimiterValue = "")
         }
@@ -111,6 +118,15 @@ object ShareLinks {
         val read = key?.takeIf { ShareServer.Id.matches(id) && runCatching { keyBytes(it) }.isSuccess }
         return read?.let { LinkReading.Encrypted(id, it) } ?: LinkReading.Broken
     }
+
+    /** [site] as a link begins with it: with the one slash before its `#`. */
+    private fun siteOf(site: String): String = site.trimEnd('/') + "/"
+
+    /** A link at [site], where it is not Formatico's own, as [Address] reads one at Formatico's. */
+    private fun siteAddress(site: String): Regex? =
+        siteOf(site).takeIf { it != SITE }?.let {
+            Regex("^" + Regex.escape(it.trimEnd('/')) + "/?(?:index\\.html)?(#.*)$", RegexOption.IGNORE_CASE)
+        }
 
     private fun fragmentOf(packed: ByteArray, name: String?): String =
         "#d=" + Base64Url.encode(packed) + (name?.takeIf { it.isNotBlank() }?.let { "&n=" + percentEncoded(it) } ?: "")

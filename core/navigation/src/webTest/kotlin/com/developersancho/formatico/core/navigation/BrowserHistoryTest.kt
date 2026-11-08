@@ -63,4 +63,15 @@ class BrowserHistoryTest {
         assertEquals(listOf("#start"), restored.last())
         assertEquals("#start", window.location.hash)
     }
+
+    @Test
+    fun anAddressThatOpenedNothingIsGivenTheScreensBack() {
+        // A link written into the address of an open tab, which could not be opened: its key is in the address.
+        window.history.replaceState(null, "", window.location.origin + window.location.pathname + "#s=7Qm2xLp9fK&k=key")
+
+        rewriteBrowserEntry(listOf("#start", "#document?id=3"))
+
+        assertEquals("#document?id=3", window.location.hash)
+        assertEquals("#start\n#document?id=3", window.history.state)
+    }
 }

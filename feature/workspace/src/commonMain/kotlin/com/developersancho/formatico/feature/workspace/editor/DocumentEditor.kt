@@ -29,6 +29,7 @@ import com.pantrixui.components.data.codeblock.CodeTone
 import com.pantrixui.components.data.codeeditor.CodeEditorState
 import com.pantrixui.components.data.codeeditor.CodeEditorStyle
 import com.pantrixui.components.data.codeeditor.CodeRangeMark
+import com.pantrixui.components.data.codeeditor.CodeRangeStyle
 import com.pantrixui.components.data.codeeditor.PantrixCodeEditor
 import com.pantrixui.foundation.token.shape.ShapeSpec
 import kotlinx.coroutines.delay
@@ -59,8 +60,8 @@ internal val PaneEditorStyle = CodeEditorStyle(
  * or Sort keys, comes into the editor as a step of its own to undo.
  *
  * The text and the tree keep their choice in step: the value [selected] in the tree is selected in the text, and the
- * value of [root] the caret comes to rest in is chosen in the tree ([onSelect]). Its [problems] are marked, and the
- * [schemaIssues] of a schema it is validated against.
+ * value of [root] the caret comes to rest in is chosen in the tree ([onSelect]). Its [problems] are marked, the
+ * [schemaIssues] of a schema it is validated against, and the [matches] of the query asked of it.
  */
 @Composable
 internal fun DocumentEditor(
@@ -73,7 +74,8 @@ internal fun DocumentEditor(
     onSelect: (String) -> Unit,
     modifier: Modifier = Modifier,
     problems: List<Problem> = emptyList(),
-    schemaIssues: List<SchemaIssue> = emptyList()
+    schemaIssues: List<SchemaIssue> = emptyList(),
+    matches: List<TextRange> = emptyList()
 ) {
     val language = editorLanguage(document.format)
     // The text the editor last wrote to the document, or took from it: a document's text that is another came from
@@ -108,7 +110,7 @@ internal fun DocumentEditor(
         state = editor,
         modifier = modifier,
         highlighter = language.highlighter,
-        rangeMarks = problemMarks(problems, document) + schemaMarks(schemaIssues),
+        rangeMarks = matchMarks(matches) + problemMarks(problems, document) + schemaMarks(schemaIssues),
         syntax = language.syntax,
         indent = editorIndent(indentation),
         style = PaneEditorStyle,
@@ -153,6 +155,20 @@ private fun FollowTheTree(editor: CodeEditorState, root: ValueNode?, selected: V
         }
     }
 }
+
+/**
+ * A query's [matches] as marks on the text: a fill behind each in the warning's tone, with no dot and no words, as the
+ * Query boards mark them. The chosen one is the editor's selection.
+ */
+internal fun matchMarks(matches: List<TextRange>): List<CodeRangeMark> =
+    matches.map { match ->
+        CodeRangeMark(
+            start = match.start,
+            end = maxOf(match.end, match.start + 1),
+            mark = CodeMark(tone = CodeTone.Warning),
+            style = CodeRangeStyle.Highlight
+        )
+    }
 
 /** The [issues] against a schema as marks on the text: a wavy line under each, in an error's colour, and what is wrong. */
 @Composable

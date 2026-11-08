@@ -1,0 +1,4 @@
+# The build logic is checked with Formatico's detekt configuration, read before this one. It has no Pantrix UI rules
+# to run, Compose's alone, so the configuration's PantrixUIRule section names a rule set this build does not have.
+config:
+  excludes: 'PantrixUIRule.*'

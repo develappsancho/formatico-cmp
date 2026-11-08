@@ -21,6 +21,7 @@ import com.pantrixui.foundation.files.FilePicker
 import com.pantrixui.foundation.files.rememberFilePicker
 import com.pantrixui.foundation.platform.PantrixClipboard
 import com.pantrixui.foundation.platform.rememberPantrixClipboard
+import com.pantrixui.foundation.theme.PantrixTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -95,10 +96,15 @@ class DocumentOpening internal constructor(
 
     /**
      * Opens the document a link of Formatico's carries: [address] is the part of a browser's address from its `#`.
-     * One that is no link of Formatico's opens nothing; a broken one is said so.
+     * One that is no link of Formatico's opens nothing; a broken one is said so. [onNotOpened] is told where it opened
+     * no document, for whatever reason.
      */
-    fun openLink(address: String) {
-        scope.launch { opener.link(address)?.let(::show) }
+    fun openLink(address: String, onNotOpened: () -> Unit = {}) {
+        scope.launch {
+            val opening = opener.link(address)
+            if (opening !is Opening.Opened) onNotOpened()
+            opening?.let(::show)
+        }
     }
 
     /** Opens the platform's picker, and the file chosen in it. */
@@ -137,6 +143,7 @@ class DocumentOpening internal constructor(
         when (opening) {
             is Opening.Opened -> onOpened(opening.document)
             Opening.NothingToPaste -> said.value = OpeningMessage.NothingToPaste
+            is Opening.PasteTooLarge -> said.value = OpeningMessage.PasteTooLarge(opening.maxSize)
             is Opening.Refused -> said.value = OpeningMessage.Refused(opening.refusal)
             Opening.BrokenLink -> said.value = OpeningMessage.BrokenLink
             Opening.SharedLinkGone -> said.value = OpeningMessage.SharedLinkGone
@@ -149,6 +156,9 @@ class DocumentOpening internal constructor(
 /** What opening away from the Start screen says in a snackbar. */
 internal sealed interface OpeningMessage {
     data object NothingToPaste : OpeningMessage
+
+    /** The text pasted has more bytes than a file may, [maxSize]. */
+    data class PasteTooLarge(val maxSize: Long) : OpeningMessage
 
     data object ClipboardUnreadable : OpeningMessage
 
@@ -191,6 +201,7 @@ private fun OpeningMessages(said: MutableState<OpeningMessage?>, scope: Coroutin
     val tryAgain = startStrings.sharedLinkTryAgain
     val message = when (shown) {
         OpeningMessage.NothingToPaste -> startStrings.clipboardEmpty to "nothing_to_paste"
+        is OpeningMessage.PasteTooLarge -> startStrings.pasteTooLarge(PantrixTheme.strings.fileSize(shown.maxSize)) to "paste_too_large"
         OpeningMessage.ClipboardUnreadable -> startStrings.clipboardUnreadable to "clipboard_unreadable"
         is OpeningMessage.Refused -> refusalText(shown.refusal) to "file_refused"
         OpeningMessage.BrokenLink -> startStrings.linkBroken to "link_broken"

@@ -101,6 +101,17 @@ class StartViewModelTest {
     }
 
     @Test
+    fun aPastedTextLargerThanAFileMayBeIsSaidAndNotOpened() = runTest(dispatcher) {
+        val viewModel = viewModel()
+        val effects = effectsOf(viewModel)
+
+        viewModel.dispatch(StartIntent.Paste("a".repeat(MAX_SIZE.toInt() + 1)))
+
+        assertEquals(listOf<StartEffect>(StartEffect.PasteTooLarge(MAX_SIZE)), effects)
+        assertTrue(viewModel.state.value.recent.isEmpty())
+    }
+
+    @Test
     fun aNewDocumentIsOpenedEmptyAndNotListed() = runTest(dispatcher) {
         val viewModel = viewModel()
         val effects = effectsOf(viewModel)

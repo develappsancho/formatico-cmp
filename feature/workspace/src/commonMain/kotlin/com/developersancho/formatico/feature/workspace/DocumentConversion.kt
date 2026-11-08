@@ -129,12 +129,21 @@ internal fun convertedName(name: String?, format: Format): String? {
 internal fun dataValueOf(root: ValueNode, format: Format): DataValue = DocumentData(root, format).value
 
 /**
+ * The values of [nodes] of the tree whose root is [root], read as [format], as a conversion carries them: an alias in
+ * one is the value it points at anywhere in the document; a node that is null is a null.
+ */
+internal fun dataValuesOf(root: ValueNode, format: Format, nodes: List<ValueNode?>): List<DataValue> {
+    val data = DocumentData(root, format)
+    return nodes.map { node -> node?.let(data::of) ?: DataNull }
+}
+
+/**
  * The value of the tree whose root is [root], read as [format], as a conversion carries it. A YAML alias is the value
  * it points at, as YAML reads it, unless that value holds the alias itself, or the document has more aliases than
  * [MAX_ALIASES] written out: then it is the name it is written with. A TOML date, the one string TOML writes with no
  * quotes, is a date.
  */
-private class DocumentData(root: ValueNode, private val format: Format) {
+private class DocumentData(private val root: ValueNode, private val format: Format) {
     private val byKey: Map<String, ValueNode> by lazy {
         buildMap {
             val left = ArrayDeque(listOf(root))
@@ -148,7 +157,10 @@ private class DocumentData(root: ValueNode, private val format: Format) {
     private var aliasCount = 0
     private var firstAlias: String? = null
 
-    val value: DataValue = valueOf(root, inside = emptySet())
+    val value: DataValue by lazy { valueOf(root, inside = emptySet()) }
+
+    /** The value of [node], a node of the tree. */
+    fun of(node: ValueNode): DataValue = valueOf(node, inside = emptySet())
 
     /** That the aliases were written out as copies, where there were any. */
     fun aliases(): Loss.Aliases? = firstAlias?.let { Loss.Aliases(it, aliasCount) }

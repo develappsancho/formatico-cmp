@@ -25,6 +25,10 @@ internal interface StartStrings {
     val newDocument: String
     val openFile: String
     val clipboardEmpty: String
+
+    /** "The pasted text is larger than {first}", the most a file may have here. */
+    fun pasteTooLarge(first: String): String
+
     val linkBroken: String
     val clipboardUnreadable: String
 

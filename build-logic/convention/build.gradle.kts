@@ -3,6 +3,9 @@ import org.gradle.kotlin.dsl.support.serviceOf
 
 plugins {
     `kotlin-dsl`
+    // The convention plugins' own code is checked as the app's modules are, by the same rules.
+    alias(libs.plugins.kotlinter)
+    alias(libs.plugins.detekt)
 }
 
 group = "com.developersancho.formatico.buildlogic"
@@ -18,6 +21,11 @@ dependencies {
     compileOnly(libs.composeCompiler.gradlePlugin)
     compileOnly(libs.detekt.gradlePlugin)
     compileOnly(libs.kotlinter.gradlePlugin)
+}
+
+detekt {
+    buildUponDefaultConfig = true
+    config.setFrom(file("../../config/detekt/detekt.yml"), file("detekt.yml"))
 }
 
 gradlePlugin {

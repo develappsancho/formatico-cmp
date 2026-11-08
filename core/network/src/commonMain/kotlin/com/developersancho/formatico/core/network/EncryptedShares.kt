@@ -81,7 +81,8 @@ internal class ServerShares(
         return when (val kept = server.keep(encrypted, keep)) {
             is Keeping.Kept -> {
                 val (id, token, expiresAt) = kept.share
-                Sharing.Shared(EncryptedLink(ShareLinks.encrypted(id, key.encodeToByteArray(AES.Key.Format.RAW)), id, token, expiresAt))
+                val link = ShareLinks.encrypted(id, key.encodeToByteArray(AES.Key.Format.RAW), linkSite())
+                Sharing.Shared(EncryptedLink(link, id, token, expiresAt))
             }
 
             Keeping.Refused -> Sharing.TooLarge

@@ -52,11 +52,11 @@ abstract class InvisibleCharactersTask : DefaultTask() {
             put('\u200b', "a space of no width")
             put('\u200c', "a joiner of no width")
             put('\u200d', "a joiner of no width")
-            ('\u200e'..'\u200f').forEach { put(it, "a mark of the writing's direction") }
-            ('\u2028'..'\u2029').forEach { put(it, "a line or paragraph separator") }
-            ('\u202a'..'\u202e').forEach { put(it, "a mark of the writing's direction") }
-            ('\u2060'..'\u2064').forEach { put(it, "a joiner or an operator that cannot be seen") }
-            ('\u2066'..'\u2069').forEach { put(it, "a mark of the writing's direction") }
+            for (char in '\u200e'..'\u200f') put(char, "a mark of the writing's direction")
+            for (char in '\u2028'..'\u2029') put(char, "a line or paragraph separator")
+            for (char in '\u202a'..'\u202e') put(char, "a mark of the writing's direction")
+            for (char in '\u2060'..'\u2064') put(char, "a joiner or an operator that cannot be seen")
+            for (char in '\u2066'..'\u2069') put(char, "a mark of the writing's direction")
             put('\ufeff', "a byte order mark")
         }
     }

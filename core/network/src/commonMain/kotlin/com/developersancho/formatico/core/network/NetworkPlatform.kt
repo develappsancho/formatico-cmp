@@ -21,3 +21,9 @@ internal expect fun platformServer(): String
  * site lets it (CORS), so on the web Formatico's server fetches it.
  */
 internal expect val downloadsItself: Boolean
+
+/**
+ * Where a link Formatico makes opens: on the web, the page's own address, so that a link made on a local stack or a
+ * test one opens there with its share; elsewhere, Formatico's site (the owner's decision, Faz 21).
+ */
+expect fun linkSite(): String

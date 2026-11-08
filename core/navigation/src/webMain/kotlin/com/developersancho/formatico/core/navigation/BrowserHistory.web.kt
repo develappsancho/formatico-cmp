@@ -57,6 +57,10 @@ actual fun BrowserHistory(entries: List<String>, onRestore: (List<String>) -> Un
     }
 }
 
+actual fun rewriteBrowserEntry(entries: List<String>) {
+    if (entries.isNotEmpty()) browserWindow().write(entries, push = false)
+}
+
 /** Writes [screens] into the tab's history, as a new entry when [push] says so and else into the entry it is on. */
 private fun BrowserWindow.write(screens: List<String>, push: Boolean) {
     val state = screens.joinToString("\n")

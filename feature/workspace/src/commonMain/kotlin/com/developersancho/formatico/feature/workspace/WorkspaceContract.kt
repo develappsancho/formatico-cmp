@@ -146,8 +146,11 @@ internal sealed interface WorkspaceIntent {
     /** Query the document with [query], in its language. */
     data class Query(val query: String) : WorkspaceIntent
 
-    /** The query the document is queried with was used: it is offered again, as a recent one. */
-    data object UseQuery : WorkspaceIntent
+    /**
+     * A query was used: it is offered again, as a recent one. [query] is the field's text as the keyboard's action
+     * used it, which reaches the document's query a frame later; null, the document's query is the one used.
+     */
+    data class UseQuery(val query: String? = null) : WorkspaceIntent
 
     /** Convert the document as [choice] says. */
     data class Convert(val choice: ConvertChoice) : WorkspaceIntent

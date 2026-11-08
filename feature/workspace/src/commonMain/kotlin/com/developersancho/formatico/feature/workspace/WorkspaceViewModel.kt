@@ -6,6 +6,7 @@ import com.developersancho.formatico.core.format.Format
 import com.developersancho.formatico.core.format.Repairs
 import com.developersancho.formatico.core.format.convert.ConvertOptions
 import com.developersancho.formatico.core.format.xml.XmlDocument
+import com.developersancho.formatico.core.network.linkSite
 import com.developersancho.formatico.core.share.ShareKeep
 import com.developersancho.formatico.core.share.ShareLinks
 import com.developersancho.formatico.core.share.SharedDocument
@@ -107,7 +108,7 @@ internal class WorkspaceViewModel(
                         )
                     )
                 }
-                val outcome = withContext(reader) { ShareLinks.share(sent) }
+                val outcome = withContext(reader) { ShareLinks.share(sent, linkSite()) }
                 setState { copy(share = share?.copy(outcome = outcome)) }
                 // An encrypted link made of this very text before, and not expired, is shown again. It is looked for apart:
                 // a browser's fingerprint of the text is a promise, which the next text or choice should not wait for.
@@ -328,8 +329,8 @@ internal class WorkspaceViewModel(
 
             is WorkspaceIntent.Schema -> workbench.changeView(documentId) { it.copy(schema = intent.choice) }
 
-            WorkspaceIntent.UseQuery -> state.value.let { shown ->
-                shown.queryLanguage?.let { queries.remember(it, shown.document?.view?.query.orEmpty()) }
+            is WorkspaceIntent.UseQuery -> state.value.let { shown ->
+                shown.queryLanguage?.let { queries.remember(it, intent.query ?: shown.document?.view?.query.orEmpty()) }
             }
 
             is WorkspaceIntent.Write -> workbench.write(documentId, intent.text)

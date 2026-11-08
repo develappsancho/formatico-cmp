@@ -16,6 +16,9 @@ internal object StartStringsTurkish : StartStrings {
     override val newDocument = "Yeni belge"
     override val openFile = "Dosya aç"
     override val clipboardEmpty = "Panodan metin okunamadı"
+
+    override fun pasteTooLarge(first: String) = "Yapıştırılan metin $first sınırından büyük"
+
     override val linkBroken = "Bu bağlantıda Formatico’nun okuyabileceği bir belge yok. Yarıda kesilmiş olabilir."
     override val clipboardUnreadable = "Bu tarayıcı Formatico’nun panoyu okumasına izin vermiyor. Klavyeyle yapıştır ya da bir dosya aç."
 

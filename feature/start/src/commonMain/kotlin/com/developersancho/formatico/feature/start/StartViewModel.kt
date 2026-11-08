@@ -80,6 +80,8 @@ class StartViewModel(
 
             Opening.NothingToPaste -> sendEffect(StartEffect.NothingToPaste)
 
+            is Opening.PasteTooLarge -> sendEffect(StartEffect.PasteTooLarge(opening.maxSize))
+
             Opening.BrokenLink -> sendEffect(StartEffect.BrokenLink)
 
             Opening.SharedLinkGone -> sendEffect(StartEffect.SharedLinkGone)

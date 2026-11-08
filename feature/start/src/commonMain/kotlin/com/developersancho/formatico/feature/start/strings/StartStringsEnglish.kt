@@ -16,6 +16,9 @@ internal object StartStringsEnglish : StartStrings {
     override val newDocument = "New document"
     override val openFile = "Open a file"
     override val clipboardEmpty = "No text was read from the clipboard"
+
+    override fun pasteTooLarge(first: String) = "The pasted text is larger than $first"
+
     override val linkBroken = "This link holds no document Formatico can read. It may have been cut short."
     override val clipboardUnreadable = "This browser does not let Formatico read the clipboard. Paste with the keyboard, or open a file."
 

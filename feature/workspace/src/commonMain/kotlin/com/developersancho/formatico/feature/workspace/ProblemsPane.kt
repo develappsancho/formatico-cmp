@@ -32,6 +32,8 @@ import com.pantrixui.components.elements.button.PantrixButton
 import com.pantrixui.components.elements.icon.PantrixIcon
 import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.foundation.icons.PantrixIcons
+import com.pantrixui.foundation.testing.pantrixTestTag
+import com.pantrixui.foundation.testing.rememberPantrixTestTag
 import com.pantrixui.foundation.theme.PantrixTheme
 
 /**
@@ -95,7 +97,8 @@ internal fun ProblemsList(
                     if (layout == WorkspaceLayout.Phone) onIntent(WorkspaceIntent.ShowPane(DocumentPane.Text))
                 },
                 onRepair = { onIntent(WorkspaceIntent.Repair(problem)) },
-                tagKey = "problem_$index"
+                tagKey = "problem_$index",
+                repairTagKey = "repair_$index"
             )
         }
     }
@@ -151,7 +154,8 @@ private fun ProblemsSummary(state: WorkspaceState, format: Format, layout: Works
 
 /**
  * A problem: its sign, what to do about it and where, a press on which goes to it ([onGoTo]), and its repair's button
- * where it has one. The [current] one, which the caret is in, stands on the brand's soft fill.
+ * where it has one. The [current] one, which the caret is in, stands on the brand's soft fill. The row is tagged
+ * `ProblemRow_<tagKey>`, its button `Button_<repairTagKey>`.
  */
 @Composable
 private fun ProblemRow(
@@ -162,7 +166,8 @@ private fun ProblemRow(
     layout: WorkspaceLayout,
     onGoTo: () -> Unit,
     onRepair: () -> Unit,
-    tagKey: String
+    tagKey: String,
+    repairTagKey: String
 ) {
     val spacing = PantrixTheme.spacing
     val colors = PantrixTheme.colors
@@ -179,7 +184,7 @@ private fun ProblemRow(
                 onClick = onRepair,
                 variant = ButtonVariant.Soft,
                 size = layout.buttons,
-                tagKey = tagKey
+                tagKey = repairTagKey
             )
         }
     }
@@ -197,7 +202,10 @@ private fun ProblemRow(
             tint = if (error) colors.danger.color else colors.warning.color
         )
         Column(
-            modifier = Modifier.weight(1f).clickable(role = Role.Button, onClick = onGoTo),
+            modifier = Modifier
+                .weight(1f)
+                .clickable(role = Role.Button, onClick = onGoTo)
+                .pantrixTestTag(rememberPantrixTestTag("ProblemRow", tagKey)),
             verticalArrangement = Arrangement.spacedBy(spacing.none)
         ) {
             PantrixText(

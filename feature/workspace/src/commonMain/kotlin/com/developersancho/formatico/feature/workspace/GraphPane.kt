@@ -155,7 +155,9 @@ internal fun DocumentGraphView(
             }
         }
     }
-    LaunchedEffect(chosen) { chosen?.let { graph.bringIntoView(it) } }
+    // The chosen card is brought into view as it is chosen; with none chosen the root's card is, which a large array
+    // would otherwise open far from, in the middle of its children.
+    LaunchedEffect(chosen) { (chosen ?: made.nodes.firstOrNull()?.key)?.let { graph.bringIntoView(it) } }
     PantrixGraph(
         nodes = made.nodes,
         links = made.links,

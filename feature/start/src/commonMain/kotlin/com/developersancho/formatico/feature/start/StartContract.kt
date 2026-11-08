@@ -114,6 +114,9 @@ sealed interface StartEffect {
     /** No text was read from the clipboard to paste. */
     data object NothingToPaste : StartEffect
 
+    /** The text pasted has more bytes than the platform's most, [maxSize]. */
+    data class PasteTooLarge(val maxSize: Long) : StartEffect
+
     /** What was pasted is a link of Formatico's whose document cannot be read back. */
     data object BrokenLink : StartEffect
 

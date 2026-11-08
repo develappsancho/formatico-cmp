@@ -5,6 +5,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.developersancho.formatico.core.navigation.BrowserHistory
+import com.developersancho.formatico.core.navigation.rewriteBrowserEntry
 import com.developersancho.formatico.feature.workspace.Workbench
 
 /** Start, as a browser's address writes it after its `#`. */
@@ -20,16 +21,25 @@ internal const val SETTINGS_ENTRY = "#settings"
  * Keeps the browser's history and address with the screen the app shows, where the app runs in a browser: going back
  * or forward in the browser goes from tab to tab, and an address written by hand opens its document. An address that
  * carries a document, a link of Formatico's, goes to [onLink] with its `#` part, and the address then follows what is
- * opened. Elsewhere it does nothing.
+ * opened; where it opens nothing, the screens shown are written back into the address, and the link and its key leave
+ * it. Elsewhere it does nothing.
  */
 @Composable
-internal fun FollowBrowserHistory(workbench: Workbench, settings: MutableState<Boolean>, onLink: (String) -> Unit) {
+internal fun FollowBrowserHistory(
+    workbench: Workbench,
+    settings: MutableState<Boolean>,
+    onLink: (link: String, onNotOpened: () -> Unit) -> Unit
+) {
     val state by workbench.state.collectAsState()
     BrowserHistory(
         entries = browserEntries(state.selectedId, settings.value),
         onRestore = { entries ->
             val link = sharedEntryOf(entries)
-            if (link != null) onLink(link) else workbench.showBrowserEntries(entries) { settings.value = it }
+            if (link != null) {
+                onLink(link) { rewriteBrowserEntry(browserEntries(workbench.state.value.selectedId, settings.value)) }
+            } else {
+                workbench.showBrowserEntries(entries) { settings.value = it }
+            }
         }
     )
 }

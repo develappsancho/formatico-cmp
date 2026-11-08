@@ -15,6 +15,11 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class EncryptedSharesTest {
+    private companion object {
+        /** A key of 32 bytes in Base64, unpadded. */
+        const val KEY_CHARACTERS = 43
+    }
+
     private val order = SharedDocument("""{"id": "ord_8842", "customer": {"name": "Elif Yılmaz"}}""", "order.json")
 
     @Test
@@ -24,9 +29,10 @@ class EncryptedSharesTest {
 
         val shared = assertIs<Sharing.Shared>(shares.share(order, ShareKeep.Week)).link
 
-        assertTrue(shared.link.startsWith("https://formatico.pantrixui.com/#s=7Qm2xLp9fK&k="), shared.link)
-        assertEquals(91, shared.link.length)
-        val link = assertIs<LinkReading.Encrypted>(ShareLinks.read(shared.link))
+        // The site's address in the apps, the page's own in a browser (the tests' page there).
+        assertTrue(shared.link.startsWith("${linkSite()}#s=7Qm2xLp9fK&k="), shared.link)
+        assertEquals(linkSite().length + "#s=7Qm2xLp9fK&k=".length + KEY_CHARACTERS, shared.link.length)
+        val link = assertIs<LinkReading.Encrypted>(ShareLinks.read(shared.link, linkSite()))
         assertEquals(SharedOpening.Opened(order), shares.open(link))
     }
 
@@ -58,11 +64,11 @@ class EncryptedSharesTest {
 
         assertEquals(SharedOpening.Broken, shares.open(assertIs<LinkReading.Encrypted>(ShareLinks.read(other))))
         assertEquals(Forgetting.Forgotten, shares.delete(shared))
-        assertEquals(SharedOpening.Gone, shares.open(assertIs<LinkReading.Encrypted>(ShareLinks.read(shared.link))))
+        assertEquals(SharedOpening.Gone, shares.open(assertIs<LinkReading.Encrypted>(ShareLinks.read(shared.link, linkSite()))))
 
         fake.reachable = false
         assertEquals(Sharing.Unreachable, shares.share(order, ShareKeep.Day))
-        assertEquals(SharedOpening.Unreachable, shares.open(assertIs<LinkReading.Encrypted>(ShareLinks.read(shared.link))))
+        assertEquals(SharedOpening.Unreachable, shares.open(assertIs<LinkReading.Encrypted>(ShareLinks.read(shared.link, linkSite()))))
     }
 
     @Test

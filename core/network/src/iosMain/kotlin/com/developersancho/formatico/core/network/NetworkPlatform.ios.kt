@@ -14,3 +14,5 @@ internal actual val ShareCipherProvider: CryptographyProvider get() = Cryptograp
 internal actual fun platformServer(): String = ShareLinks.SITE.trimEnd('/')
 
 internal actual val downloadsItself: Boolean = true
+
+actual fun linkSite(): String = ShareLinks.SITE

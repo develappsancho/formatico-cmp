@@ -4,6 +4,7 @@ import com.developersancho.formatico.core.format.FormatDetector
 import com.developersancho.formatico.core.network.AddressReading
 import com.developersancho.formatico.core.network.Online
 import com.developersancho.formatico.core.network.SharedOpening
+import com.developersancho.formatico.core.network.linkSite
 import com.developersancho.formatico.core.share.LinkReading
 import com.developersancho.formatico.core.share.ShareLinks
 import com.developersancho.formatico.core.share.SharedDocument
@@ -26,6 +27,9 @@ sealed interface Opening {
 
     /** The clipboard held no text to paste. */
     data object NothingToPaste : Opening
+
+    /** The text pasted has more bytes than the platform's most, [maxSize], as a file's may have. */
+    data class PasteTooLarge(val maxSize: Long) : Opening
 
     /** The file was not opened, for [refusal]. */
     data class Refused(val refusal: FileRefusal) : Opening
@@ -76,19 +80,20 @@ class DocumentOpener(
 
     /**
      * [text], pasted, as a document: the one it carries where it is a link of Formatico's, and else itself. Nothing to
-     * open where it is null or blank.
+     * open where it is null or blank; too large where it has more bytes than a file may, [maxFileSize].
      */
     suspend fun paste(text: String?): Opening {
         if (text.isNullOrBlank()) return Opening.NothingToPaste
+        if (utf8Size(text) > maxFileSize) return Opening.PasteTooLarge(maxFileSize)
         return link(text) ?: Opening.Opened(record(OpenedDocument(name = null, text = text, format = detect(text, null))))
     }
 
     /**
-     * The document a link of Formatico's carries, as a file of its name is opened: [address] is a whole link, or the
-     * part of one from its `#`, as a browser's address gives it. A broken link where it cannot be read back; null
-     * where [address] is no link of Formatico's.
+     * The document a link of Formatico's carries, as a file of its name is opened: [address] is a whole link, at
+     * Formatico's site or where links are made here ([linkSite]), or the part of one from its `#`, as a browser's
+     * address gives it. A broken link where it cannot be read back; null where [address] is no link of Formatico's.
      */
-    suspend fun link(address: String): Opening? = when (val reading = withContext(reader) { ShareLinks.read(address) }) {
+    suspend fun link(address: String): Opening? = when (val reading = withContext(reader) { ShareLinks.read(address, linkSite()) }) {
         LinkReading.NotALink -> null
         LinkReading.Broken -> Opening.BrokenLink
         is LinkReading.Read -> opened(reading.document)
@@ -163,4 +168,35 @@ class DocumentOpener(
         val historyId = if (document.text.isNotEmpty() && keeps()) history.record(document, clock.now()) else null
         return document.copy(historyId = historyId)
     }
+}
+
+/** The first character codes that UTF-8 writes in two bytes and in three. */
+private const val TWO_BYTES_FROM = 0x80
+private const val THREE_BYTES_FROM = 0x800
+
+/** The bytes UTF-8 writes a character in from [THREE_BYTES_FROM], and a surrogate pair, a character past 0xFFFF, in. */
+private const val THREE_BYTES = 3
+private const val PAIR_BYTES = 4
+
+/** How many bytes [text] has in UTF-8, as a file of it would, counted without writing it out. */
+internal fun utf8Size(text: String): Long {
+    var size = 0L
+    var index = 0
+    while (index < text.length) {
+        val char = text[index]
+        size += when {
+            char.code < TWO_BYTES_FROM -> 1
+
+            char.code < THREE_BYTES_FROM -> 2
+
+            char.isHighSurrogate() && index + 1 < text.length && text[index + 1].isLowSurrogate() -> {
+                index++
+                PAIR_BYTES
+            }
+
+            else -> THREE_BYTES
+        }
+        index++
+    }
+    return size
 }

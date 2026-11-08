@@ -24,10 +24,7 @@ internal object QueryStringsEnglish : QueryStrings {
 
     override val copyResults = "Copy the results"
     override val openResults = "Open as a document"
-
-    // The board's hint also says the matches are marked in the text, which they are not yet
-    // (PANTRIX_FINDINGS, "CodeEditor, bir uygulamanın verdiği aralıkları vurgulayamıyor").
-    override val chooseHint = "Choosing a match moves the cursor to it."
+    override val chooseHint = "A match is marked in the text; choosing one moves the cursor to it."
     override val seeInText = "Choose one to see it in the text"
     override val resultsLabel = "Query results"
     override val resultsCopied = "Results copied"

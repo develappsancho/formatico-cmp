@@ -20,6 +20,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.base.MviScreen
@@ -419,6 +420,7 @@ internal fun TextPane(
         onSelect = { onIntent(WorkspaceIntent.Select(it)) },
         modifier = modifier,
         problems = state.problems,
-        schemaIssues = state.schema.issues
+        schemaIssues = state.schema.issues,
+        matches = state.query.matches.map { TextRange(it.range.start, it.range.end) }
     )
 }

@@ -31,11 +31,13 @@ enum class OpenSourceLicence(val title: String, internal val file: String) {
 enum class OpenSourceLibrary(val title: String, val licence: OpenSourceLicence, val inTheWebApp: Boolean = false) {
     Compose("Compose Multiplatform", OpenSourceLicence.Apache),
     Kotlin("Kotlin, kotlinx.coroutines and kotlinx.serialization", OpenSourceLicence.Apache),
-    AndroidX("AndroidX Navigation 3 and Lifecycle", OpenSourceLicence.Apache),
+    AndroidX("AndroidX Navigation 3, Navigation Event and Lifecycle", OpenSourceLicence.Apache),
     Pantrix("Pantrix UI", OpenSourceLicence.Apache),
     Koin("Koin", OpenSourceLicence.Apache),
     KSafe("KSafe", OpenSourceLicence.Apache),
     Cryptography("cryptography-kotlin", OpenSourceLicence.Apache),
+    Ktor("Ktor", OpenSourceLicence.Apache),
+    OkHttp("OkHttp", OpenSourceLicence.Apache),
     SnakeYaml("snakeyaml-engine-kmp", OpenSourceLicence.Apache),
     SchemaValidator("json-schema-validator", OpenSourceLicence.MitSchemaValidator),
     Karacteristics("karacteristics", OpenSourceLicence.MitKaracteristics),
@@ -43,6 +45,7 @@ enum class OpenSourceLibrary(val title: String, val licence: OpenSourceLicence, 
     Normalize("doistx-normalize", OpenSourceLicence.MitNormalize),
     Codepoints("kotlin-codepoints", OpenSourceLicence.MitCodepoints),
     NavigationBrowser("navigation3-browser", OpenSourceLicence.MitNavigation, inTheWebApp = true),
+    KotlinxBrowser("kotlinx-browser", OpenSourceLicence.Apache, inTheWebApp = true),
     Geist("Geist and Geist Mono", OpenSourceLicence.Ofl)
 }
 

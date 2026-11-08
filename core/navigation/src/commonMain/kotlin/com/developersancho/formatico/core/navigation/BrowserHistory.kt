@@ -11,3 +11,10 @@ import androidx.compose.runtime.Composable
  */
 @Composable
 expect fun BrowserHistory(entries: List<String>, onRestore: (List<String>) -> Unit)
+
+/**
+ * Writes [entries], the screens the app shows, into the entry a browser tab is on, its address with them, where the app
+ * runs in a browser; elsewhere it does nothing. It is for an address written by hand that opened nothing, as a link
+ * that could not be opened: its screens did not change, and the address would keep the link, its key with it.
+ */
+expect fun rewriteBrowserEntry(entries: List<String>)

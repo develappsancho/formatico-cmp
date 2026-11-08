@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.format.Severity
 import com.developersancho.formatico.core.format.json.jsonPath
+import com.developersancho.formatico.core.navigation.SystemBack
 import com.developersancho.formatico.feature.workspace.editor.DocumentEditor
 import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.components.container.card.CardVariant
@@ -57,18 +58,24 @@ internal fun PhoneWorkspace(
     val spacing = PantrixTheme.spacing
     val pane = document.view.pane
     Column(modifier = modifier.fillMaxSize().background(PantrixTheme.colors.surface)) {
-        // A phone has room for three views: an invalid document's problems take the table's place, where it has none.
+        // A phone has room for three views: an invalid document's problems take the table's place, as Invalid-390 has
+        // it, whether or not it has a table (the owner's decision, Faz 21); its table opens once it is repaired.
         ViewChoice(
             selected = pane,
             withText = true,
             onSelect = { onIntent(WorkspaceIntent.ShowPane(it)) },
             problems = state.problems.size,
-            withTable = state.problems.isEmpty() || state.table != null,
+            withTable = state.problems.isEmpty(),
             withQuery = pane == DocumentPane.Query,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = spacing.lg, end = spacing.lg, top = spacing.md, bottom = spacing.sm)
         )
+        // Query and the Summary come from the More menu: the system's back goes back to the view the document opens
+        // with, as Convert's does, not out of the tab.
+        if (pane == DocumentPane.Query || pane == DocumentPane.Summary) {
+            SystemBack(onBack = { onIntent(WorkspaceIntent.ShowPane(openingPane(document.format))) })
+        }
         // The query's board gives it the room under the views, and its own actions at the bottom.
         if (pane == DocumentPane.Query) {
             PhoneQuery(state = state, onIntent = onIntent, commands = commands, modifier = Modifier.weight(1f).fillMaxWidth())

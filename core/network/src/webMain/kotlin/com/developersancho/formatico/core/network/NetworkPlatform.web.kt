@@ -16,3 +16,5 @@ internal actual fun platformServer(): String =
     window.location.origin.takeIf { it.startsWith("http") } ?: ShareLinks.SITE.trimEnd('/')
 
 internal actual val downloadsItself: Boolean = false
+
+actual fun linkSite(): String = window.location.origin.takeIf { it.startsWith("http") }?.let { "$it/" } ?: ShareLinks.SITE

@@ -54,6 +54,27 @@ class DocumentOpenerTest {
     }
 
     @Test
+    fun aPastedTextLargerThanAFileMayBeIsNotOpened() = runTest(dispatcher) {
+        val (opener, history) = opener()
+        val most = MAX_SIZE.toInt()
+
+        assertEquals(Opening.PasteTooLarge(MAX_SIZE), opener.paste("a".repeat(most + 1)))
+        // Counted in UTF-8, as a file of it would be: each İ is two bytes.
+        assertEquals(Opening.PasteTooLarge(MAX_SIZE), opener.paste("İ".repeat(most / 2 + 1)))
+        assertTrue(opener.paste("a".repeat(most)) is Opening.Opened)
+        assertEquals(1, history.documents.value.size)
+    }
+
+    @Test
+    fun aTextsSizeIsCountedAsUtf8WritesIt() {
+        assertEquals(5L, utf8Size("Izmir"))
+        assertEquals(6L, utf8Size("İzmir"))
+        assertEquals(3L, utf8Size("€"))
+        assertEquals(4L, utf8Size("😀"))
+        assertEquals(0L, utf8Size(""))
+    }
+
+    @Test
     fun anEncryptedLinkOpensTheDocumentItsShareHolds() = runTest(dispatcher) {
         val shares = OpenedShares(SharedOpening.Opened(SharedDocument("a: 1\n", "deployment.yaml")))
         val (opener, history) = opener(shares = shares)

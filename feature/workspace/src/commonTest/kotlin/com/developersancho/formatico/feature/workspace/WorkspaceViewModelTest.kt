@@ -2,6 +2,7 @@ package com.developersancho.formatico.feature.workspace
 
 import com.developersancho.formatico.core.format.Format
 import com.developersancho.formatico.core.format.types.TypeLanguage
+import com.developersancho.formatico.core.network.linkSite
 import com.developersancho.formatico.core.share.LinkReading
 import com.developersancho.formatico.core.share.ShareLinks
 import com.developersancho.formatico.core.share.ShareOutcome
@@ -54,14 +55,14 @@ class WorkspaceViewModelTest {
         viewModel.dispatch(WorkspaceIntent.Share(open = true))
         val share = assertNotNull(viewModel.state.value.share)
         val link = assertIs<ShareOutcome.Link>(share.outcome)
-        assertEquals(LinkReading.Read(SharedDocument("""{"a":1}""", "order.json")), ShareLinks.read(link.link))
+        assertEquals(LinkReading.Read(SharedDocument("""{"a":1}""", "order.json")), ShareLinks.read(link.link, linkSite()))
         assertTrue(share.canFormat)
         assertFalse(share.formatted)
         assertTrue(workbench.state.value.documents.single().view.sharing)
 
         viewModel.dispatch(WorkspaceIntent.ShareFormatted(formatted = true))
         val formatted = assertIs<ShareOutcome.Link>(viewModel.state.value.share?.outcome)
-        assertEquals(LinkReading.Read(SharedDocument("{\n  \"a\": 1\n}", "order.json")), ShareLinks.read(formatted.link))
+        assertEquals(LinkReading.Read(SharedDocument("{\n  \"a\": 1\n}", "order.json")), ShareLinks.read(formatted.link, linkSite()))
         // The document itself is left as it is.
         assertEquals("""{"a":1}""", workbench.state.value.documents.single().text)
 
@@ -83,7 +84,7 @@ class WorkspaceViewModelTest {
         invalid.dispatch(WorkspaceIntent.ShareFormatted(formatted = true))
         val link = assertIs<ShareOutcome.Link>(invalid.state.value.share?.outcome)
         assertEquals(false, invalid.state.value.share?.canFormat)
-        assertEquals(LinkReading.Read(SharedDocument("""{"a": }""", "broken.json")), ShareLinks.read(link.link))
+        assertEquals(LinkReading.Read(SharedDocument("""{"a": }""", "broken.json")), ShareLinks.read(link.link, linkSite()))
     }
 
     @Test

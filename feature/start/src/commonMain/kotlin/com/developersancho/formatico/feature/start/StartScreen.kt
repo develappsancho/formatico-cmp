@@ -64,6 +64,8 @@ fun StartRoute(onOpenDocument: (OpenedDocument) -> Unit, modifier: Modifier = Mo
     val sharedLinkGone = startStrings.sharedLinkGone
     val sharedLinkUnreachable = startStrings.sharedLinkUnreachable
     val tryAgain = startStrings.sharedLinkTryAgain
+    val words = startStrings
+    val sizes = PantrixTheme.strings
     MviScreen(
         viewModel = viewModel,
         onEffect = { effect ->
@@ -72,6 +74,10 @@ fun StartRoute(onOpenDocument: (OpenedDocument) -> Unit, modifier: Modifier = Mo
 
                 StartEffect.NothingToPaste -> scope.launch {
                     snackbars?.show(message = nothingToPaste, tagKey = "nothing_to_paste")
+                }
+
+                is StartEffect.PasteTooLarge -> scope.launch {
+                    snackbars?.show(message = words.pasteTooLarge(sizes.fileSize(effect.maxSize)), tagKey = "paste_too_large")
                 }
 
                 StartEffect.BrokenLink -> scope.launch { snackbars?.showBrokenLink(brokenLink) }

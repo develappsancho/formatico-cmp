@@ -156,6 +156,19 @@ class DocumentQueryTest {
     }
 
     @Test
+    fun anAliasInAResultIsTheValueItPointsAtAnywhereInTheDocument() {
+        val text = "base: &base\n  port: 8080\n  tls: true\nservice: *base\n"
+        val yaml = OpenDocument(id = 4, name = "service.yaml", text = text, format = Format.Yaml)
+        val root = assertIs<Reading.Read>(readDocument(text, Format.Yaml)).root
+        val results = queryResults(yaml, root, outcome(text, Format.Yaml, "$.service"))!!
+
+        val written = assertIs<Reading.Read>(readDocument(results.text, Format.Json))
+        assertEquals(0, written.errors)
+        val service = written.root?.children?.single()
+        assertEquals(listOf("port" to "8080", "tls" to "true"), service?.children?.map { it.name to it.text })
+    }
+
+    @Test
     fun theRecentQueriesAreTheLatestFirstEachOnceAndAFewOfEachLanguage() {
         val recent = (1..7).fold(RecentQueries()) { queries, n -> queries.with(QueryLanguage.JsonPath, "$.a$n") }
             .with(QueryLanguage.JsonPath, "$.a5")
@@ -204,9 +217,14 @@ class DocumentQueryTest {
         model.dispatch(WorkspaceIntent.Query("$.items[*].name "))
         assertEquals(1, model.state.value.currentMatch)
 
-        model.dispatch(WorkspaceIntent.UseQuery)
+        model.dispatch(WorkspaceIntent.UseQuery())
         assertEquals(listOf("$.items[*].name"), model.state.value.recentQueries.of(QueryLanguage.JsonPath))
         assertEquals(emptyList(), model.state.value.otherQueries)
+
+        // Enter right after typing gives the field's text, which the document's query has not reached yet: that is kept.
+        model.dispatch(WorkspaceIntent.UseQuery("$..price"))
+        assertEquals("$..price", model.state.value.recentQueries.of(QueryLanguage.JsonPath).first())
+        assertEquals("$.items[*].name ", workbench.state.value.selected?.view?.query)
 
         model.dispatch(WorkspaceIntent.ShowPane(DocumentPane.Tree))
         assertNull(model.state.value.query)

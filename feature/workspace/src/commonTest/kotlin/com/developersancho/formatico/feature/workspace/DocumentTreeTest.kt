@@ -60,9 +60,9 @@ class DocumentTreeTest {
         label.spanStyles.map { label.text.substring(it.start, it.end) to it.item }
 
     @Test
-    fun aRowIsTheNameAndTheValueTheRootsDollarWithNoColon() {
+    fun aRowIsTheNameAndTheValueTheRootsDollarWithASpaceAndNoColon() {
         val root = root()
-        assertEquals("\${8}", rowLabel(root))
+        assertEquals("\$ {8}", rowLabel(root))
         assertEquals("id: \"ord_8842\"", rowLabel(root.find("$.id")))
         assertEquals("customer: {3}", rowLabel(root.find("$.customer")))
         assertEquals("items: [2]", rowLabel(root.find("$.items")))

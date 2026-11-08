@@ -14,7 +14,7 @@ import com.developersancho.formatico.core.designsystem.PreviewCases
 import com.developersancho.formatico.core.format.Format
 
 /** [text], named [name] and read as [format], shown as its graph, [selected] chosen. */
-private fun graphed(name: String, text: String, format: Format?, selected: String? = null, expanded: Set<String>? = null) =
+internal fun graphed(name: String, text: String, format: Format?, selected: String? = null, expanded: Set<String>? = null) =
     previewState(name, text, format, DocumentView(pane = DocumentPane.Graph, selected = selected, expanded = expanded))
 
 /** The order of the Graph boards, its customer chosen, every card open: Graph-1440's, Graph-834's and Graph-390's state. */

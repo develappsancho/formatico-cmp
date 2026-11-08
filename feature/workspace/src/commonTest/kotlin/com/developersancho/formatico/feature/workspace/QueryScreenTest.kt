@@ -60,13 +60,13 @@ class QueryScreenTest {
         onPantrixNode("Segment", "query", scope = "SegmentButton_view").assertIsSelected()
         onPantrixNode("ListItem", "match0").assert(hasText("$.items[0].name")).assert(hasText("\"Keyboard\"")).assertIsSelected()
         awaitText("Match 1 of 3")
-        awaitText("Choosing a match moves the cursor to it.")
+        awaitText("A match is marked in the text; choosing one moves the cursor to it.")
         // The query asked now is not among the recent ones offered.
         onPantrixNode("Chip", "recent0").assert(hasText("$..price"))
 
         onPantrixNode("ListItem", "match1").performClick()
         assertTrue(WorkspaceIntent.Select("$.items[1].name") in intents)
-        assertTrue(WorkspaceIntent.UseQuery in intents)
+        assertTrue(WorkspaceIntent.UseQuery() in intents)
         onPantrixNode("Chip", "recent0").performClick()
         awaitUntil("The recent query is asked") { WorkspaceIntent.Query("$..price") in intents }
         // Pressed again, the toolbar's Query gives the tree back.
@@ -111,7 +111,8 @@ class QueryScreenTest {
         // The field names its action: the default one never reaches the handler, and Enter used nothing.
         onPantrixNode("TextField", "query").assert(SemanticsMatcher.expectValue(SemanticsProperties.ImeAction, ImeAction.Search))
         onPantrixNode("TextField", "query").performImeAction()
-        assertEquals(WorkspaceIntent.UseQuery, intents.last())
+        // The field's text goes with it: it reaches the document's query a frame later.
+        assertEquals(WorkspaceIntent.UseQuery("$.items[*].name"), intents.last())
     }
 
     @Test
@@ -196,7 +197,7 @@ class QueryScreenTest {
 
         onPantrixNode("ListItem", "match1").performClick()
         assertEquals(
-            listOf(WorkspaceIntent.Select("$.items[1].price"), WorkspaceIntent.UseQuery, WorkspaceIntent.ShowPane(DocumentPane.Text)),
+            listOf(WorkspaceIntent.Select("$.items[1].price"), WorkspaceIntent.UseQuery(), WorkspaceIntent.ShowPane(DocumentPane.Text)),
             intents.takeLast(3)
         )
         assertNoFindings(findings)

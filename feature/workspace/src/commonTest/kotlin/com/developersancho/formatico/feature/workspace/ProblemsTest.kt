@@ -24,6 +24,7 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalTestApi::class, ExperimentalCoroutinesApi::class)
 class ProblemsTest {
     private val desktop = PantrixWindow(DpSize(1440.dp, 900.dp))
+    private val phone = PantrixWindow(DpSize(390.dp, 844.dp))
     private val settings =
         "{\n  // a note\n  \"hosts\": [\n    \"localhost\"\n    \"127.0.0.1\"\n  ],\n  timeout: 30,\n  \"ai\": false,\n}\n"
 
@@ -46,7 +47,7 @@ class ProblemsTest {
         awaitText("Put this key in double quotes: \"timeout\".")
         awaitText("JSON5 allows 3 of the 4.")
 
-        onPantrixNode("Button", "problem_1").performClick()
+        onPantrixNode("Button", "repair_1").performClick()
         onPantrixNode("Button", "repair_all").performClick()
         onPantrixNode("Button", "read_as_json5").performClick()
         onPantrixNode("Button", "repair").performClick()
@@ -60,6 +61,23 @@ class ProblemsTest {
             ),
             intents
         )
+    }
+
+    @Test
+    fun aProblemsRowIsTaggedApartFromItsRepairAndGoesToTheProblem() = runComposeUiTest {
+        val intents = mutableListOf<WorkspaceIntent>()
+        setContent {
+            PantrixTestTheme(window = phone) {
+                WorkspaceScreen(stateOf(), { intents += it }, rememberDocumentCommands(Workbench()))
+            }
+        }
+        awaitText("Add a comma after the value on line 4.")
+
+        // The row goes to its problem, which a phone shows in the text; its button repairs it and is tagged apart.
+        onPantrixNode("ProblemRow", "problem_1").performClick()
+        assertEquals(listOf<WorkspaceIntent>(WorkspaceIntent.ShowPane(DocumentPane.Text)), intents)
+        onPantrixNode("Button", "repair_1").assertExists()
+        onPantrixNode("Button", "problem_1").assertDoesNotExist()
     }
 
     @Test

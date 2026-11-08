@@ -1,6 +1,8 @@
 package com.developersancho.formatico.feature.workspace
 
 import com.developersancho.formatico.core.format.Format
+import com.developersancho.formatico.core.format.convert.DataArray
+import com.developersancho.formatico.core.format.convert.convert
 
 /**
  * The results of [outcome], found in [document], whose value is [root], as a document of their own: JSONPath's values
@@ -13,7 +15,7 @@ internal fun queryResults(document: OpenDocument, root: ValueNode?, outcome: Que
     val written = when (outcome) {
         is QueryOutcome.Found -> outcome.matches.takeIf { it.isNotEmpty() }?.let { matches ->
             when (language) {
-                QueryLanguage.JsonPath -> jsonResults(root ?: return null, matches)
+                QueryLanguage.JsonPath -> jsonResults(root ?: return null, document.format ?: return null, matches)
                 QueryLanguage.XPath -> xmlResults(document.text, matches)
             }
         }
@@ -32,92 +34,14 @@ internal fun queryResults(document: OpenDocument, root: ValueNode?, outcome: Que
 /** A file's name without its extension; `query` for a document with no name. */
 private fun stemOf(name: String?): String = name?.substringBeforeLast('.')?.takeIf { it.isNotEmpty() } ?: "query"
 
-private fun jsonResults(root: ValueNode, matches: List<QueryMatch>): String {
-    val byKey = buildMap { root.forEachValue { put(it.key, it) } }
-    val writer = JsonWriter(byKey)
-    matches.forEachIndexed { index, match ->
-        if (index > 0) writer.out.append(',')
-        val node = match.key?.let(byKey::get)
-        if (node == null) writer.out.append("null") else writer.write(node, inside = emptySet())
-    }
-    return "[${writer.out}]"
-}
-
 /**
- * Writes values of a tree, whose values are [byKey], as JSON: a string's value quoted, a number as it is written where
- * JSON writes it so, and an alias as the value it points at; one inside that value, or one past the [MAX_ALIASES] a
- * document is written with, as its name, so that a document of aliases on aliases is not written out without end.
+ * The values [matches] found in the tree whose root is [root], read as [format], as a JSON array: written by the
+ * converter, as Convert writes them, an alias as the value it points at and a number JSON cannot write as JSON does.
  */
-private class JsonWriter(private val byKey: Map<String, ValueNode>) {
-    val out = StringBuilder()
-    private var aliases = 0
-
-    fun write(node: ValueNode, inside: Set<String>) {
-        when (node.kind) {
-            ValueKind.Object -> {
-                out.append('{')
-                node.children.forEachIndexed { index, child ->
-                    if (index > 0) out.append(',')
-                    out.appendQuoted(child.name).append(':')
-                    write(child, inside)
-                }
-                out.append('}')
-            }
-
-            ValueKind.Array -> {
-                out.append('[')
-                node.children.forEachIndexed { index, child ->
-                    if (index > 0) out.append(',')
-                    write(child, inside)
-                }
-                out.append(']')
-            }
-
-            ValueKind.String -> out.appendQuoted(node.value ?: node.text)
-
-            ValueKind.Number -> if (JsonNumber.matches(node.text)) out.append(node.text) else out.appendNumber(node.text)
-
-            ValueKind.Boolean -> out.append(node.text.equals("true", ignoreCase = true))
-
-            ValueKind.Null -> out.append("null")
-
-            ValueKind.Alias -> {
-                val target = node.target?.let { byKey[it.key] }
-                if (target == null || target.key in inside || aliases == MAX_ALIASES) {
-                    out.appendQuoted(node.text)
-                } else {
-                    aliases++
-                    write(target, inside + target.key)
-                }
-            }
-        }
-    }
-}
-
-/** A number JSON cannot write as it is written: as JSON writes its value, or quoted where JSON has none, as `inf`. */
-private fun StringBuilder.appendNumber(text: String) {
-    val number = numberWritten(text)
-    when {
-        !number.isFinite() -> appendQuoted(text)
-        number == kotlin.math.floor(number) && kotlin.math.abs(number) < LONG_EXACT -> append(number.toLong())
-        else -> append(number)
-    }
-}
-
-private fun StringBuilder.appendQuoted(text: String): StringBuilder {
-    append('"')
-    text.forEach { char ->
-        when (char) {
-            '"' -> append("\\\"")
-            '\\' -> append("\\\\")
-            '\n' -> append("\\n")
-            '\r' -> append("\\r")
-            '\t' -> append("\\t")
-            in '\u0000'..'\u001F' -> append("\\u").append(char.code.toString(HEX_RADIX).padStart(UNICODE_DIGITS, '0'))
-            else -> append(char)
-        }
-    }
-    return append('"')
+private fun jsonResults(root: ValueNode, format: Format, matches: List<QueryMatch>): String {
+    val byKey = buildMap { root.forEachValue { put(it.key, it) } }
+    val values = dataValuesOf(root, format, matches.map { match -> match.key?.let(byKey::get) })
+    return convert(DataArray(values), Format.Json).text
 }
 
 private fun xmlResults(text: String, matches: List<QueryMatch>): String = buildString {
@@ -143,10 +67,3 @@ private fun ValueNode.forEachValue(action: (ValueNode) -> Unit) {
         left.addAll(node.children)
     }
 }
-
-private val JsonNumber = Regex("-?(0|[1-9][0-9]*)(\\.[0-9]+)?([eE][+-]?[0-9]+)?")
-
-private const val MAX_ALIASES = 1_000
-private const val LONG_EXACT = 9.007199254740992E15
-private const val HEX_RADIX = 16
-private const val UNICODE_DIGITS = 4

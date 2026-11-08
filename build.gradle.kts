@@ -12,3 +12,8 @@ plugins {
     alias(libs.plugins.kotlinter) apply false
     alias(libs.plugins.roborazzi) apply false
 }
+
+// The build logic is a build of its own: the root's lintKotlin, formatKotlin and detekt look at it as well.
+listOf("lintKotlin", "formatKotlin", "detekt").forEach { name ->
+    tasks.register(name) { dependsOn(gradle.includedBuild("build-logic").task(":convention:$name")) }
+}

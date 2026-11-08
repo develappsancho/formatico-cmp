@@ -1,6 +1,5 @@
 package com.developersancho.formatico.buildlogic
 
-import java.io.File
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -12,6 +11,7 @@ import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack
 import org.jetbrains.kotlin.gradle.tasks.Kotlin2JsCompile
+import java.io.File
 
 /**
  * The web application: one app built twice, as Wasm and as JavaScript, in one folder, and a loader that picks the

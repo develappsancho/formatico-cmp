@@ -24,10 +24,7 @@ internal object QueryStringsTurkish : QueryStrings {
 
     override val copyResults = "Sonuçları kopyala"
     override val openResults = "Belge olarak aç"
-
-    // Shorter than the board's, as the English one (PANTRIX_FINDINGS, "CodeEditor, bir uygulamanın verdiği aralıkları
-    // vurgulayamıyor").
-    override val chooseHint = "Bir eşleşmeyi seçmek imleci ona götürür."
+    override val chooseHint = "Eşleşmeler metinde işaretli; birini seçmek imleci ona götürür."
     override val seeInText = "Metinde görmek için birini seç"
     override val resultsLabel = "Sorgu sonuçları"
     override val resultsCopied = "Sonuçlar kopyalandı"

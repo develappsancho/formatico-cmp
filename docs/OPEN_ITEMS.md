@@ -67,11 +67,11 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Öneri: `kotlin.daemon.jvmargs`'ı 6 GB'a çıkarmak (makinede 128 GB var), ya da Wasm testlerini ayrı bir koşuda.
     *   Durum: kapandı (2026-11-06, sahibinin kararı). `kotlin.daemon.jvmargs=-Xmx6144M`. Tam denetim (`jvmTest verifyRoborazziJvm iosSimulatorArm64Test wasmJsBrowserTest lintKotlin detekt`) `--rerun-tasks` ile, bütün derlemeler baştan, bellek hatası olmadan geçti: JVM'de 734, iOS'ta 704, Wasm'da 693 test. `build-logic`'in derlemesi (Gradle'ın kendi Kotlin'i, 2.4.10) bu ayarı almıyor, Gradle daemon'ının 4 GB'ıyla koşuyor; küçük bir derleme, yetiyor.
 
-*   [ ] **build-logic'e lint ve detekt bakmıyor (2026-11-04).**
+*   [x] **build-logic'e lint ve detekt bakmıyor (2026-11-04).**
     *   Ne: `QualityConventionPlugin` (Kotlinter ve detekt) uygulamanın modüllerine uygulanıyor; `build-logic/convention`'ın kendi `build.gradle.kts`'inde ikisi de yok. Convention eklentilerinin kodu biçim ve kural denetiminden geçmiyor.
     *   Nerede: `build-logic/convention/build.gradle.kts`.
     *   Öneri: `build-logic`'e Kotlinter (ve istenirse detekt) eklensin. Eklenti `build-logic`'in kendi derlemesinde olduğu için sürümü kataloğundan alınır.
-    *   Durum: açık. Bunun bir sonucu (2026-11-04): `InvisibleCharactersTask.kt`'nin kendi karakter tablosunda ve KDoc'unda görünmeyen karakterler kaçış yerine kendileri olarak yazılıydı (bölünmeyen boşluk, BOM, yön işaretleri). `checkInvisibleCharacters` `build-logic`'e bakmadığı için yakalanmadı. Kaçışla yazıldılar; görevin işi değişmedi.
+    *   Durum: kapandı (2026-11-10, Faz 21). `build-logic/convention`'a Kotlinter ve detekt kataloğun sürümüyle uygulanıyor; detekt Formatico'nun `config/detekt/detekt.yml`'ını okuyor, üstüne `build-logic/convention/detekt.yml` yalnızca `PantrixUIRule` bölümünü yapılandırmanın denetiminden çıkarıyor (build-logic'te Pantrix'in kuralları yok). Kökün `lintKotlin`, `formatKotlin` ve `detekt`'i build-logic'inkileri de koşuyor; `check` bağlanamadı (kökte bir `check` görevi kaydedilince `app:shared`'e `LifecycleBasePlugin` uygulanamıyor), build-logic'in `check`'i `./gradlew -p build-logic :convention:check` ile. İlk koşuda bir biçim hatası (`WebApplicationConventionPlugin`'in importları) ve beş `ForEachOnRange` (`InvisibleCharactersTask`'ın tablosu) çıktı, düzeltildi. `checkInvisibleCharacters` build-logic'e hâlâ bakmıyor: görev build-logic'in kendi sınıfı. Önceki durum: açık. Bunun bir sonucu (2026-11-04): `InvisibleCharactersTask.kt`'nin kendi karakter tablosunda ve KDoc'unda görünmeyen karakterler kaçış yerine kendileri olarak yazılıydı (bölünmeyen boşluk, BOM, yön işaretleri). `checkInvisibleCharacters` `build-logic`'e bakmadığı için yakalanmadı. Kaçışla yazıldılar; görevin işi değişmedi.
 
 ## core:format
 
@@ -250,7 +250,7 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
 *   [x] **Uygulama aldığı kodun lisanslarını göstermiyor (2026-11-04).**
     *   Ne: navigation3-browser'dan alınan kodun MIT lisansı web dağıtımında bir dosya olarak gidiyordu (`licenses/navigation3-browser.txt`); uygulamanın içinde, öteki platformlarda ve öteki bağımlılıklar (Geist, KSafe, snakeyaml-engine-kmp, Koin, Compose) için bir lisans sayfası yoktu. Geist'in OFL'si de yazı tipiyle birlikte lisansının verilmesini istiyor.
     *   Öneri: Settings'e (Faz 12) bir "Licenses" satırı; önce tuvalde Settings panosuna çizilir.
-    *   Durum: kapandı (Faz 12; Faz 21'in denetiminde görüldü, 2026-11-10). Settings'in Open-source licences sayfası kütüphaneleri ve lisanslarını gösteriyor (`OpenSourceLibrary.kt`, `SettingsLicences.kt`); metinler uygulamanın kaynaklarında. Listede eksik kalanlar (Ktor, OkHttp, kotlinx-browser, navigationevent) Faz 21'in küçük işlerinde; listenin elle tutulması "Settings'in panolardan ve önceki davranıştan ayrıldığı yerler"de.
+    *   Durum: kapandı (Faz 12; Faz 21'in denetiminde görüldü, 2026-11-10). Settings'in Open-source licences sayfası kütüphaneleri ve lisanslarını gösteriyor (`OpenSourceLibrary.kt`, `SettingsLicences.kt`); metinler uygulamanın kaynaklarında. Listede eksik kalanlar (Ktor, OkHttp, kotlinx-browser, navigationevent) eklendi (2026-11-10); listenin elle tutulması "Settings'in panolardan ve önceki davranıştan ayrıldığı yerler"de.
 *   [x] **Web'de geri gelen belgeden geri tuşu Start'a dönmüyor (2026-11-04).**
     *   Ne: Uygulama yeni bir sekmede açılıp saklanan belgeyi geri verince ekranlar `#start` ve `#document?id=1` olur, ama tarayıcının geçmişinde bunlar tek bir girdi (`history.state` ikisini de tutuyor). Tarayıcının geri tuşu Start'a değil, sitenin öncesine gidiyor. Start'tan bir belge açılınca ya da adres elle yazılınca geri ve ileri doğru çalışıyor (yerel dağıtımda, 2026-11-04).
     *   Öneri: `BrowserHistory` ilk yazışında, tarayıcının girdisinin hâli yokken ve birden çok ekran varken, kökü bulunduğu girdiye yazsın ve kalan ekranları birer yeni girdi olarak eklesin.
@@ -303,10 +303,10 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Öneri: şeridi ve kartı Text görünümüne eklemek; kart Pantrix'te bir bileşen değil, Formatico'nun Pantrix'in parçalarıyla kurduğu bir kart olur.
     *   Durum: kapandı (2026-11-04). Telefonun Text görünümünde şerit (`PantrixTag` ve "Repair all") ve kart (`PantrixCard`: "Problem i of n · line, column", önceki ve sonraki, ileti, onarım); kartın problemi imlecin içinde olduğu ya da ondan sonraki problem. Alttaki çubukta Repair varken Format ikinci planda, Minify yok, panodaki gibi. Telefonun Problems listesinde bir probleme basmak metne geçiyor. İmlecin satırındaki işaret çizilmiyor; o Pantrix'in bulgusu.
 
-*   [ ] **Telefonun Invalid görünümünde dört görünüm var, panoda üç (2026-11-04).**
+*   [x] **Telefonun Invalid görünümünde dört görünüm var, panoda üç (2026-11-04).**
     *   Ne: Invalid-390'ın görünüm seçimi Text, Tree ve Problems. Kodda Problems, belgenin tablosu olmadığında Table'ın yerini alıyor; panonun settings.json'ının bir tablosu çıktığı için telefonda dört görünüm var (Text, Tree, Table, Problems). 390'a sığıyorlar, ama pano bire bir değil.
     *   Öneri: sahibinin kararı: geçersiz belgede Table'ı telefonda hep Problems'a bırakmak (tablo Tree'den ya da düzeltilince açılır) ya da panoyu dört görünümle çizmek.
-    *   Durum: açık.
+    *   Durum: kapandı (2026-11-10, sahibinin kararı: üç görünüm). Telefonda geçersiz bir belgenin görünümleri Text, Tree ve Problems; Problems tablonun yerinde, belgenin tablosu olsa da (`PhoneWorkspace`'te `withTable = state.problems.isEmpty()`). Tablo belge düzelince geri geliyor. `PhoneProblemsTest` sınıyor.
 *   [ ] **Workspace panolarının "unread" hâli artık olmuyor (2026-11-04).**
     *   Ne: Workspace-1440, 834 ve 390'ın `unread` hâli Cargo.toml'u "TOML isn’t read yet" ve "Formatico reads JSON, JSONC, JSON5 and YAML today; TOML comes next." ile, durum çubuğunda "TOML, not checked" ile, Format, Minify ve Sort keys'i kapalı çiziyor. Faz 7'den beri her biçim okunuyor; kodda bu hâl ve sözcükleri kalktı. Ağacı olmayan tek şey düz metin ("Plain text has no tree"); onun panosu yok.
     *   Nerede: tuvaldeki Workspace panolarının `state` seçeneği (`unread`).
@@ -344,17 +344,17 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
 *   [ ] **Ağacın kökü panolarda `${4}` diye yazılıyor (2026-11-04).**
     *   Ne: Panolar kökün satırını iki nokta olmadan ve boşluksuz `$` ile boyutunu yan yana yazıyor: `${11}`, `${4}`. JavaScript'in şablon yazısına benziyor; bir boşluk (`$ {11}`) ya da yalnızca `$` daha az karışabilir. Kod panodaki gibi.
     *   Öneri: sahibinin kararı.
-    *   Durum: açık.
+    *   Durum: açık, panoların. Sahibinin kararı (2026-11-10): `$ {4}`, bir boşlukla. Kod öyle yazıyor (`DocumentTree`'nin `colonOf`'u, `DocumentTreeTest`); panolar Faz 21'in tuvaldeki işinde.
 *   [x] **Panoda ağaçtaki bağlantı simgesi bir bağlantı; satırın sonu basılamıyor (2026-11-04).**
     *   Ne: Workspace panolarında bir adresin satırının sonundaki simge bir bağlantı ("Open the link"). `PantrixLazyTreeView`'in `trailing`'i "satırla okunur, kendi basışı yoktur" diyor; satırın içinde ikinci bir basılan şey de ekran okuyucuda ve klavyede satırı ikiye böler. Kodda bağlantının yerinde "Link" sözcüğü (simge yok, bkz. PANTRIX_FINDINGS "Resmin ve bağlantının simgesi yok").
     *   Öneri: bağlantıyı açmak seçili değerin kartında ve ağacın satır menüsünde ("Open the link"); satırın sonundaki simge yalnızca gösterir.
     *   Durum: kapandı (2026-11-05). Sahibinin seçtiği biçimle Pantrix'e satırın eylemi geldi (`rowAction`, `TreeRowAction`; bkz. PANTRIX_FINDINGS "Ağacın satırının sonu basılamıyor"). Bağlantının satırı panodaki gibi bağlantı simgesiyle bitiyor ve o simge adresi açan düğme: tarayıcıda ya da adresi açan uygulamada, satırı seçmeden. Klavyede Shift+Enter, ekran okuyucuda satırın "Open the link" eylemi; hiçbir uygulamanın açamadığı bir adres yok sayılıyor. Renk ve resim yalnızca gösteriyor. `TreeLinkTest` her hedefte sınıyor.
-*   [ ] **Ağacın arama çubuğu dar bir bölmede kapatma düğmesini sıkıştırıyor (2026-11-06).**
+*   [x] **Ağacın arama çubuğu dar bir bölmede kapatma düğmesini sıkıştırıyor (2026-11-06).**
     *   Ne: Geniş düzende ağacın bölmesi dar kalınca, çubukta "No matches" yazınca satır sığmıyor: kapatma düğmesine 16×48
         dp kalıyor (tanılamanın `SmallTouchTarget`'ı; web'deki UI testinde, arama sürerken bir an görülen "No matches"la
         çıktı). Alan genişte 240, tablette 280 dp sabit; konum yazısı ve üç düğme kalanı paylaşıyor.
     *   Öneri: konum yazısı daralıp üç noktayla kısalsın (`weight(1f, fill = false)`), ya da alan kalan yere göre küçülsün.
-    *   Durum: açık. Arama sürerken çubuk artık bir şey yazmıyor, bu yüzden test geçiyor; aranan gerçekten bulunmayınca
+    *   Durum: kapandı (2026-11-10, Faz 21). Çubuk `TreeSearchBar.kt`'de: alan ve konum yazısıyla iki düğme bir satırda kalan yeri paylaşıyor, alan genişte en çok 240, tablette 280 dp ve daralabiliyor, konum yazısı en çok 120 dp ve üç noktayla kısalıyor; kapatma düğmesi o satırın dışında, hiç sıkışmıyor. Önizlemede ve ekran görüntüsünde 340 dp'lik bir bölmede "No matches" durumu; `TreeSearchBarTest` üç düğmenin en az 32 dp olduğunu ve tanılamanın bir şey bulmadığını sınıyor. Önceki durum: açık. Arama sürerken çubuk artık bir şey yazmıyor, bu yüzden test geçiyor; aranan gerçekten bulunmayınca
         sıkışma duruyor.
 *   [ ] **Ağacın satırları her seçimde ve aramanın her harfinde yeniden kuruluyor (2026-11-04).**
     *   Ne: Seçili satırın ve aramanın işaretleri satırın etiketinde (`styledLabel`), bu yüzden `documentRows` seçim ya da aranan değişince bütün düğümleri yeniden kuruyor. Küçük belgelerde fark edilmiyor; Faz 14'ün 50 MB hedefinde ölçülmeli.
@@ -417,10 +417,10 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
         *   İki kez verilen anahtar JSON'da ikisiyle, öteki biçimlerde sonuncusuyla.
     *   Öneri: bu kuralların sahibinin onayı; ayarlanabilir olması istenenler (CSV'nin düzleştirme biçimi, XML'in kök adı) Settings'e (Faz 12).
     *   Durum: açık.
-*   [ ] **Telefonda sistemin geri hareketi Query ve Summary'den Start'a dönüyor (2026-11-05).**
+*   [x] **Telefonda sistemin geri hareketi Query ve Summary'den Start'a dönüyor (2026-11-05).**
     *   Ne: Telefonun Convert'i kendi ekranı; çubuğunun geri düğmesi de sistemin geri hareketi de onu bırakıp ağaca dönüyor (`NavigationBackHandler`). Query ve Summary de telefonda More menüsünden açılıyor, ama sistemin geri hareketi onlarda `NavDisplay`'in `onBack`'ine gidiyor: sekme bırakılıyor, Start açılıyor.
     *   Öneri: telefonda Query'nin ve Summary'nin de geri hareketiyle ağaca dönmesi.
-    *   Durum: açık.
+    *   Durum: kapandı (2026-11-10, Faz 21). Telefonda Query ve Summary açıkken sistemin geri hareketi belgenin açılış görünümüne dönüyor (`PhoneWorkspace`'te `SystemBack`, Convert'inki gibi); sekme açık kalıyor. Masaüstünde ve web'de `SystemBack` eskisi gibi Escape'i dinlemiyor. `PhoneBackTest` sınıyor. Android emülatöründe denendi: Query'den geri ağaca, ikinci geri Start'a.
 *   [x] **Null'ın yorumu sistemin dilinde yazılıyor (2026-11-05).**
     *   Ne: Dışarıda bırakılan bir null'ın yeni belgedeki yorumu (`# coupon = null in the JSON: TOML has no null`) view model'de `getString` ile okunuyor; o da sistemin dilini kullanıyor, uygulamanınkini değil.
     *   Öneri: Settings uygulamanın kendi dilini getirince (Faz 12) yorumun dili de ondan.
@@ -429,10 +429,10 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Ne: Compose masaüstünde ve web'de Escape'i sistemin geri hareketi sayıyor; o da `NavDisplay`'in `onBack`'ine gidiyor ve bir belgeden geri, Yeni sekme (Start) demek (telefonun geri hareketi için seçilmişti). Odak metinde değilken (Convert'in boş bir yerine tıklanınca, bir seçim kutusundan sonra) Escape'e basılınca belge sekmesi açık kalıyor ama Start'a geçiliyor. Web'de denendi; metnin içindeyken Escape belgede kalıyor.
     *   Öneri: masaüstünde ve web'de Escape açık olanı kapatsın (palet, menü, arama çubuğu), belgeden çıkarmasın; geri yığınının geri'si yalnızca telefonda ve tablette sistemin geri hareketiyle.
     *   Durum: kapandı (2026-11-06). Compose'un masaüstündeki ve web'deki penceresi, ekranda hiçbir şeyin almadığı Escape'i geri sayıyor (`BackNavigationEventInput`); ayırt etmenin yolu yok, ondan karar platforma göre: `core:navigation`'ın `systemBackLeavesScreens`'i Android'de ve iOS'ta doğru, masaüstünde ve web'de yanlış. `NavDisplay`'in geri'si, Settings'in ve telefonun Convert ile Compare ekranlarının geri'si (ortak `SystemBack`) ona bakıyor: masaüstünde ve web'de Escape belgeyi, Settings'i ve dar pencerede Convert'i, Compare'i yerinde bırakıyor, bunları kendi geri düğmeleri kapatıyor. Paleti, menüleri, seçim kutularını Escape eskisi gibi kapatıyor; tarayıcının geri düğmesi `BrowserHistory`'den geçiyor, değişmedi. Bilinen sınır: iPad'e bağlı klavyenin Escape'i de iOS'ta geri sayılıyor ve kaydırma hareketinden ayırt edilemiyor; orada belgeden çıkarmaya devam ediyor. Pantrix'in list-detail düzeni Escape'i masaüstünde geri sayıyor (sitede "Escape on a desktop"); Formatico onu kullanmıyor. Sınandı: `AppBackTest` (masaüstünde ve web'de kalıyor, Android'de ve iOS'ta gidiyor) ve `SystemBackTest`, JVM'de, iOS simülatöründe ve Wasm'da. Elle: web'de Escape belgede ve Settings'te kalıyor, paleti kapatıyor, tarayıcının geri'si Settings'ten belgeye dönüyor; Android emülatöründe geri tuşu belgeden Yeni sekme'ye gidiyor. Masaüstünde elle denenmedi.
-*   [ ] **Sorgu sonuçlarının JSON'ı ayrı bir yazıcıyla yazılıyor (2026-11-05).**
+*   [x] **Sorgu sonuçlarının JSON'ı ayrı bir yazıcıyla yazılıyor (2026-11-05).**
     *   Ne: `QueryResults.kt`'nin kendi `JsonWriter`'ı var; `core:format`'ın dönüştürücüsü aynı işi (değerleri JSON olarak yazmak, YAML'ın takma adlarını açmak, JSON'ın yazamadığı sayıları dizgi yapmak) yapıyor.
     *   Öneri: sorgunun sonuçlarını dönüştürücüyle yazmak; ayrı bir temizlik değişikliği.
-    *   Durum: açık.
+    *   Durum: kapandı (2026-11-10, Faz 21). `QueryResults.kt`'nin `JsonWriter`'ı silindi; sonuçlar `DocumentConversion`'ın değerleriyle (`dataValuesOf`) bir dizi yapılıp dönüştürücüyle JSON yazılıyor. YAML'ın bir takma adı sonuçta gösterdiği değer olarak yazılıyor; `DocumentQueryTest` bunu da sınıyor.
 *   [ ] **Compare'in panolarda olmayan hâlleri kodda seçildi (2026-11-05).**
     *   Ne: Compare panoları iki siparişin anlamla karşılaştırılmasını çiziyor. Kodda seçilenler:
         *   B, A'nın sekmesinden sonraki belge (A sonuncuysa öncekisi); B'nin menüsü öteki açık belgeleri sayıyor.
@@ -515,14 +515,14 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Nerede: `WorkspaceScreen.kt` (`FormatMenu`), `PhoneWorkspace.kt`, `DocumentPalette.kt`.
     *   Öneri: telefonda durum etiketi ("Plain text") biçim menüsünü açsın, ya da paletin Document grubuna "Read as …" komutları. Önce Workspace-390'a çizilir.
     *   Durum: açık. Sahibinin kararı.
-*   [ ] **Enter sorgu yazıldıktan hemen sonra basılırsa önceki sorguyu saklıyor (2026-11-06).**
+*   [x] **Enter sorgu yazıldıktan hemen sonra basılırsa önceki sorguyu saklıyor (2026-11-06).**
     *   Ne: Alanın metni görünüm modeline bir kare sonra ulaşıyor (`snapshotFlow`); `UseQuery` sorguyu taşımıyor, durumdakini okuyor. Yazıp o karede Enter'a basan önceki sorguyu "son kullanılanlar"a ekler. Gezinti bunu, eşleşmenin gelmesini bekleyerek aşıyor.
     *   Öneri: `WorkspaceIntent.UseQuery(query)`, alanın o anki metniyle.
-    *   Durum: açık, küçük.
-*   [ ] **Problem satırının kendisinin etiketi yok; onarım düğmesi `problem_N` (2026-11-06).**
+    *   Durum: kapandı (2026-11-10, Faz 21). `WorkspaceIntent.UseQuery(query)`: alanın klavye eylemi o anki metni taşıyor, öteki çağıranlar (`UseQuery()`) durumdakini kullanıyor. `QueryScreenTest` ve `DocumentQueryTest` sınıyor.
+*   [x] **Problem satırının kendisinin etiketi yok; onarım düğmesi `problem_N` (2026-11-06).**
     *   Ne: Problems listesinde satırın probleme götüren tıklanabilir kısmı Formatico'nun kendi `clickable`'ı ve etiketsiz; `Button_problem_1` satırın değil, onarım düğmesinin etiketi. Gezinti ikinci probleme giderken önce onu onardı. Bir Maestro akışı da satıra etiketle basamaz.
     *   Öneri: satır `Modifier.pantrixTestTag(rememberPantrixTestTag("ProblemRow", "problem_N"))` (ya da bir Pantrix bileşeni), düğme `repair_N`.
-    *   Durum: açık.
+    *   Durum: kapandı (2026-11-10, Faz 21). Satır `ProblemRow_problem_N`, onarım düğmesi `Button_repair_N`. `ProblemsTest` satıra basmanın probleme gittiğini ve onarmadığını sınıyor. Maestro akışları ve gezintiler `problem_N`'i kullanmıyordu; değişen yalnızca testin etiketi.
 *   [ ] **Masaüstünün testi telefonun paylaşma sayfasını bağlantı alanı odaklı çiziyor; cihazda ve panoda odaksız (2026-11-06).**
     *   Ne: Faz 15'in gezintisi kontrollere ekran okuyucu gibi bastığından beri Share-390 ve Share-834'ün masaüstü resminde bağlantı alanı odaklı (kalın, birincil renkte kenar). Eski resimlerde ve panoda odaksız. Android'de (Pixel 7 Pro) ve iOS simülatöründe Maestro'nun `share` resmi de odaksız. Uygulamanın değil, testin çiziminin farkı: dokunma kipine geçmek değiştirmedi, nedeni bulunmadı.
     *   Nerede: `app/shared/screenshots/Share-390.png`, `BoardTour.kt`.
@@ -548,7 +548,7 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Nerede: `app/shared/screenshots/android/Invalid-834-dark.png`; turu `BoardTour.invalid()`.
     *   Öneri: tur, görüntüden önce durum çubuğunun "Ln 10, Col 5"ini beklesin.
     *   Durum: açık.
-*   [ ] **Büyük bir dizinin grafiğinde kök kart görünmeden açılıyor (2026-11-09).**
+*   [x] **Büyük bir dizinin grafiğinde kök kart görünmeden açılıyor (2026-11-09).**
     *   Ne: Faz 18'in Graph görünümü, hiçbir değer seçili değilken grafiği sol üstünden gösteriyor. 150 kişilik bir
         dizide (`GraphCases`'in "large" durumu) `PantrixGraph` kök kartı çocuklarının ortasına koyuyor: ekranda
         `people.json[0]`'dan `[5]`'e kartlar ve soldan gelen bağlar var, kökün kartı birkaç bin dp aşağıda. Seçili
@@ -557,7 +557,7 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Öneri: seçili değer yokken açılışta kökü görünür kılmak (`bringIntoView(root)`), ya da Pantrix'e bir öneri:
         `GraphStyle`'da ebeveynin çocuklarının ortasına değil ilkinin hizasına konması (ağacın satırları gibi).
         Hangisinin daha iyi okunduğu sahibinin kararı.
-    *   Durum: açık.
+    *   Durum: kapandı (2026-11-10, sahibinin kararı: kök görünür). Seçili değer yokken grafik açılınca kökün kartına gidiyor (`GraphPane`'de `bringIntoView`); seçili bir değer olunca ona. `GraphScreenTest` büyük dizinin kök kartının ekranda olduğunu sınıyor; `Graph/large-*` ekran görüntüleri yeniden kaydedildi.
 *   [ ] **Workspace panolarının bazı durumları editörü bekleyen eski uygulamayı çiziyor (2026-11-09).**
     *   Ne: Tuvalde Workspace-1440 ve -834'ün `waiting` ve `yaml` durumları, Workspace-390'ın `text` durumu metin
         bölmesini "Text editing is on its way" yer tutucusuyla çiziyor. Uygulama 2026-11-03'ten beri metni
@@ -570,7 +570,7 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Öneri: `waiting` durumu kalksın (ya da yalnızca önizlemede kalsın); `yaml` ve telefonun `text`'i
         `Pantrix.CodeEditor` ile çizilsin (telefonda `touch`); kullanılmayan `EditorComing` silinsin.
     *   Durum: açık.
-*   [ ] **Query, öteki eşleşmeleri metinde işaretlemiyor; Pantrix artık işaretleyebiliyor (2026-11-09).**
+*   [x] **Query, öteki eşleşmeleri metinde işaretlemiyor; Pantrix artık işaretleyebiliyor (2026-11-09).**
     *   Ne: Query panoları sorgunun bütün eşleşmelerini metinde gösteriyor (2026-11-09'dan beri tasarım sisteminin
         `CodeEditor`'ünde `rangeMarks`'ın `highlight`'ıyla, uyarı tonunda); uygulama yalnızca seçilen eşleşmeyi seçiyor.
         Engel PANTRIX_FINDINGS'teki "CodeEditor, bir uygulamanın verdiği aralıkları vurgulayamıyor" bulgusuydu; onun
@@ -580,7 +580,7 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Öneri: eşleşmeler `CodeRangeMark(style = CodeRangeStyle.Highlight, mark = CodeMark(CodeTone.Warning))` ile
         işaretlensin, ipucu panodaki tam cümleye dönsün ("A match is marked in the text; choosing one moves the cursor
         to it."). Şimdiki eşleşmenin çerçevesi bulguda kalıyor.
-    *   Durum: açık.
+    *   Durum: kapandı (2026-11-10, Faz 21). Sorgunun bütün eşleşmeleri metinde uyarı tonunda `Highlight` (`DocumentEditor`'ın `matches`'i, `matchMarks`); seçilen eşleşme ayrıca seçili. İpucu panodaki cümle: "A match is marked in the text; choosing one moves the cursor to it." / "Eşleşmeler metinde işaretli; birini seçmek imleci ona götürür." `MatchMarksTest` ve `QueryScreenTest` sınıyor. Şimdiki eşleşmenin çerçevesi Pantrix'in bulgusunda kalıyor.
 
 ## Üst çubuk
 
@@ -603,7 +603,7 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Öneri: sahibinin onayı.
     *   Durum: açık.
 
-*   [ ] **Web'de açılamayan bir bağlantı adres çubuğunda kalıyor (2026-11-07).**
+*   [x] **Web'de açılamayan bir bağlantı adres çubuğunda kalıyor (2026-11-07).**
     *   Ne: Açık bir Formatico sekmesinin adresine yazılan bir bağlantı açılamayınca (`#d=` bozuk, `#s=` silinmiş ya da
         süresi dolmuş, sunucuya ulaşılamıyor) uyarı çıkıyor, ekran olduğu gibi kalıyor, ama adres `#s=…&k=…` olarak
         kalıyor: yeniden yükleyince aynı uyarı yine geliyor. Açılınca adres `#document?id=…` oluyor, anahtar o girişten
@@ -612,16 +612,16 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Nerede: `core:navigation` (`BrowserHistory.web.kt`: adres yalnızca ekranlar değişince yazılıyor),
         `app/shared` (`FollowBrowserHistory`).
     *   Öneri: `onLink` bir belge açmadan bitince, sekmenin girişine o anki ekranlar yazılsın (`replaceState`).
-    *   Durum: açık.
+    *   Durum: kapandı (2026-11-10, Faz 21). `DocumentOpening.openLink` bir belge açamayınca `onNotOpened`'ı çağırıyor; `FollowBrowserHistory` o anki ekranları sekmenin girişine yazıyor (`rewriteBrowserEntry`, web'de `replaceState`, öteki platformlarda bir şey yapmıyor). Adres `#start` ya da açık belgenin adresi oluyor, anahtar girişten gidiyor. `BrowserHistoryTest` (Wasm ve JS) sınıyor.
 
-*   [ ] **Yerel yığında ve bir deneme ortamında yapılan bağlantı sitenin adresini taşıyor (2026-11-07).**
+*   [x] **Yerel yığında ve bir deneme ortamında yapılan bağlantı sitenin adresini taşıyor (2026-11-07).**
     *   Ne: Bağlantılar her yerde `https://formatico.pantrixui.com/#…` (`ShareLinks.SITE`). Web'de sunucu sayfanın kendi
         adresinde (`platformServer()`), ama bağlantı değil: `localhost:4005`'te yapılan şifreli bir bağlantı sitede
         açılıyor, paylaşım ise yerel sunucuda. Faz 16'nın denemesinde adres elle `localhost:4005` yapıldı. Yayındaki
         sitede fark yok.
     *   Öneri: web'de, sayfa http(s) ile açıldıysa, bağlantı sayfanın kendi adresiyle (`window.location.origin`);
         uygulamalarda site. Sahibinin kararı: bir deneme ortamı (Coolify'da `staging`) olacaksa gerekli.
-    *   Durum: açık.
+    *   Durum: kapandı (2026-11-10, sahibinin kararı). Web'de, sayfa http(s) ile açıldıysa bağlantılar sayfanın kendi adresiyle yapılıyor ve okunuyor (`core:network`'ün `linkSite()`'ı: `window.location.origin`); uygulamalarda `ShareLinks.SITE`. `ShareLinks.share`, `encrypted` ve `read` siteyi alıyor; Start'ın açıcısı adresi de o siteyle okuyor. `ShareLinksTest` başka bir sitede yapılan bağlantının orada okunduğunu, sitenin bağlantısının orada okunmadığını sınıyor. Paylaşımın en büyük metni de `10 * 1024 * 1024` bayttı (10 MiB); dosyalarınki gibi 10.000.000 bayt yapıldı (`ShareLinks.MAX_TEXT`).
 
 ## Komut paleti
 
@@ -657,11 +657,11 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Nerede: `feature/settings` `SettingsSections.kt` (`GeneralSection`).
     *   Durum: kapandı (2026-11-06, sahibinin onayı). Dil seçiminin ilk seçeneği "As the system" / "Sistemdeki gibi" (`language = null`), bir dil seçilmedikçe seçili olan o; panolar da öyle çiziyor (kanvas v81–82). "Sistemdeki gibi" telefonun 160'lık kutusuna sığmıyordu: Settings'in seçim kutuları her genişlikte 200, telefonun panosu da. `AppLanguage.forSystem` artık kullanılmadığı için kalktı.
 
-*   [ ] **Android'in uygulama başına dil ayarı yok (2026-11-06).**
+*   [x] **Android'in uygulama başına dil ayarı yok (2026-11-06).**
     *   Ne: Android 13'ün Ayarlar > Uygulamalar > Formatico > Dil satırı çıkmıyor: uygulama `localeConfig` bildirmiyor. `cmd locale set-app-locales` ile verilen dili uygulama yine de anında izliyor (denendi, 2026-11-06). iOS'ta `Info.plist`'in `CFBundleLocalizations`'ı aynı satırı Ayarlar'da açıyor olmalı; denenmedi.
     *   Nerede: `app/androidApp/src/main/AndroidManifest.xml`.
     *   Öneri: `res/xml/locales_config.xml` (`en`, `tr`) ve manifest'te `android:localeConfig`. Settings'in "Sistemdeki gibi"si o zaman Android'in uygulama için seçtiği dili izler. Sahibinin kararı.
-    *   Durum: açık.
+    *   Durum: kapandı (2026-11-10, sahibinin kararı). `app/androidApp`'te `res/xml/locales_config.xml` (`en`, `tr`) ve manifest'te `android:localeConfig`. iOS'un `Info.plist`'inde `CFBundleLocalizations` zaten `en` ve `tr`. Android emülatöründe (Pixel 7 Pro, API 33) denendi: Ayarlar'ın App Language sayfası Formatico için English ve Türkçe'yi sunuyor; Türkçe (Türkiye) seçilince uygulama Türkçe açıldı, sonra sistemin diline döndürüldü.
 
 ## Sunucu
 

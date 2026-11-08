@@ -50,6 +50,25 @@ class PhoneProblemsTest {
     }
 
     @Test
+    fun anInvalidDocumentHasThreeViewsItsProblemsInTheTablesPlace() = runComposeUiTest {
+        val state = stateOf()
+        assertTrue(state.table != null, "The settings have a table: their hosts")
+        setContent {
+            PantrixTestTheme(window = phone) {
+                WorkspaceScreen(state, {}, rememberDocumentCommands(Workbench()))
+            }
+        }
+
+        awaitText("Not valid JSON: 4 problems")
+        // Text, Tree and Problems, as Invalid-390 draws them: the table opens once the document is repaired.
+        onPantrixNode("Segment", "text", scope = "SegmentButton_view").assertExists()
+        onPantrixNode("Segment", "tree", scope = "SegmentButton_view").assertExists()
+        onPantrixNode("Segment", "problems", scope = "SegmentButton_view").assertExists()
+        onPantrixNode("Segment", "table", scope = "SegmentButton_view").assertDoesNotExist()
+        onPantrixNode("Segment", "graph", scope = "SegmentButton_view").assertDoesNotExist()
+    }
+
+    @Test
     fun theCardShowsTheProblemTheCaretIsAtAndStepsToTheOthers() = runComposeUiTest {
         val state = stateOf()
         val problems = state.problems
