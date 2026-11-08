@@ -6,7 +6,7 @@
 #   deploy/windows.sh              the MSI built from the release's commit, added to the release with its SHA-256
 #   deploy/windows.sh --dry-run    the MSI built from this commit, and sent nowhere
 #
-# What the machine needs (docs/DEPLOY_GUIDE.md, 7): Git for Windows (its Git Bash runs this), a JDK of 17 or later to
+# What the machine needs (docs/DEPLOY_GUIDE.md, 8): Git for Windows (its Git Bash runs this), a JDK of 17 or later to
 # start Gradle, which then fetches the JDK 21 the build runs on and WiX, the MSI's tools, by itself; GitHub's CLI, gh,
 # signed in as a collaborator who may write to the repository; and a GitHub token that reads packages, in Gradle's
 # gradle.properties, for Pantrix UI's packages. No Android SDK, no Xcode: the desktop app needs neither.
@@ -56,7 +56,7 @@ command -v cygpath > /dev/null && gradle_home="$(cygpath -u "$gradle_home")"
 properties="$gradle_home/gradle.properties"
 for key in GitHubPackagesUsername GitHubPackagesPassword; do
     grep -q "^[[:space:]]*$key[[:space:]]*=" "$properties" 2> /dev/null ||
-        fail "$key is not in $properties: Pantrix UI's packages come from GitHub Packages (docs/DEPLOY_GUIDE.md, 7)"
+        fail "$key is not in $properties: Pantrix UI's packages come from GitHub Packages (docs/DEPLOY_GUIDE.md, 8.2)"
 done
 
 [ -z "$(git -C "$ROOT" status --porcelain)" ] || fail "the tree has changes: the MSI is built from the release's commit alone"

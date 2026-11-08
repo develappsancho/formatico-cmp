@@ -334,6 +334,8 @@ eklenemez: MSI ancak sürüm taslakken gelebilir, betik de bunu söyleyip durur.
 
 ### 8.2 Bir kerelik: arkadaşın makinesi
 
+0.  **Davet:** GitHub'ın e-postasındaki ya da `github.com/notifications`'daki daveti kabul edin; kabul edilmeden
+    hesap depoya yazamaz.
 1.  **Araçlar** (PowerShell'de):
 
     ```powershell
@@ -343,7 +345,9 @@ eklenemez: MSI ancak sürüm taslakken gelebilir, betik de bunu söyleyip durur.
     ```
 
     Git, Git Bash'i getirir; betik orada çalışır. JDK Gradle'ı başlatmak içindir: derlemenin JDK'sını (Azul Zulu 21)
-    ve MSI'ın araçlarını (WiX) Gradle ilk derlemede kendisi indirir. Android SDK ya da Xcode gerekmez.
+    ve MSI'ın araçlarını (WiX) Gradle ilk derlemede kendisi indirir. Android SDK ya da Xcode gerekmez (Android
+    SDK'sız bir kopyada masaüstü derlemesi denendi, 2026-11-13). Kurulumdan sonra Git Bash'i kapatıp yeniden açın:
+    yeni araçlar ancak öyle bulunur.
 2.  **GitHub'a giriş** (Git Bash'te): `gh auth login`, ortak yapılan hesapla.
 3.  **Pantrix UI'ın paketleri:** GitHub Packages, herkese açık bir paket için bile bir token ister. GitHub'da
     **Settings** → **Developer settings** → **Personal access tokens** → **Tokens (classic)** → yalnızca
@@ -355,9 +359,12 @@ eklenemez: MSI ancak sürüm taslakken gelebilir, betik de bunu söyleyip durur.
     GitHubPackagesPassword=<read:packages yetkili token>
     ```
 
-4.  **Depo** (Git Bash'te):
+4.  **Depo** (Git Bash'te), kısa bir klasöre: Windows'un yol sınırı (260 karakter) derlemenin derin klasörlerine
+    takılmasın.
 
     ```bash
+    git config --global core.longpaths true
+    mkdir -p /c/src && cd /c/src
     git clone https://github.com/develappsancho/formatico-cmp.git
     ```
 
@@ -370,7 +377,8 @@ Sahibi sürümü açtıktan sonra (Bölüm 9), taslakken ya da yayımlandıktan 
 kökünde:
 
 ```bash
-git fetch origin
+git fetch origin --tags
+git checkout v<sürüm>
 deploy/windows.sh
 ```
 
