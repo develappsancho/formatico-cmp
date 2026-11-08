@@ -58,8 +58,8 @@ Formatico is also a test of Pantrix UI: it is built the way a developer who foun
 - **Large files:** 50 MB on desktop, 10 MB on phones and the web, measured.
 - **On the device (2026-11-04):** the documents' texts are encrypted, AES-GCM with a key KSafe keeps
   (cryptography-kotlin); should it cause trouble, they go back to plain text.
-- **v2:** share links, type generation (Kotlin, TypeScript, Swift, Go), a graph view, JSON Schema, in-app AI with the
-  user's own key.
+- **v2:** share links, type generation (Kotlin, TypeScript, Swift, Go), a graph view, JSON Schema. In-app AI with the
+  user's own key was dropped (the owner's decision, 2026-11-09).
 - **Parsers:** our own lossless ones in a pure Kotlin `core:format` module (comments, the spelling of numbers and the
   order of keys kept), except YAML, which is parsed by `snakeyaml-engine-kmp` and printed by our own printer.
 - **Editor:** `PantrixCodeEditor`, a new component being built in the library. Until a release carries it, the

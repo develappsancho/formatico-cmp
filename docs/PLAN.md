@@ -346,11 +346,12 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
         JavaScript yedeği derleniyor, pano görüntüleri masaüstünde, iOS'ta ve Android'de (Robolectric) kaydedildi,
         web testleri (10) geçti; lint, detekt ve görünmeyen karakter denetimi temiz. Açık kalan, Faz 19'u bekletmeden:
         tablette menünün düğmesindeki odak halkası şema menüsünde de (`OPEN_ITEMS.md`, gerçek bir tablette denenecek).
-*   [ ] **Faz 20: Uygulama içi yapay zekâ,** kullanıcının kendi anahtarıyla.
+*   **Faz 20: Uygulama içi yapay zekâ,** kullanıcının kendi anahtarıyla: **iptal edildi.** Sahibinin kararı
+    (2026-11-09): "bana gereksiz geldi". Faz numaraları değişmiyor; ardından Faz 21 ve Faz 22 geliyor.
 
 ## Kapanış
 
-*   [ ] **Faz 21: Tam denetim.** Faz 0'dan 20'ye her şey yeniden denetlenir: CLAUDE.md, bütün panolar,
+*   [ ] **Faz 21: Tam denetim.** Faz 0'dan 19'a her şey yeniden denetlenir: CLAUDE.md, bütün panolar,
     `OPEN_ITEMS.md` ve `PANTRIX_FINDINGS.md`. Eksik kalan her şey bu fazda kapanır.
 *   [ ] **Faz 22: Yayın.** Pantrix'in gerçek yayını; Formatico'nun yayımlanan sürüme dönmesi (`mavenLocal` bloğu
     kalkar, `pantrix-ui@pantrix-ui` açılır, `pantrix-ui-local` kaldırılır); GitHub Packages'tan gelen paketle bütün
