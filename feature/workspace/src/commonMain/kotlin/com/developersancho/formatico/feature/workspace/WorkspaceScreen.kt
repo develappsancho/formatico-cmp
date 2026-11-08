@@ -2,7 +2,6 @@ package com.developersancho.formatico.feature.workspace
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -37,8 +36,6 @@ import com.pantrixui.components.elements.icon.PantrixIcon
 import com.pantrixui.components.elements.iconbutton.PantrixIconButton
 import com.pantrixui.components.overlay.menu.PantrixMenu
 import com.pantrixui.components.overlay.menu.PantrixMenuItem
-import com.pantrixui.foundation.adaptive.WindowWidthClass
-import com.pantrixui.foundation.adaptive.isNarrow
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.theme.PantrixTheme
 import formatico.feature.workspace.generated.resources.Res

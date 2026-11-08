@@ -1,7 +1,6 @@
 package com.developersancho.formatico.feature.workspace
 
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsEnabled
@@ -22,23 +21,16 @@ import com.pantrixui.foundation.adaptive.PantrixWindow
 import com.pantrixui.foundation.diagnostics.PantrixFindings
 import com.pantrixui.foundation.files.LocalFileSaver
 import com.pantrixui.foundation.platform.PlatformType
-import com.pantrixui.foundation.platform.currentPlatformType
 import com.pantrixui.testing.PantrixTestTheme
 import com.pantrixui.testing.TestClock
 import com.pantrixui.testing.TestFileSaver
 import com.pantrixui.testing.assertNoFindings
 import com.pantrixui.testing.hasPantrixTag
 import com.pantrixui.testing.onPantrixNode
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
-import kotlin.time.TimeSource
 
 @OptIn(ExperimentalTestApi::class)
 class WorkspaceScreenTest {

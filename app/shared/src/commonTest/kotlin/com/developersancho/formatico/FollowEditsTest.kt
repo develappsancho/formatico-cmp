@@ -7,7 +7,6 @@ import com.developersancho.formatico.feature.start.OpenedDocument
 import com.developersancho.formatico.feature.start.StoredDocumentHistory
 import com.developersancho.formatico.feature.workspace.DocumentEdit
 import com.developersancho.formatico.feature.workspace.Workbench
-import com.developersancho.formatico.feature.workspace.leaveHistory
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher

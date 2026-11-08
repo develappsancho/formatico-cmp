@@ -43,6 +43,10 @@ ktlint_standard_chain-method-continuation = disabled
 #       Tabs -> add(tabs)
 #   takes three lines; detekt then counts each such entry a decision of its own (the owner's decision, 2026-11-04).
 ktlint_standard_when-entry-bracing = disabled
+#   no-unused-imports is off unless it is turned on: ktlint 1.8 marks it for removal in 2.0, as it can take an import
+#   that is used for one that is not. Detekt's UnusedImports would not stand in for it, since Detekt leaves the tests
+#   out; with ktlint 2.0 that rule is turned on and the tests given to Detekt.
+ktlint_standard_no-unused-imports = enabled
 
 # Generated sources are nobody's to fix.
 ktlint_ignore_back_ticked_identifier = true

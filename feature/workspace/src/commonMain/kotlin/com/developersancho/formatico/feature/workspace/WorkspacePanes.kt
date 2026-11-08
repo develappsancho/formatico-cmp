@@ -1,6 +1,5 @@
 package com.developersancho.formatico.feature.workspace
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,12 +18,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.developersancho.formatico.core.format.json.PathStep
 import com.developersancho.formatico.core.format.json.jsonPath
-import com.developersancho.formatico.core.format.text.Indentation
-import com.developersancho.formatico.core.format.text.LineEnding
-import com.pantrixui.components.data.tag.PantrixTag
-import com.pantrixui.components.data.tag.TagTone
 import com.pantrixui.components.data.treeview.PantrixTreeView
 import com.pantrixui.components.data.treeview.TreeNode
 import com.pantrixui.components.data.treeview.TreeSelection
@@ -36,8 +30,6 @@ import com.pantrixui.components.elements.scrollbar.pantrixVerticalScroll
 import com.pantrixui.components.elements.segmentbutton.PantrixSegmentButton
 import com.pantrixui.components.elements.segmentbutton.SegmentOption
 import com.pantrixui.components.elements.text.PantrixText
-import com.pantrixui.components.navigation.breadcrumb.BreadcrumbItem
-import com.pantrixui.components.navigation.breadcrumb.PantrixBreadcrumb
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.theme.PantrixTheme
 import formatico.feature.workspace.generated.resources.Res
@@ -48,21 +40,11 @@ import formatico.feature.workspace.generated.resources.workspace_editor_body_unr
 import formatico.feature.workspace.generated.resources.workspace_editor_title
 import formatico.feature.workspace.generated.resources.workspace_empty_body
 import formatico.feature.workspace.generated.resources.workspace_empty_title
-import formatico.feature.workspace.generated.resources.workspace_encoding
 import formatico.feature.workspace.generated.resources.workspace_find
-import formatico.feature.workspace.generated.resources.workspace_indent_spaces
-import formatico.feature.workspace.generated.resources.workspace_indent_tabs
-import formatico.feature.workspace.generated.resources.workspace_lines
 import formatico.feature.workspace.generated.resources.workspace_no_value_body
 import formatico.feature.workspace.generated.resources.workspace_no_value_title
 import formatico.feature.workspace.generated.resources.workspace_plain_body
-import formatico.feature.workspace.generated.resources.workspace_plain_text
 import formatico.feature.workspace.generated.resources.workspace_plain_title
-import formatico.feature.workspace.generated.resources.workspace_separated
-import formatico.feature.workspace.generated.resources.workspace_status_not_checked
-import formatico.feature.workspace.generated.resources.workspace_status_problems
-import formatico.feature.workspace.generated.resources.workspace_status_reading
-import formatico.feature.workspace.generated.resources.workspace_status_valid
 import formatico.feature.workspace.generated.resources.workspace_unread_body
 import formatico.feature.workspace.generated.resources.workspace_unread_title
 import formatico.feature.workspace.generated.resources.workspace_view_problems
@@ -70,7 +52,6 @@ import formatico.feature.workspace.generated.resources.workspace_view_problems_s
 import formatico.feature.workspace.generated.resources.workspace_view_table
 import formatico.feature.workspace.generated.resources.workspace_view_text
 import formatico.feature.workspace.generated.resources.workspace_view_tree
-import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
 /** The widest a pane's message is set. */

@@ -7,6 +7,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.v2.runDesktopComposeUiTest
 import androidx.compose.ui.test.waitUntilAtLeastOneExists
+import androidx.compose.ui.test.waitUntilDoesNotExist
 import androidx.compose.ui.test.waitUntilExactlyOneExists
 import com.developersancho.formatico.core.designsystem.Board
 import com.developersancho.formatico.core.storage.memoryStorageModule
@@ -69,6 +70,9 @@ class BoardScreenshotTest {
                 if (board == Board.Phone) onPantrixNode("Link", "all_samples").performClick()
                 onPantrixNode("ListItem", "sample_$sample").performScrollTo().performClick()
                 waitUntilAtLeastOneExists(hasText(shows, substring = true), timeoutMillis = 10_000)
+                // The text shows what it [shows] at once, and the tree and the status only once the document is read,
+                // which on a busy machine is later.
+                waitUntilDoesNotExist(hasText("Reading…"), timeoutMillis = 10_000)
             }
             onRoot().captureRoboImage("screenshots/$name-${board.width}${if (dark) "-dark" else ""}.png")
         }

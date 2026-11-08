@@ -42,11 +42,17 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Öneri: Faz 15'te (`PLAN.md`) her pano ve her platform.
     *   Durum: açık.
 
-*   [ ] **Kullanılmayan importlar lint'ten geçiyor (2026-11-04).**
+*   [x] **Kullanılmayan importlar lint'ten geçiyor (2026-11-04).**
     *   Ne: `StartScreenTest.kt`'de yedi kullanılmayan import vardı (`Dispatchers`, `delay`, `withContext`, `TimeSource`, `seconds`, `milliseconds`, `ComposeUiTest`); bekleme yardımcıları `core:testing`'e taşınırken kalmışlar. `lintKotlin` ve detekt geçiyordu. ktlint 1.8.0'ın `no-unused-imports` kuralı jar'da var, ama bu dosyada bir şey söylemedi. detekt'in `style.UnusedImports`'u varsayılan ayarda kapalı ve `config/detekt/detekt.yml` onu açmıyor.
     *   Nerede: `.editorconfig`, `config/detekt/detekt.yml`, Kotlinter'in `lintKotlinCommonTest`'i.
     *   Öneri: kuralın neden susduğuna bakılsın (kural kümesi, `.editorconfig`, Kotlinter'in ayarı); olmazsa detekt'in `style.UnusedImports`'u açılsın. Ardından bütün modüllerde bir tarama.
-    *   Durum: açık. `StartScreenTest.kt`'dekiler silindi.
+    *   Durum: kapandı (2026-11-04). ktlint 1.8 kuralı 2.0'da kaldırılacak diye işaretlemiş ("Marked for removal in Ktlint 2.0.0": kullanılan bir importu kullanılmıyor sanabiliyor) ve açıkça açılmadıkça koşturmuyor. `.editorconfig`'de `ktlint_standard_no-unused-imports = enabled` ile açıldı; yorumu nedenini ve ktlint 2.0'da ne yapılacağını söylüyor (detekt'in `UnusedImports`'u açılır ve testler detekt'e verilir; detekt bugün testlere bakmıyor). Açılınca 9 dosyada 56 kullanılmayan import çıktı: çoğu bekleme yardımcıları `core:testing`'e taşınırken testlerde, 19'u `WorkspacePanes.kt`'de, parçaları başka dosyalara taşınırken kalmış. `formatKotlin` ile silindi; yalnızca import satırları gitti, her hedef derleniyor ve testleri geçiyor.
+
+*   [ ] **build-logic'e lint ve detekt bakmıyor (2026-11-04).**
+    *   Ne: `QualityConventionPlugin` (Kotlinter ve detekt) uygulamanın modüllerine uygulanıyor; `build-logic/convention`'ın kendi `build.gradle.kts`'inde ikisi de yok. Convention eklentilerinin kodu biçim ve kural denetiminden geçmiyor.
+    *   Nerede: `build-logic/convention/build.gradle.kts`.
+    *   Öneri: `build-logic`'e Kotlinter (ve istenirse detekt) eklensin. Eklenti `build-logic`'in kendi derlemesinde olduğu için sürümü kataloğundan alınır.
+    *   Durum: açık.
 
 ## core:format
 
