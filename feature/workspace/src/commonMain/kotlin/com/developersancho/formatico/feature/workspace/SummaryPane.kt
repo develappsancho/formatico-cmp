@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.developersancho.formatico.feature.workspace.strings.summaryStrings
 import com.pantrixui.components.chart.metergroup.PantrixMeterGroup
 import com.pantrixui.components.container.card.CardVariant
 import com.pantrixui.components.container.card.PantrixCard
@@ -38,14 +39,6 @@ import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.components.elements.text.TextRole
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.theme.PantrixTheme
-import formatico.feature.workspace.generated.resources.Res
-import formatico.feature.workspace.generated.resources.summary_copy
-import formatico.feature.workspace.generated.resources.summary_show_table
-import formatico.feature.workspace.generated.resources.summary_title_found
-import formatico.feature.workspace.generated.resources.summary_title_notes
-import formatico.feature.workspace.generated.resources.summary_title_size
-import formatico.feature.workspace.generated.resources.summary_title_values
-import org.jetbrains.compose.resources.stringResource
 
 /** How many tiles stand in a row of the Summary, at every width. */
 private const val TILES_IN_A_ROW = 3
@@ -88,7 +81,7 @@ internal fun SummaryPane(
             Spacer(modifier = Modifier.weight(1f))
             PantrixIconButton(
                 imageVector = PantrixIcons.Copy,
-                contentDescription = stringResource(Res.string.summary_copy),
+                contentDescription = summaryStrings.copy,
                 onClick = { text?.let { commands.copyText(Copied.Summary, it) } },
                 size = layout.buttons,
                 enabled = text != null,
@@ -129,8 +122,8 @@ internal fun SummaryContent(
             .padding(if (tablet) spacing.md else spacing.lg),
         verticalArrangement = Arrangement.spacedBy(gap)
     ) {
-        SummarySection(stringResource(Res.string.summary_title_size)) { Tiles(sizeTiles(stats, sizes)) }
-        SummarySection(stringResource(Res.string.summary_title_values)) {
+        SummarySection(summaryStrings.titleSize) { Tiles(sizeTiles(stats, sizes)) }
+        SummarySection(summaryStrings.titleValues) {
             Tiles(valueTiles(summary, phone))
             SummaryCard(modifier = Modifier.padding(top = if (phone) spacing.sm else spacing.md)) {
                 PantrixMeterGroup(
@@ -221,7 +214,7 @@ private fun Tile(tile: SummaryTile, modifier: Modifier = Modifier) {
 private fun FoundSection(summary: DocumentSummary, layout: WorkspaceLayout, onIntent: (WorkspaceIntent) -> Unit, modifier: Modifier) {
     val rows = foundRows(summary)
     if (rows.isEmpty()) return
-    SummarySection(stringResource(Res.string.summary_title_found), modifier) {
+    SummarySection(summaryStrings.titleFound, modifier) {
         SummaryCard(padding = PaddingValues()) {
             Column {
                 rows.forEachIndexed { index, row ->
@@ -288,7 +281,7 @@ private fun FoundMark(found: Found) {
 private fun NotesSection(summary: DocumentSummary, onIntent: (WorkspaceIntent) -> Unit, modifier: Modifier) {
     val notes = summaryNotes(summary)
     if (notes.isEmpty()) return
-    SummarySection(stringResource(Res.string.summary_title_notes), modifier) {
+    SummarySection(summaryStrings.titleNotes, modifier) {
         Column(verticalArrangement = Arrangement.spacedBy(PantrixTheme.spacing.sm)) {
             notes.forEach { note -> NoteCard(note, onIntent) }
         }
@@ -305,7 +298,7 @@ private fun NoteCard(note: SummaryNote, onIntent: (WorkspaceIntent) -> Unit) {
                 PantrixText(text = note.text, style = PantrixTheme.typography.label)
                 note.table?.let { table ->
                     PantrixButton(
-                        text = stringResource(Res.string.summary_show_table),
+                        text = summaryStrings.showTable,
                         onClick = {
                             onIntent(WorkspaceIntent.Select(table.node.key))
                             onIntent(WorkspaceIntent.ShowPane(DocumentPane.Table))

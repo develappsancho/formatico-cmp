@@ -22,6 +22,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.feature.workspace.editor.ComparedText
+import com.developersancho.formatico.feature.workspace.strings.compareStrings
+import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.components.elements.divider.PantrixHorizontalDivider
 import com.pantrixui.components.elements.divider.PantrixVerticalDivider
 import com.pantrixui.components.elements.icon.PantrixIcon
@@ -29,18 +31,6 @@ import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.components.elements.text.TextRole
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.theme.PantrixTheme
-import formatico.feature.workspace.generated.resources.Res
-import formatico.feature.workspace.generated.resources.compare_a
-import formatico.feature.workspace.generated.resources.compare_b
-import formatico.feature.workspace.generated.resources.compare_by_meaning_note
-import formatico.feature.workspace.generated.resources.compare_by_text_note
-import formatico.feature.workspace.generated.resources.compare_difference_of
-import formatico.feature.workspace.generated.resources.compare_differences
-import formatico.feature.workspace.generated.resources.compare_side
-import formatico.feature.workspace.generated.resources.compare_side_short
-import formatico.feature.workspace.generated.resources.workspace_untitled
-import org.jetbrains.compose.resources.pluralStringResource
-import org.jetbrains.compose.resources.stringResource
 
 /**
  * A document compared with another in a wide window or on a tablet, in the whole room, the toolbar's and the status
@@ -107,7 +97,7 @@ private fun CompareBar(state: WorkspaceState, document: OpenDocument, layout: Wo
         itemVerticalAlignment = Alignment.CenterVertically
     ) {
         SideTag(Side.A)
-        SideName(document.name ?: stringResource(Res.string.workspace_untitled))
+        SideName(document.name ?: workspaceStrings.untitled)
         PantrixIcon(imageVector = PantrixIcons.ArrowForward, contentDescription = null, tint = PantrixTheme.colors.textSecondary)
         SideTag(Side.B)
         PartnerMenu(state.comparison.partner, state.others, choice, size, onIntent)
@@ -149,7 +139,7 @@ private fun Differences(
         if (wide && compared.differences.isNotEmpty()) {
             item(key = "title") {
                 PantrixText(
-                    text = pluralStringResource(Res.plurals.compare_differences, compared.differences.size, compared.differences.size),
+                    text = compareStrings.differences(compared.differences.size, compared.differences.size),
                     modifier = Modifier.padding(start = spacing.sm, end = spacing.sm, bottom = spacing.xs),
                     style = PantrixTheme.typography.callout.copy(fontWeight = FontWeight.SemiBold),
                     role = TextRole.Heading(level = 2)
@@ -179,7 +169,7 @@ private fun Sides(compared: CompareOutcome.Compared, layout: WorkspaceLayout, cu
 @Composable
 internal fun SideText(compared: CompareOutcome.Compared, side: Side, layout: WorkspaceLayout, current: Int, modifier: Modifier = Modifier) {
     val document = if (side == Side.A) compared.a else compared.b
-    val letter = stringResource(if (side == Side.A) Res.string.compare_a else Res.string.compare_b)
+    val letter = if (side == Side.A) compareStrings.a else compareStrings.b
     val name = comparedName(document)
     Column(modifier = modifier) {
         Row(
@@ -188,9 +178,9 @@ internal fun SideText(compared: CompareOutcome.Compared, side: Side, layout: Wor
         ) {
             PantrixText(
                 text = if (layout == WorkspaceLayout.Wide) {
-                    pluralStringResource(Res.plurals.compare_side, document.lines, letter, name, document.lines)
+                    compareStrings.side(document.lines, letter, name, document.lines)
                 } else {
-                    stringResource(Res.string.compare_side_short, letter, name)
+                    compareStrings.sideShort(letter, name)
                 },
                 style = PantrixTheme.typography.footnote.copy(fontWeight = FontWeight.Medium),
                 color = PantrixTheme.colors.textSecondary,
@@ -229,7 +219,7 @@ private fun CompareFooter(compared: CompareOutcome.Compared, layout: WorkspaceLa
             val difference = compared.differences.getOrNull(current)
             if (difference != null) {
                 PantrixText(
-                    text = stringResource(Res.string.compare_difference_of, current + 1, compared.differences.size),
+                    text = compareStrings.differenceOf(current + 1, compared.differences.size),
                     style = style,
                     color = quiet
                 )
@@ -243,15 +233,13 @@ private fun CompareFooter(compared: CompareOutcome.Compared, layout: WorkspaceLa
             Spacer(modifier = Modifier.weight(1f))
             if (layout == WorkspaceLayout.Wide) {
                 PantrixText(
-                    text = stringResource(
-                        if (compared.by ==
-                            CompareBy.Meaning
-                        ) {
-                            Res.string.compare_by_meaning_note
-                        } else {
-                            Res.string.compare_by_text_note
-                        }
-                    ),
+                    text = if (compared.by ==
+                        CompareBy.Meaning
+                    ) {
+                        compareStrings.byMeaningNote
+                    } else {
+                        compareStrings.byTextNote
+                    },
                     style = style,
                     color = quiet,
                     maxLines = 1

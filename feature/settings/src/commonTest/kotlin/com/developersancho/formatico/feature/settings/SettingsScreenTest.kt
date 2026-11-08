@@ -46,7 +46,7 @@ class SettingsScreenTest {
             PantrixTestTheme(window = desktop, findings = findings) { SettingsScreen(state = state, onIntent = { intents += it }) }
         }
 
-        awaitText("Settings", forgetting = findings)
+        awaitText("Settings")
         awaitText("On this device only: 23 documents, 6.1 MB.")
         onPantrixNode("Item", "general", scope = "Sidebar_settings").assertExists()
         onPantrixNode("Item", "about", scope = "Sidebar_settings").assertExists()

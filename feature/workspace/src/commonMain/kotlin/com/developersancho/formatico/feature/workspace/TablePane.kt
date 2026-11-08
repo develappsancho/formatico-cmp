@@ -37,6 +37,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.designsystem.LocalSyntaxColors
 import com.developersancho.formatico.core.format.Format
+import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.components.data.datatable.DataTableColumn
 import com.pantrixui.components.data.datatable.DataTableLayout
 import com.pantrixui.components.data.datatable.DataTablePin
@@ -51,22 +52,7 @@ import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.components.inputs.textfield.PantrixTextField
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.theme.PantrixTheme
-import formatico.feature.workspace.generated.resources.Res
-import formatico.feature.workspace.generated.resources.workspace_filter_rows
-import formatico.feature.workspace.generated.resources.workspace_index
-import formatico.feature.workspace.generated.resources.workspace_missing_key
-import formatico.feature.workspace.generated.resources.workspace_no_rows
-import formatico.feature.workspace.generated.resources.workspace_no_table_body
-import formatico.feature.workspace.generated.resources.workspace_no_table_title
-import formatico.feature.workspace.generated.resources.workspace_open_value
-import formatico.feature.workspace.generated.resources.workspace_rows
-import formatico.feature.workspace.generated.resources.workspace_rows_of
-import formatico.feature.workspace.generated.resources.workspace_separated
-import formatico.feature.workspace.generated.resources.workspace_table_columns
-import formatico.feature.workspace.generated.resources.workspace_value_column
 import kotlinx.coroutines.flow.drop
-import org.jetbrains.compose.resources.pluralStringResource
-import org.jetbrains.compose.resources.stringResource
 
 /** The widest the filter field stands in a wide window, and on a tablet. */
 private val WideFilterWidth = 200.dp
@@ -108,7 +94,7 @@ internal fun TablePane(
         val shown = remember(table, visible, query, view.tableSort) {
             table?.let { sorted(filtered(it.rows, visible, query), view.tableSort) }.orEmpty()
         }
-        val valueName = stringResource(Res.string.workspace_value_column)
+        val valueName = workspaceStrings.valueColumn
         val toolbar = TableToolbarState(
             state = state,
             filter = filter,
@@ -134,8 +120,8 @@ internal fun TablePane(
                 table == null -> {
                     PaneMessage(
                         icon = PantrixIcons.Info,
-                        title = stringResource(Res.string.workspace_no_table_title),
-                        body = stringResource(Res.string.workspace_no_table_body),
+                        title = workspaceStrings.noTableTitle,
+                        body = workspaceStrings.noTableBody,
                         modifier = Modifier.fillMaxSize()
                     )
                 }
@@ -266,16 +252,15 @@ private fun countOf(toolbar: TableToolbarState, wide: Boolean): String? {
     val table = toolbar.state.table ?: return null
     val total = table.rows.size
     val rows = if (toolbar.shown == total) {
-        pluralStringResource(Res.plurals.workspace_rows, total, total)
+        workspaceStrings.rows(total, total)
     } else {
-        pluralStringResource(Res.plurals.workspace_rows_of, total, toolbar.shown, total)
+        workspaceStrings.rowsOf(total, toolbar.shown, total)
     }
     if (!wide) return rows
     val columns = table.columns.size
-    return stringResource(
-        Res.string.workspace_separated,
+    return workspaceStrings.separated(
         rows,
-        pluralStringResource(Res.plurals.workspace_table_columns, columns, columns)
+        workspaceStrings.tableColumns(columns, columns)
     )
 }
 
@@ -296,10 +281,10 @@ private fun FilterField(filter: TextFieldState, modifier: Modifier = Modifier) {
     PantrixTextField(
         state = filter,
         modifier = modifier,
-        placeholder = stringResource(Res.string.workspace_filter_rows),
+        placeholder = workspaceStrings.filterRows,
         leadingIcon = { PantrixIcon(imageVector = PantrixIcons.Search, contentDescription = null) },
         showClearButton = true,
-        contentDescription = stringResource(Res.string.workspace_filter_rows),
+        contentDescription = workspaceStrings.filterRows,
         tagKey = "filter"
     )
 }
@@ -322,8 +307,8 @@ private fun RowsTable(
     val choice = rememberUpdatedState(state.tableChoice)
     val asWritten = state.document?.format.let { it != Format.Csv && it != Format.Tsv }
     val select: (String) -> Unit = { onIntent(WorkspaceIntent.Select(it)) }
-    val valueName = stringResource(Res.string.workspace_value_column)
-    val indexName = stringResource(Res.string.workspace_index)
+    val valueName = workspaceStrings.valueColumn
+    val indexName = workspaceStrings.index
     val typeWords = columnTypeWords()
     val columns = remember(table, visible, valueName, indexName, typeWords) {
         listOf(indexColumn(indexName, choice, select)) + visible.map { name ->
@@ -354,7 +339,7 @@ private fun RowsTable(
         },
         // A phone's record is a button that chooses its row; a table's cells choose their values themselves.
         onRowClick = if (phone) { row -> select(row.node.key) } else null,
-        empty = { PantrixText(text = stringResource(Res.string.workspace_no_rows, query.trim())) },
+        empty = { PantrixText(text = workspaceStrings.noRows(query.trim())) },
         footer = if (phone) {
             null
         } else {
@@ -418,7 +403,7 @@ private fun TableCell(
     ) {
         when {
             cell == null -> {
-                val missing = stringResource(Res.string.workspace_missing_key, column)
+                val missing = workspaceStrings.missingKey(column)
                 PantrixText(
                     text = "—",
                     modifier = Modifier.semantics { contentDescription = missing },
@@ -433,7 +418,7 @@ private fun TableCell(
                     variant = ButtonVariant.Outline,
                     size = ButtonSize.Small,
                     trailingIcon = { PantrixIcon(imageVector = PantrixIcons.ChevronForward, contentDescription = null) },
-                    contentDescription = stringResource(Res.string.workspace_open_value, cell.text),
+                    contentDescription = workspaceStrings.openValue(cell.text),
                     tagKey = "open_${row.index}_$column"
                 )
             }

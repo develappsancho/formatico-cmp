@@ -12,6 +12,7 @@ import com.developersancho.formatico.core.format.json.PathStep
 import com.developersancho.formatico.core.format.json.jqPath
 import com.developersancho.formatico.core.format.json.jsonPath
 import com.developersancho.formatico.core.format.json.jsonPointer
+import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.components.elements.button.ButtonSize
 import com.pantrixui.components.elements.button.ButtonVariant
 import com.pantrixui.components.elements.button.PantrixButton
@@ -23,11 +24,6 @@ import com.pantrixui.components.overlay.menu.PantrixMenuItem
 import com.pantrixui.components.overlay.popover.PopoverAlignment
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.theme.PantrixTheme
-import formatico.feature.workspace.generated.resources.Res
-import formatico.feature.workspace.generated.resources.workspace_copy_path
-import formatico.feature.workspace.generated.resources.workspace_copy_path_as
-import formatico.feature.workspace.generated.resources.workspace_copy_path_of
-import org.jetbrains.compose.resources.stringResource
 
 /** The ways a value's path is copied: as JSONPath, as a JSON Pointer and as jq writes it. Their names are not translated. */
 internal enum class PathForm(val label: String, val tagKey: String, private val write: (List<PathStep>) -> String) {
@@ -48,14 +44,14 @@ internal enum class PathForm(val label: String, val tagKey: String, private val 
 internal fun CopyPathMenu(node: ValueNode, layout: WorkspaceLayout, onCopy: (String) -> Unit, modifier: Modifier = Modifier) {
     var open by rememberSaveable { mutableStateOf(false) }
     val name = stepLabel(node)
-    val description = stringResource(Res.string.workspace_copy_path_of, name)
+    val description = workspaceStrings.copyPathOf(name)
     PantrixMenu(
         visible = open,
         onDismissRequest = { open = false },
         anchor = {
             if (layout == WorkspaceLayout.Wide) {
                 PantrixButton(
-                    text = stringResource(Res.string.workspace_copy_path),
+                    text = workspaceStrings.copyPath,
                     onClick = { open = true },
                     modifier = modifier,
                     variant = ButtonVariant.Text,
@@ -81,7 +77,7 @@ internal fun CopyPathMenu(node: ValueNode, layout: WorkspaceLayout, onCopy: (Str
     ) {
         val spacing = PantrixTheme.spacing
         PantrixText(
-            text = stringResource(Res.string.workspace_copy_path_as, name),
+            text = workspaceStrings.copyPathAs(name),
             modifier = Modifier.padding(start = spacing.md, end = spacing.md, top = spacing.sm, bottom = spacing.xs),
             style = PantrixTheme.typography.footnote.copy(fontWeight = FontWeight.SemiBold),
             color = PantrixTheme.colors.textSecondary

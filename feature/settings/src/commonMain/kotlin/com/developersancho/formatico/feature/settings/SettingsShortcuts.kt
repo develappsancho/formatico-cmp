@@ -11,15 +11,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.developersancho.formatico.feature.settings.strings.settingsStrings
 import com.pantrixui.components.elements.keycaps.PantrixKeycaps
 import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.components.elements.text.TextRole
 import com.pantrixui.components.overlay.commandpalette.PantrixCommand
 import com.pantrixui.foundation.theme.PantrixTheme
-import formatico.feature.settings.generated.resources.Res
-import formatico.feature.settings.generated.resources.settings_shortcuts
-import formatico.feature.settings.generated.resources.settings_shortcuts_body
-import org.jetbrains.compose.resources.stringResource
 
 /** The least height of a shortcut's row, as the boards draw it at 1440 and 834. */
 private val ShortcutRowHeight = 44.dp
@@ -35,12 +32,12 @@ internal fun ShortcutsSection(commands: List<PantrixCommand>, layout: SettingsLa
     val typography = PantrixTheme.typography
     Column(modifier = Modifier.fillMaxWidth()) {
         PantrixText(
-            text = stringResource(Res.string.settings_shortcuts),
+            text = settingsStrings.shortcuts,
             style = typography.body.copy(fontWeight = FontWeight.SemiBold),
             role = TextRole.Heading(level = 2)
         )
         PantrixText(
-            text = stringResource(Res.string.settings_shortcuts_body),
+            text = settingsStrings.shortcutsBody,
             modifier = Modifier.padding(top = PantrixTheme.spacing.sm),
             style = typography.label.copy(fontWeight = FontWeight.Medium),
             color = colors.textSecondary

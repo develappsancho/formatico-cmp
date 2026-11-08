@@ -53,7 +53,7 @@ class QueryScreenTest {
             }
         }
 
-        awaitText("3 matches. XPath is for XML documents.", forgetting = findings)
+        awaitText("3 matches. XPath is for XML documents.")
         onPantrixNode("TextField", "query").assert(hasText("$.items[*].name", substring = true))
         // The document's format chooses the language; the other is there, not to be chosen.
         onPantrixNode("Segment", "xpath", scope = "SegmentButton_query_language").assertIsNotEnabled()
@@ -86,7 +86,7 @@ class QueryScreenTest {
             }
         }
 
-        awaitText("3 matches", forgetting = findings)
+        awaitText("3 matches")
         onPantrixNode("Button", "copy_results").performClick()
         awaitUntil("The results are copied") { clipboard.entries.isNotEmpty() }
         assertEquals("[\n  \"Keyboard\",\n  \"Mouse\",\n  \"Desk pad\"\n]", clipboard.text()?.trimEnd())
@@ -187,7 +187,7 @@ class QueryScreenTest {
             }
         }
 
-        awaitText("Choose one to see it in the text", forgetting = findings)
+        awaitText("Choose one to see it in the text")
         onPantrixNode("Segment", "query", scope = "SegmentButton_view").assertIsSelected()
         onPantrixNode("Segment", "table", scope = "SegmentButton_view").assertDoesNotExist()
         onPantrixNode("ListItem", "match0").assert(hasText("89.90")).assert(hasText("$.items[0].price"))

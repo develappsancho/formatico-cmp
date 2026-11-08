@@ -9,6 +9,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import com.developersancho.formatico.core.format.Format
+import com.developersancho.formatico.feature.workspace.strings.WorkspaceStrings
+import com.developersancho.formatico.feature.workspace.strings.convertStrings
+import com.developersancho.formatico.feature.workspace.strings.queryStrings
+import com.developersancho.formatico.feature.workspace.strings.shareStrings
+import com.developersancho.formatico.feature.workspace.strings.summaryStrings
+import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.components.elements.button.ButtonSize
 import com.pantrixui.components.elements.divider.PantrixDivider
 import com.pantrixui.components.elements.iconbutton.PantrixIconButton
@@ -24,57 +30,7 @@ import com.pantrixui.foundation.files.PantrixFile
 import com.pantrixui.foundation.files.rememberFileSaver
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.platform.rememberPantrixClipboard
-import formatico.feature.workspace.generated.resources.Res
-import formatico.feature.workspace.generated.resources.convert_copied
-import formatico.feature.workspace.generated.resources.convert_copy_failed
-import formatico.feature.workspace.generated.resources.convert_label
-import formatico.feature.workspace.generated.resources.query_results_copied
-import formatico.feature.workspace.generated.resources.query_results_copy_failed
-import formatico.feature.workspace.generated.resources.query_results_label
-import formatico.feature.workspace.generated.resources.share_link_copied
-import formatico.feature.workspace.generated.resources.share_link_copy_failed
-import formatico.feature.workspace.generated.resources.share_link_label
-import formatico.feature.workspace.generated.resources.summary_copied
-import formatico.feature.workspace.generated.resources.summary_copy_failed
-import formatico.feature.workspace.generated.resources.summary_label
-import formatico.feature.workspace.generated.resources.workspace_alias_before_anchor
-import formatico.feature.workspace.generated.resources.workspace_already_formatted
-import formatico.feature.workspace.generated.resources.workspace_already_minified
-import formatico.feature.workspace.generated.resources.workspace_already_sorted
-import formatico.feature.workspace.generated.resources.workspace_close_document
-import formatico.feature.workspace.generated.resources.workspace_compare
-import formatico.feature.workspace.generated.resources.workspace_convert
-import formatico.feature.workspace.generated.resources.workspace_copied
-import formatico.feature.workspace.generated.resources.workspace_copy_failed
-import formatico.feature.workspace.generated.resources.workspace_document_label
-import formatico.feature.workspace.generated.resources.workspace_edit_impossible
-import formatico.feature.workspace.generated.resources.workspace_find_in_tree
-import formatico.feature.workspace.generated.resources.workspace_formatted
-import formatico.feature.workspace.generated.resources.workspace_keys_sorted
-import formatico.feature.workspace.generated.resources.workspace_minified
-import formatico.feature.workspace.generated.resources.workspace_minified_comments
-import formatico.feature.workspace.generated.resources.workspace_more_actions
-import formatico.feature.workspace.generated.resources.workspace_more_actions_sort_compare_save
-import formatico.feature.workspace.generated.resources.workspace_path_copied
-import formatico.feature.workspace.generated.resources.workspace_path_copy_failed
-import formatico.feature.workspace.generated.resources.workspace_path_label
-import formatico.feature.workspace.generated.resources.workspace_query
-import formatico.feature.workspace.generated.resources.workspace_save_failed
-import formatico.feature.workspace.generated.resources.workspace_save_file
-import formatico.feature.workspace.generated.resources.workspace_share
-import formatico.feature.workspace.generated.resources.workspace_show_summary_item
-import formatico.feature.workspace.generated.resources.workspace_sort_keys
-import formatico.feature.workspace.generated.resources.workspace_table_copied
-import formatico.feature.workspace.generated.resources.workspace_table_copy_failed
-import formatico.feature.workspace.generated.resources.workspace_table_label
-import formatico.feature.workspace.generated.resources.workspace_undo
-import formatico.feature.workspace.generated.resources.workspace_untitled
-import formatico.feature.workspace.generated.resources.workspace_value_copied
-import formatico.feature.workspace.generated.resources.workspace_value_copy_failed
-import formatico.feature.workspace.generated.resources.workspace_value_label
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.getPluralString
-import org.jetbrains.compose.resources.stringResource
 
 /** A document made from another, to be opened in a tab of its own: what a query found, or a conversion. */
 internal data class NewDocument(val name: String, val text: String, val format: Format)
@@ -99,13 +55,14 @@ internal class DocumentCommands(
 /** What a copy says: what is copied, for the system's own preview of it, and how it went. */
 private data class CopyWords(val label: String, val done: String, val failed: String, val tag: String)
 
-/** What an edit says: what it did, that the document was so already, or that it cannot be made. */
+/** What an edit says: what it did, that the document was so already, or that it cannot be made, and its [strings]. */
 private data class EditWords(
     val done: Map<DocumentEdit, String>,
     val already: Map<DocumentEdit, String>,
     val undo: String,
     val impossible: String,
-    val aliasBeforeAnchor: String
+    val aliasBeforeAnchor: String,
+    val strings: WorkspaceStrings
 )
 
 /** The words [DocumentCommands] say, read once from the resources. */
@@ -120,29 +77,30 @@ private data class CommandWords(
 @Composable
 private fun commandWords() = CommandWords(
     document = CopyWords(
-        label = stringResource(Res.string.workspace_document_label),
-        done = stringResource(Res.string.workspace_copied),
-        failed = stringResource(Res.string.workspace_copy_failed),
+        label = workspaceStrings.documentLabel,
+        done = workspaceStrings.copied,
+        failed = workspaceStrings.copyFailed,
         tag = "copied"
     ),
     parts = partWords(),
     edits = EditWords(
         done = mapOf(
-            DocumentEdit.Format to stringResource(Res.string.workspace_formatted),
-            DocumentEdit.Minify to stringResource(Res.string.workspace_minified),
-            DocumentEdit.SortKeys to stringResource(Res.string.workspace_keys_sorted)
+            DocumentEdit.Format to workspaceStrings.formatted,
+            DocumentEdit.Minify to workspaceStrings.minified,
+            DocumentEdit.SortKeys to workspaceStrings.keysSorted
         ),
         already = mapOf(
-            DocumentEdit.Format to stringResource(Res.string.workspace_already_formatted),
-            DocumentEdit.Minify to stringResource(Res.string.workspace_already_minified),
-            DocumentEdit.SortKeys to stringResource(Res.string.workspace_already_sorted)
+            DocumentEdit.Format to workspaceStrings.alreadyFormatted,
+            DocumentEdit.Minify to workspaceStrings.alreadyMinified,
+            DocumentEdit.SortKeys to workspaceStrings.alreadySorted
         ),
-        undo = stringResource(Res.string.workspace_undo),
-        impossible = stringResource(Res.string.workspace_edit_impossible),
-        aliasBeforeAnchor = stringResource(Res.string.workspace_alias_before_anchor)
+        undo = workspaceStrings.undo,
+        impossible = workspaceStrings.editImpossible,
+        aliasBeforeAnchor = workspaceStrings.aliasBeforeAnchor,
+        strings = workspaceStrings
     ),
-    saveFailed = stringResource(Res.string.workspace_save_failed),
-    untitled = stringResource(Res.string.workspace_untitled)
+    saveFailed = workspaceStrings.saveFailed,
+    untitled = workspaceStrings.untitled
 )
 
 /** The name a document is saved under: its own, or "Untitled" with its format's extension. */
@@ -201,45 +159,45 @@ internal fun rememberDocumentCommands(workbench: Workbench): DocumentCommands {
 @Composable
 private fun partWords(): Map<Copied, CopyWords> = mapOf(
     Copied.Value to CopyWords(
-        label = stringResource(Res.string.workspace_value_label),
-        done = stringResource(Res.string.workspace_value_copied),
-        failed = stringResource(Res.string.workspace_value_copy_failed),
+        label = workspaceStrings.valueLabel,
+        done = workspaceStrings.valueCopied,
+        failed = workspaceStrings.valueCopyFailed,
         tag = "value_copied"
     ),
     Copied.Path to CopyWords(
-        label = stringResource(Res.string.workspace_path_label),
-        done = stringResource(Res.string.workspace_path_copied),
-        failed = stringResource(Res.string.workspace_path_copy_failed),
+        label = workspaceStrings.pathLabel,
+        done = workspaceStrings.pathCopied,
+        failed = workspaceStrings.pathCopyFailed,
         tag = "path_copied"
     ),
     Copied.Table to CopyWords(
-        label = stringResource(Res.string.workspace_table_label),
-        done = stringResource(Res.string.workspace_table_copied),
-        failed = stringResource(Res.string.workspace_table_copy_failed),
+        label = workspaceStrings.tableLabel,
+        done = workspaceStrings.tableCopied,
+        failed = workspaceStrings.tableCopyFailed,
         tag = "table_copied"
     ),
     Copied.Summary to CopyWords(
-        label = stringResource(Res.string.summary_label),
-        done = stringResource(Res.string.summary_copied),
-        failed = stringResource(Res.string.summary_copy_failed),
+        label = summaryStrings.label,
+        done = summaryStrings.copied,
+        failed = summaryStrings.copyFailed,
         tag = "summary_copied"
     ),
     Copied.Results to CopyWords(
-        label = stringResource(Res.string.query_results_label),
-        done = stringResource(Res.string.query_results_copied),
-        failed = stringResource(Res.string.query_results_copy_failed),
+        label = queryStrings.resultsLabel,
+        done = queryStrings.resultsCopied,
+        failed = queryStrings.resultsCopyFailed,
         tag = "results_copied"
     ),
     Copied.Converted to CopyWords(
-        label = stringResource(Res.string.convert_label),
-        done = stringResource(Res.string.convert_copied),
-        failed = stringResource(Res.string.convert_copy_failed),
+        label = convertStrings.label,
+        done = convertStrings.copied,
+        failed = convertStrings.copyFailed,
         tag = "converted_copied"
     ),
     Copied.Link to CopyWords(
-        label = stringResource(Res.string.share_link_label),
-        done = stringResource(Res.string.share_link_copied),
-        failed = stringResource(Res.string.share_link_copy_failed),
+        label = shareStrings.linkLabel,
+        done = shareStrings.linkCopied,
+        failed = shareStrings.linkCopyFailed,
         tag = "link_copied"
     )
 )
@@ -257,7 +215,7 @@ private suspend fun reportEdit(
             val removed = result.commentsRemoved
             val answer = snackbars?.show(
                 message = if (removed > 0) {
-                    getPluralString(Res.plurals.workspace_minified_comments, removed, removed)
+                    words.strings.minifiedComments(removed, removed)
                 } else {
                     words.done.getValue(edit)
                 },
@@ -364,12 +322,10 @@ internal fun DocumentMenu(
             PantrixIconButton(
                 imageVector = PantrixIcons.MoreHorizontal,
                 // What the menu holds, where a tablet has moved its actions there, as Workspace-834 names it.
-                contentDescription = stringResource(
-                    when (items) {
-                        DocumentMenuItems.SortCompareSaveClose -> Res.string.workspace_more_actions_sort_compare_save
-                        else -> Res.string.workspace_more_actions
-                    }
-                ),
+                contentDescription = when (items) {
+                    DocumentMenuItems.SortCompareSaveClose -> workspaceStrings.moreActionsSortCompareSave
+                    else -> workspaceStrings.moreActions
+                },
                 onClick = { open = true },
                 size = size,
                 tagKey = "more"
@@ -381,33 +337,33 @@ internal fun DocumentMenu(
         if (items == DocumentMenuItems.FindSummarySortCompareClose) FindSummaryAndQueryItems(read, onFind, onSummary, onQuery, onConvert)
         if (items != DocumentMenuItems.Close) {
             PantrixMenuItem(
-                text = stringResource(Res.string.workspace_sort_keys),
+                text = workspaceStrings.sortKeys,
                 onClick = onSortKeys,
                 enabled = canSort,
                 tagKey = "sort_keys"
             )
             PantrixMenuItem(
-                text = stringResource(Res.string.workspace_compare),
+                text = workspaceStrings.compare,
                 onClick = onCompare,
                 tagKey = "compare"
             )
         }
         if (items == DocumentMenuItems.SortCompareSaveClose) {
             PantrixMenuItem(
-                text = stringResource(Res.string.workspace_save_file),
+                text = workspaceStrings.saveFile,
                 onClick = onSave,
                 icon = PantrixIcons.Download,
                 tagKey = "save"
             )
         }
         PantrixMenuItem(
-            text = stringResource(Res.string.workspace_share),
+            text = workspaceStrings.share,
             onClick = onShare,
             tagKey = "share"
         )
         PantrixDivider()
         PantrixMenuItem(
-            text = stringResource(Res.string.workspace_close_document),
+            text = workspaceStrings.closeDocument,
             onClick = onClose,
             icon = PantrixIcons.Close,
             tagKey = "close"
@@ -428,26 +384,26 @@ private fun FindSummaryAndQueryItems(
     onConvert: () -> Unit
 ) {
     PantrixMenuItem(
-        text = stringResource(Res.string.workspace_find_in_tree),
+        text = workspaceStrings.findInTree,
         onClick = onFind,
         icon = PantrixIcons.Search,
         enabled = read,
         tagKey = "find"
     )
     PantrixMenuItem(
-        text = stringResource(Res.string.workspace_show_summary_item),
+        text = workspaceStrings.showSummaryItem,
         onClick = onSummary,
         enabled = read,
         tagKey = "summary"
     )
     PantrixMenuItem(
-        text = stringResource(Res.string.workspace_query),
+        text = workspaceStrings.query,
         onClick = onQuery,
         enabled = read,
         tagKey = "query"
     )
     PantrixMenuItem(
-        text = stringResource(Res.string.workspace_convert),
+        text = workspaceStrings.convert,
         onClick = onConvert,
         icon = PantrixIcons.ArrowForward,
         enabled = read,

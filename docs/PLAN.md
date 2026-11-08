@@ -150,7 +150,8 @@ eksikler Faz 4'te.
     Her resimde Pantrix'in teşhisleri bulgusuz olmak zorunda. `BoardAccessibilityTest` aynı gezintiyi JVM'de, iOS'ta
     ve Wasm'da koşturuyor (42 test). Maestro'nun 15 akışı her panoya bir tane. `app/webTest`'in tarayıcı testleri
     dağıtımı kurulu Chrome'da sınıyor: yükleyici, geçmiş, bağlantılar, yeniden yükleme, telefon genişliği, Türkçe.
-    `checkTranslations` iki dilin sözcüklerini bir arada tutuyor; Türkçenin 74 metni bir dil incelemesiyle düzeltildi.
+    Türkçenin 74 metni bir dil incelemesiyle düzeltildi; sonra sahibinin isteğiyle sözcükler `strings.xml`'den çıktı, her
+    özelliğin Kotlin'deki `strings` paketine (arayüz ve dil başına nesne), dil de temanın dili oldu.
     Testlerin bulduğu dört hata düzeltildi: telefonda ağaçtayken yapılan değişikliğin metne gelmemesi, sorgu alanında
     Enter'ın hiçbir şey yapmaması, şeridin Android'in dokunma hedefinden alçak olması, Türkçe telefonda iki taşma.
     Kalanlar `OPEN_ITEMS.md`'de, Pantrix'in beş yeni bulgusu `PANTRIX_FINDINGS.md`'de.

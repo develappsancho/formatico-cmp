@@ -8,7 +8,6 @@ import androidx.compose.ui.test.printToString
 import androidx.compose.ui.test.v2.runDesktopComposeUiTest
 import com.developersancho.formatico.core.designsystem.Board
 import com.developersancho.formatico.core.storage.memoryStorageModule
-import com.developersancho.formatico.core.testing.inLanguage
 import com.pantrixui.foundation.diagnostics.PantrixFindings
 import com.pantrixui.foundation.l10n.PantrixLocale
 import com.pantrixui.testing.PantrixTestTheme
@@ -74,18 +73,18 @@ class BoardScreenshotTest {
     @Test
     fun brokenLink() = boards(AppBoard.BrokenLink)
 
-    /** A way a board is drawn: its language, its theme, and what its screenshot's name ends with. */
-    private enum class Look(val language: String, val dark: Boolean, val suffix: String) {
-        Light("en", dark = false, suffix = ""),
-        Dark("en", dark = true, suffix = "-dark"),
-        Turkish("tr", dark = false, suffix = "-tr")
+    /** A way a board is drawn: in Turkish or not, its theme, and what its screenshot's name ends with. */
+    private enum class Look(val turkish: Boolean, val dark: Boolean, val suffix: String) {
+        Light(turkish = false, dark = false, suffix = ""),
+        Dark(turkish = false, dark = true, suffix = "-dark"),
+        Turkish(turkish = true, dark = false, suffix = "-tr")
     }
 
     /** [board] at every width, in every look. */
     private fun boards(board: AppBoard) = Board.entries.forEach { window ->
         Look.entries.forEach { look ->
             try {
-                inLanguage(look.language) { draw(board, window, look) }
+                draw(board, window, look)
             } catch (failure: Throwable) {
                 throw AssertionError("$board at ${window.width}, ${look.name.lowercase()}: ${failure.message}", failure)
             } finally {
@@ -102,7 +101,7 @@ class BoardScreenshotTest {
         runDesktopComposeUiTest(width = window.width, height = window.height) {
             val findings = PantrixFindings()
             val files = BoardFiles()
-            val turkish = look == Look.Turkish
+            val turkish = look.turkish
             setContent {
                 PantrixTestTheme(
                     platform = window.platform,

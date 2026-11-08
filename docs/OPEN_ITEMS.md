@@ -46,13 +46,21 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Durum: kapandı (2026-11-06, Faz 15; sahibinin "Kotlin, JDK + Chrome" kararı). `app/webTest`: dağıtımı JDK'nın sunucusuyla sunan, kurulu Chrome'u başsız açıp DevTools protokolüyle süren, Compose'un gölge kökteki erişilebilirlik ağacında etiketi bulup ortasına basan sekiz test (`./gradlew :app:webTest:test`). İndirme yok; Chrome başka bir yerdeyse `-Pformatico.chrome=<yol>`.
 *   [x] **Türkçe ve İngilizce sözcükler birbirinden ayrılabiliyordu (2026-11-06).**
     *   Ne: Bir anahtarın bir dilde olup ötekinde olmaması, bir yer tutucunun (`%1$s`) düşmesi ya da İngilizce kalan bir Türkçe sözcük derlemede yakalanmıyordu.
-    *   Durum: kapandı (2026-11-06, Faz 15). `checkTranslations` (`build-logic`, `TranslationsTask`, `check`'in parçası): her modülün `values` ve `values-tr` `strings.xml`'i aynı anahtarları, aynı yer tutucuları ve `other`'ı olan çoğulları tutmalı; İngilizcesiyle aynı Türkçe sözcük `config/l10n/same-in-both.txt`'te nedeniyle yazılı olmalı (beş tane: adlar ve `null`). Bozuk bir dosyada derlemenin durduğu denendi.
+    *   Durum: kapandı (2026-11-06, Faz 15). Önce `checkTranslations` görevi `strings.xml`'leri karşılaştırdı (`d090e14`). Sonra sahibinin isteğiyle (2026-11-06) sözcükler XML'den çıktı: her özelliğin `strings` paketinde Kotlin'de bir arayüz ve her dil için bir nesnesi var (Workspace'te ekran başına: Workspace, Problem, Table, Query, Convert, Compare, Summary, Share, Palette). Eksik bir sözcüğü, ya da başka değerler alan bir cümleyi artık derleyici yakalıyor; İngilizce kalan Türkçe sözcüğü her modülün `StringsTest`'i (`core:testing`'in `untranslated`'ı). Görev ve `config/l10n` kalktı.
+*   [x] **Dil, platformun dili değiştirilerek seçiliyordu (2026-11-06).**
+    *   Ne: Compose'un kaynakları platformun dilini okuduğu için Settings'te seçilen dil her platformda platformun diline yazılıyordu (`LocalAppLocale`: JVM'in `Locale`'i, Android'in yapılandırması, iOS'un `AppleLanguages`'ı, web'de `navigator.languages`'ı yamalayan bir betik) ve uygulamanın bileşimi baştan kuruluyordu (`key(language)`). Bileşim dışında okunan sözcükler (`getString`) bir tuzaktı: web'de `navigator.language`'tan geliyordu.
+    *   Durum: kapandı (2026-11-06, sahibinin isteği). Sözcükler temanın dilinden geliyor (`inTheLanguage`, `PantrixTheme.locale`), Pantrix'in kendi sözcükleri gibi. `LocalAppLocale`, `index.html`'in betiği ve `key(language)` kalktı; dil değişince ekranlar yerinde kalıyor. Görünüm modeli Convert'in yorumunu Settings'in dilinde yazıyor (`convertStringsIn`). Testler makinenin dilinden bağımsız: `PantrixTestTheme`'in dili; `inEnglish` kalktı, `AppLanguageTest` ortak testlerde, her hedefte. Bir sonuç: platformun kendi sözcükleri (Android'in metin menüsü, iOS'un sistem pencereleri) artık seçilen dili değil sistemin dilini izliyor.
 
 *   [x] **Kullanılmayan importlar lint'ten geçiyor (2026-11-04).**
     *   Ne: `StartScreenTest.kt`'de yedi kullanılmayan import vardı (`Dispatchers`, `delay`, `withContext`, `TimeSource`, `seconds`, `milliseconds`, `ComposeUiTest`); bekleme yardımcıları `core:testing`'e taşınırken kalmışlar. `lintKotlin` ve detekt geçiyordu. ktlint 1.8.0'ın `no-unused-imports` kuralı jar'da var, ama bu dosyada bir şey söylemedi. detekt'in `style.UnusedImports`'u varsayılan ayarda kapalı ve `config/detekt/detekt.yml` onu açmıyor.
     *   Nerede: `.editorconfig`, `config/detekt/detekt.yml`, Kotlinter'in `lintKotlinCommonTest`'i.
     *   Öneri: kuralın neden susduğuna bakılsın (kural kümesi, `.editorconfig`, Kotlinter'in ayarı); olmazsa detekt'in `style.UnusedImports`'u açılsın. Ardından bütün modüllerde bir tarama.
     *   Durum: kapandı (2026-11-04). ktlint 1.8 kuralı 2.0'da kaldırılacak diye işaretlemiş ("Marked for removal in Ktlint 2.0.0": kullanılan bir importu kullanılmıyor sanabiliyor) ve açıkça açılmadıkça koşturmuyor. `.editorconfig`'de `ktlint_standard_no-unused-imports = enabled` ile açıldı; yorumu nedenini ve ktlint 2.0'da ne yapılacağını söylüyor (detekt'in `UnusedImports`'u açılır ve testler detekt'e verilir; detekt bugün testlere bakmıyor). Açılınca 9 dosyada 56 kullanılmayan import çıktı: çoğu bekleme yardımcıları `core:testing`'e taşınırken testlerde, 19'u `WorkspacePanes.kt`'de, parçaları başka dosyalara taşınırken kalmış. `formatKotlin` ile silindi; yalnızca import satırları gitti, her hedef derleniyor ve testleri geçiyor.
+
+*   [ ] **Tam denetimde Kotlin daemon'ının belleği yetmeyebiliyor (2026-11-06).**
+    *   Ne: Bütün hedeflerin testleri birlikte koşunca (`jvmTest … wasmJsBrowserTest … --continue`) Wasm'ın test yürütülebilirlerinin derlemesi iki kez `OutOfMemoryError: Java heap space` ile düştü (`feature:workspace`, `feature:settings`, bir kez de `core:navigation`); aynı görev tek başına yeniden koşunca geçti. `gradle.properties`'te `kotlin.daemon.jvmargs=-Xmx3072M`.
+    *   Öneri: `kotlin.daemon.jvmargs`'ı 6 GB'a çıkarmak (makinede 128 GB var), ya da Wasm testlerini ayrı bir koşuda.
+    *   Durum: açık. Sahibinin kararı: makinenin ayarı.
 
 *   [ ] **build-logic'e lint ve detekt bakmıyor (2026-11-04).**
     *   Ne: `QualityConventionPlugin` (Kotlinter ve detekt) uygulamanın modüllerine uygulanıyor; `build-logic/convention`'ın kendi `build.gradle.kts`'inde ikisi de yok. Convention eklentilerinin kodu biçim ve kural denetiminden geçmiyor.
@@ -558,12 +566,18 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
         *   "Keep each document for"un ilk değeri panodaki gibi 30 gün: 30 günden eski belgeler artık uygulama açılınca geçmişten çıkıyor. Önceden yalnızca 20 belge sınırı vardı.
         *   "Keep a history" kapatılınca geçmiş temizleniyor ve yeni belge kaydedilmiyor (bir karar: kapatmak "tutma" demek).
         *   Biçimi anlaşılmayan metin, soru sorulmadan önce geçmişe "Text" olarak yazılıyor; sonra JSON olarak açılsa da Recent'te "Text".
-        *   Dil değişince uygulamanın bileşimi baştan kuruluyor (`key`): geri yığını ve Settings'in açıklığı korunuyor; ekranların kaydırma yeri gibi kalıcı olmayan hâller gidiyor.
+        *   Dil değişince uygulamanın bileşimi baştan kuruluyordu (`key`), ekranların kaydırma yeri gibi kalıcı olmayan hâller gidiyordu; sözcükler Kotlin'e taşınınca (2026-11-06) `key` kalktı, ekranlar dil değişince yerinde kalıyor.
         *   Lisans listesi elle tutuluyor (`OpenSourceLibrary`): bir bağımlılık eklenince ya da çıkınca güncellenmeli.
         *   Keyboard shortcuts, paletin kısayolu olan komutlarını uygulamanın çalıştığı yerde listeliyor: tarayıcıda New tab, Show the tree ve Show the table yok (⌘T, ⌘1, ⌘2 tarayıcının); panolar web'i çizmiyor. Girişteki cümle ("On Windows and Linux, Ctrl takes the place of ⌘") panodaki gibi her sistemde aynı; Windows'ta kapaklar zaten Ctrl diyor.
         *   Panoların "shortcuts" hâli sayfanın aşağısı; önizleme Settings'i o bölüme kaydırılmış açıyor (`at`), önceki bölümün alt kenarı üstte görünüyor. Telefonda bölüm yok, orada History'ye kaydırılıyor.
         *   Başlatıcının `⌘K`'sı ve Start'ın `⌘V` ipucu panolarda tek kapak; `PantrixKeycaps` her tuşa bir kapak veriyor (`Ctrl` `K`), paletin ve Settings panosunun yaptığı gibi. Panolar tuş başına kapağa çekilebilir, ya da Pantrix'ten tek kapaklı bir biçim istenebilir.
     *   Öneri: sahibinin onayı; geçmişin "Text" yazılması için kayıt sorunun cevabından sonraya alınabilir.
+    *   Durum: açık.
+
+*   [ ] **Bir dil seçilince cihazın diline dönülemiyor (2026-11-06).**
+    *   Ne: Tema'da "As the system" var, Dil'de yok: seçim kutusu yalnızca English ve Türkçe sunuyor, panolar da öyle çiziyor. Seçim yapılmadıkça uygulama cihazın dilini izliyor ve kutuda o dil seçili görünüyor (cihazlarda denendi, 2026-11-06: Android'de uygulama açıkken anında; iOS'ta uygulama yeniden açılınca, çünkü iOS dil değişince uygulamaları kapatıyor). Ama bir dil seçildikten sonra cihazın dilini izlemeye dönmenin yolu yok, uygulamanın verisini silmekten başka. Android 13'ün uygulama başına dil ayarı (Ayarlar > Uygulamalar > Formatico > Dil) da yok: uygulama `localeConfig` bildirmiyor. `cmd locale set-app-locales` ile verilen dili uygulama yine de anında izliyor.
+    *   Nerede: `feature/settings` `SettingsSections.kt` (`GeneralSection`, `AppLanguage.entries`); `app/androidApp/src/main/AndroidManifest.xml`.
+    *   Öneri: Dil seçimine Tema'daki gibi "As the system" (`language = null`), panolara da; Android'e `localeConfig` (`en`, `tr`). Sahibinin kararı.
     *   Durum: açık.
 
 ## Metinler

@@ -19,24 +19,6 @@
     <link rel="preload" as="fetch" type="font/ttf" crossorigin
           href="composeResources/com.pantrixui.foundation.generated.resources/font/pantrix_symbols.ttf">
     <link type="text/css" rel="stylesheet" href="styles.css">
-    <!-- The language chosen in Settings: the app's words are read in navigator.languages, and the words read outside a
-         composition (getString) in navigator.language, which both give it while one is chosen
-         (window.__formaticoLanguage, set by the app's LocalAppLocale). -->
-    <script type="application/javascript">
-        (function () {
-            function chosenFirst(name, chosen) {
-                var browser = Object.getOwnPropertyDescriptor(Navigator.prototype, name);
-                Object.defineProperty(Navigator.prototype, name, Object.assign({}, browser, {
-                    get: function () {
-                        var language = window.__formaticoLanguage;
-                        return language ? chosen(language) : browser.get.apply(this);
-                    }
-                }));
-            }
-            chosenFirst("languages", function (language) { return [language]; });
-            chosenFirst("language", function (language) { return language; });
-        })();
-    </script>
 </head>
 <body>
     <div id="loading">

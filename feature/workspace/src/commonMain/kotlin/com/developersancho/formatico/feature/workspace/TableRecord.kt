@@ -18,11 +18,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.designsystem.LocalSyntaxColors
+import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.foundation.theme.PantrixTheme
-import formatico.feature.workspace.generated.resources.Res
-import formatico.feature.workspace.generated.resources.workspace_value_column
-import org.jetbrains.compose.resources.stringResource
 
 /** The width of a record's index, which the line under its first stands in by. */
 private val RecordIndexWidth = 20.dp
@@ -106,7 +104,7 @@ private fun recordText(cell: ValueNode?, asWritten: Boolean): String = when {
 private fun fieldsText(row: TableRow, columns: List<String>, asWritten: Boolean): AnnotatedString {
     val syntax = LocalSyntaxColors.current
     val missing = PantrixTheme.colors.textSecondary
-    val valueName = stringResource(Res.string.workspace_value_column)
+    val valueName = workspaceStrings.valueColumn
     return buildAnnotatedString {
         columns.forEachIndexed { index, column ->
             if (index > 0) append("  ")

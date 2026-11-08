@@ -27,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.developersancho.formatico.feature.workspace.strings.queryStrings
 import com.pantrixui.components.elements.button.ButtonVariant
 import com.pantrixui.components.elements.button.PantrixButton
 import com.pantrixui.components.elements.chip.PantrixChip
@@ -40,13 +41,7 @@ import com.pantrixui.components.elements.text.TextRole
 import com.pantrixui.components.inputs.textfield.PantrixTextField
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.theme.PantrixTheme
-import formatico.feature.workspace.generated.resources.Res
-import formatico.feature.workspace.generated.resources.query_choose_hint
-import formatico.feature.workspace.generated.resources.query_copy_results
-import formatico.feature.workspace.generated.resources.query_open_results
-import formatico.feature.workspace.generated.resources.query_recent
 import kotlinx.coroutines.flow.drop
-import org.jetbrains.compose.resources.stringResource
 
 /**
  * The query's pane in a wide window or on a tablet: the views' choice and the query's language, the query and the
@@ -194,7 +189,7 @@ internal fun RecentQueries(queries: List<String>, layout: WorkspaceLayout, onPic
         itemVerticalAlignment = Alignment.CenterVertically
     ) {
         PantrixText(
-            text = stringResource(Res.string.query_recent),
+            text = queryStrings.recent,
             style = PantrixTheme.typography.footnote.copy(fontWeight = FontWeight.Medium),
             color = PantrixTheme.colors.textSecondary
         )
@@ -229,7 +224,7 @@ private fun ResultsHeader(state: WorkspaceState, layout: WorkspaceLayout, onInte
         }
         if (wide) {
             PantrixButton(
-                text = stringResource(Res.string.query_copy_results),
+                text = queryStrings.copyResults,
                 onClick = copy,
                 variant = ButtonVariant.Text,
                 size = layout.buttons,
@@ -240,7 +235,7 @@ private fun ResultsHeader(state: WorkspaceState, layout: WorkspaceLayout, onInte
         } else {
             PantrixIconButton(
                 imageVector = PantrixIcons.Copy,
-                contentDescription = stringResource(Res.string.query_copy_results),
+                contentDescription = queryStrings.copyResults,
                 onClick = copy,
                 size = layout.buttons,
                 enabled = results != null,
@@ -260,7 +255,7 @@ internal fun OpenResultsButton(
     commands: DocumentCommands
 ) {
     PantrixButton(
-        text = stringResource(Res.string.query_open_results),
+        text = queryStrings.openResults,
         onClick = {
             onIntent(WorkspaceIntent.UseQuery)
             results?.let(commands.open)
@@ -304,7 +299,7 @@ private fun MatchList(state: WorkspaceState, layout: WorkspaceLayout, onIntent: 
         if (layout == WorkspaceLayout.Wide && rows.isNotEmpty()) {
             item(key = "hint") {
                 PantrixText(
-                    text = stringResource(Res.string.query_choose_hint),
+                    text = queryStrings.chooseHint,
                     modifier = Modifier.padding(start = spacing.md, end = spacing.md, top = spacing.md),
                     style = PantrixTheme.typography.footnote.copy(fontWeight = FontWeight.Medium),
                     color = PantrixTheme.colors.textSecondary

@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.format.Format
+import com.developersancho.formatico.feature.start.strings.startStrings
 import com.pantrixui.components.data.codeblock.PantrixCodeBlock
 import com.pantrixui.components.elements.button.ButtonVariant
 import com.pantrixui.components.elements.button.PantrixButton
@@ -24,15 +25,6 @@ import com.pantrixui.components.overlay.select.PantrixSelect
 import com.pantrixui.components.overlay.select.SelectOption
 import com.pantrixui.foundation.adaptive.isNarrow
 import com.pantrixui.foundation.theme.PantrixTheme
-import formatico.feature.start.generated.resources.Res
-import formatico.feature.start.generated.resources.start_unknown_file
-import formatico.feature.start.generated.resources.start_unknown_leave
-import formatico.feature.start.generated.resources.start_unknown_open
-import formatico.feature.start.generated.resources.start_unknown_pasted
-import formatico.feature.start.generated.resources.start_unknown_read_as
-import formatico.feature.start.generated.resources.start_unknown_rule
-import formatico.feature.start.generated.resources.start_unknown_title
-import org.jetbrains.compose.resources.stringResource
 
 /** How many lines of the text the question shows, and how much of each. */
 private const val SHOWN_LINES = 4
@@ -50,17 +42,17 @@ fun UnknownFormatDialog(document: OpenedDocument?, onOpen: (Format?) -> Unit, on
     PantrixDialog(
         visible = document != null,
         onDismissRequest = onDismiss,
-        title = stringResource(Res.string.start_unknown_title),
+        title = startStrings.unknownTitle,
         message =
-            document?.name?.let { stringResource(Res.string.start_unknown_file, it) } ?: stringResource(Res.string.start_unknown_pasted),
+            document?.name?.let { startStrings.unknownFile(it) } ?: startStrings.unknownPasted,
         actions = {
             PantrixButton(
-                text = stringResource(Res.string.start_unknown_leave),
+                text = startStrings.unknownLeave,
                 onClick = { onOpen(null) },
                 variant = ButtonVariant.Text,
                 tagKey = "leave_as_text"
             )
-            PantrixButton(text = stringResource(Res.string.start_unknown_open), onClick = { onOpen(format) }, tagKey = "open_as")
+            PantrixButton(text = startStrings.unknownOpen, onClick = { onOpen(format) }, tagKey = "open_as")
         },
         tagKey = "unknown_format"
     ) {
@@ -73,7 +65,7 @@ fun UnknownFormatDialog(document: OpenedDocument?, onOpen: (Format?) -> Unit, on
             )
             ReadAs(format = format, onFormat = { format = it }, stacked = phone)
             PantrixText(
-                text = stringResource(Res.string.start_unknown_rule),
+                text = startStrings.unknownRule,
                 style = PantrixTheme.typography.footnote.copy(fontWeight = FontWeight.Medium),
                 color = PantrixTheme.colors.textSecondary
             )
@@ -84,7 +76,7 @@ fun UnknownFormatDialog(document: OpenedDocument?, onOpen: (Format?) -> Unit, on
 /** "Read it as", and the formats to choose from; [stacked], the choice goes under the words, as a phone has room. */
 @Composable
 private fun ReadAs(format: Format, onFormat: (Format) -> Unit, stacked: Boolean) {
-    val label = stringResource(Res.string.start_unknown_read_as)
+    val label = startStrings.unknownReadAs
     val choice = @Composable { modifier: Modifier ->
         PantrixSelect(
             options = Format.entries.map { SelectOption(it, it.displayName, tagKey = it.name.lowercase()) },

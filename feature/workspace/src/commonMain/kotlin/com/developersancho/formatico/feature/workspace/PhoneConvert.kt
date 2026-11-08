@@ -17,16 +17,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.navigation.SystemBack
 import com.developersancho.formatico.feature.workspace.editor.ConvertedText
+import com.developersancho.formatico.feature.workspace.strings.convertStrings
+import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.components.container.topbar.PantrixBackButton
 import com.pantrixui.components.elements.button.ButtonSize
 import com.pantrixui.components.elements.divider.PantrixHorizontalDivider
 import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.components.elements.text.TextRole
 import com.pantrixui.foundation.theme.PantrixTheme
-import formatico.feature.workspace.generated.resources.Res
-import formatico.feature.workspace.generated.resources.convert_title
-import formatico.feature.workspace.generated.resources.workspace_untitled
-import org.jetbrains.compose.resources.stringResource
 
 /**
  * A phone's conversion, a screen of its own in the app bar's place: the way back to the document, its name and the
@@ -47,7 +45,7 @@ internal fun PhoneConvert(
     val converted = state.conversion.converted
     Column(modifier = modifier.fillMaxSize().background(PantrixTheme.colors.surface)) {
         ConvertBar(
-            name = document.name ?: stringResource(Res.string.workspace_untitled),
+            name = document.name ?: workspaceStrings.untitled,
             converted = converted,
             onBack = back,
             commands = commands
@@ -92,7 +90,7 @@ private fun ConvertBar(name: String, converted: ConvertOutcome.Converted?, onBac
     ) {
         PantrixBackButton(onClick = onBack, tagKey = "back")
         PantrixText(
-            text = stringResource(Res.string.convert_title, name),
+            text = convertStrings.title(name),
             modifier = Modifier.weight(1f),
             style = PantrixTheme.typography.body.copy(fontWeight = FontWeight.SemiBold),
             role = TextRole.Heading(level = 1),

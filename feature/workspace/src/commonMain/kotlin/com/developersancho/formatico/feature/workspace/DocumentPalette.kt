@@ -6,35 +6,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.input.key.Key
 import com.developersancho.formatico.core.format.Format
+import com.developersancho.formatico.feature.workspace.strings.paletteStrings
+import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.components.overlay.commandpalette.PantrixCommand
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.keyboard.PantrixShortcut
 import com.pantrixui.foundation.platform.PlatformType
 import com.pantrixui.foundation.theme.PantrixTheme
-import formatico.feature.workspace.generated.resources.Res
-import formatico.feature.workspace.generated.resources.palette_compare
-import formatico.feature.workspace.generated.resources.palette_compare_keywords
-import formatico.feature.workspace.generated.resources.palette_convert_to
-import formatico.feature.workspace.generated.resources.palette_format
-import formatico.feature.workspace.generated.resources.palette_format_keywords
-import formatico.feature.workspace.generated.resources.palette_group_convert
-import formatico.feature.workspace.generated.resources.palette_group_document
-import formatico.feature.workspace.generated.resources.palette_group_view
-import formatico.feature.workspace.generated.resources.palette_minify_keywords
-import formatico.feature.workspace.generated.resources.palette_query_jsonpath
-import formatico.feature.workspace.generated.resources.palette_query_keywords
-import formatico.feature.workspace.generated.resources.palette_query_xpath
-import formatico.feature.workspace.generated.resources.palette_sort_keywords
-import formatico.feature.workspace.generated.resources.palette_table
-import formatico.feature.workspace.generated.resources.palette_tree
-import formatico.feature.workspace.generated.resources.workspace_copy_document
-import formatico.feature.workspace.generated.resources.workspace_minify
-import formatico.feature.workspace.generated.resources.workspace_save_file
-import formatico.feature.workspace.generated.resources.workspace_sort_keys
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.StringResource
-import org.jetbrains.compose.resources.stringResource
 
 /** The keys of the palette's document commands, the same in every language: what [DocumentPalette.run] is given. */
 internal object DocumentCommandKeys {
@@ -100,51 +80,51 @@ private fun documentAndViewCommands(format: Format?): List<PantrixCommand> {
 /** The Document group: Format, Minify, Sort keys (not on a phone), Copy, Save and Compare (not on a phone). */
 @Composable
 private fun documentGroup(format: Format?, phone: Boolean, keys: (PantrixShortcut) -> PantrixShortcut?): List<PantrixCommand> {
-    val group = stringResource(Res.string.palette_group_document)
+    val group = paletteStrings.groupDocument
     val edits = format?.edits.orEmpty()
     return listOfNotNull(
         PantrixCommand(
             key = DocumentCommandKeys.FORMAT,
-            label = stringResource(Res.string.palette_format),
+            label = paletteStrings.format,
             group = group,
             shortcut = keys(DocumentShortcuts.Format),
-            keywords = keywords(Res.string.palette_format_keywords),
+            keywords = keywords(paletteStrings.formatKeywords),
             enabled = DocumentEdit.Format in edits
         ),
         PantrixCommand(
             key = DocumentCommandKeys.MINIFY,
-            label = stringResource(Res.string.workspace_minify),
+            label = workspaceStrings.minify,
             group = group,
             shortcut = keys(DocumentShortcuts.Minify),
-            keywords = keywords(Res.string.palette_minify_keywords),
+            keywords = keywords(paletteStrings.minifyKeywords),
             enabled = DocumentEdit.Minify in edits
         ),
         PantrixCommand(
             key = DocumentCommandKeys.SORT_KEYS,
-            label = stringResource(Res.string.workspace_sort_keys),
+            label = workspaceStrings.sortKeys,
             group = group,
-            keywords = keywords(Res.string.palette_sort_keywords),
+            keywords = keywords(paletteStrings.sortKeywords),
             enabled = DocumentEdit.SortKeys in edits
         ).takeUnless { phone },
         PantrixCommand(
             key = DocumentCommandKeys.COPY,
-            label = stringResource(Res.string.workspace_copy_document),
+            label = workspaceStrings.copyDocument,
             group = group,
             icon = PantrixIcons.Copy,
             shortcut = keys(DocumentShortcuts.Copy)
         ),
         PantrixCommand(
             key = DocumentCommandKeys.SAVE,
-            label = stringResource(Res.string.workspace_save_file),
+            label = workspaceStrings.saveFile,
             group = group,
             icon = PantrixIcons.Download,
             shortcut = keys(DocumentShortcuts.Save)
         ),
         PantrixCommand(
             key = DocumentCommandKeys.COMPARE,
-            label = stringResource(Res.string.palette_compare),
+            label = paletteStrings.compare,
             group = group,
-            keywords = keywords(Res.string.palette_compare_keywords)
+            keywords = keywords(paletteStrings.compareKeywords)
         ).takeUnless { phone }
     )
 }
@@ -160,30 +140,30 @@ private fun viewGroup(
     browser: Boolean,
     keys: (PantrixShortcut) -> PantrixShortcut?
 ): List<PantrixCommand> {
-    val group = stringResource(Res.string.palette_group_view)
+    val group = paletteStrings.groupView
     val read = format != null
     return listOfNotNull(
         PantrixCommand(
             key = DocumentCommandKeys.TREE,
-            label = stringResource(Res.string.palette_tree),
+            label = paletteStrings.tree,
             group = group,
             shortcut = keys(DocumentShortcuts.Tree).takeUnless { browser },
             enabled = read
         ).takeUnless { phone },
         PantrixCommand(
             key = DocumentCommandKeys.TABLE,
-            label = stringResource(Res.string.palette_table),
+            label = paletteStrings.table,
             group = group,
             shortcut = keys(DocumentShortcuts.Table).takeUnless { browser },
             enabled = read
         ).takeUnless { phone },
         PantrixCommand(
             key = DocumentCommandKeys.QUERY,
-            label = stringResource(if (format == Format.Xml) Res.string.palette_query_xpath else Res.string.palette_query_jsonpath),
+            label = if (format == Format.Xml) paletteStrings.queryXpath else paletteStrings.queryJsonpath,
             group = group,
             icon = PantrixIcons.Search,
             shortcut = keys(DocumentShortcuts.Query),
-            keywords = keywords(Res.string.palette_query_keywords),
+            keywords = keywords(paletteStrings.queryKeywords),
             enabled = read
         )
     )
@@ -192,11 +172,11 @@ private fun viewGroup(
 /** The Convert group: to each of the formats most converted to but the document's own; none of plain text. */
 @Composable
 private fun convertGroup(format: Format?): List<PantrixCommand> {
-    val group = stringResource(Res.string.palette_group_convert)
+    val group = paletteStrings.groupConvert
     return PaletteTargets.filter { it != format }.map { target ->
         PantrixCommand(
             key = DocumentCommandKeys.convert(target),
-            label = stringResource(Res.string.palette_convert_to, target.displayName),
+            label = paletteStrings.convertTo(target.displayName),
             group = group,
             icon = PantrixIcons.ArrowForward,
             enabled = format != null
@@ -205,8 +185,7 @@ private fun convertGroup(format: Format?): List<PantrixCommand> {
 }
 
 /** The other words [words] lists, by commas, that find a command. */
-@Composable
-private fun keywords(words: StringResource): List<String> = stringResource(words).split(',').map { it.trim() }.filter { it.isNotEmpty() }
+private fun keywords(words: String): List<String> = words.split(',').map { it.trim() }.filter { it.isNotEmpty() }
 
 /**
  * What running a document command of the palette does to the documents of [workbench]: an edit is made and reported

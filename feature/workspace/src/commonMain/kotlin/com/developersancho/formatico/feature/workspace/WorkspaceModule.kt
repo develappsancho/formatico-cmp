@@ -1,5 +1,6 @@
 package com.developersancho.formatico.feature.workspace
 
+import androidx.compose.ui.text.intl.Locale
 import com.developersancho.formatico.core.settings.SettingsStore
 import com.pantrixui.foundation.platform.currentPlatformType
 import kotlinx.coroutines.CoroutineScope
@@ -29,5 +30,14 @@ val workspaceModule: Module = module {
     }
     single { Readings(workbench = get(), budget = readingsBudget(currentPlatformType())) }
     single { Editors(workbench = get()) }
-    viewModel { (documentId: Long) -> WorkspaceViewModel(documentId = documentId, workbench = get(), readings = get(), queries = get()) }
+    viewModel { (documentId: Long) ->
+        WorkspaceViewModel(
+            documentId = documentId,
+            workbench = get(),
+            readings = get(),
+            queries = get(),
+            // The words a conversion writes into the document are in the language the reader chose, the system's else.
+            language = { get<SettingsStore>().preferences.value.language?.tag ?: Locale.current.language }
+        )
+    }
 }

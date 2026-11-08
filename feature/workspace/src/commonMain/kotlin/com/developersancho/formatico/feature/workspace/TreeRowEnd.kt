@@ -14,15 +14,12 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.components.data.tag.PantrixTag
 import com.pantrixui.components.elements.icon.PantrixIcon
 import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.theme.PantrixTheme
-import formatico.feature.workspace.generated.resources.Res
-import formatico.feature.workspace.generated.resources.workspace_colour_of
-import formatico.feature.workspace.generated.resources.workspace_picture_at
-import org.jetbrains.compose.resources.stringResource
 
 /**
  * What a row draws at its end, in the order its board draws them: what its string looks like it holds, its anchor,
@@ -65,7 +62,7 @@ private fun PreviewOf(preview: ValuePreview, written: String, layout: WorkspaceL
             Swatch(
                 colour = Color(preview.argb),
                 size = if (phone) 18.dp else 16.dp,
-                description = stringResource(Res.string.workspace_colour_of, written)
+                description = workspaceStrings.colourOf(written)
             )
         }
 
@@ -74,7 +71,7 @@ private fun PreviewOf(preview: ValuePreview, written: String, layout: WorkspaceL
 
         is ValuePreview.Picture -> {
             // The board's place for a picture: its icon on the neutral container, not the picture itself.
-            val description = stringResource(Res.string.workspace_picture_at)
+            val description = workspaceStrings.pictureAt
             Box(
                 modifier = Modifier
                     .size(if (phone) 28.dp else 24.dp)

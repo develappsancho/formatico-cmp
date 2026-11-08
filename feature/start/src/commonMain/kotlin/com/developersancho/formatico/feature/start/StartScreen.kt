@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
 import com.developersancho.formatico.core.base.MviScreen
+import com.developersancho.formatico.feature.start.strings.startStrings
 import com.pantrixui.components.elements.button.ButtonSize
 import com.pantrixui.components.elements.button.ButtonVariant
 import com.pantrixui.components.elements.button.PantrixButton
@@ -39,24 +40,7 @@ import com.pantrixui.foundation.keyboard.shortcutRoot
 import com.pantrixui.foundation.platform.onPaste
 import com.pantrixui.foundation.platform.rememberPantrixClipboard
 import com.pantrixui.foundation.theme.PantrixTheme
-import formatico.feature.start.generated.resources.Res
-import formatico.feature.start.generated.resources.start_clipboard_empty
-import formatico.feature.start.generated.resources.start_clipboard_unreadable
-import formatico.feature.start.generated.resources.start_file_drop_supporting
-import formatico.feature.start.generated.resources.start_file_too_large
-import formatico.feature.start.generated.resources.start_file_unreadable
-import formatico.feature.start.generated.resources.start_file_wrong_type
-import formatico.feature.start.generated.resources.start_lead
-import formatico.feature.start.generated.resources.start_lead_short
-import formatico.feature.start.generated.resources.start_link_broken
-import formatico.feature.start.generated.resources.start_new_document
-import formatico.feature.start.generated.resources.start_new_empty_document
-import formatico.feature.start.generated.resources.start_open_file
-import formatico.feature.start.generated.resources.start_paste
-import formatico.feature.start.generated.resources.start_privacy
-import formatico.feature.start.generated.resources.start_title
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /** How much of the window the lead paragraph takes in a wide window: about 720 of the design's 1040. */
@@ -74,8 +58,8 @@ fun StartRoute(onOpenDocument: (OpenedDocument) -> Unit, modifier: Modifier = Mo
     val viewModel = koinViewModel<StartViewModel>()
     val snackbars = LocalPantrixSnackbars.current
     val scope = rememberCoroutineScope()
-    val nothingToPaste = stringResource(Res.string.start_clipboard_empty)
-    val brokenLink = stringResource(Res.string.start_link_broken)
+    val nothingToPaste = startStrings.clipboardEmpty
+    val brokenLink = startStrings.linkBroken
     MviScreen(
         viewModel = viewModel,
         onEffect = { effect ->
@@ -152,7 +136,7 @@ internal fun StartScreen(state: StartState, onIntent: (StartIntent) -> Unit, mod
             RecentAndSamples(recent = state.recent, samples = state.samples, layout = layout, onIntent = onIntent)
             if (layout != StartLayout.Phone) {
                 PantrixText(
-                    text = stringResource(Res.string.start_privacy),
+                    text = startStrings.privacy,
                     style = PantrixTheme.typography.footnote,
                     color = PantrixTheme.colors.textSecondary
                 )
@@ -166,20 +150,18 @@ private fun Heading(layout: StartLayout) {
     val typography = PantrixTheme.typography
     Column(verticalArrangement = Arrangement.spacedBy(PantrixTheme.spacing.sm)) {
         PantrixText(
-            text = stringResource(Res.string.start_title),
+            text = startStrings.title,
             style = if (layout == StartLayout.Phone) typography.headline else typography.display,
             role = TextRole.Heading(level = 1)
         )
         PantrixText(
-            text = stringResource(
-                if (layout ==
-                    StartLayout.Phone
-                ) {
-                    Res.string.start_lead_short
-                } else {
-                    Res.string.start_lead
-                }
-            ),
+            text = if (layout ==
+                StartLayout.Phone
+            ) {
+                startStrings.leadShort
+            } else {
+                startStrings.lead
+            },
             modifier = if (layout == StartLayout.Wide) Modifier.fillMaxWidth(LEAD_WIDTH) else Modifier,
             style = if (layout == StartLayout.Phone) typography.body else typography.callout,
             color = PantrixTheme.colors.textSecondary
@@ -196,7 +178,7 @@ private fun clipboardPaste(onIntent: (StartIntent) -> Unit): () -> Unit {
     val clipboard = rememberPantrixClipboard()
     val snackbars = LocalPantrixSnackbars.current
     val scope = rememberCoroutineScope()
-    val unreadable = stringResource(Res.string.start_clipboard_unreadable)
+    val unreadable = startStrings.clipboardUnreadable
     return {
         scope.launch {
             if (clipboard.traits.readable) {
@@ -214,13 +196,11 @@ private fun Actions(layout: StartLayout, onIntent: (StartIntent) -> Unit, onPast
     val spacing = PantrixTheme.spacing
     val size = if (layout == StartLayout.Wide) ButtonSize.Medium else ButtonSize.Large
     val paste = @Composable {
-        PantrixButton(text = stringResource(Res.string.start_paste), onClick = onPaste, size = size, tagKey = "paste")
+        PantrixButton(text = startStrings.paste, onClick = onPaste, size = size, tagKey = "paste")
     }
     val newDocument = @Composable {
         PantrixButton(
-            text = stringResource(
-                if (layout == StartLayout.Phone) Res.string.start_new_document else Res.string.start_new_empty_document
-            ),
+            text = if (layout == StartLayout.Phone) startStrings.newDocument else startStrings.newEmptyDocument,
             onClick = { onIntent(StartIntent.NewDocument) },
             variant = if (layout == StartLayout.Phone) ButtonVariant.Text else ButtonVariant.Outline,
             size = size,
@@ -263,7 +243,7 @@ private fun Actions(layout: StartLayout, onIntent: (StartIntent) -> Unit, onPast
 private fun OpenFileButton(onIntent: (StartIntent) -> Unit) {
     val picker = rememberFilePicker()
     PantrixButton(
-        text = stringResource(Res.string.start_open_file),
+        text = startStrings.openFile,
         onClick = { picker.pick(FilePickRequest(accept = DocumentFileTypes)) { onIntent(StartIntent.OpenFiles(it)) } },
         variant = ButtonVariant.Outline,
         size = ButtonSize.Large,
@@ -284,7 +264,7 @@ private fun FileZone(refusal: FileRefusal?, onIntent: (StartIntent) -> Unit) {
             rejected.firstNotNullOfOrNull { it.toRefusal(maxSize) }?.let { onIntent(StartIntent.RefuseFile(it)) }
         },
         supportingText = refusal?.let { refusalText(it) }
-            ?: stringResource(Res.string.start_file_drop_supporting, PantrixTheme.strings.fileSize(maxSize)),
+            ?: startStrings.fileDropSupporting(PantrixTheme.strings.fileSize(maxSize)),
         error = refusal != null,
         tagKey = "file"
     )
@@ -311,18 +291,17 @@ private fun RejectedFile.toRefusal(maxSize: Long): FileRefusal? = when (reason) 
 @Composable
 internal fun refusalText(refusal: FileRefusal): String = when (refusal) {
     is FileRefusal.TooLarge -> {
-        stringResource(
-            Res.string.start_file_too_large,
+        startStrings.fileTooLarge(
             refusal.fileName,
             PantrixTheme.strings.fileSize(refusal.maxSize)
         )
     }
 
     is FileRefusal.WrongType -> {
-        stringResource(Res.string.start_file_wrong_type, refusal.fileName)
+        startStrings.fileWrongType(refusal.fileName)
     }
 
     is FileRefusal.Unreadable -> {
-        stringResource(Res.string.start_file_unreadable, refusal.fileName)
+        startStrings.fileUnreadable(refusal.fileName)
     }
 }

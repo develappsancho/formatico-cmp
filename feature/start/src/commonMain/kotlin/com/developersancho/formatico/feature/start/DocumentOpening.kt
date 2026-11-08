@@ -9,6 +9,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
+import com.developersancho.formatico.feature.start.strings.startStrings
 import com.pantrixui.components.overlay.snackbar.LocalPantrixSnackbars
 import com.pantrixui.components.overlay.snackbar.PantrixSnackbarState
 import com.pantrixui.components.overlay.snackbar.SnackbarDuration
@@ -18,13 +19,8 @@ import com.pantrixui.foundation.files.FilePicker
 import com.pantrixui.foundation.files.rememberFilePicker
 import com.pantrixui.foundation.platform.PantrixClipboard
 import com.pantrixui.foundation.platform.rememberPantrixClipboard
-import formatico.feature.start.generated.resources.Res
-import formatico.feature.start.generated.resources.start_clipboard_empty
-import formatico.feature.start.generated.resources.start_clipboard_unreadable
-import formatico.feature.start.generated.resources.start_link_broken
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 
 /**
@@ -110,10 +106,10 @@ private fun OpeningMessages(said: MutableState<OpeningMessage?>, scope: Coroutin
     val snackbars = LocalPantrixSnackbars.current
     val shown = said.value
     val message = when (shown) {
-        OpeningMessage.NothingToPaste -> stringResource(Res.string.start_clipboard_empty) to "nothing_to_paste"
-        OpeningMessage.ClipboardUnreadable -> stringResource(Res.string.start_clipboard_unreadable) to "clipboard_unreadable"
+        OpeningMessage.NothingToPaste -> startStrings.clipboardEmpty to "nothing_to_paste"
+        OpeningMessage.ClipboardUnreadable -> startStrings.clipboardUnreadable to "clipboard_unreadable"
         is OpeningMessage.Refused -> refusalText(shown.refusal) to "file_refused"
-        OpeningMessage.BrokenLink -> stringResource(Res.string.start_link_broken) to "link_broken"
+        OpeningMessage.BrokenLink -> startStrings.linkBroken to "link_broken"
         null -> null
     }
     LaunchedEffect(message) {

@@ -29,6 +29,8 @@ import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.base.MviScreen
 import com.developersancho.formatico.core.navigation.SystemBack
 import com.developersancho.formatico.core.settings.AppLanguage
+import com.developersancho.formatico.feature.settings.strings.SettingsStrings
+import com.developersancho.formatico.feature.settings.strings.settingsStrings
 import com.pantrixui.components.container.topbar.PantrixBackButton
 import com.pantrixui.components.elements.divider.PantrixHorizontalDivider
 import com.pantrixui.components.elements.scrollbar.pantrixVerticalScroll
@@ -41,18 +43,7 @@ import com.pantrixui.components.overlay.commandpalette.PantrixCommand
 import com.pantrixui.foundation.adaptive.WindowWidthClass
 import com.pantrixui.foundation.adaptive.isNarrow
 import com.pantrixui.foundation.theme.PantrixTheme
-import formatico.feature.settings.generated.resources.Res
-import formatico.feature.settings.generated.resources.settings_about
-import formatico.feature.settings.generated.resources.settings_editor
-import formatico.feature.settings.generated.resources.settings_formats
-import formatico.feature.settings.generated.resources.settings_general
-import formatico.feature.settings.generated.resources.settings_history
-import formatico.feature.settings.generated.resources.settings_licences
-import formatico.feature.settings.generated.resources.settings_shortcuts
-import formatico.feature.settings.generated.resources.settings_title
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.StringResource
-import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /** Settings' three layouts, by the window's width: the design's boards at 390, 834 and 1440. */
@@ -73,13 +64,13 @@ internal fun settingsLayout(): SettingsLayout {
  * The sections of Settings, in order, by their [key]: what a wide window's sidebar goes to. A phone has neither
  * Formats, nor how long the history keeps a document, nor the keyboard's shortcuts, as its board has them not.
  */
-internal enum class SettingsSection(val key: String, val title: StringResource) {
-    General("general", Res.string.settings_general),
-    Editor("editor", Res.string.settings_editor),
-    Formats("formats", Res.string.settings_formats),
-    History("history", Res.string.settings_history),
-    Shortcuts("shortcuts", Res.string.settings_shortcuts),
-    About("about", Res.string.settings_about)
+internal enum class SettingsSection(val key: String, val title: (SettingsStrings) -> String) {
+    General("general", SettingsStrings::general),
+    Editor("editor", SettingsStrings::editor),
+    Formats("formats", SettingsStrings::formats),
+    History("history", SettingsStrings::history),
+    Shortcuts("shortcuts", SettingsStrings::shortcuts),
+    About("about", SettingsStrings::about)
 }
 
 /** The sections [layout] shows: Formats and the keyboard's shortcuts not on a phone, and the shortcuts where there are. */
@@ -201,7 +192,7 @@ private fun Sections(
     Column(verticalArrangement = Arrangement.spacedBy(if (phone) 18.dp else 24.dp)) {
         if (!phone) {
             PantrixText(
-                text = stringResource(Res.string.settings_title),
+                text = settingsStrings.title,
                 style = PantrixTheme.typography.headline,
                 role = TextRole.Heading(level = 1)
             )
@@ -236,7 +227,7 @@ private fun SettingsSidebar(
     val inView by remember(placed, sections) {
         derivedStateOf { sections.lastOrNull { section -> (placed[section] ?: Int.MAX_VALUE) <= scroll.value + 1 } }
     }
-    val items = sections.map { SidebarItem(key = it.key, label = stringResource(it.title)) }
+    val items = sections.map { SidebarItem(key = it.key, label = it.title(settingsStrings)) }
     PantrixSidebar(
         groups = listOf(SidebarGroup(items = items)),
         selected = if (page == SettingsPage.Settings) (inView ?: SettingsSection.General).key else SettingsSection.About.key,
@@ -256,8 +247,8 @@ private fun SettingsSidebar(
 @Composable
 private fun PhoneSettingsBar(page: SettingsPage, onIntent: (SettingsIntent) -> Unit) {
     val title = when (page) {
-        SettingsPage.Settings -> stringResource(Res.string.settings_title)
-        SettingsPage.Licences -> stringResource(Res.string.settings_licences)
+        SettingsPage.Settings -> settingsStrings.title
+        SettingsPage.Licences -> settingsStrings.licences
         is SettingsPage.Licence -> page.library.title
     }
     Column(modifier = Modifier.fillMaxWidth().background(PantrixTheme.colors.surface)) {

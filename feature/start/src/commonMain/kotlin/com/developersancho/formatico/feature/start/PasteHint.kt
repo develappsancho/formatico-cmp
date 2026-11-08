@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.text
 import androidx.compose.ui.text.AnnotatedString
+import com.developersancho.formatico.feature.start.strings.startStrings
 import com.pantrixui.components.elements.keycaps.KeycapsColors
 import com.pantrixui.components.elements.keycaps.KeycapsSize
 import com.pantrixui.components.elements.keycaps.PantrixKeycaps
@@ -14,9 +15,6 @@ import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.foundation.keyboard.PantrixShortcut
 import com.pantrixui.foundation.platform.LocalOperatingSystem
 import com.pantrixui.foundation.theme.PantrixTheme
-import formatico.feature.start.generated.resources.Res
-import formatico.feature.start.generated.resources.start_paste_hint
-import org.jetbrains.compose.resources.stringResource
 
 /** Where the hint's words are split: what stands for its keys, in a language that puts them anywhere. */
 private const val KEYS = ""
@@ -28,8 +26,8 @@ private const val KEYS = ""
  */
 @Composable
 internal fun PasteHint(shortcut: PantrixShortcut, modifier: Modifier = Modifier) {
-    val sentence = stringResource(Res.string.start_paste_hint, shortcut.writtenOn(LocalOperatingSystem.current))
-    val words = stringResource(Res.string.start_paste_hint, KEYS).split(KEYS, limit = 2)
+    val sentence = startStrings.pasteHint(shortcut.writtenOn(LocalOperatingSystem.current))
+    val words = startStrings.pasteHint(KEYS).split(KEYS, limit = 2)
     val color = PantrixTheme.colors.textSecondary
     Row(modifier = modifier.clearAndSetSemantics { text = AnnotatedString(sentence) }) {
         PantrixText(text = words.first().trimEnd(), modifier = Modifier.alignByBaseline(), color = color)

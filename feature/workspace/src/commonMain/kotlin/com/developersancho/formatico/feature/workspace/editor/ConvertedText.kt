@@ -4,13 +4,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.developersancho.formatico.core.format.Format
+import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.components.data.codeblock.CodeMark
 import com.pantrixui.components.data.codeblock.CodeTone
 import com.pantrixui.components.data.codeeditor.CodeEditorState
 import com.pantrixui.components.data.codeeditor.PantrixCodeEditor
-import formatico.feature.workspace.generated.resources.Res
-import formatico.feature.workspace.generated.resources.workspace_text_of
-import org.jetbrains.compose.resources.stringResource
 
 /**
  * A converted document's [text], named [name], to be read, selected and copied but not changed: coloured as [format]
@@ -30,7 +28,7 @@ internal fun ConvertedText(text: String, format: Format, name: String, modifier:
         readOnly = true,
         style = PaneEditorStyle,
         colors = editorColors(),
-        contentDescription = stringResource(Res.string.workspace_text_of, name),
+        contentDescription = workspaceStrings.textOf(name),
         softWrap = LocalWrapLines.current,
         tagKey = "converted"
     )

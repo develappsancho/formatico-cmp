@@ -1,16 +1,7 @@
 package com.developersancho.formatico.feature.workspace
 
 import androidx.compose.runtime.Composable
-import formatico.feature.workspace.generated.resources.Res
-import formatico.feature.workspace.generated.resources.table_type_alias
-import formatico.feature.workspace.generated.resources.table_type_array
-import formatico.feature.workspace.generated.resources.table_type_boolean
-import formatico.feature.workspace.generated.resources.table_type_date
-import formatico.feature.workspace.generated.resources.table_type_null
-import formatico.feature.workspace.generated.resources.table_type_number
-import formatico.feature.workspace.generated.resources.table_type_object
-import formatico.feature.workspace.generated.resources.table_type_text
-import org.jetbrains.compose.resources.stringResource
+import com.developersancho.formatico.feature.workspace.strings.tableStrings
 
 /** What a table's column holds, as its header says under its name. */
 internal enum class ColumnType { Text, Date, Number, Boolean, Object, Array, Alias, Null }
@@ -40,14 +31,14 @@ internal fun typesOf(rows: List<TableRow>, column: String): List<ColumnType> {
 /** The word each type of a column is written with under its name: `text`, `date`, `number`. */
 @Composable
 internal fun columnTypeWords(): Map<ColumnType, String> = mapOf(
-    ColumnType.Text to stringResource(Res.string.table_type_text),
-    ColumnType.Date to stringResource(Res.string.table_type_date),
-    ColumnType.Number to stringResource(Res.string.table_type_number),
-    ColumnType.Boolean to stringResource(Res.string.table_type_boolean),
-    ColumnType.Object to stringResource(Res.string.table_type_object),
-    ColumnType.Array to stringResource(Res.string.table_type_array),
-    ColumnType.Alias to stringResource(Res.string.table_type_alias),
-    ColumnType.Null to stringResource(Res.string.table_type_null)
+    ColumnType.Text to tableStrings.typeText,
+    ColumnType.Date to tableStrings.typeDate,
+    ColumnType.Number to tableStrings.typeNumber,
+    ColumnType.Boolean to tableStrings.typeBoolean,
+    ColumnType.Object to tableStrings.typeObject,
+    ColumnType.Array to tableStrings.typeArray,
+    ColumnType.Alias to tableStrings.typeAlias,
+    ColumnType.Null to tableStrings.typeNull
 )
 
 /** What a column's header says under its name of the [types] it holds, as [words] write them: `text, null`. */

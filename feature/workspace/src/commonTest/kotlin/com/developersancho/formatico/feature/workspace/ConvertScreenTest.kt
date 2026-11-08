@@ -53,7 +53,7 @@ class ConvertScreenTest {
             }
         }
 
-        awaitText("Nothing is lost", forgetting = findings)
+        awaitText("Nothing is lost")
         awaitText(
             "Strings YAML would read as dates are written in quotes, and 129.90 and 3 more numbers keep their spelling, " +
                 "so the YAML converts back to this JSON as it is."
@@ -157,7 +157,7 @@ class ConvertScreenTest {
             }
         }
 
-        awaitText("Convert order.json", forgetting = findings)
+        awaitText("Convert order.json")
         awaitText("It converts back to this JSON as it is.")
         // A phone has no view's choice over it, nor the text beside it.
         onPantrixNode("Segment", "tree", scope = "SegmentButton_view").assertDoesNotExist()

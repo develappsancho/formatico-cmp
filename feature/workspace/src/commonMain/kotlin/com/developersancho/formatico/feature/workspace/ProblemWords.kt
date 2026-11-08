@@ -6,78 +6,8 @@ import com.developersancho.formatico.core.format.Problem
 import com.developersancho.formatico.core.format.ProblemCode
 import com.developersancho.formatico.core.format.RepairKind
 import com.developersancho.formatico.core.format.Repairs
-import formatico.feature.workspace.generated.resources.Res
-import formatico.feature.workspace.generated.resources.problem_comment_not_allowed
-import formatico.feature.workspace.generated.resources.problem_control_character_in_string
-import formatico.feature.workspace.generated.resources.problem_duplicate_key
-import formatico.feature.workspace.generated.resources.problem_expected_colon
-import formatico.feature.workspace.generated.resources.problem_expected_comma_or_end
-import formatico.feature.workspace.generated.resources.problem_expected_property_name
-import formatico.feature.workspace.generated.resources.problem_expected_value
-import formatico.feature.workspace.generated.resources.problem_field_count
-import formatico.feature.workspace.generated.resources.problem_ini_duplicate_section
-import formatico.feature.workspace.generated.resources.problem_ini_trailing_content
-import formatico.feature.workspace.generated.resources.problem_ini_unclosed_section
-import formatico.feature.workspace.generated.resources.problem_invalid_escape
-import formatico.feature.workspace.generated.resources.problem_invalid_number
-import formatico.feature.workspace.generated.resources.problem_single_quoted_string
-import formatico.feature.workspace.generated.resources.problem_stray_quote
-import formatico.feature.workspace.generated.resources.problem_text_after_quote
-import formatico.feature.workspace.generated.resources.problem_toml_duplicate_key
-import formatico.feature.workspace.generated.resources.problem_toml_expected_equals
-import formatico.feature.workspace.generated.resources.problem_toml_inline_table_line_break
-import formatico.feature.workspace.generated.resources.problem_toml_invalid_date_time
-import formatico.feature.workspace.generated.resources.problem_toml_table_redefined
-import formatico.feature.workspace.generated.resources.problem_toml_trailing_content
-import formatico.feature.workspace.generated.resources.problem_too_deep
-import formatico.feature.workspace.generated.resources.problem_trailing_comma
-import formatico.feature.workspace.generated.resources.problem_trailing_content
-import formatico.feature.workspace.generated.resources.problem_unclosed
-import formatico.feature.workspace.generated.resources.problem_unclosed_quote
-import formatico.feature.workspace.generated.resources.problem_undefined_alias
-import formatico.feature.workspace.generated.resources.problem_unexpected_character
-import formatico.feature.workspace.generated.resources.problem_unexpected_token
-import formatico.feature.workspace.generated.resources.problem_unquoted_property_name
-import formatico.feature.workspace.generated.resources.problem_unterminated_comment
-import formatico.feature.workspace.generated.resources.problem_unterminated_string
-import formatico.feature.workspace.generated.resources.problem_xml_duplicate_attribute
-import formatico.feature.workspace.generated.resources.problem_xml_expected_attribute_value
-import formatico.feature.workspace.generated.resources.problem_xml_hyphens_in_comment
-import formatico.feature.workspace.generated.resources.problem_xml_invalid_reference
-import formatico.feature.workspace.generated.resources.problem_xml_mismatched_end_tag
-import formatico.feature.workspace.generated.resources.problem_xml_misplaced_declaration
-import formatico.feature.workspace.generated.resources.problem_xml_no_root
-import formatico.feature.workspace.generated.resources.problem_xml_second_root
-import formatico.feature.workspace.generated.resources.problem_xml_text_outside_root
-import formatico.feature.workspace.generated.resources.problem_xml_unclosed_element
-import formatico.feature.workspace.generated.resources.problem_xml_unexpected_character
-import formatico.feature.workspace.generated.resources.problem_xml_unexpected_end_tag
-import formatico.feature.workspace.generated.resources.problem_xml_unquoted_attribute
-import formatico.feature.workspace.generated.resources.problem_xml_unterminated_cdata
-import formatico.feature.workspace.generated.resources.problem_xml_unterminated_comment
-import formatico.feature.workspace.generated.resources.problem_xml_unterminated_instruction
-import formatico.feature.workspace.generated.resources.problem_xml_unterminated_string
-import formatico.feature.workspace.generated.resources.problem_xml_unterminated_tag
-import formatico.feature.workspace.generated.resources.problem_yaml_colon_in_value
-import formatico.feature.workspace.generated.resources.problem_yaml_indentation
-import formatico.feature.workspace.generated.resources.problem_yaml_syntax
-import formatico.feature.workspace.generated.resources.problem_yaml_tab
-import formatico.feature.workspace.generated.resources.problem_yaml_unclosed_flow
-import formatico.feature.workspace.generated.resources.repair_add_colon
-import formatico.feature.workspace.generated.resources.repair_add_comma
-import formatico.feature.workspace.generated.resources.repair_close
-import formatico.feature.workspace.generated.resources.repair_double_the_quote
-import formatico.feature.workspace.generated.resources.repair_escape
-import formatico.feature.workspace.generated.resources.repair_fix_number
-import formatico.feature.workspace.generated.resources.repair_quote_key
-import formatico.feature.workspace.generated.resources.repair_quote_value
-import formatico.feature.workspace.generated.resources.repair_remove
-import formatico.feature.workspace.generated.resources.repair_remove_comma
-import formatico.feature.workspace.generated.resources.repair_remove_comment
-import formatico.feature.workspace.generated.resources.repair_use_double_quotes
-import formatico.feature.workspace.generated.resources.repair_use_spaces
-import org.jetbrains.compose.resources.StringResource
-import org.jetbrains.compose.resources.stringResource
+import com.developersancho.formatico.feature.workspace.strings.ProblemStrings
+import com.developersancho.formatico.feature.workspace.strings.problemStrings
 
 /**
  * What [problem] in [text], read as [format], says to the reader: what is wrong, said as what to do about it, as the
@@ -85,9 +15,9 @@ import org.jetbrains.compose.resources.stringResource
  */
 @Composable
 internal fun problemMessage(problem: Problem, text: String, format: Format): String {
-    ownMessages(format)[problem.code]?.let { return stringResource(it) }
+    ownMessages(format)[problem.code]?.let { return it(problemStrings) }
     return when (problem.code) {
-        ProblemCode.XmlUnclosedElement -> stringResource(Res.string.problem_xml_unclosed_element, xmlName(problem, text))
+        ProblemCode.XmlUnclosedElement -> problemStrings.xmlUnclosedElement(xmlName(problem, text))
         else -> jsonMessage(problem, text, format)
     }
 }
@@ -95,96 +25,96 @@ internal fun problemMessage(problem: Problem, text: String, format: Format): Str
 /** What [problem] says in JSON's words, or in words that say nothing of the format. */
 @Composable
 private fun jsonMessage(problem: Problem, text: String, format: Format): String = when (problem.code) {
-    ProblemCode.CommentNotAllowed -> stringResource(Res.string.problem_comment_not_allowed, format.displayName)
+    ProblemCode.CommentNotAllowed -> problemStrings.commentNotAllowed(format.displayName)
 
     // The comma goes after the value before the problem, which is on its own line as often as not.
-    ProblemCode.ExpectedCommaOrEnd -> stringResource(Res.string.problem_expected_comma_or_end, lineBefore(problem, text, format))
+    ProblemCode.ExpectedCommaOrEnd -> problemStrings.expectedCommaOrEnd(lineBefore(problem, text, format))
 
     ProblemCode.UnquotedPropertyName -> {
-        stringResource(Res.string.problem_unquoted_property_name, text.substring(problem.range.start, problem.range.end))
+        problemStrings.unquotedPropertyName(text.substring(problem.range.start, problem.range.end))
     }
 
-    ProblemCode.InvalidEscape -> stringResource(Res.string.problem_invalid_escape, format.displayName)
+    ProblemCode.InvalidEscape -> problemStrings.invalidEscape(format.displayName)
 
-    ProblemCode.SingleQuotedString -> stringResource(Res.string.problem_single_quoted_string, format.displayName)
+    ProblemCode.SingleQuotedString -> problemStrings.singleQuotedString(format.displayName)
 
-    ProblemCode.InvalidNumber -> stringResource(Res.string.problem_invalid_number, format.displayName)
+    ProblemCode.InvalidNumber -> problemStrings.invalidNumber(format.displayName)
 
-    else -> stringResource(plainMessages.getValue(problem.code))
+    else -> plainMessages.getValue(problem.code)(problemStrings)
 }
 
 /** The problems whose words say nothing of the document. */
-private val plainMessages: Map<ProblemCode, StringResource> = mapOf(
-    ProblemCode.TrailingComma to Res.string.problem_trailing_comma,
-    ProblemCode.UnexpectedCharacter to Res.string.problem_unexpected_character,
-    ProblemCode.UnexpectedToken to Res.string.problem_unexpected_token,
-    ProblemCode.UnterminatedString to Res.string.problem_unterminated_string,
-    ProblemCode.UnterminatedComment to Res.string.problem_unterminated_comment,
-    ProblemCode.ControlCharacterInString to Res.string.problem_control_character_in_string,
-    ProblemCode.ExpectedValue to Res.string.problem_expected_value,
-    ProblemCode.ExpectedPropertyName to Res.string.problem_expected_property_name,
-    ProblemCode.ExpectedColon to Res.string.problem_expected_colon,
-    ProblemCode.Unclosed to Res.string.problem_unclosed,
-    ProblemCode.TrailingContent to Res.string.problem_trailing_content,
-    ProblemCode.TooDeep to Res.string.problem_too_deep,
-    ProblemCode.DuplicateKey to Res.string.problem_duplicate_key,
-    ProblemCode.YamlSyntax to Res.string.problem_yaml_syntax,
-    ProblemCode.UndefinedAlias to Res.string.problem_undefined_alias,
-    ProblemCode.UnclosedQuote to Res.string.problem_unclosed_quote,
-    ProblemCode.TextAfterQuote to Res.string.problem_text_after_quote,
-    ProblemCode.StrayQuote to Res.string.problem_stray_quote,
-    ProblemCode.FieldCount to Res.string.problem_field_count,
-    ProblemCode.YamlColonInValue to Res.string.problem_yaml_colon_in_value,
-    ProblemCode.YamlTab to Res.string.problem_yaml_tab,
-    ProblemCode.YamlIndentation to Res.string.problem_yaml_indentation,
-    ProblemCode.YamlUnclosedFlow to Res.string.problem_yaml_unclosed_flow,
-    ProblemCode.IniUnclosedSection to Res.string.problem_ini_unclosed_section,
-    ProblemCode.IniDuplicateSection to Res.string.problem_ini_duplicate_section,
-    ProblemCode.XmlMismatchedEndTag to Res.string.problem_xml_mismatched_end_tag,
-    ProblemCode.XmlUnexpectedEndTag to Res.string.problem_xml_unexpected_end_tag,
-    ProblemCode.XmlUnterminatedTag to Res.string.problem_xml_unterminated_tag,
-    ProblemCode.XmlDuplicateAttribute to Res.string.problem_xml_duplicate_attribute,
-    ProblemCode.XmlUnquotedAttribute to Res.string.problem_xml_unquoted_attribute,
-    ProblemCode.XmlExpectedAttributeValue to Res.string.problem_xml_expected_attribute_value,
-    ProblemCode.XmlInvalidReference to Res.string.problem_xml_invalid_reference,
-    ProblemCode.XmlUnterminatedCdata to Res.string.problem_xml_unterminated_cdata,
-    ProblemCode.XmlUnterminatedInstruction to Res.string.problem_xml_unterminated_instruction,
-    ProblemCode.XmlMisplacedDeclaration to Res.string.problem_xml_misplaced_declaration,
-    ProblemCode.XmlSecondRoot to Res.string.problem_xml_second_root,
-    ProblemCode.XmlTextOutsideRoot to Res.string.problem_xml_text_outside_root,
-    ProblemCode.XmlNoRoot to Res.string.problem_xml_no_root,
-    ProblemCode.XmlHyphensInComment to Res.string.problem_xml_hyphens_in_comment,
-    ProblemCode.TomlExpectedEquals to Res.string.problem_toml_expected_equals,
-    ProblemCode.TomlTableRedefined to Res.string.problem_toml_table_redefined,
-    ProblemCode.TomlInvalidDateTime to Res.string.problem_toml_invalid_date_time,
-    ProblemCode.TomlInlineTableLineBreak to Res.string.problem_toml_inline_table_line_break
+private val plainMessages: Map<ProblemCode, (ProblemStrings) -> String> = mapOf(
+    ProblemCode.TrailingComma to ProblemStrings::trailingComma,
+    ProblemCode.UnexpectedCharacter to ProblemStrings::unexpectedCharacter,
+    ProblemCode.UnexpectedToken to ProblemStrings::unexpectedToken,
+    ProblemCode.UnterminatedString to ProblemStrings::unterminatedString,
+    ProblemCode.UnterminatedComment to ProblemStrings::unterminatedComment,
+    ProblemCode.ControlCharacterInString to ProblemStrings::controlCharacterInString,
+    ProblemCode.ExpectedValue to ProblemStrings::expectedValue,
+    ProblemCode.ExpectedPropertyName to ProblemStrings::expectedPropertyName,
+    ProblemCode.ExpectedColon to ProblemStrings::expectedColon,
+    ProblemCode.Unclosed to ProblemStrings::unclosed,
+    ProblemCode.TrailingContent to ProblemStrings::trailingContent,
+    ProblemCode.TooDeep to ProblemStrings::tooDeep,
+    ProblemCode.DuplicateKey to ProblemStrings::duplicateKey,
+    ProblemCode.YamlSyntax to ProblemStrings::yamlSyntax,
+    ProblemCode.UndefinedAlias to ProblemStrings::undefinedAlias,
+    ProblemCode.UnclosedQuote to ProblemStrings::unclosedQuote,
+    ProblemCode.TextAfterQuote to ProblemStrings::textAfterQuote,
+    ProblemCode.StrayQuote to ProblemStrings::strayQuote,
+    ProblemCode.FieldCount to ProblemStrings::fieldCount,
+    ProblemCode.YamlColonInValue to ProblemStrings::yamlColonInValue,
+    ProblemCode.YamlTab to ProblemStrings::yamlTab,
+    ProblemCode.YamlIndentation to ProblemStrings::yamlIndentation,
+    ProblemCode.YamlUnclosedFlow to ProblemStrings::yamlUnclosedFlow,
+    ProblemCode.IniUnclosedSection to ProblemStrings::iniUnclosedSection,
+    ProblemCode.IniDuplicateSection to ProblemStrings::iniDuplicateSection,
+    ProblemCode.XmlMismatchedEndTag to ProblemStrings::xmlMismatchedEndTag,
+    ProblemCode.XmlUnexpectedEndTag to ProblemStrings::xmlUnexpectedEndTag,
+    ProblemCode.XmlUnterminatedTag to ProblemStrings::xmlUnterminatedTag,
+    ProblemCode.XmlDuplicateAttribute to ProblemStrings::xmlDuplicateAttribute,
+    ProblemCode.XmlUnquotedAttribute to ProblemStrings::xmlUnquotedAttribute,
+    ProblemCode.XmlExpectedAttributeValue to ProblemStrings::xmlExpectedAttributeValue,
+    ProblemCode.XmlInvalidReference to ProblemStrings::xmlInvalidReference,
+    ProblemCode.XmlUnterminatedCdata to ProblemStrings::xmlUnterminatedCdata,
+    ProblemCode.XmlUnterminatedInstruction to ProblemStrings::xmlUnterminatedInstruction,
+    ProblemCode.XmlMisplacedDeclaration to ProblemStrings::xmlMisplacedDeclaration,
+    ProblemCode.XmlSecondRoot to ProblemStrings::xmlSecondRoot,
+    ProblemCode.XmlTextOutsideRoot to ProblemStrings::xmlTextOutsideRoot,
+    ProblemCode.XmlNoRoot to ProblemStrings::xmlNoRoot,
+    ProblemCode.XmlHyphensInComment to ProblemStrings::xmlHyphensInComment,
+    ProblemCode.TomlExpectedEquals to ProblemStrings::tomlExpectedEquals,
+    ProblemCode.TomlTableRedefined to ProblemStrings::tomlTableRedefined,
+    ProblemCode.TomlInvalidDateTime to ProblemStrings::tomlInvalidDateTime,
+    ProblemCode.TomlInlineTableLineBreak to ProblemStrings::tomlInlineTableLineBreak
 )
 
 /**
  * The words a problem has in [format] alone, where a code it shares with JSON says something else there: a comment in
  * XML is closed with `-->`, not as JSON's is.
  */
-private fun ownMessages(format: Format): Map<ProblemCode, StringResource> = when (format) {
+private fun ownMessages(format: Format): Map<ProblemCode, (ProblemStrings) -> String> = when (format) {
     Format.Xml -> XmlMessages
     Format.Toml -> TomlMessages
     Format.Ini -> IniMessages
     else -> emptyMap()
 }
 
-private val TomlMessages: Map<ProblemCode, StringResource> = mapOf(
-    ProblemCode.DuplicateKey to Res.string.problem_toml_duplicate_key,
-    ProblemCode.TrailingContent to Res.string.problem_toml_trailing_content
+private val TomlMessages: Map<ProblemCode, (ProblemStrings) -> String> = mapOf(
+    ProblemCode.DuplicateKey to ProblemStrings::tomlDuplicateKey,
+    ProblemCode.TrailingContent to ProblemStrings::tomlTrailingContent
 )
 
-private val XmlMessages: Map<ProblemCode, StringResource> = mapOf(
-    ProblemCode.UnexpectedCharacter to Res.string.problem_xml_unexpected_character,
-    ProblemCode.UnterminatedComment to Res.string.problem_xml_unterminated_comment,
-    ProblemCode.UnterminatedString to Res.string.problem_xml_unterminated_string,
-    ProblemCode.ExpectedValue to Res.string.problem_xml_no_root
+private val XmlMessages: Map<ProblemCode, (ProblemStrings) -> String> = mapOf(
+    ProblemCode.UnexpectedCharacter to ProblemStrings::xmlUnexpectedCharacter,
+    ProblemCode.UnterminatedComment to ProblemStrings::xmlUnterminatedComment,
+    ProblemCode.UnterminatedString to ProblemStrings::xmlUnterminatedString,
+    ProblemCode.ExpectedValue to ProblemStrings::xmlNoRoot
 )
 
-private val IniMessages: Map<ProblemCode, StringResource> = mapOf(
-    ProblemCode.TrailingContent to Res.string.problem_ini_trailing_content
+private val IniMessages: Map<ProblemCode, (ProblemStrings) -> String> = mapOf(
+    ProblemCode.TrailingContent to ProblemStrings::iniTrailingContent
 )
 
 /** The name of the element whose start tag [problem] is about: `item` for `<item id="1">`. */
@@ -199,20 +129,18 @@ private fun lineBefore(problem: Problem, text: String, format: Format): Int {
 
 /** What a repair's button says: "Add the comma". */
 @Composable
-internal fun repairLabel(kind: RepairKind): String = stringResource(
-    when (kind) {
-        RepairKind.RemoveComment -> Res.string.repair_remove_comment
-        RepairKind.AddComma -> Res.string.repair_add_comma
-        RepairKind.QuoteKey -> Res.string.repair_quote_key
-        RepairKind.RemoveComma -> Res.string.repair_remove_comma
-        RepairKind.UseDoubleQuotes -> Res.string.repair_use_double_quotes
-        RepairKind.Close -> Res.string.repair_close
-        RepairKind.AddColon -> Res.string.repair_add_colon
-        RepairKind.Remove -> Res.string.repair_remove
-        RepairKind.Escape -> Res.string.repair_escape
-        RepairKind.FixNumber -> Res.string.repair_fix_number
-        RepairKind.DoubleTheQuote -> Res.string.repair_double_the_quote
-        RepairKind.QuoteValue -> Res.string.repair_quote_value
-        RepairKind.UseSpaces -> Res.string.repair_use_spaces
-    }
-)
+internal fun repairLabel(kind: RepairKind): String = when (kind) {
+    RepairKind.RemoveComment -> problemStrings.repairRemoveComment
+    RepairKind.AddComma -> problemStrings.repairAddComma
+    RepairKind.QuoteKey -> problemStrings.repairQuoteKey
+    RepairKind.RemoveComma -> problemStrings.repairRemoveComma
+    RepairKind.UseDoubleQuotes -> problemStrings.repairUseDoubleQuotes
+    RepairKind.Close -> problemStrings.repairClose
+    RepairKind.AddColon -> problemStrings.repairAddColon
+    RepairKind.Remove -> problemStrings.repairRemove
+    RepairKind.Escape -> problemStrings.repairEscape
+    RepairKind.FixNumber -> problemStrings.repairFixNumber
+    RepairKind.DoubleTheQuote -> problemStrings.repairDoubleTheQuote
+    RepairKind.QuoteValue -> problemStrings.repairQuoteValue
+    RepairKind.UseSpaces -> problemStrings.repairUseSpaces
+}

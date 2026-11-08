@@ -45,7 +45,7 @@ class CompareScreenTest {
             }
         }
 
-        awaitText("4 differences", forgetting = findings)
+        awaitText("4 differences")
         awaitText("The order of the keys: status and id changed places. And 129.90 and 129.9, which are the same number.")
         awaitText("A · order.json · 11 lines")
         awaitText("B · order-v2.json · 11 lines")
@@ -143,7 +143,7 @@ class CompareScreenTest {
             }
         }
 
-        awaitText("Compare", forgetting = findings)
+        awaitText("Compare")
         // A card that is not pressed keeps its words apart: they are found on the screen, the card by its tag.
         onPantrixNode("Card", "difference1").assertExists()
         awaitText("$.deliveredAt")

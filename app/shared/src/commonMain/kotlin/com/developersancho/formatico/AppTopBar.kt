@@ -35,6 +35,7 @@ import com.developersancho.formatico.core.designsystem.FormaticoIcons
 import com.developersancho.formatico.feature.workspace.DocumentPane
 import com.developersancho.formatico.feature.workspace.OpenDocument
 import com.developersancho.formatico.feature.workspace.WorkbenchState
+import com.developersancho.formatico.strings.appStrings
 import com.pantrixui.components.container.surface.PantrixSurface
 import com.pantrixui.components.container.tab.PantrixTabs
 import com.pantrixui.components.container.tab.TabBadge
@@ -60,20 +61,6 @@ import com.pantrixui.foundation.adaptive.WindowWidthClass
 import com.pantrixui.foundation.adaptive.isNarrow
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.theme.PantrixTheme
-import formatico.app.shared.generated.resources.Res
-import formatico.app.shared.generated.resources.app_name
-import formatico.app.shared.generated.resources.changes_not_saved
-import formatico.app.shared.generated.resources.new_tab
-import formatico.app.shared.generated.resources.open_documents
-import formatico.app.shared.generated.resources.search_or_run_a_command
-import formatico.app.shared.generated.resources.settings
-import formatico.app.shared.generated.resources.switch_documents
-import formatico.app.shared.generated.resources.switch_documents_from_new_tab
-import formatico.app.shared.generated.resources.untitled
-import formatico.app.shared.generated.resources.use_dark_theme
-import formatico.app.shared.generated.resources.use_light_theme
-import org.jetbrains.compose.resources.pluralStringResource
-import org.jetbrains.compose.resources.stringResource
 
 /** The launcher's width in a wide window, as the design draws it. */
 private val LauncherWidth = 340.dp
@@ -242,7 +229,7 @@ private fun RowScope.PhoneBar(
             Spacer(modifier = Modifier.weight(1f))
             PantrixIconButton(
                 imageVector = PantrixIcons.Search,
-                contentDescription = stringResource(Res.string.search_or_run_a_command),
+                contentDescription = appStrings.searchOrRunACommand,
                 onClick = onOpenPalette,
                 size = ButtonSize.Large,
                 tagKey = "launcher"
@@ -281,7 +268,7 @@ private fun RowScope.PhoneBar(
 
 /** A document's name in its tab: its file's, or "Untitled". */
 @Composable
-private fun OpenDocument.label(): String = name ?: stringResource(Res.string.untitled)
+private fun OpenDocument.label(): String = name ?: appStrings.untitled
 
 /**
  * The open documents' tabs, and a new tab's while it is chosen, with the button that opens a new tab. A document with
@@ -295,13 +282,13 @@ private fun DocumentTabs(
     size: ButtonSize,
     modifier: Modifier = Modifier
 ) {
-    val notSaved = stringResource(Res.string.changes_not_saved)
+    val notSaved = appStrings.changesNotSaved
     val documents = workbench.documents
     // Settings has a tab of its own while it is shown, as a new tab has while it is chosen: neither can be closed
     // (PANTRIX_FINDINGS, "Belge sekmeleri için kapatılabilen bir sekme yok"), and each goes once another tab is chosen.
     val own = when {
-        settingsShown -> TabItem(label = stringResource(Res.string.settings), tagKey = "settings")
-        workbench.selected == null -> TabItem(label = stringResource(Res.string.new_tab), tagKey = "new")
+        settingsShown -> TabItem(label = appStrings.settings, tagKey = "settings")
+        workbench.selected == null -> TabItem(label = appStrings.newTab, tagKey = "new")
         else -> null
     }
     val tabs = documents.map { document ->
@@ -326,7 +313,7 @@ private fun DocumentTabs(
         )
         PantrixIconButton(
             imageVector = PantrixIcons.Plus,
-            contentDescription = stringResource(Res.string.new_tab),
+            contentDescription = appStrings.newTab,
             onClick = { onSelectTab(null) },
             size = size,
             enabled = workbench.selected != null || settingsShown,
@@ -343,7 +330,7 @@ private fun DocumentTabs(
 private fun DocumentSwitcher(workbench: WorkbenchState, shown: OpenDocument?, onSelectTab: (Long?) -> Unit) {
     var open by rememberSaveable { mutableStateOf(false) }
     val count = workbench.documents.size
-    val name = shown?.label() ?: stringResource(Res.string.new_tab)
+    val name = shown?.label() ?: appStrings.newTab
     PantrixMenu(
         visible = open,
         onDismissRequest = { open = false },
@@ -361,9 +348,9 @@ private fun DocumentSwitcher(workbench: WorkbenchState, shown: OpenDocument?, on
                     border = Color.Transparent
                 ),
                 contentDescription = if (shown != null) {
-                    stringResource(Res.string.switch_documents, name, count)
+                    appStrings.switchDocuments(name, count)
                 } else {
-                    pluralStringResource(Res.plurals.switch_documents_from_new_tab, count, count)
+                    appStrings.switchDocumentsFromNewTab(count, count)
                 },
                 tagKey = "switch_documents"
             )
@@ -380,7 +367,7 @@ private fun DocumentSwitcher(workbench: WorkbenchState, shown: OpenDocument?, on
         }
         PantrixDivider()
         PantrixMenuItem(
-            text = stringResource(Res.string.new_tab),
+            text = appStrings.newTab,
             onClick = { onSelectTab(null) },
             icon = PantrixIcons.Plus,
             selected = shown == null,
@@ -390,7 +377,7 @@ private fun DocumentSwitcher(workbench: WorkbenchState, shown: OpenDocument?, on
     PantrixBadge(
         count = count,
         tone = BadgeTone.Neutral,
-        contentDescription = pluralStringResource(Res.plurals.open_documents, count, count),
+        contentDescription = appStrings.openDocuments(count, count),
         tagKey = "open_documents"
     )
 }
@@ -419,7 +406,7 @@ private fun BarActions(
     } else {
         PantrixIconButton(
             imageVector = PantrixIcons.Search,
-            contentDescription = stringResource(Res.string.search_or_run_a_command),
+            contentDescription = appStrings.searchOrRunACommand,
             onClick = onOpenPalette,
             size = size,
             tagKey = "launcher"
@@ -428,9 +415,7 @@ private fun BarActions(
     if (withTheme) {
         PantrixIconButton(
             imageVector = if (darkTheme) FormaticoIcons.Sun else FormaticoIcons.Moon,
-            contentDescription = stringResource(
-                if (darkTheme) Res.string.use_light_theme else Res.string.use_dark_theme
-            ),
+            contentDescription = if (darkTheme) appStrings.useLightTheme else appStrings.useDarkTheme,
             onClick = onToggleTheme,
             size = size,
             tagKey = "theme"
@@ -442,7 +427,7 @@ private fun BarActions(
     }
     PantrixIconButton(
         imageVector = FormaticoIcons.Settings,
-        contentDescription = stringResource(Res.string.settings),
+        contentDescription = appStrings.settings,
         onClick = onOpenSettings,
         size = size,
         tagKey = "settings"
@@ -479,7 +464,7 @@ private fun Brand(phone: Boolean, modifier: Modifier = Modifier, withName: Boole
         }
         if (withName) {
             PantrixText(
-                text = stringResource(Res.string.app_name),
+                text = appStrings.appName,
                 style = (if (phone) PantrixTheme.typography.body else PantrixTheme.typography.label)
                     .copy(fontWeight = FontWeight.SemiBold)
             )
@@ -496,7 +481,7 @@ private val MarkLetterSpacing = (-1).sp
 @Composable
 private fun Launcher(onOpenPalette: () -> Unit) {
     val colors = PantrixTheme.colors
-    val label = stringResource(Res.string.search_or_run_a_command)
+    val label = appStrings.searchOrRunACommand
     PantrixButton(
         onClick = onOpenPalette,
         contentDescription = label,

@@ -10,6 +10,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontWeight
 import com.developersancho.formatico.core.format.diff.Change
+import com.developersancho.formatico.feature.workspace.strings.compareStrings
+import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.components.data.tag.PantrixTag
 import com.pantrixui.components.data.tag.TagVariant
 import com.pantrixui.components.elements.button.ButtonSize
@@ -24,26 +26,12 @@ import com.pantrixui.components.overlay.menu.PantrixMenu
 import com.pantrixui.components.overlay.menu.PantrixMenuItem
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.theme.PantrixTheme
-import formatico.feature.workspace.generated.resources.Res
-import formatico.feature.workspace.generated.resources.compare_a
-import formatico.feature.workspace.generated.resources.compare_added
-import formatico.feature.workspace.generated.resources.compare_b
-import formatico.feature.workspace.generated.resources.compare_b_menu
-import formatico.feature.workspace.generated.resources.compare_by
-import formatico.feature.workspace.generated.resources.compare_by_meaning
-import formatico.feature.workspace.generated.resources.compare_by_text
-import formatico.feature.workspace.generated.resources.compare_changed
-import formatico.feature.workspace.generated.resources.compare_removed
-import formatico.feature.workspace.generated.resources.compare_stop
-import formatico.feature.workspace.generated.resources.workspace_untitled
-import org.jetbrains.compose.resources.pluralStringResource
-import org.jetbrains.compose.resources.stringResource
 
 /** The letter a document compared is called by, A or B, on a tag of its own. */
 @Composable
 internal fun SideTag(side: Side) {
     PantrixTag(
-        text = stringResource(if (side == Side.A) Res.string.compare_a else Res.string.compare_b),
+        text = if (side == Side.A) compareStrings.a else compareStrings.b,
         variant = TagVariant.Solid,
         tagKey = if (side == Side.A) "side_a" else "side_b"
     )
@@ -68,7 +56,7 @@ internal fun PartnerMenu(
     onIntent: (WorkspaceIntent) -> Unit
 ) {
     var open by rememberSaveable { mutableStateOf(false) }
-    val untitled = stringResource(Res.string.workspace_untitled)
+    val untitled = workspaceStrings.untitled
     val name = partner?.let { it.name ?: untitled }.orEmpty()
     PantrixMenu(
         visible = open,
@@ -80,7 +68,7 @@ internal fun PartnerMenu(
                 variant = ButtonVariant.Outline,
                 size = size,
                 trailingIcon = { PantrixIcon(imageVector = PantrixIcons.ChevronDown, contentDescription = null) },
-                contentDescription = stringResource(Res.string.compare_b_menu, name),
+                contentDescription = compareStrings.bMenu(name),
                 tagKey = "partner"
             )
         },
@@ -105,8 +93,8 @@ internal fun PartnerMenu(
 internal fun CompareByChoice(choice: CompareChoice, onIntent: (WorkspaceIntent) -> Unit) {
     PantrixSegmentButton(
         options = listOf(
-            SegmentOption(value = CompareBy.Meaning, label = stringResource(Res.string.compare_by_meaning), tagKey = "meaning"),
-            SegmentOption(value = CompareBy.Text, label = stringResource(Res.string.compare_by_text), tagKey = "text")
+            SegmentOption(value = CompareBy.Meaning, label = compareStrings.byMeaning, tagKey = "meaning"),
+            SegmentOption(value = CompareBy.Text, label = compareStrings.byText, tagKey = "text")
         ),
         selected = choice.by,
         onSelect = { onIntent(WorkspaceIntent.Compare(choice.copy(by = it, current = 0))) },
@@ -119,7 +107,7 @@ internal fun CompareByChoice(choice: CompareChoice, onIntent: (WorkspaceIntent) 
 @Composable
 internal fun CompareByLabel() {
     PantrixText(
-        text = stringResource(Res.string.compare_by),
+        text = compareStrings.by,
         style = PantrixTheme.typography.label.copy(fontWeight = FontWeight.Medium),
         color = PantrixTheme.colors.textSecondary
     )
@@ -134,11 +122,11 @@ internal fun ChangeTags(compared: CompareOutcome.Compared?) {
             val count = differences.count { it.change == change }
             if (count == 0) return@forEach
             val words = when (change) {
-                Change.Changed -> Res.plurals.compare_changed
-                Change.Added -> Res.plurals.compare_added
-                Change.Removed -> Res.plurals.compare_removed
+                Change.Changed -> compareStrings::changed
+                Change.Added -> compareStrings::added
+                Change.Removed -> compareStrings::removed
             }
-            PantrixTag(text = pluralStringResource(words, count, count), tone = change.tagTone, tagKey = "count_${change.name.lowercase()}")
+            PantrixTag(text = words(count, count), tone = change.tagTone, tagKey = "count_${change.name.lowercase()}")
         }
     }
 }
@@ -148,7 +136,7 @@ internal fun ChangeTags(compared: CompareOutcome.Compared?) {
 internal fun StopComparingButton(document: OpenDocument, size: ButtonSize, onIntent: (WorkspaceIntent) -> Unit) {
     PantrixIconButton(
         imageVector = PantrixIcons.Close,
-        contentDescription = stringResource(Res.string.compare_stop),
+        contentDescription = compareStrings.stop,
         onClick = { onIntent(WorkspaceIntent.ShowPane(openingPane(document.format))) },
         size = size,
         tagKey = "stop_comparing"

@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import com.developersancho.formatico.core.format.csv.csvText
+import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.components.elements.button.ButtonSize
 import com.pantrixui.components.elements.button.ButtonVariant
 import com.pantrixui.components.elements.iconbutton.PantrixIconButton
@@ -13,12 +14,6 @@ import com.pantrixui.components.overlay.menu.PantrixMenu
 import com.pantrixui.components.overlay.menu.PantrixMenuItem
 import com.pantrixui.components.overlay.popover.PopoverAlignment
 import com.pantrixui.foundation.icons.PantrixIcons
-import formatico.feature.workspace.generated.resources.Res
-import formatico.feature.workspace.generated.resources.workspace_copy_csv
-import formatico.feature.workspace.generated.resources.workspace_copy_markdown
-import formatico.feature.workspace.generated.resources.workspace_save_csv
-import formatico.feature.workspace.generated.resources.workspace_table_out
-import org.jetbrains.compose.resources.stringResource
 
 /** What the table's rows, as they are shown, are saved or copied as. */
 internal enum class TableOut { SaveCsv, CopyCsv, CopyMarkdown }
@@ -33,7 +28,7 @@ internal fun TableOutMenu(size: ButtonSize, onOut: (TableOut) -> Unit) {
         anchor = {
             PantrixIconButton(
                 imageVector = PantrixIcons.Download,
-                contentDescription = stringResource(Res.string.workspace_table_out),
+                contentDescription = workspaceStrings.tableOut,
                 onClick = { open = true },
                 variant = if (open) ButtonVariant.Soft else ButtonVariant.Text,
                 size = size,
@@ -44,19 +39,19 @@ internal fun TableOutMenu(size: ButtonSize, onOut: (TableOut) -> Unit) {
         tagKey = "table_out"
     ) {
         PantrixMenuItem(
-            text = stringResource(Res.string.workspace_save_csv),
+            text = workspaceStrings.saveCsv,
             onClick = { onOut(TableOut.SaveCsv) },
             icon = PantrixIcons.Download,
             tagKey = "save_csv"
         )
         PantrixMenuItem(
-            text = stringResource(Res.string.workspace_copy_csv),
+            text = workspaceStrings.copyCsv,
             onClick = { onOut(TableOut.CopyCsv) },
             icon = PantrixIcons.Copy,
             tagKey = "copy_csv"
         )
         PantrixMenuItem(
-            text = stringResource(Res.string.workspace_copy_markdown),
+            text = workspaceStrings.copyMarkdown,
             onClick = { onOut(TableOut.CopyMarkdown) },
             icon = PantrixIcons.Copy,
             tagKey = "copy_markdown"

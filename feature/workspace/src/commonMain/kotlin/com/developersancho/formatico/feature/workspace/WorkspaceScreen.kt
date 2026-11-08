@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.base.MviScreen
 import com.developersancho.formatico.core.format.Format
 import com.developersancho.formatico.feature.workspace.editor.DocumentEditor
+import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.components.container.twopane.PaneSize
 import com.pantrixui.components.container.twopane.PantrixTwoPane
 import com.pantrixui.components.container.twopane.TwoPaneOrientation
@@ -40,19 +41,6 @@ import com.pantrixui.components.overlay.menu.PantrixMenu
 import com.pantrixui.components.overlay.menu.PantrixMenuItem
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.theme.PantrixTheme
-import formatico.feature.workspace.generated.resources.Res
-import formatico.feature.workspace.generated.resources.workspace_compare
-import formatico.feature.workspace.generated.resources.workspace_convert
-import formatico.feature.workspace.generated.resources.workspace_copy_document
-import formatico.feature.workspace.generated.resources.workspace_format
-import formatico.feature.workspace.generated.resources.workspace_format_menu
-import formatico.feature.workspace.generated.resources.workspace_minify
-import formatico.feature.workspace.generated.resources.workspace_plain_text
-import formatico.feature.workspace.generated.resources.workspace_query
-import formatico.feature.workspace.generated.resources.workspace_repair
-import formatico.feature.workspace.generated.resources.workspace_save_file
-import formatico.feature.workspace.generated.resources.workspace_sort_keys
-import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -260,7 +248,7 @@ private fun Toolbar(
         ToolbarDivider(wide)
         val querying = document.view.pane == DocumentPane.Query
         PantrixButton(
-            text = stringResource(Res.string.workspace_query),
+            text = workspaceStrings.query,
             // Pressed again, it gives the view the document opens with back.
             onClick = { onIntent(WorkspaceIntent.ShowPane(if (querying) openingPane(document.format) else DocumentPane.Query)) },
             variant = if (querying) ButtonVariant.Soft else ButtonVariant.Text,
@@ -271,7 +259,7 @@ private fun Toolbar(
         )
         val converting = document.view.pane == DocumentPane.Convert
         PantrixButton(
-            text = stringResource(Res.string.workspace_convert),
+            text = workspaceStrings.convert,
             // Pressed again, it gives the view the document opens with back, as Query does.
             onClick = { onIntent(WorkspaceIntent.ShowPane(if (converting) openingPane(document.format) else DocumentPane.Convert)) },
             variant = if (converting) ButtonVariant.Soft else ButtonVariant.Text,
@@ -282,7 +270,7 @@ private fun Toolbar(
         )
         if (wide) {
             PantrixButton(
-                text = stringResource(Res.string.workspace_compare),
+                text = workspaceStrings.compare,
                 onClick = { onIntent(WorkspaceIntent.ShowPane(DocumentPane.Compare)) },
                 variant = ButtonVariant.Text,
                 size = size,
@@ -301,21 +289,21 @@ private fun EditButtons(state: WorkspaceState, layout: WorkspaceLayout, onIntent
     // An invalid document is repaired before it is formatted: the Invalid boards put Repair first.
     if (state.repairable > 0) {
         PantrixButton(
-            text = stringResource(Res.string.workspace_repair),
+            text = workspaceStrings.repair,
             onClick = { onIntent(WorkspaceIntent.RepairAll) },
             size = size,
             tagKey = "repair"
         )
     }
     PantrixButton(
-        text = stringResource(Res.string.workspace_format),
+        text = workspaceStrings.format,
         onClick = { onIntent(WorkspaceIntent.Edit(DocumentEdit.Format)) },
         size = size,
         enabled = DocumentEdit.Format in state.edits,
         tagKey = "format"
     )
     PantrixButton(
-        text = stringResource(Res.string.workspace_minify),
+        text = workspaceStrings.minify,
         onClick = { onIntent(WorkspaceIntent.Edit(DocumentEdit.Minify)) },
         variant = ButtonVariant.Outline,
         size = size,
@@ -324,7 +312,7 @@ private fun EditButtons(state: WorkspaceState, layout: WorkspaceLayout, onIntent
     )
     if (layout == WorkspaceLayout.Wide) {
         PantrixButton(
-            text = stringResource(Res.string.workspace_sort_keys),
+            text = workspaceStrings.sortKeys,
             onClick = { onIntent(WorkspaceIntent.Edit(DocumentEdit.SortKeys)) },
             variant = ButtonVariant.Subtle,
             size = size,
@@ -347,7 +335,7 @@ private fun DocumentButtons(
     Row(verticalAlignment = Alignment.CenterVertically) {
         PantrixIconButton(
             imageVector = PantrixIcons.Copy,
-            contentDescription = stringResource(Res.string.workspace_copy_document),
+            contentDescription = workspaceStrings.copyDocument,
             onClick = { commands.copy(document) },
             size = layout.buttons,
             tagKey = "copy"
@@ -355,7 +343,7 @@ private fun DocumentButtons(
         if (wide) {
             PantrixIconButton(
                 imageVector = PantrixIcons.Download,
-                contentDescription = stringResource(Res.string.workspace_save_file),
+                contentDescription = workspaceStrings.saveFile,
                 onClick = { commands.save(document) },
                 size = layout.buttons,
                 tagKey = "save"
@@ -387,7 +375,7 @@ private fun ToolbarDivider(wide: Boolean) {
 @Composable
 internal fun FormatMenu(format: Format?, size: ButtonSize, onChange: (Format?) -> Unit) {
     var open by rememberSaveable { mutableStateOf(false) }
-    val name = format?.displayName ?: stringResource(Res.string.workspace_plain_text)
+    val name = format?.displayName ?: workspaceStrings.plainText
     PantrixMenu(
         visible = open,
         onDismissRequest = { open = false },
@@ -398,7 +386,7 @@ internal fun FormatMenu(format: Format?, size: ButtonSize, onChange: (Format?) -
                 variant = ButtonVariant.Outline,
                 size = size,
                 trailingIcon = { PantrixIcon(imageVector = PantrixIcons.ChevronDown, contentDescription = null) },
-                contentDescription = stringResource(Res.string.workspace_format_menu, name),
+                contentDescription = workspaceStrings.formatMenu(name),
                 tagKey = "format_menu"
             )
         },
@@ -413,7 +401,7 @@ internal fun FormatMenu(format: Format?, size: ButtonSize, onChange: (Format?) -
             )
         }
         PantrixMenuItem(
-            text = stringResource(Res.string.workspace_plain_text),
+            text = workspaceStrings.plainText,
             onClick = { onChange(null) },
             selected = format == null,
             tagKey = "plain"

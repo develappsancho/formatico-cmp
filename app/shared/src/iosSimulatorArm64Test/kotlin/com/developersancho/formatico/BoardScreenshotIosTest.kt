@@ -107,7 +107,7 @@ class BoardScreenshotIosTest {
                 App(systemDark = dark, storage = memoryStorageModule)
             }
         }
-        tour(board, window, BoardWords.English, files, findings)
+        tour(board, window, BoardWords.English, files)
         val name = "${board.fileName}-${window.width}${if (dark) "-dark" else ""}"
         val file = "${roborazziSystemPropertyProjectPath()}/screenshots/ios/$name.png"
         val shown = if (board.overlay) onAllNodes(isRoot()).onLast() else onRoot()

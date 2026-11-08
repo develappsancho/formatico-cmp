@@ -108,7 +108,7 @@ class BoardScreenshotAndroidTest {
                 App(systemDark = dark, storage = memoryStorageModule)
             }
         }
-        tour(board, window, BoardWords.English, files, findings)
+        tour(board, window, BoardWords.English, files)
         captureScreenRoboImage("screenshots/android/${board.fileName}-${window.width}${if (dark) "-dark" else ""}.png")
         assertNoFindingsOnBoard(findings)
     }

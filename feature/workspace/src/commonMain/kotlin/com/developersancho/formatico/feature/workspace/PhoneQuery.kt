@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.developersancho.formatico.feature.workspace.strings.queryStrings
 import com.pantrixui.components.elements.button.ButtonSize
 import com.pantrixui.components.elements.divider.PantrixHorizontalDivider
 import com.pantrixui.components.elements.iconbutton.PantrixIconButton
@@ -27,10 +28,6 @@ import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.components.elements.text.TextRole
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.theme.PantrixTheme
-import formatico.feature.workspace.generated.resources.Res
-import formatico.feature.workspace.generated.resources.query_copy_results
-import formatico.feature.workspace.generated.resources.query_see_in_text
-import org.jetbrains.compose.resources.stringResource
 
 /**
  * A phone's query, under the views: the query and the queries used last, what it found, each match leading to its
@@ -76,7 +73,7 @@ internal fun PhoneQuery(
                 Spacer(modifier = Modifier.weight(1f))
                 PantrixIconButton(
                     imageVector = PantrixIcons.Copy,
-                    contentDescription = stringResource(Res.string.query_copy_results),
+                    contentDescription = queryStrings.copyResults,
                     onClick = {
                         results?.let { commands.copyText(Copied.Results, it.text) }
                         onIntent(WorkspaceIntent.UseQuery)
@@ -115,7 +112,7 @@ private fun PhoneMatches(state: WorkspaceState, onIntent: (WorkspaceIntent) -> U
                     )
                     if (rows.any { it.key != null }) {
                         PantrixText(
-                            text = stringResource(Res.string.query_see_in_text),
+                            text = queryStrings.seeInText,
                             style = PantrixTheme.typography.footnote.copy(fontWeight = FontWeight.Medium),
                             color = PantrixTheme.colors.textSecondary
                         )

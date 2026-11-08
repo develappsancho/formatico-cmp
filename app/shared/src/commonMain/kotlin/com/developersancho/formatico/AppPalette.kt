@@ -14,6 +14,7 @@ import com.developersancho.formatico.feature.workspace.WorkbenchState
 import com.developersancho.formatico.feature.workspace.documentPaletteCommands
 import com.developersancho.formatico.feature.workspace.documentShortcutCommands
 import com.developersancho.formatico.feature.workspace.rememberDocumentPalette
+import com.developersancho.formatico.strings.appStrings
 import com.pantrixui.components.overlay.commandpalette.PantrixCommand
 import com.pantrixui.components.overlay.commandpalette.PantrixCommandPalette
 import com.pantrixui.components.overlay.commandpalette.commandShortcuts
@@ -24,19 +25,6 @@ import com.pantrixui.foundation.keyboard.onShortcut
 import com.pantrixui.foundation.keyboard.shortcutRoot
 import com.pantrixui.foundation.platform.PlatformType
 import com.pantrixui.foundation.theme.PantrixTheme
-import formatico.app.shared.generated.resources.Res
-import formatico.app.shared.generated.resources.app_name
-import formatico.app.shared.generated.resources.new_tab
-import formatico.app.shared.generated.resources.palette_empty
-import formatico.app.shared.generated.resources.palette_new_document
-import formatico.app.shared.generated.resources.palette_open_file
-import formatico.app.shared.generated.resources.palette_paste
-import formatico.app.shared.generated.resources.palette_placeholder
-import formatico.app.shared.generated.resources.search_or_run_a_command
-import formatico.app.shared.generated.resources.settings
-import formatico.app.shared.generated.resources.use_dark_theme
-import formatico.app.shared.generated.resources.use_light_theme
-import org.jetbrains.compose.resources.stringResource
 
 /** The keys of the palette's commands of the app itself, the same in every language. */
 internal object AppCommandKeys {
@@ -74,19 +62,19 @@ internal fun appPaletteCommands(workbench: WorkbenchState, darkTheme: Boolean, s
     val phone = PantrixTheme.window.isNarrow
     val browser = PantrixTheme.platform.type == PlatformType.Web
     val keys: (PantrixShortcut) -> PantrixShortcut? = { if (phone) null else it }
-    val group = stringResource(Res.string.app_name)
+    val group = appStrings.appName
     return listOfNotNull(
         if (phone) {
             PantrixCommand(
                 key = AppCommandKeys.NEW,
-                label = stringResource(Res.string.palette_new_document),
+                label = appStrings.paletteNewDocument,
                 group = group,
                 icon = PantrixIcons.Plus
             )
         } else {
             PantrixCommand(
                 key = AppCommandKeys.NEW,
-                label = stringResource(Res.string.new_tab),
+                label = appStrings.newTab,
                 group = group,
                 icon = PantrixIcons.Plus,
                 shortcut = keys(AppShortcuts.NewTab).takeUnless { browser },
@@ -95,25 +83,25 @@ internal fun appPaletteCommands(workbench: WorkbenchState, darkTheme: Boolean, s
         },
         PantrixCommand(
             key = AppCommandKeys.OPEN,
-            label = stringResource(Res.string.palette_open_file),
+            label = appStrings.paletteOpenFile,
             group = group,
             icon = PantrixIcons.File,
             shortcut = keys(AppShortcuts.Open)
         ),
         PantrixCommand(
             key = AppCommandKeys.PASTE,
-            label = stringResource(Res.string.palette_paste),
+            label = appStrings.palettePaste,
             group = group,
             shortcut = keys(AppShortcuts.Paste)
         ).takeUnless { phone },
         PantrixCommand(
             key = AppCommandKeys.THEME,
-            label = stringResource(if (darkTheme) Res.string.use_light_theme else Res.string.use_dark_theme),
+            label = if (darkTheme) appStrings.useLightTheme else appStrings.useDarkTheme,
             group = group
         ).takeUnless { phone },
         PantrixCommand(
             key = AppCommandKeys.SETTINGS,
-            label = stringResource(Res.string.settings),
+            label = appStrings.settings,
             group = group,
             shortcut = keys(AppShortcuts.Settings),
             enabled = !settingsShown
@@ -130,8 +118,8 @@ internal fun shortcutCommands(): List<PantrixCommand> {
     if (PantrixTheme.window.isNarrow) return emptyList()
     val palette = PantrixCommand(
         key = AppCommandKeys.PALETTE,
-        label = stringResource(Res.string.search_or_run_a_command),
-        group = stringResource(Res.string.app_name),
+        label = appStrings.searchOrRunACommand,
+        group = appStrings.appName,
         shortcut = AppShortcuts.Palette
     )
     // Which documents are open makes no command's name nor its keys: only whether it can run now, which a list does not.
@@ -226,8 +214,8 @@ internal fun AppPalette(palette: AppPaletteState) {
             palette.close()
             palette.run(command)
         },
-        placeholder = stringResource(Res.string.palette_placeholder),
-        emptyText = stringResource(Res.string.palette_empty),
+        placeholder = appStrings.palettePlaceholder,
+        emptyText = appStrings.paletteEmpty,
         tagKey = "commands"
     )
 }

@@ -10,7 +10,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -76,8 +75,8 @@ fun App() {
  * and gives stores that keep nothing past it. Where [followsBrowser] says so, a browser's history follows the app; a
  * test leaves it out, since its page holds many apps one after another.
  *
- * A language chosen in Settings starts the app's composition over, under it: the words are read again in it. The back
- * stack and whether Settings is shown stand above, and outlive it.
+ * A language chosen in Settings is the theme's, and every feature's words follow it (`inTheLanguage`): the screens stay
+ * as they are, in the other language.
  */
 @Composable
 internal fun App(systemDark: Boolean, storage: Module, followsBrowser: Boolean = false) {
@@ -95,17 +94,15 @@ internal fun App(systemDark: Boolean, storage: Module, followsBrowser: Boolean =
         val backStack = rememberNavBackStack(Destination.Saving, Destination.Start)
         val settingsShown = rememberSaveable { mutableStateOf(false) }
         val language = preferences.language?.tag
-        CompositionLocalProvider(LocalAppLocale provides language, LocalWrapLines provides preferences.wrapLines) {
-            key(language) {
-                FormaticoTheme(darkTheme = darkTheme, locale = language?.let(PantrixLocale::forLanguageTag)) {
-                    AppContent(
-                        backStack = backStack,
-                        settingsShown = settingsShown,
-                        darkTheme = darkTheme,
-                        followsBrowser = followsBrowser,
-                        onToggleTheme = { settings.update { it.copy(theme = if (darkTheme) ThemeChoice.Light else ThemeChoice.Dark) } }
-                    )
-                }
+        CompositionLocalProvider(LocalWrapLines provides preferences.wrapLines) {
+            FormaticoTheme(darkTheme = darkTheme, locale = language?.let(PantrixLocale::forLanguageTag)) {
+                AppContent(
+                    backStack = backStack,
+                    settingsShown = settingsShown,
+                    darkTheme = darkTheme,
+                    followsBrowser = followsBrowser,
+                    onToggleTheme = { settings.update { it.copy(theme = if (darkTheme) ThemeChoice.Light else ThemeChoice.Dark) } }
+                )
             }
         }
     }

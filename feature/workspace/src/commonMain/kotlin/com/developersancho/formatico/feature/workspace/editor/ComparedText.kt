@@ -5,13 +5,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.developersancho.formatico.core.format.Format
+import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.components.data.codeblock.CodeMark
 import com.pantrixui.components.data.codeeditor.CodeEditorState
 import com.pantrixui.components.data.codeeditor.CodeRangeMark
 import com.pantrixui.components.data.codeeditor.PantrixCodeEditor
-import formatico.feature.workspace.generated.resources.Res
-import formatico.feature.workspace.generated.resources.workspace_text_of
-import org.jetbrains.compose.resources.stringResource
 
 /**
  * A compared document's [text], named [name], to be read and copied but not changed: coloured as [format] is, its lines
@@ -43,7 +41,7 @@ internal fun ComparedText(
         readOnly = true,
         style = PaneEditorStyle,
         colors = editorColors(),
-        contentDescription = stringResource(Res.string.workspace_text_of, name),
+        contentDescription = workspaceStrings.textOf(name),
         softWrap = LocalWrapLines.current,
         tagKey = tagKey
     )

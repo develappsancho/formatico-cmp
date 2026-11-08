@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.components.elements.button.ButtonVariant
 import com.pantrixui.components.elements.divider.PantrixHorizontalDivider
 import com.pantrixui.components.elements.icon.PantrixIcon
@@ -29,27 +30,6 @@ import com.pantrixui.components.elements.segmentbutton.SegmentOption
 import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.theme.PantrixTheme
-import formatico.feature.workspace.generated.resources.Res
-import formatico.feature.workspace.generated.resources.workspace_editor_body
-import formatico.feature.workspace.generated.resources.workspace_editor_body_read
-import formatico.feature.workspace.generated.resources.workspace_editor_body_table
-import formatico.feature.workspace.generated.resources.workspace_editor_body_unread
-import formatico.feature.workspace.generated.resources.workspace_editor_title
-import formatico.feature.workspace.generated.resources.workspace_empty_body
-import formatico.feature.workspace.generated.resources.workspace_empty_title
-import formatico.feature.workspace.generated.resources.workspace_find
-import formatico.feature.workspace.generated.resources.workspace_no_value_body
-import formatico.feature.workspace.generated.resources.workspace_no_value_title
-import formatico.feature.workspace.generated.resources.workspace_plain_body
-import formatico.feature.workspace.generated.resources.workspace_plain_title
-import formatico.feature.workspace.generated.resources.workspace_query
-import formatico.feature.workspace.generated.resources.workspace_view_problems
-import formatico.feature.workspace.generated.resources.workspace_view_problems_short
-import formatico.feature.workspace.generated.resources.workspace_view_summary
-import formatico.feature.workspace.generated.resources.workspace_view_table
-import formatico.feature.workspace.generated.resources.workspace_view_text
-import formatico.feature.workspace.generated.resources.workspace_view_tree
-import org.jetbrains.compose.resources.stringResource
 
 /** The widest a pane's message is set. */
 private val MessageWidth = 320.dp
@@ -83,15 +63,15 @@ internal fun PaneMessage(icon: ImageVector, title: String, body: String, modifie
 @Composable
 internal fun EditorComing(state: WorkspaceState, modifier: Modifier = Modifier) {
     val body = when {
-        DocumentEdit.Minify in state.edits -> Res.string.workspace_editor_body
-        DocumentEdit.Format in state.edits -> Res.string.workspace_editor_body_table
-        state.reading is Reading.Read -> Res.string.workspace_editor_body_read
-        else -> Res.string.workspace_editor_body_unread
+        DocumentEdit.Minify in state.edits -> workspaceStrings.editorBody
+        DocumentEdit.Format in state.edits -> workspaceStrings.editorBodyTable
+        state.reading is Reading.Read -> workspaceStrings.editorBodyRead
+        else -> workspaceStrings.editorBodyUnread
     }
     PaneMessage(
         icon = PantrixIcons.File,
-        title = stringResource(Res.string.workspace_editor_title),
-        body = stringResource(body),
+        title = workspaceStrings.editorTitle,
+        body = body,
         modifier = modifier
     )
 }
@@ -110,11 +90,11 @@ internal fun treeMessage(state: WorkspaceState): Pair<String, String>? {
         }
 
         document.text.isBlank() -> {
-            stringResource(Res.string.workspace_empty_title) to stringResource(Res.string.workspace_empty_body)
+            workspaceStrings.emptyTitle to workspaceStrings.emptyBody
         }
 
         reading == Reading.PlainText -> {
-            stringResource(Res.string.workspace_plain_title) to stringResource(Res.string.workspace_plain_body)
+            workspaceStrings.plainTitle to workspaceStrings.plainBody
         }
 
         reading is Reading.Read && reading.root != null -> {
@@ -122,7 +102,7 @@ internal fun treeMessage(state: WorkspaceState): Pair<String, String>? {
         }
 
         else -> {
-            stringResource(Res.string.workspace_no_value_title) to stringResource(Res.string.workspace_no_value_body)
+            workspaceStrings.noValueTitle to workspaceStrings.noValueBody
         }
     }
 }
@@ -233,7 +213,7 @@ private fun TreeHeader(
         if (read && root != null) TreeLevels(root = root, layout = layout, onIntent = onIntent)
         PantrixIconButton(
             imageVector = PantrixIcons.Search,
-            contentDescription = stringResource(Res.string.workspace_find),
+            contentDescription = workspaceStrings.find,
             onClick = search::toggle,
             variant = if (search.open) ButtonVariant.Soft else ButtonVariant.Text,
             size = layout.buttons,
@@ -259,30 +239,30 @@ internal fun ViewChoice(
     withTable: Boolean = true,
     withQuery: Boolean = false
 ) {
-    val textLabel = stringResource(Res.string.workspace_view_text)
-    val treeLabel = stringResource(Res.string.workspace_view_tree)
+    val textLabel = workspaceStrings.viewText
+    val treeLabel = workspaceStrings.viewTree
     val text = SegmentOption<DocumentPane?>(value = DocumentPane.Text, label = textLabel, tagKey = "text")
     val tree = SegmentOption<DocumentPane?>(value = DocumentPane.Tree, label = treeLabel, tagKey = "tree")
-    val tableLabel = stringResource(Res.string.workspace_view_table)
+    val tableLabel = workspaceStrings.viewTable
     val table = SegmentOption<DocumentPane?>(value = DocumentPane.Table, label = tableLabel, tagKey = "table")
     // A phone has no room for the count beside its three views.
     val problemsLabel = if (withText) {
-        stringResource(Res.string.workspace_view_problems_short)
+        workspaceStrings.viewProblemsShort
     } else {
-        stringResource(Res.string.workspace_view_problems, problems)
+        workspaceStrings.viewProblems(problems)
     }
     val problemList = SegmentOption<DocumentPane?>(value = DocumentPane.Problems, label = problemsLabel, tagKey = "problems")
     // The Summary is a view while it is shown, as the status bar's size opens it; a phone shows it in the table's place.
     val summaryShown = selected == DocumentPane.Summary
     val summary = SegmentOption<DocumentPane?>(
         value = DocumentPane.Summary,
-        label = stringResource(Res.string.workspace_view_summary),
+        label = workspaceStrings.viewSummary,
         tagKey = "summary"
     )
     // The query is a view while it is shown, as the toolbar opens it; a phone shows it in the table's place too.
     val query = SegmentOption<DocumentPane?>(
         value = DocumentPane.Query,
-        label = stringResource(Res.string.workspace_query),
+        label = workspaceStrings.query,
         tagKey = "query"
     )
     PantrixSegmentButton(

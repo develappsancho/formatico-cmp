@@ -34,6 +34,7 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.components.elements.buttongroup.GroupButton
 import com.pantrixui.components.elements.buttongroup.PantrixButtonGroup
 import com.pantrixui.components.elements.icon.PantrixIcon
@@ -42,17 +43,8 @@ import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.components.inputs.textfield.PantrixTextField
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.theme.PantrixTheme
-import formatico.feature.workspace.generated.resources.Res
-import formatico.feature.workspace.generated.resources.workspace_close_search
-import formatico.feature.workspace.generated.resources.workspace_find
-import formatico.feature.workspace.generated.resources.workspace_match
-import formatico.feature.workspace.generated.resources.workspace_open_all
-import formatico.feature.workspace.generated.resources.workspace_open_all_levels
-import formatico.feature.workspace.generated.resources.workspace_open_to
-import formatico.feature.workspace.generated.resources.workspace_open_to_level
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.jetbrains.compose.resources.stringResource
 
 /** The levels the tree is opened to by a press, from the root's: the root alone open, its children too, and theirs. */
 private val Levels = 1..3
@@ -111,7 +103,7 @@ internal fun folded(text: String, language: String): String = if (language == "t
 @Composable
 internal fun TreeLevels(root: ValueNode, layout: WorkspaceLayout, onIntent: (WorkspaceIntent) -> Unit) {
     PantrixText(
-        text = stringResource(Res.string.workspace_open_to),
+        text = workspaceStrings.openTo,
         style = PantrixTheme.typography.footnote.copy(fontWeight = FontWeight.Medium),
         color = PantrixTheme.colors.textSecondary,
         maxLines = 1
@@ -120,14 +112,14 @@ internal fun TreeLevels(root: ValueNode, layout: WorkspaceLayout, onIntent: (Wor
         GroupButton(
             text = "$level",
             onClick = { onIntent(WorkspaceIntent.Expand(expandedTo(root, level))) },
-            contentDescription = stringResource(Res.string.workspace_open_to_level, level),
+            contentDescription = workspaceStrings.openToLevel(level),
             tagKey = "level_$level"
         )
     }
     val all = GroupButton(
-        text = stringResource(Res.string.workspace_open_all),
+        text = workspaceStrings.openAll,
         onClick = { onIntent(WorkspaceIntent.Expand(expandedTo(root, level = null))) },
-        contentDescription = stringResource(Res.string.workspace_open_all_levels),
+        contentDescription = workspaceStrings.openAllLevels,
         tagKey = "level_all"
     )
     PantrixButtonGroup(buttons = levels + all, size = layout.buttons, tagKey = "levels")
@@ -172,7 +164,7 @@ internal fun TreeSearchBar(
             leadingIcon = { PantrixIcon(imageVector = PantrixIcons.Search, contentDescription = null) },
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             onKeyboardAction = { onStep(1) },
-            contentDescription = stringResource(Res.string.workspace_find),
+            contentDescription = workspaceStrings.find,
             tagKey = "find"
         )
         position?.let {
@@ -190,7 +182,7 @@ internal fun TreeSearchBar(
         if (!phone) Spacer(modifier = Modifier.weight(1f))
         PantrixIconButton(
             imageVector = PantrixIcons.Close,
-            contentDescription = stringResource(Res.string.workspace_close_search),
+            contentDescription = workspaceStrings.closeSearch,
             onClick = onClose,
             size = size,
             tagKey = "close_search"
@@ -260,7 +252,7 @@ internal class TreeSearch(
     @Composable
     fun matchOf(node: ValueNode): String? {
         if (matches.getOrNull(chosen.intValue)?.key != node.key) return null
-        return stringResource(Res.string.workspace_match, PantrixTheme.strings.matchPosition(chosen.intValue + 1, matches.size))
+        return workspaceStrings.match(PantrixTheme.strings.matchPosition(chosen.intValue + 1, matches.size))
     }
 }
 

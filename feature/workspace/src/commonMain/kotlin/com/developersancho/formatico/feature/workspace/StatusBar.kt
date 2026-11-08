@@ -19,6 +19,9 @@ import com.developersancho.formatico.core.format.json.jsonPath
 import com.developersancho.formatico.core.format.text.Indentation
 import com.developersancho.formatico.core.format.text.LineEnding
 import com.developersancho.formatico.core.format.text.LineMap
+import com.developersancho.formatico.feature.workspace.strings.convertStrings
+import com.developersancho.formatico.feature.workspace.strings.queryStrings
+import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.components.data.codeeditor.CodeEditorState
 import com.pantrixui.components.data.tag.PantrixTag
 import com.pantrixui.components.data.tag.TagTone
@@ -30,23 +33,6 @@ import com.pantrixui.components.elements.button.colors
 import com.pantrixui.components.elements.divider.PantrixHorizontalDivider
 import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.foundation.theme.PantrixTheme
-import formatico.feature.workspace.generated.resources.Res
-import formatico.feature.workspace.generated.resources.convert_sizes
-import formatico.feature.workspace.generated.resources.query_match_of
-import formatico.feature.workspace.generated.resources.workspace_encoding
-import formatico.feature.workspace.generated.resources.workspace_indent_spaces
-import formatico.feature.workspace.generated.resources.workspace_indent_tabs
-import formatico.feature.workspace.generated.resources.workspace_line_column
-import formatico.feature.workspace.generated.resources.workspace_lines
-import formatico.feature.workspace.generated.resources.workspace_plain_text
-import formatico.feature.workspace.generated.resources.workspace_separated
-import formatico.feature.workspace.generated.resources.workspace_show_summary
-import formatico.feature.workspace.generated.resources.workspace_status_problems
-import formatico.feature.workspace.generated.resources.workspace_status_reading
-import formatico.feature.workspace.generated.resources.workspace_status_valid
-import formatico.feature.workspace.generated.resources.workspace_summary_shown
-import org.jetbrains.compose.resources.pluralStringResource
-import org.jetbrains.compose.resources.stringResource
 
 /**
  * The bar under the panes: whether the document is valid, how long it is, the line and column of [editor]'s caret or
@@ -89,14 +75,14 @@ internal fun StatusBar(
             val match = state.currentMatch?.takeIf { state.document?.view?.pane == DocumentPane.Query }
             match?.let {
                 PantrixText(
-                    text = stringResource(Res.string.query_match_of, it + 1, state.query.matches.size),
+                    text = queryStrings.matchOf(it + 1, state.query.matches.size),
                     style = style,
                     color = quiet
                 )
             }
             caretOf(state, editor)?.let { (line, column) ->
                 PantrixText(
-                    text = stringResource(Res.string.workspace_line_column, line, column),
+                    text = workspaceStrings.lineColumn(line, column),
                     style = style,
                     color = quiet
                 )
@@ -137,15 +123,15 @@ private fun caretOf(state: WorkspaceState, editor: CodeEditorState?): Pair<Int, 
 @Composable
 private fun layoutOf(stats: TextStats): String {
     val parts = buildList {
-        add(stringResource(Res.string.workspace_encoding))
+        add(workspaceStrings.encoding)
         stats.layout.lineEnding?.let { add(lineEndingName(it)) }
         when (val indentation = stats.layout.indentation) {
             is Indentation.Spaces -> {
-                add(pluralStringResource(Res.plurals.workspace_indent_spaces, indentation.count, indentation.count))
+                add(workspaceStrings.indentSpaces(indentation.count, indentation.count))
             }
 
             Indentation.Tabs -> {
-                add(stringResource(Res.string.workspace_indent_tabs))
+                add(workspaceStrings.indentTabs)
             }
 
             null -> {}
@@ -165,18 +151,18 @@ private fun lineEndingName(lineEnding: LineEnding): String = when (lineEnding) {
 internal fun StatusTag(state: WorkspaceState) {
     val (text, tone) = when (val reading = state.reading) {
         Reading.Pending -> {
-            stringResource(Res.string.workspace_status_reading) to TagTone.Neutral
+            workspaceStrings.statusReading to TagTone.Neutral
         }
 
         Reading.PlainText -> {
-            stringResource(Res.string.workspace_plain_text) to TagTone.Neutral
+            workspaceStrings.plainText to TagTone.Neutral
         }
 
         is Reading.Read -> {
             if (reading.errors == 0) {
-                stringResource(Res.string.workspace_status_valid, reading.format.displayName) to TagTone.Success
+                workspaceStrings.statusValid(reading.format.displayName) to TagTone.Success
             } else {
-                pluralStringResource(Res.plurals.workspace_status_problems, reading.errors, reading.errors) to
+                workspaceStrings.statusProblems(reading.errors, reading.errors) to
                     TagTone.Danger
             }
         }
@@ -192,9 +178,8 @@ internal fun StatusTag(state: WorkspaceState) {
 private fun SizeButton(state: WorkspaceState, stats: TextStats, onIntent: (WorkspaceIntent) -> Unit) {
     val document = state.document ?: return
     val shown = document.view.pane == DocumentPane.Summary
-    val size = stringResource(
-        Res.string.workspace_separated,
-        pluralStringResource(Res.plurals.workspace_lines, stats.lines, stats.lines),
+    val size = workspaceStrings.separated(
+        workspaceStrings.lines(stats.lines, stats.lines),
         PantrixTheme.strings.fileSize(stats.bytes)
     )
     val back = openingPane(document.format)
@@ -208,7 +193,7 @@ private fun SizeButton(state: WorkspaceState, stats: TextStats, onIntent: (Works
         } else {
             ButtonColors(container = Color.Transparent, content = PantrixTheme.colors.textSecondary, border = Color.Transparent)
         },
-        contentDescription = stringResource(if (shown) Res.string.workspace_summary_shown else Res.string.workspace_show_summary, size),
+        contentDescription = if (shown) workspaceStrings.summaryShown(size) else workspaceStrings.showSummary(size),
         tagKey = "size"
     )
 }
@@ -223,8 +208,7 @@ private fun ConvertedStatus(state: WorkspaceState, converted: ConvertOutcome.Con
     }
     val strings = PantrixTheme.strings
     PantrixText(
-        text = stringResource(
-            Res.string.convert_sizes,
+        text = convertStrings.sizes(
             converted.from.displayName,
             strings.fileSize(state.stats?.bytes ?: 0),
             converted.to.displayName,

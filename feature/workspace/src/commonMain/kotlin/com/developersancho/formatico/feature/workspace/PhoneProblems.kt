@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.format.Problem
 import com.developersancho.formatico.core.format.Repairs
 import com.developersancho.formatico.core.format.Severity
+import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.components.container.card.CardVariant
 import com.pantrixui.components.container.card.PantrixCard
 import com.pantrixui.components.data.codeeditor.CodeEditorState
@@ -27,16 +28,6 @@ import com.pantrixui.components.elements.iconbutton.PantrixIconButton
 import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.theme.PantrixTheme
-import formatico.feature.workspace.generated.resources.Res
-import formatico.feature.workspace.generated.resources.workspace_next_problem
-import formatico.feature.workspace.generated.resources.workspace_not_valid_count
-import formatico.feature.workspace.generated.resources.workspace_previous_problem
-import formatico.feature.workspace.generated.resources.workspace_problem_error
-import formatico.feature.workspace.generated.resources.workspace_problem_of
-import formatico.feature.workspace.generated.resources.workspace_problem_warning
-import formatico.feature.workspace.generated.resources.workspace_repair_all
-import org.jetbrains.compose.resources.pluralStringResource
-import org.jetbrains.compose.resources.stringResource
 
 /**
  * The strip a phone shows over an invalid document's text, in the trail's place: that it is not valid and how many
@@ -52,14 +43,14 @@ internal fun InvalidStrip(state: WorkspaceState, onIntent: (WorkspaceIntent) -> 
         horizontalArrangement = Arrangement.spacedBy(PantrixTheme.spacing.sm)
     ) {
         PantrixTag(
-            text = pluralStringResource(Res.plurals.workspace_not_valid_count, problems, problems, format.displayName),
+            text = workspaceStrings.notValidCount(problems, problems, format.displayName),
             tone = TagTone.Danger,
             dot = true,
             tagKey = "invalid"
         )
         Spacer(modifier = Modifier.weight(1f))
         PantrixButton(
-            text = stringResource(Res.string.workspace_repair_all),
+            text = workspaceStrings.repairAll,
             onClick = { onIntent(WorkspaceIntent.RepairAll) },
             variant = ButtonVariant.Text,
             size = ButtonSize.Medium,
@@ -120,8 +111,7 @@ private fun ProblemCardHeader(problem: Problem, index: Int, count: Int, onGoTo: 
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(PantrixTheme.spacing.sm)) {
         ProblemSign(problem)
         PantrixText(
-            text = pluralStringResource(
-                Res.plurals.workspace_problem_of,
+            text = workspaceStrings.problemOf(
                 count,
                 index + 1,
                 count,
@@ -134,7 +124,7 @@ private fun ProblemCardHeader(problem: Problem, index: Int, count: Int, onGoTo: 
         )
         PantrixIconButton(
             imageVector = PantrixIcons.ChevronBack,
-            contentDescription = stringResource(Res.string.workspace_previous_problem),
+            contentDescription = workspaceStrings.previousProblem,
             onClick = { onGoTo(index - 1) },
             enabled = index > 0,
             size = ButtonSize.Medium,
@@ -142,7 +132,7 @@ private fun ProblemCardHeader(problem: Problem, index: Int, count: Int, onGoTo: 
         )
         PantrixIconButton(
             imageVector = PantrixIcons.ChevronForward,
-            contentDescription = stringResource(Res.string.workspace_next_problem),
+            contentDescription = workspaceStrings.nextProblem,
             onClick = { onGoTo(index + 1) },
             enabled = index < count - 1,
             size = ButtonSize.Medium,
@@ -157,7 +147,7 @@ private fun ProblemSign(problem: Problem) {
     val error = problem.severity == Severity.Error
     PantrixIcon(
         imageVector = if (error) PantrixIcons.Error else PantrixIcons.Warning,
-        contentDescription = stringResource(if (error) Res.string.workspace_problem_error else Res.string.workspace_problem_warning),
+        contentDescription = if (error) workspaceStrings.problemError else workspaceStrings.problemWarning,
         tint = if (error) PantrixTheme.colors.danger.color else PantrixTheme.colors.warning.color
     )
 }

@@ -7,6 +7,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.developersancho.formatico.feature.workspace.strings.compareStrings
+import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.components.container.alert.AlertTone
 import com.pantrixui.components.container.alert.PantrixAlert
 import com.pantrixui.components.data.listitem.ListItemColors
@@ -17,20 +19,6 @@ import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.theme.PantrixTheme
 import com.pantrixui.foundation.token.shape.ShapeSpec
-import formatico.feature.workspace.generated.resources.Res
-import formatico.feature.workspace.generated.resources.compare_alone_body
-import formatico.feature.workspace.generated.resources.compare_alone_title
-import formatico.feature.workspace.generated.resources.compare_invalid_body
-import formatico.feature.workspace.generated.resources.compare_invalid_title
-import formatico.feature.workspace.generated.resources.compare_no_differences
-import formatico.feature.workspace.generated.resources.compare_not_counted
-import formatico.feature.workspace.generated.resources.compare_same_meaning
-import formatico.feature.workspace.generated.resources.compare_same_text
-import formatico.feature.workspace.generated.resources.compare_unread_body
-import formatico.feature.workspace.generated.resources.compare_unread_title
-import formatico.feature.workspace.generated.resources.workspace_untitled
-import org.jetbrains.compose.resources.pluralStringResource
-import org.jetbrains.compose.resources.stringResource
 
 /** The mark of a difference's change, `~`, `+` or `−`, on a tag of its tone, named for a screen reader. */
 @Composable
@@ -105,18 +93,16 @@ private val TabletPathWidth = 170.dp
 internal fun NotCountedAlert(compared: CompareOutcome.Compared, modifier: Modifier = Modifier) {
     if (compared.differences.isEmpty()) {
         PantrixAlert(
-            message = stringResource(
-                if (compared.by ==
-                    CompareBy.Meaning
-                ) {
-                    Res.string.compare_same_meaning
-                } else {
-                    Res.string.compare_same_text
-                }
-            ),
+            message = if (compared.by ==
+                CompareBy.Meaning
+            ) {
+                compareStrings.sameMeaning
+            } else {
+                compareStrings.sameText
+            },
             modifier = modifier,
             tone = AlertTone.Success,
-            title = stringResource(Res.string.compare_no_differences),
+            title = compareStrings.noDifferences,
             tagKey = "no_differences"
         )
         return
@@ -126,7 +112,7 @@ internal fun NotCountedAlert(compared: CompareOutcome.Compared, modifier: Modifi
         message = message,
         modifier = modifier,
         tone = AlertTone.Info,
-        title = stringResource(Res.string.compare_not_counted),
+        title = compareStrings.notCounted,
         announce = false,
         tagKey = "not_counted"
     )
@@ -135,26 +121,26 @@ internal fun NotCountedAlert(compared: CompareOutcome.Compared, modifier: Modifi
 /** Why there is nothing compared: no other document open, or one of the two with no value to compare by meaning. */
 @Composable
 internal fun CompareMessage(outcome: CompareOutcome?, modifier: Modifier = Modifier) {
-    val untitled = stringResource(Res.string.workspace_untitled)
+    val untitled = workspaceStrings.untitled
     when (outcome) {
         CompareOutcome.Alone -> PaneMessage(
             icon = PantrixIcons.Info,
-            title = stringResource(Res.string.compare_alone_title),
-            body = stringResource(Res.string.compare_alone_body),
+            title = compareStrings.aloneTitle,
+            body = compareStrings.aloneBody,
             modifier = modifier
         )
 
         is CompareOutcome.Unread -> PaneMessage(
             icon = PantrixIcons.Info,
-            title = stringResource(Res.string.compare_unread_title, outcome.name ?: untitled),
-            body = stringResource(Res.string.compare_unread_body),
+            title = compareStrings.unreadTitle(outcome.name ?: untitled),
+            body = compareStrings.unreadBody,
             modifier = modifier
         )
 
         is CompareOutcome.Invalid -> PaneMessage(
             icon = PantrixIcons.Warning,
-            title = pluralStringResource(Res.plurals.compare_invalid_title, outcome.errors, outcome.name ?: untitled, outcome.errors),
-            body = stringResource(Res.string.compare_invalid_body),
+            title = compareStrings.invalidTitle(outcome.errors, outcome.name ?: untitled, outcome.errors),
+            body = compareStrings.invalidBody,
             modifier = modifier
         )
 

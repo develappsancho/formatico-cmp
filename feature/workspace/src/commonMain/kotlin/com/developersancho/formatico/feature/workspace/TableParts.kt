@@ -10,6 +10,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontWeight
+import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.components.elements.button.ButtonSize
 import com.pantrixui.components.elements.button.ButtonVariant
 import com.pantrixui.components.elements.button.PantrixButton
@@ -21,27 +22,6 @@ import com.pantrixui.components.overlay.popover.PantrixPopover
 import com.pantrixui.components.overlay.popover.PopoverAlignment
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.theme.PantrixTheme
-import formatico.feature.workspace.generated.resources.Res
-import formatico.feature.workspace.generated.resources.workspace_a_to_z
-import formatico.feature.workspace.generated.resources.workspace_columns
-import formatico.feature.workspace.generated.resources.workspace_columns_all
-import formatico.feature.workspace.generated.resources.workspace_columns_some
-import formatico.feature.workspace.generated.resources.workspace_largest_first
-import formatico.feature.workspace.generated.resources.workspace_newest_first
-import formatico.feature.workspace.generated.resources.workspace_numbers
-import formatico.feature.workspace.generated.resources.workspace_oldest_first
-import formatico.feature.workspace.generated.resources.workspace_smallest_first
-import formatico.feature.workspace.generated.resources.workspace_sorted_by
-import formatico.feature.workspace.generated.resources.workspace_stat_average
-import formatico.feature.workspace.generated.resources.workspace_stat_different
-import formatico.feature.workspace.generated.resources.workspace_stat_empty
-import formatico.feature.workspace.generated.resources.workspace_stat_max
-import formatico.feature.workspace.generated.resources.workspace_stat_min
-import formatico.feature.workspace.generated.resources.workspace_value_column
-import formatico.feature.workspace.generated.resources.workspace_values
-import formatico.feature.workspace.generated.resources.workspace_z_to_a
-import org.jetbrains.compose.resources.pluralStringResource
-import org.jetbrains.compose.resources.stringResource
 
 /** The most digits after the mark a column's numbers are summed up with. */
 private const val MOST_FRACTION_DIGITS = 4
@@ -65,18 +45,18 @@ internal fun ColumnsChooser(
     val total = table.columns.size
     val shown = table.columns.count { it !in hidden }
     val description = if (shown == total) {
-        stringResource(Res.string.workspace_columns_all, total)
+        workspaceStrings.columnsAll(total)
     } else {
-        stringResource(Res.string.workspace_columns_some, shown, total)
+        workspaceStrings.columnsSome(shown, total)
     }
-    val valueName = stringResource(Res.string.workspace_value_column)
+    val valueName = workspaceStrings.valueColumn
     PantrixPopover(
         visible = open,
         onDismissRequest = { open = false },
         anchor = {
             if (wide) {
                 PantrixButton(
-                    text = stringResource(Res.string.workspace_columns),
+                    text = workspaceStrings.columns,
                     onClick = { open = true },
                     variant = ButtonVariant.Outline,
                     size = size,
@@ -95,7 +75,7 @@ internal fun ColumnsChooser(
             }
         },
         alignment = PopoverAlignment.End,
-        title = stringResource(Res.string.workspace_columns),
+        title = workspaceStrings.columns,
         tagKey = "columns"
     ) {
         // The popover scrolls what it holds, under its title, where the columns are more than its height takes: a
@@ -117,7 +97,7 @@ internal fun ColumnsChooser(
 @Composable
 internal fun ColumnSummary(column: String, stats: ColumnStats, table: TableModel) {
     val strings = PantrixTheme.strings
-    val name = if (column == VALUE_COLUMN) stringResource(Res.string.workspace_value_column) else column
+    val name = if (column == VALUE_COLUMN) workspaceStrings.valueColumn else column
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(PantrixTheme.spacing.lg)
@@ -133,26 +113,26 @@ internal fun ColumnSummary(column: String, stats: ColumnStats, table: TableModel
         when (stats) {
             is ColumnStats.Numbers -> {
                 val digits = fractionDigits(table, column)
-                Quiet(pluralStringResource(Res.plurals.workspace_numbers, stats.count, strings.decimal(stats.count, 0)))
-                Stat(stringResource(Res.string.workspace_stat_min), strings.decimal(stats.min, digits, digits))
-                Stat(stringResource(Res.string.workspace_stat_max), strings.decimal(stats.max, digits, digits))
+                Quiet(workspaceStrings.numbers(stats.count, strings.decimal(stats.count, 0)))
+                Stat(workspaceStrings.statMin, strings.decimal(stats.min, digits, digits))
+                Stat(workspaceStrings.statMax, strings.decimal(stats.max, digits, digits))
                 val average = maxOf(digits, AVERAGE_FRACTION_DIGITS)
                 Stat(
-                    stringResource(Res.string.workspace_stat_average),
+                    workspaceStrings.statAverage,
                     strings.decimal(stats.average, average, average)
                 )
             }
 
             is ColumnStats.Values -> {
-                Quiet(pluralStringResource(Res.plurals.workspace_values, stats.count, strings.decimal(stats.count, 0)))
+                Quiet(workspaceStrings.values(stats.count, strings.decimal(stats.count, 0)))
                 Stat(
                     strings.decimal(stats.different, 0),
-                    stringResource(Res.string.workspace_stat_different),
+                    workspaceStrings.statDifferent,
                     valueFirst = true
                 )
                 Stat(
                     strings.decimal(stats.empty, 0),
-                    stringResource(Res.string.workspace_stat_empty),
+                    workspaceStrings.statEmpty,
                     valueFirst = true
                 )
             }
@@ -200,17 +180,17 @@ internal fun SortSummary(table: TableModel, sort: TableSort) {
     val dates = first?.preview is ValuePreview.Moment || first?.preview is ValuePreview.Day
     val order = when {
         dates -> {
-            if (sort.descending) Res.string.workspace_newest_first else Res.string.workspace_oldest_first
+            if (sort.descending) workspaceStrings.newestFirst else workspaceStrings.oldestFirst
         }
 
         first?.kind == ValueKind.Number -> {
-            if (sort.descending) Res.string.workspace_largest_first else Res.string.workspace_smallest_first
+            if (sort.descending) workspaceStrings.largestFirst else workspaceStrings.smallestFirst
         }
 
         else -> {
-            if (sort.descending) Res.string.workspace_z_to_a else Res.string.workspace_a_to_z
+            if (sort.descending) workspaceStrings.zToA else workspaceStrings.aToZ
         }
     }
-    val name = if (sort.column == VALUE_COLUMN) stringResource(Res.string.workspace_value_column) else sort.column
-    Quiet(stringResource(Res.string.workspace_sorted_by, name, stringResource(order)))
+    val name = if (sort.column == VALUE_COLUMN) workspaceStrings.valueColumn else sort.column
+    Quiet(workspaceStrings.sortedBy(name, order))
 }

@@ -9,8 +9,7 @@ import com.developersancho.formatico.core.format.xml.XmlDocument
 import com.developersancho.formatico.core.share.ShareLinks
 import com.developersancho.formatico.core.share.SharedDocument
 import com.developersancho.formatico.core.storage.MemorySmallStore
-import formatico.feature.workspace.generated.resources.Res
-import formatico.feature.workspace.generated.resources.convert_null_comment
+import com.developersancho.formatico.feature.workspace.strings.convertStringsIn
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,7 +20,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.jetbrains.compose.resources.getString
 
 /**
  * The workspace of the document whose id is [documentId]: reads it again whenever its text or its format changes, and
@@ -36,7 +34,8 @@ internal class WorkspaceViewModel(
     private val workbench: Workbench,
     private val readings: Readings = Readings(workbench),
     private val reader: CoroutineDispatcher = Dispatchers.Default,
-    private val queries: QueryHistory = QueryHistory(MemorySmallStore(), CoroutineScope(Dispatchers.Unconfined))
+    private val queries: QueryHistory = QueryHistory(MemorySmallStore(), CoroutineScope(Dispatchers.Unconfined)),
+    private val language: () -> String = { "en" }
 ) : MviViewModel<WorkspaceState, WorkspaceIntent, WorkspaceEffect>(WorkspaceState()) {
     init {
         val document = workbench.state
@@ -153,7 +152,9 @@ internal class WorkspaceViewModel(
                     if (shown == null) return@collectLatest setState { copy(conversion = null) }
                     val reading = readings.of(documentId, shown.text, shown.format)?.first
                         ?: withContext(reader) { readDocument(shown.text, shown.format) }
-                    val comment = (reading as? Reading.Read)?.let { nullCommentOf(it.format, targetOf(it.format, shown.view.convert)) }
+                    val comment = (reading as? Reading.Read)?.let {
+                        nullCommentOf(it.format, targetOf(it.format, shown.view.convert), language())
+                    }
                     val outcome = withContext(reader) { conversionOf(shown, reading, shown.view.convert, comment.orEmpty()) }
                     setState { copy(conversion = outcome) }
                 }
@@ -331,12 +332,11 @@ private fun previewConversion(document: OpenDocument, reading: Reading): Convert
 }
 
 /**
- * The words that mark a null left out, in the reader's language, `{name}` standing for its name: a document of [from]
- * converted to [to], which has no null.
+ * The words that mark a null left out, in [language], the reader's, `{name}` standing for its name: a document of
+ * [from] converted to [to], which has no null.
  */
-private suspend fun nullCommentOf(from: Format, to: Format): String =
-    getString(Res.string.convert_null_comment, ConvertOptions.NAME, from.displayName, to.displayName)
+private fun nullCommentOf(from: Format, to: Format, language: String): String =
+    convertStringsIn(language).nullComment(ConvertOptions.NAME, from.displayName, to.displayName)
 
-/** What marks a null left out where a preview or a test works the state out at once: the English resources' words. */
-private fun previewNullComment(from: Format, to: Format): String =
-    "${ConvertOptions.NAME} = null in the ${from.displayName}: ${to.displayName} has no null"
+/** What marks a null left out where a preview or a test works the state out at once: the English words. */
+private fun previewNullComment(from: Format, to: Format): String = nullCommentOf(from, to, "en")

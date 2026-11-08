@@ -16,7 +16,6 @@ import com.developersancho.formatico.core.designsystem.PREVIEW_TAG
 import com.developersancho.formatico.core.designsystem.PreviewCase
 import com.pantrixui.testing.PantrixTestTheme
 import io.github.takahirom.roborazzi.captureRoboImage
-import java.util.Locale
 
 /**
  * Draws [content], the preview of [case], in [board]'s window and platform, light or dark as the case is, and writes
@@ -25,7 +24,7 @@ import java.util.Locale
  * `verifyRoborazziJvm` compares against.
  */
 @OptIn(ExperimentalTestApi::class)
-fun capturePreview(name: String, case: PreviewCase<*>, board: Board, content: @Composable () -> Unit) = inEnglish {
+fun capturePreview(name: String, case: PreviewCase<*>, board: Board, content: @Composable () -> Unit) =
     runDesktopComposeUiTest(width = board.width, height = board.height) {
         setContent {
             PantrixTestTheme(platform = board.platform, dark = case.dark, window = board.window) { content() }
@@ -33,7 +32,6 @@ fun capturePreview(name: String, case: PreviewCase<*>, board: Board, content: @C
         waitForIdle()
         onNodeWithTag(PREVIEW_TAG).captureRoboImage("screenshots/$name/${case.fileName}-${board.width}.png")
     }
-}
 
 /**
  * Draws [content], the preview of [case], as [capturePreview] does, presses the control whose automation key is
@@ -42,16 +40,14 @@ fun capturePreview(name: String, case: PreviewCase<*>, board: Board, content: @C
  */
 @OptIn(ExperimentalTestApi::class)
 fun captureOpenMenu(name: String, case: PreviewCase<*>, board: Board, opener: String, content: @Composable () -> Unit) =
-    inEnglish {
-        runDesktopComposeUiTest(width = board.width, height = board.height) {
-            setContent {
-                PantrixTestTheme(platform = board.platform, dark = case.dark, window = board.window) { content() }
-            }
-            waitForIdle()
-            onNode(hasClickAction() and hasKey(opener)).performClick()
-            waitForIdle()
-            onAllNodes(isRoot()).onLast().captureRoboImage("screenshots/$name/${case.fileName}-${board.width}.png")
+    runDesktopComposeUiTest(width = board.width, height = board.height) {
+        setContent {
+            PantrixTestTheme(platform = board.platform, dark = case.dark, window = board.window) { content() }
         }
+        waitForIdle()
+        onNode(hasClickAction() and hasKey(opener)).performClick()
+        waitForIdle()
+        onAllNodes(isRoot()).onLast().captureRoboImage("screenshots/$name/${case.fileName}-${board.width}.png")
     }
 
 /**
@@ -59,7 +55,7 @@ fun captureOpenMenu(name: String, case: PreviewCase<*>, board: Board, opener: St
  * over the preview, over its scrim, which is a window of its own.
  */
 @OptIn(ExperimentalTestApi::class)
-fun captureOverlay(name: String, case: PreviewCase<*>, board: Board, content: @Composable () -> Unit) = inEnglish {
+fun captureOverlay(name: String, case: PreviewCase<*>, board: Board, content: @Composable () -> Unit) =
     runDesktopComposeUiTest(width = board.width, height = board.height) {
         setContent {
             PantrixTestTheme(platform = board.platform, dark = case.dark, window = board.window) { content() }
@@ -67,26 +63,8 @@ fun captureOverlay(name: String, case: PreviewCase<*>, board: Board, content: @C
         waitForIdle()
         onAllNodes(isRoot()).onLast().captureRoboImage("screenshots/$name/${case.fileName}-${board.width}.png")
     }
-}
 
 /** A control whose automation key is [key], in whatever component and scope: `Button_more`, `Bar.IconButton_more`. */
 private fun hasKey(key: String) = SemanticsMatcher("has the automation key $key") { node ->
     node.config.getOrNull(SemanticsProperties.TestTag)?.endsWith("_$key") == true
-}
-
-/**
- * Runs [block] in English, and gives the JVM its language back: an app's words are Compose resources, which the
- * desktop reads in the JVM's language, not the theme's.
- */
-fun <T> inEnglish(block: () -> T): T = inLanguage("en", block)
-
-/** Runs [block] in the language whose tag is [tag], as [inEnglish] runs it in English. */
-fun <T> inLanguage(tag: String, block: () -> T): T {
-    val locale = Locale.getDefault()
-    Locale.setDefault(Locale.forLanguageTag(tag))
-    return try {
-        block()
-    } finally {
-        Locale.setDefault(locale)
-    }
 }

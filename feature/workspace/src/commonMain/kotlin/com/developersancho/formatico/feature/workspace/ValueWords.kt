@@ -4,38 +4,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.developersancho.formatico.core.format.json.jsonPath
+import com.developersancho.formatico.feature.workspace.strings.WorkspaceStrings
+import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.foundation.date.LocalPantrixClock
 import com.pantrixui.foundation.date.PantrixDate
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.l10n.PantrixStrings
 import com.pantrixui.foundation.theme.PantrixTheme
-import formatico.feature.workspace.generated.resources.Res
-import formatico.feature.workspace.generated.resources.workspace_alias_detail
-import formatico.feature.workspace.generated.resources.workspace_alias_missing
-import formatico.feature.workspace.generated.resources.workspace_characters
-import formatico.feature.workspace.generated.resources.workspace_days_ago
-import formatico.feature.workspace.generated.resources.workspace_days_ahead
-import formatico.feature.workspace.generated.resources.workspace_items
-import formatico.feature.workspace.generated.resources.workspace_keys
-import formatico.feature.workspace.generated.resources.workspace_kind_alias
-import formatico.feature.workspace.generated.resources.workspace_kind_array
-import formatico.feature.workspace.generated.resources.workspace_kind_boolean
-import formatico.feature.workspace.generated.resources.workspace_kind_colour
-import formatico.feature.workspace.generated.resources.workspace_kind_date
-import formatico.feature.workspace.generated.resources.workspace_kind_link
-import formatico.feature.workspace.generated.resources.workspace_kind_null
-import formatico.feature.workspace.generated.resources.workspace_kind_number
-import formatico.feature.workspace.generated.resources.workspace_kind_object
-import formatico.feature.workspace.generated.resources.workspace_kind_picture
-import formatico.feature.workspace.generated.resources.workspace_kind_string
-import formatico.feature.workspace.generated.resources.workspace_moment_local
-import formatico.feature.workspace.generated.resources.workspace_moment_utc
-import formatico.feature.workspace.generated.resources.workspace_separated
-import formatico.feature.workspace.generated.resources.workspace_today
-import formatico.feature.workspace.generated.resources.workspace_tomorrow
-import formatico.feature.workspace.generated.resources.workspace_yesterday
-import org.jetbrains.compose.resources.pluralStringResource
-import org.jetbrains.compose.resources.stringResource
 import kotlin.time.Duration
 import kotlin.time.Instant
 
@@ -55,17 +30,13 @@ private fun Instant.on(offset: Duration): ClockReading {
     )
 }
 
-/** [pattern] with its `%1$s`, `%2$s` filled by [arguments], as the resources' own formatting fills them. */
-private fun fill(pattern: String, vararg arguments: String): String =
-    arguments.foldIndexed(pattern) { index, text, argument -> text.replace("%${index + 1}\$s", argument) }
-
 /**
  * The words the tree's rows end in, for a string that looks like something more: a date in the reader's language, or
  * what kind of thing it is. Read once, for every row.
  */
 internal data class PreviewWords(
     private val strings: PantrixStrings,
-    private val utc: String,
+    private val words: WorkspaceStrings,
     private val colour: String,
     private val link: String,
     private val picture: String
@@ -74,7 +45,7 @@ internal data class PreviewWords(
         is ValuePreview.Moment -> {
             val reading = preview.instant.on(Duration.ZERO)
             val date = reading.date
-            fill(utc, strings.date(date.day, date.month, date.year), strings.clock(reading.hour, reading.minute))
+            words.momentUtc(strings.date(date.day, date.month, date.year), strings.clock(reading.hour, reading.minute))
         }
 
         is ValuePreview.Day -> {
@@ -98,11 +69,11 @@ internal data class PreviewWords(
 @Composable
 internal fun previewWords(): PreviewWords {
     val strings = PantrixTheme.strings
-    val utc = stringResource(Res.string.workspace_moment_utc)
-    val colour = stringResource(Res.string.workspace_kind_colour)
-    val link = stringResource(Res.string.workspace_kind_link)
-    val picture = stringResource(Res.string.workspace_kind_picture)
-    return remember(strings, utc, colour, link, picture) { PreviewWords(strings, utc, colour, link, picture) }
+    val words = workspaceStrings
+    val colour = workspaceStrings.kindColour
+    val link = workspaceStrings.kindLink
+    val picture = workspaceStrings.kindPicture
+    return remember(strings, words, colour, link, picture) { PreviewWords(strings, words, colour, link, picture) }
 }
 
 /**
@@ -119,22 +90,20 @@ internal fun readValue(node: ValueNode): ValueReading {
             val clock = LocalPantrixClock.current
             val utc = preview.instant.on(Duration.ZERO)
             val local = preview.instant.on(clock.utcOffset(preview.instant))
-            val headline = stringResource(
-                Res.string.workspace_moment_utc,
+            val headline = workspaceStrings.momentUtc(
                 strings.longDate(utc.date.day, utc.date.month, utc.date.year),
                 strings.clock(utc.hour, utc.minute)
             )
-            val detail = stringResource(
-                Res.string.workspace_separated,
+            val detail = workspaceStrings.separated(
                 dayDetail(local.date),
-                stringResource(Res.string.workspace_moment_local, strings.clock(local.hour, local.minute))
+                workspaceStrings.momentLocal(strings.clock(local.hour, local.minute))
             )
-            ValueReading(stringResource(Res.string.workspace_kind_date), PantrixIcons.Calendar, headline, detail)
+            ValueReading(workspaceStrings.kindDate, PantrixIcons.Calendar, headline, detail)
         }
 
         is ValuePreview.Day -> {
             ValueReading(
-                kind = stringResource(Res.string.workspace_kind_date),
+                kind = workspaceStrings.kindDate,
                 icon = PantrixIcons.Calendar,
                 headline = strings.longDate(preview.date.day, preview.date.month, preview.date.year),
                 detail = dayDetail(preview.date)
@@ -143,7 +112,7 @@ internal fun readValue(node: ValueNode): ValueReading {
 
         is ValuePreview.Colour -> {
             ValueReading(
-                stringResource(Res.string.workspace_kind_colour),
+                workspaceStrings.kindColour,
                 null,
                 node.value.orEmpty(),
                 null
@@ -151,12 +120,12 @@ internal fun readValue(node: ValueNode): ValueReading {
         }
 
         is ValuePreview.Link -> {
-            ValueReading(stringResource(Res.string.workspace_kind_link), null, preview.url, null)
+            ValueReading(workspaceStrings.kindLink, null, preview.url, null)
         }
 
         is ValuePreview.Picture -> {
             ValueReading(
-                stringResource(Res.string.workspace_kind_picture),
+                workspaceStrings.kindPicture,
                 null,
                 preview.url,
                 null
@@ -175,18 +144,18 @@ private fun plainReading(node: ValueNode): ValueReading {
     return when (node.kind) {
         ValueKind.Object -> {
             ValueReading(
-                kind = stringResource(Res.string.workspace_kind_object),
+                kind = workspaceStrings.kindObject,
                 icon = null,
-                headline = pluralStringResource(Res.plurals.workspace_keys, count, count),
+                headline = workspaceStrings.keys(count, count),
                 detail = null
             )
         }
 
         ValueKind.Array -> {
             ValueReading(
-                kind = stringResource(Res.string.workspace_kind_array),
+                kind = workspaceStrings.kindArray,
                 icon = null,
-                headline = pluralStringResource(Res.plurals.workspace_items, count, count),
+                headline = workspaceStrings.items(count, count),
                 detail = null
             )
         }
@@ -194,36 +163,33 @@ private fun plainReading(node: ValueNode): ValueReading {
         ValueKind.String -> {
             val value = node.value.orEmpty()
             ValueReading(
-                kind = stringResource(Res.string.workspace_kind_string),
+                kind = workspaceStrings.kindString,
                 icon = null,
                 headline = value,
-                detail = pluralStringResource(Res.plurals.workspace_characters, value.length, value.length)
+                detail = workspaceStrings.characters(value.length, value.length)
             )
         }
 
         ValueKind.Number -> {
-            ValueReading(stringResource(Res.string.workspace_kind_number), null, node.text, null)
+            ValueReading(workspaceStrings.kindNumber, null, node.text, null)
         }
 
         ValueKind.Boolean -> {
-            ValueReading(stringResource(Res.string.workspace_kind_boolean), null, node.text, null)
+            ValueReading(workspaceStrings.kindBoolean, null, node.text, null)
         }
 
         ValueKind.Null -> {
-            ValueReading(stringResource(Res.string.workspace_kind_null), null, node.text, null)
+            ValueReading(workspaceStrings.kindNull, null, node.text, null)
         }
 
         ValueKind.Alias -> {
             val anchor = node.text.removePrefix("*")
             val target = node.target
             ValueReading(
-                kind = stringResource(Res.string.workspace_kind_alias),
+                kind = workspaceStrings.kindAlias,
                 icon = null,
                 headline = target?.let { jsonPath(it.path) } ?: node.text,
-                detail = stringResource(
-                    if (target != null) Res.string.workspace_alias_detail else Res.string.workspace_alias_missing,
-                    anchor
-                )
+                detail = if (target != null) workspaceStrings.aliasDetail(anchor) else workspaceStrings.aliasMissing(anchor)
             )
         }
     }
@@ -237,10 +203,10 @@ private fun dayDetail(date: PantrixDate): String {
     val today = PantrixDate.of(now, clock.utcOffset(now))
     val days = (today.epochDays - date.epochDays).toInt()
     return when {
-        days == 0 -> stringResource(Res.string.workspace_today)
-        days == 1 -> stringResource(Res.string.workspace_yesterday)
-        days == -1 -> stringResource(Res.string.workspace_tomorrow)
-        days > 1 -> pluralStringResource(Res.plurals.workspace_days_ago, days, days)
-        else -> pluralStringResource(Res.plurals.workspace_days_ahead, -days, -days)
+        days == 0 -> workspaceStrings.today
+        days == 1 -> workspaceStrings.yesterday
+        days == -1 -> workspaceStrings.tomorrow
+        days > 1 -> workspaceStrings.daysAgo(days, days)
+        else -> workspaceStrings.daysAhead(-days, -days)
     }
 }

@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.designsystem.LocalSyntaxColors
 import com.developersancho.formatico.core.designsystem.SyntaxColors
 import com.developersancho.formatico.core.format.json.jsonPath
+import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.components.data.lazytreeview.PantrixLazyTreeView
 import com.pantrixui.components.data.lazytreeview.rememberTreeViewState
 import com.pantrixui.components.data.treeview.TreeNode
@@ -24,9 +25,6 @@ import com.pantrixui.components.data.treeview.TreeViewStyle
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.theme.PantrixTheme
 import com.pantrixui.foundation.token.typography.TypeRole
-import formatico.feature.workspace.generated.resources.Res
-import formatico.feature.workspace.generated.resources.workspace_open_link
-import org.jetbrains.compose.resources.stringResource
 
 /**
  * What a search marks in the tree's rows: what is [sought], in small letters as [language] writes them, and the key of
@@ -246,7 +244,7 @@ internal fun DocumentTree(
     val rows = remember(maker, selected, marks, state.expanded) { maker.rows(selected, marks, state.expanded) }
     val words = previewWords()
     val links = LocalUriHandler.current
-    val openLink = stringResource(Res.string.workspace_open_link)
+    val openLink = workspaceStrings.openLink
     val tree = rememberTreeViewState()
     LaunchedEffect(tree, selected) {
         tree.scrollToKey(selected ?: return@LaunchedEffect)

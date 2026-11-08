@@ -66,7 +66,7 @@ class TreeLinkTest {
             }
         }
 
-        awaitNode(linksRow, "The link's row", forgetting = findings)
+        awaitNode(linksRow, "The link's row")
         // The button is not read apart from the row: it stands in the tree of every node.
         val button = onPantrixNode("Action", "website", scope = "LazyTreeView_document", useUnmergedTree = true)
         button.assertExists()
@@ -92,7 +92,7 @@ class TreeLinkTest {
             }
         }
 
-        awaitNode(linksRow, "The link's row", forgetting = findings)
+        awaitNode(linksRow, "The link's row")
         onPantrixNode("Node", "website", scope = "LazyTreeView_document").performCustomAccessibilityActionWithLabel("Open the link")
         assertEquals(listOf("https://elif.dev"), links.opened)
         assertNoFindings(findings)

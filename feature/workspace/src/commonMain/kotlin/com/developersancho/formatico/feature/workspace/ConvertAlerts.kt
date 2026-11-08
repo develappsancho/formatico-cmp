@@ -9,16 +9,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.format.convert.Loss
+import com.developersancho.formatico.feature.workspace.strings.convertStrings
+import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.components.container.alert.AlertTone
 import com.pantrixui.components.container.alert.PantrixAlert
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.theme.PantrixTheme
-import formatico.feature.workspace.generated.resources.Res
-import formatico.feature.workspace.generated.resources.convert_invalid
-import formatico.feature.workspace.generated.resources.convert_nothing_lost
-import formatico.feature.workspace.generated.resources.workspace_status_problems
-import org.jetbrains.compose.resources.pluralStringResource
-import org.jetbrains.compose.resources.stringResource
 
 /** Whether [converted] offers the choice of what a null becomes: its format has none, and the document has one. */
 internal val ConvertOutcome.Converted.choosesNulls: Boolean get() = to.choosesNulls && losses.any { it is Loss.Nulls }
@@ -34,7 +30,7 @@ internal fun ConvertAlerts(converted: ConvertOutcome.Converted, withNotes: Boole
             message = nothingLostMessage(converted, withNotes),
             modifier = modifier,
             tone = AlertTone.Success,
-            title = stringResource(Res.string.convert_nothing_lost),
+            title = convertStrings.nothingLost,
             tagKey = "nothing_lost"
         )
         return
@@ -63,8 +59,8 @@ internal fun ConvertMessage(state: WorkspaceState, modifier: Modifier = Modifier
     }
     PaneMessage(
         icon = PantrixIcons.Warning,
-        title = pluralStringResource(Res.plurals.workspace_status_problems, invalid.errors, invalid.errors),
-        body = pluralStringResource(Res.plurals.convert_invalid, invalid.errors, invalid.format.displayName, invalid.errors),
+        title = workspaceStrings.statusProblems(invalid.errors, invalid.errors),
+        body = convertStrings.invalid(invalid.errors, invalid.format.displayName, invalid.errors),
         modifier = modifier
     )
 }

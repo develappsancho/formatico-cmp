@@ -99,7 +99,7 @@ class WorkspaceScreenTest {
             }
         }
 
-        awaitNode(hasPantrixTag("CodeEditor", "text"), "The editor", forgetting = findings)
+        awaitNode(hasPantrixTag("CodeEditor", "text"), "The editor")
         onPantrixNode("CodeEditor", "text").assert(hasText("\"id\": \"ord_8842\"", substring = true))
         awaitText("Valid JSON")
         awaitText("Ln 1, Col 1")
@@ -153,7 +153,7 @@ class WorkspaceScreenTest {
             }
         }
 
-        awaitText("Valid JSON", forgetting = findings)
+        awaitText("Valid JSON")
         awaitText("$.customer.name")
         onPantrixNode("Button", "sort_keys").assertDoesNotExist()
         onPantrixNode("Item", "customer", scope = "Breadcrumb_path").performClick()
@@ -175,11 +175,11 @@ class WorkspaceScreenTest {
                 )
             }
         }
-        awaitText("Valid JSON", forgetting = findings)
+        awaitText("Valid JSON")
 
         onPantrixNode("Button", "copy_path").assert(hasContentDescription("Copy the path of name as JSONPath, JSON Pointer or jq"))
         onPantrixNode("Button", "copy_path").performClick()
-        awaitText("Copy the path of name as", forgetting = findings)
+        awaitText("Copy the path of name as")
         // Each form shows the path it gives.
         onPantrixNode("MenuItem", "jsonpath", scope = "Menu_path_forms").assert(hasText("$.customer.name"))
         onPantrixNode("MenuItem", "jq", scope = "Menu_path_forms").assert(hasText(".customer.name"))
@@ -229,7 +229,7 @@ class WorkspaceScreenTest {
                 )
             }
         }
-        awaitText("Valid JSON", forgetting = findings)
+        awaitText("Valid JSON")
 
         onPantrixNode("Button", "level_1", scope = "ButtonGroup_levels").performClick()
         onPantrixNode("Button", "level_all", scope = "ButtonGroup_levels").performClick()
@@ -244,8 +244,7 @@ class WorkspaceScreenTest {
         // In a browser the bar's words are read as it first shows.
         awaitNode(
             hasPantrixTag("IconButton", "close_search") and hasContentDescription("Close the search"),
-            "The bar",
-            forgetting = findings
+            "The bar"
         )
         onPantrixNode("TextField", "find").performTextInput("elif")
         awaitText("1 of 3")
@@ -283,20 +282,18 @@ class WorkspaceScreenTest {
                 )
             }
         }
-        awaitText("Valid JSON", forgetting = findings)
+        awaitText("Valid JSON")
 
         onPantrixNode("Button", "size").performClick()
         // In a browser the Summary's words are read as it first shows.
         awaitNode(
             hasPantrixTag("IconButton", "copy_summary") and hasContentDescription("Copy the summary as text"),
-            "Copy",
-            forgetting = findings
+            "Copy"
         )
-        awaitNode(hasPantrixTag("ListItem", "dates") and hasText("1 date"), "The dates", forgetting = findings)
+        awaitNode(hasPantrixTag("ListItem", "dates") and hasText("1 date"), "The dates")
         awaitNode(
             hasPantrixTag("Button", "size") and hasContentDescription("The summary is shown", substring = true),
-            "The size",
-            forgetting = findings
+            "The size"
         )
         awaitText("Found in the values")
         onPantrixNode("Segment", "summary", scope = "SegmentButton_view").assertExists()
@@ -381,7 +378,7 @@ class WorkspaceScreenTest {
                 WorkspaceScreen(state = stateOf(order, Format.Json), onIntent = {}, commands = rememberDocumentCommands(Workbench()))
             }
         }
-        awaitText("Valid JSON", forgetting = findings)
+        awaitText("Valid JSON")
         val handle = onPantrixNode("TwoPaneHandle", "panes")
         val top = onPantrixNode("TwoPane", "panes").getBoundsInRoot().top
         val split = { handle.getBoundsInRoot().let { (it.top + it.bottom) / 2 } - top }
@@ -441,7 +438,7 @@ class WorkspaceScreenTest {
                 }, commands = rememberDocumentCommands(Workbench()))
             }
         }
-        awaitText("Valid JSON", forgetting = findings)
+        awaitText("Valid JSON")
         onPantrixNode("Node", "key0", scope = "LazyTreeView_document").assertIsDisplayed()
 
         // Chosen in the text or by a search, a value far down the tree is scrolled to.
@@ -466,7 +463,7 @@ class WorkspaceScreenTest {
         }
 
         // The chosen value shows without scrolling, so the tree stays at its root, as the board draws it.
-        awaitNode(hasPantrixTag("Node", "key3", scope = "LazyTreeView_document"), "The chosen row", forgetting = findings)
+        awaitNode(hasPantrixTag("Node", "key3", scope = "LazyTreeView_document"), "The chosen row")
         onPantrixNode("Node", "key3", scope = "LazyTreeView_document").assertIsDisplayed()
         onPantrixNode("Node", "root", scope = "LazyTreeView_document").assertIsDisplayed()
         assertNoFindings(findings)
@@ -484,14 +481,14 @@ class WorkspaceScreenTest {
             }
         }
 
-        awaitNode(hasContentDescription("Colour #0F766E"), "The colour's swatch", forgetting = findings)
+        awaitNode(hasContentDescription("Colour #0F766E"), "The colour's swatch")
         awaitNode(hasContentDescription("Picture at this address"), "The picture's place")
         awaitText("14:32 UTC", substring = true)
         // A link ends its row in the button that opens it (TreeLinkTest).
         onPantrixNode("Action", "website", scope = "LazyTreeView_document", useUnmergedTree = true).assertExists()
         // A phone, with less room, shows the date by its icon, which says it.
         window = phone
-        awaitNode(hasContentDescription("14:32 UTC", substring = true), "The date's icon", forgetting = findings)
+        awaitNode(hasContentDescription("14:32 UTC", substring = true), "The date's icon")
         assertNoFindings(findings)
     }
 
@@ -509,7 +506,7 @@ class WorkspaceScreenTest {
             }
         }
 
-        awaitText("Copy the value", forgetting = findings)
+        awaitText("Copy the value")
         onPantrixNode("Tag", "kind").assertExists()
         awaitText("Date")
         onPantrixNode("Button", "show_in_text").performClick()
@@ -537,7 +534,7 @@ class WorkspaceScreenTest {
             }
         }
 
-        awaitText("Valid YAML", forgetting = findings)
+        awaitText("Valid YAML")
         awaitText("matchLabels: *labels")
         onPantrixNode("Button", "format").assertIsEnabled()
         onPantrixNode("Button", "sort_keys").assertIsEnabled()
@@ -616,7 +613,7 @@ class WorkspaceScreenTest {
             }
         }
 
-        awaitText("3 rows · 3 columns", forgetting = findings)
+        awaitText("3 rows · 3 columns")
         awaitText("3 numbers")
         awaitText("1,250.00")
         onPantrixNode("Header", "total", scope = "DataTable_table").performClick()
@@ -625,7 +622,7 @@ class WorkspaceScreenTest {
         awaitText("1 of 3 rows · 3 columns")
         onPantrixNode("IconButton", "table_out").performClick()
         // In a browser the menu's words are read as it first shows.
-        awaitNode(hasText("Copy as a Markdown table"), "The menu", forgetting = findings)
+        awaitNode(hasText("Copy as a Markdown table"), "The menu")
         onPantrixNode("MenuItem", "save_csv", scope = "Menu_table_out").performClick()
 
         assertEquals(

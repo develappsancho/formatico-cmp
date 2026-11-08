@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.developersancho.formatico.feature.settings.strings.settingsStrings
 import com.pantrixui.components.data.listitem.PantrixListItem
 import com.pantrixui.components.elements.button.ButtonSize
 import com.pantrixui.components.elements.button.ButtonVariant
@@ -20,13 +21,6 @@ import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.components.elements.text.TextRole
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.theme.PantrixTheme
-import formatico.feature.settings.generated.resources.Res
-import formatico.feature.settings.generated.resources.settings_in_the_web_app
-import formatico.feature.settings.generated.resources.settings_licences
-import formatico.feature.settings.generated.resources.settings_licences_body
-import formatico.feature.settings.generated.resources.settings_licences_body_phone
-import formatico.feature.settings.generated.resources.settings_title
-import org.jetbrains.compose.resources.stringResource
 
 /**
  * The libraries Formatico is built on, each with its licence: pressing one shows its text. A phone lists those its
@@ -36,9 +30,9 @@ import org.jetbrains.compose.resources.stringResource
 internal fun LicencesPage(layout: SettingsLayout, onIntent: (SettingsIntent) -> Unit) {
     val phone = layout == SettingsLayout.Phone
     Column(verticalArrangement = Arrangement.spacedBy(if (phone) PantrixTheme.spacing.md else PantrixTheme.spacing.lg)) {
-        if (!phone) PageTitle(title = stringResource(Res.string.settings_licences), onIntent = onIntent)
+        if (!phone) PageTitle(title = settingsStrings.licences, onIntent = onIntent)
         PantrixText(
-            text = stringResource(if (phone) Res.string.settings_licences_body_phone else Res.string.settings_licences_body),
+            text = if (phone) settingsStrings.licencesBodyPhone else settingsStrings.licencesBody,
             modifier = Modifier.padding(horizontal = if (phone) PantrixTheme.spacing.xs else 0.dp),
             style = PantrixTheme.typography.label.copy(fontWeight = FontWeight.Medium),
             color = PantrixTheme.colors.textSecondary
@@ -50,7 +44,7 @@ internal fun LicencesPage(layout: SettingsLayout, onIntent: (SettingsIntent) -> 
                 val licence = library.licence.title
                 PantrixListItem(
                     headline = library.title,
-                    supportingText = if (library.inTheWebApp) stringResource(Res.string.settings_in_the_web_app, licence) else licence,
+                    supportingText = if (library.inTheWebApp) settingsStrings.inTheWebApp(licence) else licence,
                     chevron = true,
                     onClick = { onIntent(SettingsIntent.ShowLicence(library)) },
                     tagKey = "library_${library.name.lowercase()}"
@@ -66,7 +60,7 @@ internal fun LicencePage(library: OpenSourceLibrary, layout: SettingsLayout, onI
     val text by produceState(initialValue = "", library) { value = licenceText(library.licence) }
     Column(verticalArrangement = Arrangement.spacedBy(PantrixTheme.spacing.lg)) {
         if (layout != SettingsLayout.Phone) {
-            PageTitle(title = library.title, onIntent = onIntent, back = stringResource(Res.string.settings_licences))
+            PageTitle(title = library.title, onIntent = onIntent, back = settingsStrings.licences)
         }
         SettingsGroup {
             PantrixText(
@@ -86,7 +80,7 @@ internal fun LicencePage(library: OpenSourceLibrary, layout: SettingsLayout, onI
  * has both.
  */
 @Composable
-private fun PageTitle(title: String, onIntent: (SettingsIntent) -> Unit, back: String = stringResource(Res.string.settings_title)) {
+private fun PageTitle(title: String, onIntent: (SettingsIntent) -> Unit, back: String = settingsStrings.title) {
     Column(horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.spacedBy(PantrixTheme.spacing.sm)) {
         PantrixButton(
             text = back,

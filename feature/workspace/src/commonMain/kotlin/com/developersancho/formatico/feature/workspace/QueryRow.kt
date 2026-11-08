@@ -9,26 +9,13 @@ import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.designsystem.LocalSyntaxColors
 import com.developersancho.formatico.core.designsystem.SyntaxColors
 import com.developersancho.formatico.core.format.query.QueryErrorCode
+import com.developersancho.formatico.feature.workspace.strings.queryStrings
 import com.pantrixui.components.data.listitem.ListItemColors
 import com.pantrixui.components.data.listitem.ListItemStyle
 import com.pantrixui.components.data.listitem.PantrixListItem
 import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.foundation.theme.PantrixTheme
 import com.pantrixui.foundation.token.shape.ShapeSpec
-import formatico.feature.workspace.generated.resources.Res
-import formatico.feature.workspace.generated.resources.query_ask_jsonpath
-import formatico.feature.workspace.generated.resources.query_ask_xpath
-import formatico.feature.workspace.generated.resources.query_computed
-import formatico.feature.workspace.generated.resources.query_error_at
-import formatico.feature.workspace.generated.resources.query_jsonpath_elsewhere
-import formatico.feature.workspace.generated.resources.query_matches
-import formatico.feature.workspace.generated.resources.query_no_matches
-import formatico.feature.workspace.generated.resources.query_status_and_note
-import formatico.feature.workspace.generated.resources.query_unread
-import formatico.feature.workspace.generated.resources.query_value
-import formatico.feature.workspace.generated.resources.query_xpath_elsewhere
-import org.jetbrains.compose.resources.pluralStringResource
-import org.jetbrains.compose.resources.stringResource
 
 /**
  * A row of what a query found: a value, at its [path], written as [value] in the colour of its [kind] where it has one,
@@ -121,32 +108,26 @@ internal fun syntaxInk(kind: ValueKind, syntax: SyntaxColors, quiet: Color): Col
 @Composable
 internal fun queryStatus(outcome: QueryOutcome?, language: QueryLanguage, withOtherLanguage: Boolean): String? {
     val status = when (outcome) {
-        null, QueryOutcome.Unasked -> stringResource(
-            if (language == QueryLanguage.XPath) Res.string.query_ask_xpath else Res.string.query_ask_jsonpath
-        )
-
-        QueryOutcome.Unread -> return stringResource(Res.string.query_unread)
-
+        null, QueryOutcome.Unasked -> if (language == QueryLanguage.XPath) queryStrings.askXpath else queryStrings.askJsonpath
+        QueryOutcome.Unread -> return queryStrings.unread
         is QueryOutcome.Failed -> return queryError(outcome.error.code, outcome.error.offset)
-
         is QueryOutcome.Found -> resultsTitle(outcome)
-
-        is QueryOutcome.Computed -> stringResource(Res.string.query_computed)
+        is QueryOutcome.Computed -> queryStrings.computed
     }
-    val other = if (language == QueryLanguage.XPath) Res.string.query_jsonpath_elsewhere else Res.string.query_xpath_elsewhere
-    return if (withOtherLanguage) stringResource(Res.string.query_status_and_note, status, stringResource(other)) else status
+    val other = if (language == QueryLanguage.XPath) queryStrings.jsonpathElsewhere else queryStrings.xpathElsewhere
+    return if (withOtherLanguage) queryStrings.statusAndNote(status, other) else status
 }
 
 /** The title over what [outcome] found: how many matches, none, or the value an XPath came to. */
 @Composable
 internal fun resultsTitle(outcome: QueryOutcome?): String = when (outcome) {
     is QueryOutcome.Found -> if (outcome.matches.isEmpty()) {
-        stringResource(Res.string.query_no_matches)
+        queryStrings.noMatches
     } else {
-        pluralStringResource(Res.plurals.query_matches, outcome.matches.size, outcome.matches.size)
+        queryStrings.matches(outcome.matches.size, outcome.matches.size)
     }
 
-    is QueryOutcome.Computed -> stringResource(Res.string.query_value)
+    is QueryOutcome.Computed -> queryStrings.value
 
     else -> ""
 }
@@ -154,4 +135,4 @@ internal fun resultsTitle(outcome: QueryOutcome?): String = when (outcome) {
 /** Where a query stops being one, at the character [offset] counts from nought, and why: [code]. */
 @Composable
 internal fun queryError(code: QueryErrorCode, offset: Int): String =
-    stringResource(Res.string.query_error_at, stringResource(queryErrorWords(code)), offset + 1)
+    queryStrings.errorAt(queryStrings.errorOf(code), offset + 1)

@@ -20,6 +20,7 @@ import com.developersancho.formatico.feature.workspace.OpenDocument
 import com.developersancho.formatico.feature.workspace.ValueNode
 import com.developersancho.formatico.feature.workspace.nodeAt
 import com.developersancho.formatico.feature.workspace.problemMessage
+import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.components.data.codeblock.CodeMark
 import com.pantrixui.components.data.codeblock.CodeTone
 import com.pantrixui.components.data.codeeditor.CodeEditorState
@@ -27,13 +28,9 @@ import com.pantrixui.components.data.codeeditor.CodeEditorStyle
 import com.pantrixui.components.data.codeeditor.CodeRangeMark
 import com.pantrixui.components.data.codeeditor.PantrixCodeEditor
 import com.pantrixui.foundation.token.shape.ShapeSpec
-import formatico.feature.workspace.generated.resources.Res
-import formatico.feature.workspace.generated.resources.workspace_text_of
-import formatico.feature.workspace.generated.resources.workspace_untitled
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
-import org.jetbrains.compose.resources.stringResource
 import kotlin.time.Duration.Companion.milliseconds
 
 /** How long the typing pauses before what was typed reaches the document, which is read again from it. */
@@ -101,7 +98,7 @@ internal fun DocumentEditor(
         }
     }
     FollowTheTree(editor = editor, root = root, selected = selected, onSelect = onSelect)
-    val name = document.name ?: stringResource(Res.string.workspace_untitled)
+    val name = document.name ?: workspaceStrings.untitled
     PantrixCodeEditor(
         state = editor,
         modifier = modifier,
@@ -111,7 +108,7 @@ internal fun DocumentEditor(
         indent = editorIndent(indentation),
         style = PaneEditorStyle,
         colors = editorColors(),
-        contentDescription = stringResource(Res.string.workspace_text_of, name),
+        contentDescription = workspaceStrings.textOf(name),
         softWrap = LocalWrapLines.current,
         tagKey = "text"
     )

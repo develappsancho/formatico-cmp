@@ -53,7 +53,7 @@ class StartScreenTest {
         }
 
         awaitText("Paste anything")
-        awaitText("Nothing opened yet", forgetting = findings)
+        awaitText("Nothing opened yet")
         onNodeWithText("Clear history").assertDoesNotExist()
         onPantrixNode("ListItem", "sample_countries").performClick()
 

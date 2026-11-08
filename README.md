@@ -60,9 +60,10 @@ loads it.
 - Accessibility: `BoardAccessibilityTest` takes the app to every board at every width on the JVM, iOS and Wasm, and
   asserts that Pantrix's diagnostics found nothing (a control without a name, words too faint, a touch target
   squeezed, a tag on two nodes)
-- The words in English and in Turkish: `./gradlew checkTranslations` (part of `check`) keeps their keys, placeholders
-  and plurals together; a Turkish word the same as the English is named in
-  [`config/l10n/same-in-both.txt`](config/l10n/same-in-both.txt)
+- The words in English and in Turkish: each feature keeps them in Kotlin, in its own `strings` package (the workspace
+  one per screen), an interface and an object of it for each language; the theme's language chooses which
+  (`inTheLanguage`). The compiler keeps the two languages' words and their values together, and each module's
+  `StringsTest` that no Turkish word is still the English one
 - In a browser: `./gradlew :app:webTest:test` builds the web distribution, serves it on this machine and drives this
   machine's Chrome through its DevTools (`-Pformatico.chrome=<path>` for another): the loader's choice of build, the
   tab's history and address, shared links, a reload, a phone's width, Turkish

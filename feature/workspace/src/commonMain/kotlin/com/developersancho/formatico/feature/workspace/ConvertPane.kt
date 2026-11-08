@@ -17,6 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.feature.workspace.editor.ConvertedText
+import com.developersancho.formatico.feature.workspace.strings.convertStrings
+import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.components.container.twopane.PaneSize
 import com.pantrixui.components.container.twopane.PantrixTwoPane
 import com.pantrixui.components.data.codeeditor.CodeEditorState
@@ -25,11 +27,6 @@ import com.pantrixui.components.elements.divider.PantrixHorizontalDivider
 import com.pantrixui.components.elements.divider.PantrixVerticalDivider
 import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.foundation.theme.PantrixTheme
-import formatico.feature.workspace.generated.resources.Res
-import formatico.feature.workspace.generated.resources.convert_source
-import formatico.feature.workspace.generated.resources.workspace_untitled
-import org.jetbrains.compose.resources.pluralStringResource
-import org.jetbrains.compose.resources.stringResource
 
 /**
  * The conversion of a document in a wide window, beside its text, or on a tablet, in the whole room: the format it is
@@ -156,10 +153,9 @@ internal fun ConvertSourceHeader(state: WorkspaceState) {
         ) {
             PantrixTag(text = format.displayName, tagKey = "source_format")
             PantrixText(
-                text = pluralStringResource(
-                    Res.plurals.convert_source,
+                text = convertStrings.source(
                     lines,
-                    document.name ?: stringResource(Res.string.workspace_untitled),
+                    document.name ?: workspaceStrings.untitled,
                     lines
                 ),
                 style = PantrixTheme.typography.footnote.copy(fontWeight = FontWeight.Medium),

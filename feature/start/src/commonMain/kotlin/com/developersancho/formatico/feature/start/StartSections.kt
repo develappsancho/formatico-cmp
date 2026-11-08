@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import com.developersancho.formatico.feature.start.strings.startStrings
 import com.pantrixui.components.container.surface.PantrixSurface
 import com.pantrixui.components.data.listitem.ListItemDivider
 import com.pantrixui.components.data.listitem.PantrixListItem
@@ -31,44 +32,6 @@ import com.pantrixui.components.elements.text.TextRole
 import com.pantrixui.foundation.date.LocalPantrixClock
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.theme.PantrixTheme
-import formatico.feature.start.generated.resources.Res
-import formatico.feature.start.generated.resources.start_all_samples
-import formatico.feature.start.generated.resources.start_clear_history
-import formatico.feature.start.generated.resources.start_edited_just_now
-import formatico.feature.start.generated.resources.start_edited_minutes_ago
-import formatico.feature.start.generated.resources.start_edited_on
-import formatico.feature.start.generated.resources.start_edited_today_at
-import formatico.feature.start.generated.resources.start_edited_yesterday
-import formatico.feature.start.generated.resources.start_just_now
-import formatico.feature.start.generated.resources.start_minutes_ago
-import formatico.feature.start.generated.resources.start_opened_just_now
-import formatico.feature.start.generated.resources.start_opened_minutes_ago
-import formatico.feature.start.generated.resources.start_opened_on
-import formatico.feature.start.generated.resources.start_opened_today_at
-import formatico.feature.start.generated.resources.start_opened_yesterday
-import formatico.feature.start.generated.resources.start_plain_text
-import formatico.feature.start.generated.resources.start_recent
-import formatico.feature.start.generated.resources.start_recent_empty_text
-import formatico.feature.start.generated.resources.start_recent_empty_title
-import formatico.feature.start.generated.resources.start_recent_meta
-import formatico.feature.start.generated.resources.start_sample_countries
-import formatico.feature.start.generated.resources.start_sample_countries_detail
-import formatico.feature.start.generated.resources.start_sample_deployment
-import formatico.feature.start.generated.resources.start_sample_deployment_detail
-import formatico.feature.start.generated.resources.start_sample_deployment_detail_short
-import formatico.feature.start.generated.resources.start_sample_deployment_short
-import formatico.feature.start.generated.resources.start_sample_manifest
-import formatico.feature.start.generated.resources.start_sample_manifest_detail
-import formatico.feature.start.generated.resources.start_sample_order
-import formatico.feature.start.generated.resources.start_sample_order_detail
-import formatico.feature.start.generated.resources.start_sample_order_detail_short
-import formatico.feature.start.generated.resources.start_samples
-import formatico.feature.start.generated.resources.start_samples_hint
-import formatico.feature.start.generated.resources.start_today
-import formatico.feature.start.generated.resources.start_untitled
-import formatico.feature.start.generated.resources.start_yesterday
-import org.jetbrains.compose.resources.pluralStringResource
-import org.jetbrains.compose.resources.stringResource
 import kotlin.time.Instant
 
 /** How many documents Recent lists, as the design's boards do: four, and three on a phone. */
@@ -110,11 +73,11 @@ private fun RecentSection(
 ) {
     val phone = layout == StartLayout.Phone
     Section(
-        title = stringResource(Res.string.start_recent),
+        title = startStrings.recent,
         action = {
             if (recent.isNotEmpty()) {
                 PantrixLink(
-                    text = stringResource(Res.string.start_clear_history),
+                    text = startStrings.clearHistory,
                     onClick = { onIntent(StartIntent.ClearHistory) },
                     underline = LinkUnderline.OnHover,
                     tagKey = "clear_history"
@@ -130,7 +93,7 @@ private fun RecentSection(
             val shown = recent.take(if (phone) RECENT_SHOWN_ON_PHONE else RECENT_SHOWN)
             shown.forEachIndexed { index, document ->
                 PantrixListItem(
-                    headline = document.name ?: stringResource(Res.string.start_untitled),
+                    headline = document.name ?: startStrings.untitled,
                     supportingText = recentMeta(document, short = phone),
                     leading = { PantrixIcon(imageVector = PantrixIcons.File, contentDescription = null) },
                     onClick = { onIntent(StartIntent.OpenRecent(document.id)) },
@@ -153,17 +116,17 @@ private fun SamplesSection(
     val phone = layout == StartLayout.Phone
     var all by rememberSaveable { mutableStateOf(!phone) }
     Section(
-        title = stringResource(Res.string.start_samples),
+        title = startStrings.samples,
         action = {
             when {
                 !phone -> PantrixText(
-                    text = stringResource(Res.string.start_samples_hint),
+                    text = startStrings.samplesHint,
                     style = PantrixTheme.typography.footnote,
                     color = PantrixTheme.colors.textSecondary
                 )
 
                 !all -> PantrixLink(
-                    text = stringResource(Res.string.start_all_samples),
+                    text = startStrings.allSamples,
                     onClick = { all = true },
                     underline = LinkUnderline.OnHover,
                     tagKey = "all_samples"
@@ -243,12 +206,12 @@ private fun EmptyRecent(modifier: Modifier = Modifier) {
             tint = PantrixTheme.colors.textSecondary
         )
         PantrixText(
-            text = stringResource(Res.string.start_recent_empty_title),
+            text = startStrings.recentEmptyTitle,
             style = PantrixTheme.typography.label.copy(fontWeight = FontWeight.SemiBold),
             textAlign = TextAlign.Center
         )
         PantrixText(
-            text = stringResource(Res.string.start_recent_empty_text),
+            text = startStrings.recentEmptyText,
             style = PantrixTheme.typography.footnote,
             color = PantrixTheme.colors.textSecondary,
             textAlign = TextAlign.Center
@@ -258,9 +221,8 @@ private fun EmptyRecent(modifier: Modifier = Modifier) {
 
 /** `JSON · 665 B · edited 2 minutes ago`, or `opened` where it was not changed; [short], on a phone, without either. */
 @Composable
-private fun recentMeta(document: RecentDocument, short: Boolean): String = stringResource(
-    Res.string.start_recent_meta,
-    document.format?.displayName ?: stringResource(Res.string.start_plain_text),
+private fun recentMeta(document: RecentDocument, short: Boolean): String = startStrings.recentMeta(
+    document.format?.displayName ?: startStrings.plainText,
     PantrixTheme.strings.fileSize(document.size),
     lastTouched(document.at, edited = document.edited, short = short)
 )
@@ -272,46 +234,37 @@ private fun lastTouched(at: Instant, edited: Boolean, short: Boolean): String {
     val strings = PantrixTheme.strings
     return when (val recency = recency(then = at, now = clock.clock.now(), utcOffset = clock.utcOffset)) {
         Recency.JustNow -> {
-            stringResource(
-                when {
-                    short -> Res.string.start_just_now
-                    edited -> Res.string.start_edited_just_now
-                    else -> Res.string.start_opened_just_now
-                }
-            )
+            when {
+                short -> startStrings.justNow
+                edited -> startStrings.editedJustNow
+                else -> startStrings.openedJustNow
+            }
         }
 
         is Recency.MinutesAgo -> {
-            pluralStringResource(
-                when {
-                    short -> Res.plurals.start_minutes_ago
-                    edited -> Res.plurals.start_edited_minutes_ago
-                    else -> Res.plurals.start_opened_minutes_ago
-                },
-                recency.minutes,
-                recency.minutes
-            )
+            val ago = when {
+                short -> startStrings::minutesAgo
+                edited -> startStrings::editedMinutesAgo
+                else -> startStrings::openedMinutesAgo
+            }
+            ago(recency.minutes, recency.minutes)
         }
 
         is Recency.Today -> {
             if (short) {
-                stringResource(Res.string.start_today)
+                startStrings.today
             } else {
-                stringResource(
-                    if (edited) Res.string.start_edited_today_at else Res.string.start_opened_today_at,
-                    strings.clock(recency.hour, recency.minute)
-                )
+                val at = if (edited) startStrings::editedTodayAt else startStrings::openedTodayAt
+                at(strings.clock(recency.hour, recency.minute))
             }
         }
 
         Recency.Yesterday -> {
-            stringResource(
-                when {
-                    short -> Res.string.start_yesterday
-                    edited -> Res.string.start_edited_yesterday
-                    else -> Res.string.start_opened_yesterday
-                }
-            )
+            when {
+                short -> startStrings.yesterday
+                edited -> startStrings.editedYesterday
+                else -> startStrings.openedYesterday
+            }
         }
 
         is Recency.OnDate -> {
@@ -326,36 +279,33 @@ private fun onDate(recency: Recency.OnDate, edited: Boolean, short: Boolean): St
     val strings = PantrixTheme.strings
     val date = recency.date
     val day = if (recency.thisYear) strings.dayMonth(date.day, date.month) else strings.date(date.day, date.month, date.year)
-    return if (short) day else stringResource(if (edited) Res.string.start_edited_on else Res.string.start_opened_on, day)
+    val on = if (edited) startStrings::editedOn else startStrings::openedOn
+    return if (short) day else on(day)
 }
 
 @Composable
-private fun sampleName(sample: Sample, short: Boolean): String = stringResource(
-    when (sample) {
-        Sample.Order -> Res.string.start_sample_order
-        Sample.Deployment -> if (short) Res.string.start_sample_deployment_short else Res.string.start_sample_deployment
-        Sample.Manifest -> Res.string.start_sample_manifest
-        Sample.Countries -> Res.string.start_sample_countries
-    }
-)
+private fun sampleName(sample: Sample, short: Boolean): String = when (sample) {
+    Sample.Order -> startStrings.sampleOrder
+    Sample.Deployment -> if (short) startStrings.sampleDeploymentShort else startStrings.sampleDeployment
+    Sample.Manifest -> startStrings.sampleManifest
+    Sample.Countries -> startStrings.sampleCountries
+}
 
 @Composable
-private fun sampleDetail(sample: Sample, short: Boolean): String = stringResource(
-    when (sample) {
-        Sample.Order -> {
-            if (short) Res.string.start_sample_order_detail_short else Res.string.start_sample_order_detail
-        }
-
-        Sample.Deployment -> {
-            if (short) Res.string.start_sample_deployment_detail_short else Res.string.start_sample_deployment_detail
-        }
-
-        Sample.Manifest -> {
-            Res.string.start_sample_manifest_detail
-        }
-
-        Sample.Countries -> {
-            Res.string.start_sample_countries_detail
-        }
+private fun sampleDetail(sample: Sample, short: Boolean): String = when (sample) {
+    Sample.Order -> {
+        if (short) startStrings.sampleOrderDetailShort else startStrings.sampleOrderDetail
     }
-)
+
+    Sample.Deployment -> {
+        if (short) startStrings.sampleDeploymentDetailShort else startStrings.sampleDeploymentDetail
+    }
+
+    Sample.Manifest -> {
+        startStrings.sampleManifestDetail
+    }
+
+    Sample.Countries -> {
+        startStrings.sampleCountriesDetail
+    }
+}

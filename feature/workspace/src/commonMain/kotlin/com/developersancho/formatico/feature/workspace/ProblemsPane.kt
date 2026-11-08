@@ -23,6 +23,7 @@ import com.developersancho.formatico.core.format.Format
 import com.developersancho.formatico.core.format.Problem
 import com.developersancho.formatico.core.format.Repairs
 import com.developersancho.formatico.core.format.Severity
+import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.components.container.alert.AlertTone
 import com.pantrixui.components.container.alert.PantrixAlert
 import com.pantrixui.components.data.codeeditor.CodeEditorState
@@ -32,15 +33,6 @@ import com.pantrixui.components.elements.icon.PantrixIcon
 import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.theme.PantrixTheme
-import formatico.feature.workspace.generated.resources.Res
-import formatico.feature.workspace.generated.resources.workspace_invalid_body
-import formatico.feature.workspace.generated.resources.workspace_invalid_title
-import formatico.feature.workspace.generated.resources.workspace_json5_allows
-import formatico.feature.workspace.generated.resources.workspace_problem_where
-import formatico.feature.workspace.generated.resources.workspace_read_as_json5
-import formatico.feature.workspace.generated.resources.workspace_repair_all
-import org.jetbrains.compose.resources.pluralStringResource
-import org.jetbrains.compose.resources.stringResource
 
 /**
  * The problems' pane in a wide window or on a tablet, as the Invalid boards draw it: the views' choice, what is wrong
@@ -120,9 +112,9 @@ private fun ProblemsSummary(state: WorkspaceState, format: Format, layout: Works
     ) {
         if (errors > 0) {
             PantrixAlert(
-                message = pluralStringResource(Res.plurals.workspace_invalid_body, state.repairable, state.repairable),
+                message = workspaceStrings.invalidBody(state.repairable, state.repairable),
                 tone = AlertTone.Danger,
-                title = stringResource(Res.string.workspace_invalid_title, format.displayName),
+                title = workspaceStrings.invalidTitle(format.displayName),
                 announce = false,
                 tagKey = "invalid"
             )
@@ -133,7 +125,7 @@ private fun ProblemsSummary(state: WorkspaceState, format: Format, layout: Works
             itemVerticalAlignment = Alignment.CenterVertically
         ) {
             PantrixButton(
-                text = stringResource(Res.string.workspace_repair_all),
+                text = workspaceStrings.repairAll,
                 onClick = { onIntent(WorkspaceIntent.RepairAll) },
                 size = layout.buttons,
                 enabled = state.repairable > 0,
@@ -141,14 +133,14 @@ private fun ProblemsSummary(state: WorkspaceState, format: Format, layout: Works
             )
             if (state.json5Allows > 0) {
                 PantrixButton(
-                    text = stringResource(Res.string.workspace_read_as_json5),
+                    text = workspaceStrings.readAsJson5,
                     onClick = { onIntent(WorkspaceIntent.ChangeFormat(Format.Json5)) },
                     variant = ButtonVariant.Outline,
                     size = layout.buttons,
                     tagKey = "read_as_json5"
                 )
                 PantrixText(
-                    text = pluralStringResource(Res.plurals.workspace_json5_allows, state.json5Allows, state.json5Allows, errors),
+                    text = workspaceStrings.json5Allows(state.json5Allows, state.json5Allows, errors),
                     style = PantrixTheme.typography.footnote.copy(fontWeight = FontWeight.Medium),
                     color = PantrixTheme.colors.textSecondary
                 )
@@ -214,7 +206,7 @@ private fun ProblemRow(
                 color = ink
             )
             PantrixText(
-                text = stringResource(Res.string.workspace_problem_where, problem.start.line, problem.start.column),
+                text = workspaceStrings.problemWhere(problem.start.line, problem.start.column),
                 style = PantrixTheme.typography.footnote.copy(fontWeight = FontWeight.Medium),
                 color = quiet
             )

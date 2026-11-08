@@ -12,6 +12,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import com.developersancho.formatico.core.share.ShareOutcome
+import com.developersancho.formatico.feature.workspace.strings.shareStrings
+import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.components.elements.button.ButtonSize
 import com.pantrixui.components.elements.button.ButtonVariant
 import com.pantrixui.components.elements.button.PantrixButton
@@ -23,24 +25,6 @@ import com.pantrixui.components.overlay.dialog.PantrixDialog
 import com.pantrixui.components.overlay.sheet.PantrixSheet
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.theme.PantrixTheme
-import formatico.feature.workspace.generated.resources.Res
-import formatico.feature.workspace.generated.resources.share_body
-import formatico.feature.workspace.generated.resources.share_body_phone
-import formatico.feature.workspace.generated.resources.share_cancel
-import formatico.feature.workspace.generated.resources.share_copy
-import formatico.feature.workspace.generated.resources.share_fits_long
-import formatico.feature.workspace.generated.resources.share_fits_short
-import formatico.feature.workspace.generated.resources.share_fits_short_phone
-import formatico.feature.workspace.generated.resources.share_formatted
-import formatico.feature.workspace.generated.resources.share_link
-import formatico.feature.workspace.generated.resources.share_plain_text
-import formatico.feature.workspace.generated.resources.share_send
-import formatico.feature.workspace.generated.resources.share_title
-import formatico.feature.workspace.generated.resources.share_too_large_body
-import formatico.feature.workspace.generated.resources.share_too_large_title
-import formatico.feature.workspace.generated.resources.workspace_save_file
-import formatico.feature.workspace.generated.resources.workspace_untitled
-import org.jetbrains.compose.resources.stringResource
 
 /**
  * The document's share while [state] holds one, as the Share boards draw it: its link, how long it is, and whether the
@@ -96,7 +80,7 @@ internal class ShareActions(
 
 /** The share's name for the document: its own, or the untitled one's. */
 @Composable
-private fun DocumentShare.title(): String = name ?: stringResource(Res.string.workspace_untitled)
+private fun DocumentShare.title(): String = name ?: workspaceStrings.untitled
 
 /** The share in a dialog, in a wide window and on a tablet: Share-1440, and Share-834 for a document too large. */
 @Composable
@@ -106,12 +90,12 @@ private fun ShareDialog(visible: Boolean, share: DocumentShare, actions: ShareAc
     PantrixDialog(
         visible = visible,
         onDismissRequest = actions.close,
-        title = stringResource(if (tooLarge != null) Res.string.share_too_large_title else Res.string.share_title, share.title()),
-        message = if (tooLarge != null) tooLargeBody(tooLarge) else stringResource(Res.string.share_body),
+        title = if (tooLarge != null) shareStrings.tooLargeTitle(share.title()) else shareStrings.title(share.title()),
+        message = if (tooLarge != null) tooLargeBody(tooLarge) else shareStrings.body,
         icon = if (tooLarge != null) PantrixIcons.Warning else null,
         actions = {
             PantrixButton(
-                text = stringResource(Res.string.share_cancel),
+                text = shareStrings.cancel,
                 onClick = actions.close,
                 variant = ButtonVariant.Text,
                 tagKey = "cancel"
@@ -137,7 +121,7 @@ private fun ShareSheet(visible: Boolean, share: DocumentShare, actions: ShareAct
     PantrixSheet(
         visible = visible,
         onDismissRequest = actions.close,
-        title = stringResource(if (tooLarge != null) Res.string.share_too_large_title else Res.string.share_title, share.title()),
+        title = if (tooLarge != null) shareStrings.tooLargeTitle(share.title()) else shareStrings.title(share.title()),
         tagKey = "share"
     ) {
         Column(
@@ -145,7 +129,7 @@ private fun ShareSheet(visible: Boolean, share: DocumentShare, actions: ShareAct
             verticalArrangement = Arrangement.spacedBy(PantrixTheme.spacing.lg)
         ) {
             PantrixText(
-                text = if (tooLarge != null) tooLargeBody(tooLarge) else stringResource(Res.string.share_body_phone),
+                text = if (tooLarge != null) tooLargeBody(tooLarge) else shareStrings.bodyPhone,
                 style = PantrixTheme.typography.body.copy(fontWeight = FontWeight.Medium),
                 color = PantrixTheme.colors.textSecondary
             )
@@ -160,7 +144,7 @@ private fun ShareSheet(visible: Boolean, share: DocumentShare, actions: ShareAct
                     CopyButton(link, actions, Modifier.fillMaxWidth(), ButtonSize.Large)
                     actions.send?.let { send ->
                         PantrixButton(
-                            text = stringResource(Res.string.share_send),
+                            text = shareStrings.send,
                             onClick = { link?.let { send(it.link) } },
                             modifier = Modifier.fillMaxWidth(),
                             variant = ButtonVariant.Outline,
@@ -178,7 +162,7 @@ private fun ShareSheet(visible: Boolean, share: DocumentShare, actions: ShareAct
 /** Why the document has no link: how large it is beside what a link holds. */
 @Composable
 private fun tooLargeBody(tooLarge: ShareOutcome.TooLarge): String =
-    stringResource(Res.string.share_too_large_body, PantrixTheme.strings.fileSize(tooLarge.bytes.toLong()))
+    shareStrings.tooLargeBody(PantrixTheme.strings.fileSize(tooLarge.bytes.toLong()))
 
 /**
  * The link, to read and select, and under it how much of the document it carries in how many characters, and whether
@@ -189,14 +173,13 @@ private fun LinkField(share: DocumentShare, link: ShareOutcome.Link?, phone: Boo
     val strings = PantrixTheme.strings
     val fits = link?.let {
         val words = when {
-            !it.short -> Res.string.share_fits_long
-            phone -> Res.string.share_fits_short_phone
-            else -> Res.string.share_fits_short
+            !it.short -> shareStrings::fitsLong
+            phone -> shareStrings::fitsShortPhone
+            else -> shareStrings::fitsShort
         }
-        stringResource(
-            words,
+        words(
             strings.fileSize(it.bytes.toLong()),
-            share.format?.displayName ?: stringResource(Res.string.share_plain_text),
+            share.format?.displayName ?: shareStrings.plainText,
             strings.decimal(it.characters.toDouble())
         )
     }
@@ -205,7 +188,7 @@ private fun LinkField(share: DocumentShare, link: ShareOutcome.Link?, phone: Boo
         onValueChange = {},
         modifier = Modifier.fillMaxWidth(),
         readOnly = true,
-        label = stringResource(Res.string.share_link),
+        label = shareStrings.link,
         supportingText = fits,
         tagKey = "link"
     )
@@ -217,7 +200,7 @@ private fun FormattedSwitch(share: DocumentShare, actions: ShareActions) {
     PantrixSwitchButton(
         checked = share.formatted && share.canFormat,
         onCheckedChange = actions.format,
-        label = stringResource(Res.string.share_formatted),
+        label = shareStrings.formatted,
         enabled = share.canFormat,
         tagKey = "formatted"
     )
@@ -231,7 +214,7 @@ private fun CopyButton(
     size: ButtonSize = ButtonSize.Medium
 ) {
     PantrixButton(
-        text = stringResource(Res.string.share_copy),
+        text = shareStrings.copy,
         onClick = { link?.let { actions.copy(it.link) } },
         modifier = modifier,
         size = size,
@@ -244,7 +227,7 @@ private fun CopyButton(
 @Composable
 private fun SaveButton(actions: ShareActions, modifier: Modifier = Modifier, size: ButtonSize = ButtonSize.Medium) {
     PantrixButton(
-        text = stringResource(Res.string.workspace_save_file),
+        text = workspaceStrings.saveFile,
         onClick = actions.save,
         modifier = modifier,
         size = size,

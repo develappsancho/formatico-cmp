@@ -129,7 +129,7 @@ class BoardAccessibilityTest {
                 }
             }
         }
-        tour(board, window, BoardWords.English, files, findings)
+        tour(board, window, BoardWords.English, files)
         assertNoFindingsOnBoard(findings)
     }
 }

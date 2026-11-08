@@ -4,77 +4,7 @@ import androidx.compose.runtime.Composable
 import com.developersancho.formatico.core.format.Format
 import com.developersancho.formatico.core.format.convert.Loss
 import com.developersancho.formatico.core.format.convert.NullHandling
-import formatico.feature.workspace.generated.resources.Res
-import formatico.feature.workspace.generated.resources.convert_loss_aliases_many
-import formatico.feature.workspace.generated.resources.convert_loss_aliases_one
-import formatico.feature.workspace.generated.resources.convert_loss_aliases_title
-import formatico.feature.workspace.generated.resources.convert_loss_comments
-import formatico.feature.workspace.generated.resources.convert_loss_comments_title
-import formatico.feature.workspace.generated.resources.convert_loss_dates_many
-import formatico.feature.workspace.generated.resources.convert_loss_dates_one
-import formatico.feature.workspace.generated.resources.convert_loss_dates_title
-import formatico.feature.workspace.generated.resources.convert_loss_duplicates_many
-import formatico.feature.workspace.generated.resources.convert_loss_duplicates_one
-import formatico.feature.workspace.generated.resources.convert_loss_duplicates_title
-import formatico.feature.workspace.generated.resources.convert_loss_emptied_many
-import formatico.feature.workspace.generated.resources.convert_loss_emptied_one
-import formatico.feature.workspace.generated.resources.convert_loss_emptied_title
-import formatico.feature.workspace.generated.resources.convert_loss_flattened_many
-import formatico.feature.workspace.generated.resources.convert_loss_flattened_one
-import formatico.feature.workspace.generated.resources.convert_loss_flattened_title
-import formatico.feature.workspace.generated.resources.convert_loss_in_array
-import formatico.feature.workspace.generated.resources.convert_loss_items_many
-import formatico.feature.workspace.generated.resources.convert_loss_items_one
-import formatico.feature.workspace.generated.resources.convert_loss_items_title
-import formatico.feature.workspace.generated.resources.convert_loss_line_title
-import formatico.feature.workspace.generated.resources.convert_loss_moved_many
-import formatico.feature.workspace.generated.resources.convert_loss_moved_one
-import formatico.feature.workspace.generated.resources.convert_loss_moved_title
-import formatico.feature.workspace.generated.resources.convert_loss_nulls_empty_many
-import formatico.feature.workspace.generated.resources.convert_loss_nulls_empty_one
-import formatico.feature.workspace.generated.resources.convert_loss_nulls_left_many
-import formatico.feature.workspace.generated.resources.convert_loss_nulls_left_one
-import formatico.feature.workspace.generated.resources.convert_loss_nulls_title
-import formatico.feature.workspace.generated.resources.convert_loss_one_line_many
-import formatico.feature.workspace.generated.resources.convert_loss_one_line_one
-import formatico.feature.workspace.generated.resources.convert_loss_one_line_title
-import formatico.feature.workspace.generated.resources.convert_loss_renamed_many
-import formatico.feature.workspace.generated.resources.convert_loss_renamed_one
-import formatico.feature.workspace.generated.resources.convert_loss_renamed_title
-import formatico.feature.workspace.generated.resources.convert_loss_respelled_many
-import formatico.feature.workspace.generated.resources.convert_loss_respelled_one
-import formatico.feature.workspace.generated.resources.convert_loss_respelled_title
-import formatico.feature.workspace.generated.resources.convert_loss_row_title
-import formatico.feature.workspace.generated.resources.convert_loss_untyped_many
-import formatico.feature.workspace.generated.resources.convert_loss_untyped_one
-import formatico.feature.workspace.generated.resources.convert_loss_untyped_title
-import formatico.feature.workspace.generated.resources.convert_loss_unwritable_many
-import formatico.feature.workspace.generated.resources.convert_loss_unwritable_one
-import formatico.feature.workspace.generated.resources.convert_loss_unwritable_title
-import formatico.feature.workspace.generated.resources.convert_loss_wrapped
-import formatico.feature.workspace.generated.resources.convert_loss_wrapped_title
-import formatico.feature.workspace.generated.resources.convert_tag_aliases
-import formatico.feature.workspace.generated.resources.convert_tag_comments
-import formatico.feature.workspace.generated.resources.convert_tag_dates
-import formatico.feature.workspace.generated.resources.convert_tag_duplicates
-import formatico.feature.workspace.generated.resources.convert_tag_emptied
-import formatico.feature.workspace.generated.resources.convert_tag_flattened
-import formatico.feature.workspace.generated.resources.convert_tag_items
-import formatico.feature.workspace.generated.resources.convert_tag_line
-import formatico.feature.workspace.generated.resources.convert_tag_moved
-import formatico.feature.workspace.generated.resources.convert_tag_nulls_empty
-import formatico.feature.workspace.generated.resources.convert_tag_nulls_left
-import formatico.feature.workspace.generated.resources.convert_tag_one_line
-import formatico.feature.workspace.generated.resources.convert_tag_renamed
-import formatico.feature.workspace.generated.resources.convert_tag_respelled
-import formatico.feature.workspace.generated.resources.convert_tag_row
-import formatico.feature.workspace.generated.resources.convert_tag_untyped
-import formatico.feature.workspace.generated.resources.convert_tag_unwritable
-import formatico.feature.workspace.generated.resources.convert_tag_wrapped
-import org.jetbrains.compose.resources.PluralStringResource
-import org.jetbrains.compose.resources.StringResource
-import org.jetbrains.compose.resources.pluralStringResource
-import org.jetbrains.compose.resources.stringResource
+import com.developersancho.formatico.feature.workspace.strings.convertStrings
 
 /** The loss's key among the alerts' tags, the same in every language. */
 internal val Loss.key: String
@@ -108,32 +38,32 @@ internal fun lossWords(loss: Loss, from: Format, to: Format): LossWords {
         is Loss.Nulls -> nullWords(loss, source, target)
 
         is Loss.Comments -> LossWords(
-            title = stringResource(Res.string.convert_loss_comments_title),
-            message = pluralStringResource(Res.plurals.convert_loss_comments, loss.count, source, loss.count, target),
-            tag = tag(Res.plurals.convert_tag_comments, loss.count)
+            title = convertStrings.lossCommentsTitle,
+            message = convertStrings.lossComments(loss.count, source, loss.count, target),
+            tag = convertStrings.tagComments(loss.count, loss.count)
         )
 
         is Loss.Aliases -> counted(
-            Res.string.convert_loss_aliases_title,
-            one = stringResource(Res.string.convert_loss_aliases_one, loss.first),
-            many = { pluralStringResource(Res.plurals.convert_loss_aliases_many, it, loss.first, it) },
-            tag = Res.plurals.convert_tag_aliases,
+            convertStrings.lossAliasesTitle,
+            one = convertStrings.lossAliasesOne(loss.first),
+            many = { convertStrings.lossAliasesMany(it, loss.first, it) },
+            tag = convertStrings::tagAliases,
             count = loss.count
         )
 
         is Loss.Untyped -> counted(
-            stringResource(Res.string.convert_loss_untyped_title, target),
-            one = stringResource(Res.string.convert_loss_untyped_one, loss.first),
-            many = { pluralStringResource(Res.plurals.convert_loss_untyped_many, it, loss.first, it) },
-            tag = Res.plurals.convert_tag_untyped,
+            convertStrings.lossUntypedTitle(target),
+            one = convertStrings.lossUntypedOne(loss.first),
+            many = { convertStrings.lossUntypedMany(it, loss.first, it) },
+            tag = convertStrings::tagUntyped,
             count = loss.count
         )
 
         is Loss.Flattened -> counted(
-            stringResource(Res.string.convert_loss_flattened_title, target),
-            one = stringResource(Res.string.convert_loss_flattened_one, loss.first),
-            many = { pluralStringResource(Res.plurals.convert_loss_flattened_many, it, loss.first, it) },
-            tag = Res.plurals.convert_tag_flattened,
+            convertStrings.lossFlattenedTitle(target),
+            one = convertStrings.lossFlattenedOne(loss.first),
+            many = { convertStrings.lossFlattenedMany(it, loss.first, it) },
+            tag = convertStrings::tagFlattened,
             count = loss.count
         )
 
@@ -147,42 +77,42 @@ internal fun lossWords(loss: Loss, from: Format, to: Format): LossWords {
 @Composable
 private fun structureWords(loss: Loss, source: String, target: String): LossWords = when (loss) {
     is Loss.Renamed -> counted(
-        Res.string.convert_loss_renamed_title,
-        one = stringResource(Res.string.convert_loss_renamed_one, loss.first, target, loss.written),
-        many = { pluralStringResource(Res.plurals.convert_loss_renamed_many, it, loss.first, it, target, loss.written) },
-        tag = Res.plurals.convert_tag_renamed,
+        convertStrings.lossRenamedTitle,
+        one = convertStrings.lossRenamedOne(loss.first, target, loss.written),
+        many = { convertStrings.lossRenamedMany(it, loss.first, it, target, loss.written) },
+        tag = convertStrings::tagRenamed,
         count = loss.count
     )
 
     is Loss.Duplicates -> counted(
-        Res.string.convert_loss_duplicates_title,
-        one = stringResource(Res.string.convert_loss_duplicates_one, loss.first, target),
-        many = { pluralStringResource(Res.plurals.convert_loss_duplicates_many, it, loss.first, it, target) },
-        tag = Res.plurals.convert_tag_duplicates,
+        convertStrings.lossDuplicatesTitle,
+        one = convertStrings.lossDuplicatesOne(loss.first, target),
+        many = { convertStrings.lossDuplicatesMany(it, loss.first, it, target) },
+        tag = convertStrings::tagDuplicates,
         count = loss.count
     )
 
     is Loss.Moved -> counted(
-        Res.string.convert_loss_moved_title,
-        one = stringResource(Res.string.convert_loss_moved_one, target, loss.first),
-        many = { pluralStringResource(Res.plurals.convert_loss_moved_many, it, target, loss.first, it) },
-        tag = Res.plurals.convert_tag_moved,
+        convertStrings.lossMovedTitle,
+        one = convertStrings.lossMovedOne(target, loss.first),
+        many = { convertStrings.lossMovedMany(it, target, loss.first, it) },
+        tag = convertStrings::tagMoved,
         count = loss.count
     )
 
     is Loss.Emptied -> counted(
-        Res.string.convert_loss_emptied_title,
-        one = stringResource(Res.string.convert_loss_emptied_one, loss.first, target),
-        many = { pluralStringResource(Res.plurals.convert_loss_emptied_many, it, loss.first, it, target) },
-        tag = Res.plurals.convert_tag_emptied,
+        convertStrings.lossEmptiedTitle,
+        one = convertStrings.lossEmptiedOne(loss.first, target),
+        many = { convertStrings.lossEmptiedMany(it, loss.first, it, target) },
+        tag = convertStrings::tagEmptied,
         count = loss.count
     )
 
     is Loss.ItemsNamed -> counted(
-        Res.string.convert_loss_items_title,
-        one = stringResource(Res.string.convert_loss_items_one, loss.first),
-        many = { pluralStringResource(Res.plurals.convert_loss_items_many, it, loss.first, it) },
-        tag = Res.plurals.convert_tag_items,
+        convertStrings.lossItemsTitle,
+        one = convertStrings.lossItemsOne(loss.first),
+        many = { convertStrings.lossItemsMany(it, loss.first, it) },
+        tag = convertStrings::tagItems,
         count = loss.count
     )
 
@@ -193,34 +123,34 @@ private fun structureWords(loss: Loss, source: String, target: String): LossWord
 @Composable
 private fun valueWords(loss: Loss, source: String, target: String): LossWords = when (loss) {
     is Loss.Respelled -> counted(
-        Res.string.convert_loss_respelled_title,
-        one = stringResource(Res.string.convert_loss_respelled_one, loss.first, loss.written, target),
-        many = { pluralStringResource(Res.plurals.convert_loss_respelled_many, it, loss.first, it, target, loss.written) },
-        tag = Res.plurals.convert_tag_respelled,
+        convertStrings.lossRespelledTitle,
+        one = convertStrings.lossRespelledOne(loss.first, loss.written, target),
+        many = { convertStrings.lossRespelledMany(it, loss.first, it, target, loss.written) },
+        tag = convertStrings::tagRespelled,
         count = loss.count
     )
 
     is Loss.Unwritable -> counted(
-        Res.string.convert_loss_unwritable_title,
-        one = stringResource(Res.string.convert_loss_unwritable_one, loss.first, target),
-        many = { pluralStringResource(Res.plurals.convert_loss_unwritable_many, it, loss.first, it, target) },
-        tag = Res.plurals.convert_tag_unwritable,
+        convertStrings.lossUnwritableTitle,
+        one = convertStrings.lossUnwritableOne(loss.first, target),
+        many = { convertStrings.lossUnwritableMany(it, loss.first, it, target) },
+        tag = convertStrings::tagUnwritable,
         count = loss.count
     )
 
     is Loss.Dates -> counted(
-        Res.string.convert_loss_dates_title,
-        one = stringResource(Res.string.convert_loss_dates_one, loss.first, source, target),
-        many = { pluralStringResource(Res.plurals.convert_loss_dates_many, it, loss.first, it, target) },
-        tag = Res.plurals.convert_tag_dates,
+        convertStrings.lossDatesTitle,
+        one = convertStrings.lossDatesOne(loss.first, source, target),
+        many = { convertStrings.lossDatesMany(it, loss.first, it, target) },
+        tag = convertStrings::tagDates,
         count = loss.count
     )
 
     is Loss.OneLine -> counted(
-        Res.string.convert_loss_one_line_title,
-        one = stringResource(Res.string.convert_loss_one_line_one, loss.first, target),
-        many = { pluralStringResource(Res.plurals.convert_loss_one_line_many, it, loss.first, it, target) },
-        tag = Res.plurals.convert_tag_one_line,
+        convertStrings.lossOneLineTitle,
+        one = convertStrings.lossOneLineOne(loss.first, target),
+        many = { convertStrings.lossOneLineMany(it, loss.first, it, target) },
+        tag = convertStrings::tagOneLine,
         count = loss.count
     )
 
@@ -232,17 +162,13 @@ private fun valueWords(loss: Loss, source: String, target: String): LossWords = 
 private fun nullWords(loss: Loss.Nulls, source: String, target: String): LossWords {
     val left = loss.handling == NullHandling.LeaveOut
     return counted(
-        stringResource(Res.string.convert_loss_nulls_title, target),
-        one = stringResource(
-            if (left) Res.string.convert_loss_nulls_left_one else Res.string.convert_loss_nulls_empty_one,
-            loss.first,
-            source
-        ),
+        convertStrings.lossNullsTitle(target),
+        one = if (left) convertStrings.lossNullsLeftOne(loss.first, source) else convertStrings.lossNullsEmptyOne(loss.first, source),
         many = {
-            val words = if (left) Res.plurals.convert_loss_nulls_left_many else Res.plurals.convert_loss_nulls_empty_many
-            pluralStringResource(words, it, loss.first, it, source)
+            val words = if (left) convertStrings::lossNullsLeftMany else convertStrings::lossNullsEmptyMany
+            words(it, loss.first, it, source)
         },
-        tag = if (left) Res.plurals.convert_tag_nulls_left else Res.plurals.convert_tag_nulls_empty,
+        tag = if (left) convertStrings::tagNullsLeft else convertStrings::tagNullsEmpty,
         count = loss.count
     )
 }
@@ -254,36 +180,24 @@ private fun nullWords(loss: Loss.Nulls, source: String, target: String): LossWor
 @Composable
 private fun wrappedWords(loss: Loss.Wrapped, to: Format, source: String, target: String): LossWords = when (to) {
     Format.Csv, Format.Tsv, Format.Ndjson -> LossWords(
-        title = stringResource(if (to == Format.Ndjson) Res.string.convert_loss_line_title else Res.string.convert_loss_row_title),
-        message = stringResource(Res.string.convert_loss_in_array, target, source),
-        tag = stringResource(if (to == Format.Ndjson) Res.string.convert_tag_line else Res.string.convert_tag_row)
+        title = if (to == Format.Ndjson) convertStrings.lossLineTitle else convertStrings.lossRowTitle,
+        message = convertStrings.lossInArray(target, source),
+        tag = if (to == Format.Ndjson) convertStrings.tagLine else convertStrings.tagRow
     )
 
     else -> LossWords(
-        title = stringResource(Res.string.convert_loss_wrapped_title, loss.name),
-        message = stringResource(Res.string.convert_loss_wrapped, target, source, loss.name),
-        tag = stringResource(Res.string.convert_tag_wrapped, loss.name)
+        title = convertStrings.lossWrappedTitle(loss.name),
+        message = convertStrings.lossWrapped(target, source, loss.name),
+        tag = convertStrings.tagWrapped(loss.name)
     )
 }
 
 /** The words of a loss about [count] values: [one]'s message for one, and [many]'s, given how many more, for more. */
 @Composable
 private fun counted(
-    title: StringResource,
-    one: String,
-    many: @Composable (more: Int) -> String,
-    tag: PluralStringResource,
-    count: Int
-): LossWords = counted(stringResource(title), one, many, tag, count)
-
-@Composable
-private fun counted(
     title: String,
     one: String,
     many: @Composable (more: Int) -> String,
-    tag: PluralStringResource,
+    tag: (count: Int, first: Int) -> String,
     count: Int
-): LossWords = LossWords(title = title, message = if (count == 1) one else many(count - 1), tag = tag(tag, count))
-
-@Composable
-private fun tag(words: PluralStringResource, count: Int): String = pluralStringResource(words, count, count)
+): LossWords = LossWords(title = title, message = if (count == 1) one else many(count - 1), tag = tag(count, count))

@@ -8,6 +8,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.font.FontWeight
 import com.developersancho.formatico.core.format.Format
 import com.developersancho.formatico.core.format.convert.NullHandling
+import com.developersancho.formatico.feature.workspace.strings.convertStrings
+import com.developersancho.formatico.feature.workspace.strings.queryStrings
+import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.components.elements.button.ButtonSize
 import com.pantrixui.components.elements.button.ButtonVariant
 import com.pantrixui.components.elements.button.PantrixButton
@@ -21,21 +24,6 @@ import com.pantrixui.components.overlay.menu.PantrixMenu
 import com.pantrixui.components.overlay.menu.PantrixMenuItem
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.theme.PantrixTheme
-import formatico.feature.workspace.generated.resources.Res
-import formatico.feature.workspace.generated.resources.convert_copy
-import formatico.feature.workspace.generated.resources.convert_from_to
-import formatico.feature.workspace.generated.resources.convert_nulls
-import formatico.feature.workspace.generated.resources.convert_nulls_empty
-import formatico.feature.workspace.generated.resources.convert_nulls_leave
-import formatico.feature.workspace.generated.resources.convert_save_as
-import formatico.feature.workspace.generated.resources.convert_to
-import formatico.feature.workspace.generated.resources.convert_to_menu
-import formatico.feature.workspace.generated.resources.query_open_results
-import formatico.feature.workspace.generated.resources.workspace_indent_spaces
-import formatico.feature.workspace.generated.resources.workspace_sort_keys
-import formatico.feature.workspace.generated.resources.workspace_untitled
-import org.jetbrains.compose.resources.pluralStringResource
-import org.jetbrains.compose.resources.stringResource
 
 /** The label before the format a document is converted to: "To" in a wide window, "From JSON to" elsewhere. */
 @Composable
@@ -44,9 +32,9 @@ internal fun ConvertToLabel(from: Format, layout: WorkspaceLayout) {
         text = if (layout ==
             WorkspaceLayout.Wide
         ) {
-            stringResource(Res.string.convert_to)
+            convertStrings.to
         } else {
-            stringResource(Res.string.convert_from_to, from.displayName)
+            convertStrings.fromTo(from.displayName)
         },
         style = PantrixTheme.typography.label.copy(fontWeight = FontWeight.Medium),
         color = PantrixTheme.colors.textSecondary
@@ -67,7 +55,7 @@ internal fun TargetMenu(from: Format, to: Format, size: ButtonSize, onChange: (F
                 variant = ButtonVariant.Outline,
                 size = size,
                 trailingIcon = { PantrixIcon(imageVector = PantrixIcons.ChevronDown, contentDescription = null) },
-                contentDescription = stringResource(Res.string.convert_to_menu, to.displayName),
+                contentDescription = convertStrings.toMenu(to.displayName),
                 tagKey = "convert_to"
             )
         },
@@ -94,7 +82,7 @@ internal fun IndentChoice(choice: ConvertChoice, onIntent: (WorkspaceIntent) -> 
         options = IndentOptions.map { spaces ->
             SegmentOption(
                 value = spaces,
-                label = pluralStringResource(Res.plurals.workspace_indent_spaces, spaces, spaces),
+                label = workspaceStrings.indentSpaces(spaces, spaces),
                 tagKey = "$spaces"
             )
         },
@@ -111,7 +99,7 @@ internal fun SortKeysSwitch(choice: ConvertChoice, onIntent: (WorkspaceIntent) -
     PantrixSwitchButton(
         checked = choice.sortKeys,
         onCheckedChange = { onIntent(WorkspaceIntent.Convert(choice.copy(sortKeys = it))) },
-        label = stringResource(Res.string.workspace_sort_keys),
+        label = workspaceStrings.sortKeys,
         tagKey = "convert_sort_keys"
     )
 }
@@ -120,14 +108,14 @@ internal fun SortKeysSwitch(choice: ConvertChoice, onIntent: (WorkspaceIntent) -
 @Composable
 internal fun NullChoice(choice: ConvertChoice, onIntent: (WorkspaceIntent) -> Unit) {
     PantrixText(
-        text = stringResource(Res.string.convert_nulls),
+        text = convertStrings.nulls,
         style = PantrixTheme.typography.label.copy(fontWeight = FontWeight.Medium),
         color = PantrixTheme.colors.textSecondary
     )
     PantrixSegmentButton(
         options = listOf(
-            SegmentOption(value = NullHandling.LeaveOut, label = stringResource(Res.string.convert_nulls_leave), tagKey = "leave"),
-            SegmentOption(value = NullHandling.EmptyString, label = stringResource(Res.string.convert_nulls_empty), tagKey = "empty")
+            SegmentOption(value = NullHandling.LeaveOut, label = convertStrings.nullsLeave, tagKey = "leave"),
+            SegmentOption(value = NullHandling.EmptyString, label = convertStrings.nullsEmpty, tagKey = "empty")
         ),
         selected = choice.nulls,
         onSelect = { onIntent(WorkspaceIntent.Convert(choice.copy(nulls = it))) },
@@ -139,14 +127,14 @@ internal fun NullChoice(choice: ConvertChoice, onIntent: (WorkspaceIntent) -> Un
 /** The name of [converted]'s file: its own, or "Untitled" and the extension of its format. */
 @Composable
 internal fun convertedFileName(converted: ConvertOutcome.Converted): String =
-    converted.name ?: "${stringResource(Res.string.workspace_untitled)}.${converted.to.extensions.first()}"
+    converted.name ?: "${workspaceStrings.untitled}.${converted.to.extensions.first()}"
 
 /** The button that copies [converted]. */
 @Composable
 internal fun CopyConvertedButton(converted: ConvertOutcome.Converted, size: ButtonSize, commands: DocumentCommands) {
     PantrixIconButton(
         imageVector = PantrixIcons.Copy,
-        contentDescription = stringResource(Res.string.convert_copy, converted.to.displayName),
+        contentDescription = convertStrings.copy(converted.to.displayName),
         onClick = { commands.copyText(Copied.Converted, converted.text) },
         size = size,
         tagKey = "copy_converted"
@@ -163,7 +151,7 @@ internal fun SaveConvertedButton(
 ) {
     val name = convertedFileName(converted)
     val save = { commands.save(OpenDocument(id = 0, name = name, text = converted.text, format = converted.to)) }
-    val label = stringResource(Res.string.convert_save_as, name)
+    val label = convertStrings.saveAs(name)
     if (withName) {
         PantrixButton(
             text = label,
@@ -189,7 +177,7 @@ internal fun SaveConvertedButton(
 internal fun OpenConvertedButton(converted: ConvertOutcome.Converted, size: ButtonSize, commands: DocumentCommands) {
     val name = convertedFileName(converted)
     PantrixButton(
-        text = stringResource(Res.string.query_open_results),
+        text = queryStrings.openResults,
         onClick = { commands.open(NewDocument(name = name, text = converted.text, format = converted.to)) },
         size = size,
         leadingIcon = { PantrixIcon(imageVector = PantrixIcons.Plus, contentDescription = null) },

@@ -22,7 +22,6 @@ import com.developersancho.formatico.core.designsystem.Board
 import com.developersancho.formatico.core.testing.awaitNode
 import com.developersancho.formatico.core.testing.awaitText
 import com.developersancho.formatico.core.testing.awaitUntil
-import com.developersancho.formatico.core.testing.forgetWhileWordsCame
 import com.pantrixui.foundation.diagnostics.PantrixCheck
 import com.pantrixui.foundation.diagnostics.PantrixFinding
 import com.pantrixui.foundation.diagnostics.PantrixFindings
@@ -122,17 +121,15 @@ internal class BoardFiles : FilePicker {
  * Brings the app, drawn on [window] with [files] as its picker, from Start to what [board] shows, waiting for each step
  * in [words]. Every control is pressed as a screen reader presses it: a pointer left where it was would hover over
  * what stands there once the screen has changed, and a test that draws the board larger than its surface reaches past
- * its foot. In a browser, what [findings] were given while a screen's words were still coming is forgotten, after each
- * step: the JVM's and iOS's tests keep every finding.
+ * its foot.
  */
 @OptIn(ExperimentalTestApi::class)
 internal suspend fun ComposeUiTest.tour(
     board: AppBoard,
     window: Board,
     words: BoardWords,
-    files: BoardFiles,
-    findings: PantrixFindings? = null
-) = Trip(this, window, words, files, findings).to(board)
+    files: BoardFiles
+) = Trip(this, window, words, files).to(board)
 
 /**
  * Asserts that the theme's diagnostics found nothing on the board, as Pantrix's `assertNoFindings` does, once the
@@ -158,19 +155,18 @@ internal fun ComposeUiTest.assertNoFindingsOnBoard(findings: PantrixFindings) {
 private fun isPantrixs(finding: PantrixFinding): Boolean =
     finding.check == PantrixCheck.MissingName && finding.testTag == "CommandPalette_commands.TextField_query"
 
-/** One way from Start to a board: the test, the board's window, the words waited for, the picker and the findings. */
+/** One way from Start to a board: the test, the board's window, the words waited for and the picker. */
 @OptIn(ExperimentalTestApi::class)
 private class Trip(
     private val test: ComposeUiTest,
     private val window: Board,
     private val words: BoardWords,
-    private val files: BoardFiles,
-    private val findings: PantrixFindings?
+    private val files: BoardFiles
 ) {
     private val phone = window == Board.Phone
 
     suspend fun to(board: AppBoard) {
-        test.awaitText(words.start, forgetting = findings)
+        test.awaitText(words.start)
         // A tablet and a phone are used by touch: a touch in the bar's empty corner tells the screen so, as a device's
         // first touch does, and no control shows the focus ring a keyboard would.
         if (window != Board.Desktop) test.onRoot().performTouchInput { click(Offset(1f, 1f)) }
@@ -181,7 +177,11 @@ private class Trip(
 
             AppBoard.Yaml -> openSample("deployment")
 
-            AppBoard.Table -> openSample("countries")
+            AppBoard.Table -> {
+                openSample("countries")
+                // The table is laid out away from the main thread once the document is read: its first row is waited for.
+                awaitShown("Afghanistan")
+            }
 
             AppBoard.Invalid -> invalid()
 
@@ -249,7 +249,6 @@ private class Trip(
         val second = hasClickAction() and hasText(words.secondProblemAt, substring = true)
         test.awaitNode(second, "the second problem")
         test.onNode(second).performSemanticsAction(SemanticsActions.OnClick)
-        test.forgetWhileWordsCame(findings)
     }
 
     /**
@@ -296,7 +295,6 @@ private class Trip(
         test.awaitUntil("the differences were listed") {
             test.onAllNodes(hasKeyEnding("difference0")).fetchSemanticsNodes().isNotEmpty()
         }
-        test.forgetWhileWordsCame(findings)
     }
 
     /** Opens Start's sample [key], which a phone lists once its two first are passed, and waits until it is read. */
@@ -349,16 +347,18 @@ private class Trip(
         press("MenuItem", key, scope = "Menu_document")
     }
 
-    /** Waits until the document shown is read: the text shows at once, its tree and its status once it is read. */
+    /**
+     * Waits until a document is shown in Start's place and read: the text shows at once, its tree and its status once
+     * it is read. Start says nothing is being read either, so its going is waited for first.
+     */
     private suspend fun awaitRead() {
+        test.awaitUntil("the document was shown") { test.onAllNodes(hasText(words.start)).fetchSemanticsNodes().isEmpty() }
         test.awaitUntil("the document was read") { test.onAllNodes(hasText(words.reading)).fetchSemanticsNodes().isEmpty() }
-        test.forgetWhileWordsCame(findings)
     }
 
     /** Waits until a text that holds [text] is shown, once or more: a count can be a heading and a field's word both. */
     private suspend fun awaitShown(text: String) {
         test.awaitUntil("\"$text\" was shown") { test.onAllNodes(hasText(text, substring = true)).fetchSemanticsNodes().isNotEmpty() }
-        test.forgetWhileWordsCame(findings)
     }
 
     /**
@@ -368,8 +368,6 @@ private class Trip(
     private suspend fun press(component: String, key: String, scope: String? = null) {
         test.awaitNode(hasPantrixTag(component, key, scope), "$component $key")
         test.onPantrixNode(component, key, scope = scope).performSemanticsAction(SemanticsActions.OnClick)
-        // What a press opens, a menu or a card, has its words a moment later in a browser.
-        test.forgetWhileWordsCame(findings)
     }
 }
 

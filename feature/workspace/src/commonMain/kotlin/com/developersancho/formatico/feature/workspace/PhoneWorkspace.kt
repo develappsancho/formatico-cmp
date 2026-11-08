@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.format.Severity
 import com.developersancho.formatico.core.format.json.jsonPath
 import com.developersancho.formatico.feature.workspace.editor.DocumentEditor
+import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.components.container.card.CardVariant
 import com.pantrixui.components.container.card.PantrixCard
 import com.pantrixui.components.data.codeeditor.CodeEditorState
@@ -39,16 +40,6 @@ import com.pantrixui.components.elements.iconbutton.PantrixIconButton
 import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.theme.PantrixTheme
-import formatico.feature.workspace.generated.resources.Res
-import formatico.feature.workspace.generated.resources.workspace_copy_document
-import formatico.feature.workspace.generated.resources.workspace_copy_value
-import formatico.feature.workspace.generated.resources.workspace_format
-import formatico.feature.workspace.generated.resources.workspace_go_to_anchor
-import formatico.feature.workspace.generated.resources.workspace_minify
-import formatico.feature.workspace.generated.resources.workspace_repair
-import formatico.feature.workspace.generated.resources.workspace_save_file
-import formatico.feature.workspace.generated.resources.workspace_show_in_text
-import org.jetbrains.compose.resources.stringResource
 
 /**
  * A workspace on a phone: the view's choice, the trail to the chosen value and the status, the text or the tree, the
@@ -230,7 +221,7 @@ private fun PhoneToolbar(
     ) {
         if (state.repairable > 0) {
             PantrixButton(
-                text = stringResource(Res.string.workspace_repair),
+                text = workspaceStrings.repair,
                 onClick = { onIntent(WorkspaceIntent.RepairAll) },
                 size = ButtonSize.Large,
                 tagKey = "repair"
@@ -239,7 +230,7 @@ private fun PhoneToolbar(
         // Where Repair leads, Format stands back beside it and Minify leaves the row, as the Invalid board draws it.
         val repairing = state.repairable > 0
         PantrixButton(
-            text = stringResource(Res.string.workspace_format),
+            text = workspaceStrings.format,
             onClick = { onIntent(WorkspaceIntent.Edit(DocumentEdit.Format)) },
             variant = if (repairing) ButtonVariant.Outline else ButtonVariant.Solid,
             size = ButtonSize.Large,
@@ -248,7 +239,7 @@ private fun PhoneToolbar(
         )
         if (!repairing) {
             PantrixButton(
-                text = stringResource(Res.string.workspace_minify),
+                text = workspaceStrings.minify,
                 onClick = { onIntent(WorkspaceIntent.Edit(DocumentEdit.Minify)) },
                 variant = ButtonVariant.Outline,
                 size = ButtonSize.Large,
@@ -259,14 +250,14 @@ private fun PhoneToolbar(
         Spacer(modifier = Modifier.weight(1f))
         PantrixIconButton(
             imageVector = PantrixIcons.Copy,
-            contentDescription = stringResource(Res.string.workspace_copy_document),
+            contentDescription = workspaceStrings.copyDocument,
             onClick = { commands.copy(document) },
             size = ButtonSize.Large,
             tagKey = "copy"
         )
         PantrixIconButton(
             imageVector = PantrixIcons.Download,
-            contentDescription = stringResource(Res.string.workspace_save_file),
+            contentDescription = workspaceStrings.saveFile,
             onClick = { commands.save(document) },
             size = ButtonSize.Large,
             tagKey = "save"
@@ -368,14 +359,14 @@ private fun ValueActions(
         verticalArrangement = Arrangement.spacedBy(PantrixTheme.spacing.sm)
     ) {
         PantrixButton(
-            text = stringResource(Res.string.workspace_show_in_text),
+            text = workspaceStrings.showInText,
             onClick = onShowInText,
             variant = ButtonVariant.Soft,
             tagKey = "show_in_text"
         )
         if (target != null) {
             PantrixButton(
-                text = stringResource(Res.string.workspace_go_to_anchor),
+                text = workspaceStrings.goToAnchor,
                 onClick = { onGoTo(target) },
                 variant = ButtonVariant.Text,
                 leadingIcon = { PantrixIcon(imageVector = PantrixIcons.ArrowForward, contentDescription = null) },
@@ -383,7 +374,7 @@ private fun ValueActions(
             )
         } else {
             PantrixButton(
-                text = stringResource(Res.string.workspace_copy_value),
+                text = workspaceStrings.copyValue,
                 onClick = onCopy,
                 variant = ButtonVariant.Text,
                 leadingIcon = { PantrixIcon(imageVector = PantrixIcons.Copy, contentDescription = null) },

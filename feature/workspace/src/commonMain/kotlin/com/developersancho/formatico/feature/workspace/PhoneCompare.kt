@@ -23,6 +23,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.navigation.SystemBack
+import com.developersancho.formatico.feature.workspace.strings.compareStrings
+import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.components.container.card.CardColors
 import com.pantrixui.components.container.card.CardVariant
 import com.pantrixui.components.container.card.PantrixCard
@@ -37,16 +39,6 @@ import com.pantrixui.components.elements.text.TextRole
 import com.pantrixui.components.overlay.sheet.PantrixSheet
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.theme.PantrixTheme
-import formatico.feature.workspace.generated.resources.Res
-import formatico.feature.workspace.generated.resources.compare_in_a
-import formatico.feature.workspace.generated.resources.compare_in_b
-import formatico.feature.workspace.generated.resources.compare_not_counted
-import formatico.feature.workspace.generated.resources.compare_not_there
-import formatico.feature.workspace.generated.resources.compare_show
-import formatico.feature.workspace.generated.resources.compare_show_in
-import formatico.feature.workspace.generated.resources.compare_title
-import formatico.feature.workspace.generated.resources.workspace_untitled
-import org.jetbrains.compose.resources.stringResource
 
 /**
  * A phone's comparison, a screen of its own in the app bar's place: the way back, "Compare" and the document's "more"
@@ -73,7 +65,7 @@ internal fun PhoneCompare(
         ) {
             PantrixBackButton(onClick = back, tagKey = "back")
             PantrixText(
-                text = stringResource(Res.string.compare_title),
+                text = compareStrings.title,
                 modifier = Modifier.weight(1f),
                 style = PantrixTheme.typography.body.copy(fontWeight = FontWeight.SemiBold),
                 role = TextRole.Heading(level = 1)
@@ -106,7 +98,7 @@ private fun PhoneCompareChoices(state: WorkspaceState, document: OpenDocument, c
             itemVerticalAlignment = Alignment.CenterVertically
         ) {
             SideTag(Side.A)
-            SideName(document.name ?: stringResource(Res.string.workspace_untitled))
+            SideName(document.name ?: workspaceStrings.untitled)
             PantrixIcon(imageVector = PantrixIcons.ArrowForward, contentDescription = null, tint = PantrixTheme.colors.textSecondary)
             SideTag(Side.B)
             PartnerMenu(state.comparison.partner, state.others, choice, ButtonSize.Medium, onIntent)
@@ -144,7 +136,7 @@ private fun DifferenceCards(
             } else {
                 notCountedMessage(compared)?.let { message ->
                     PantrixText(
-                        text = "${stringResource(Res.string.compare_not_counted)}: $message",
+                        text = "${compareStrings.notCounted}: $message",
                         modifier = Modifier.padding(horizontal = spacing.xs),
                         style = PantrixTheme.typography.footnote.copy(fontWeight = FontWeight.Medium),
                         color = PantrixTheme.colors.textSecondary
@@ -178,16 +170,16 @@ private fun DifferenceCard(difference: ShownDifference, chosen: Boolean, tagKey:
                 maxLines = 1
             )
             PantrixButton(
-                text = stringResource(Res.string.compare_show),
+                text = compareStrings.show,
                 onClick = onShow,
                 variant = ButtonVariant.Text,
                 size = ButtonSize.Small,
-                contentDescription = stringResource(Res.string.compare_show_in, where),
+                contentDescription = compareStrings.showIn(where),
                 tagKey = "show_$tagKey"
             )
         }
-        SideValue(stringResource(Res.string.compare_in_a), difference.before)
-        SideValue(stringResource(Res.string.compare_in_b), difference.after)
+        SideValue(compareStrings.inA, difference.before)
+        SideValue(compareStrings.inB, difference.after)
     }
 }
 
@@ -203,7 +195,7 @@ private fun SideValue(label: String, value: String?) {
             color = PantrixTheme.colors.textSecondary
         )
         PantrixText(
-            text = value ?: stringResource(Res.string.compare_not_there),
+            text = value ?: compareStrings.notThere,
             modifier = Modifier.weight(1f),
             style = typography.code.copy(fontSize = typography.footnote.fontSize, lineHeight = typography.footnote.lineHeight),
             color = if (value == null) PantrixTheme.colors.textSecondary else PantrixTheme.colors.textPrimary,

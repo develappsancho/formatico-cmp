@@ -74,7 +74,7 @@ class ColumnTypesTest {
             }
         }
 
-        awaitText("text, null", forgetting = findings)
+        awaitText("text, null")
         awaitText("date")
         awaitText("boolean")
         assertNoFindings(findings)
