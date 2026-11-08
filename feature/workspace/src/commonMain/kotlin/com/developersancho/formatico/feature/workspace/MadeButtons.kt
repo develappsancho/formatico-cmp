@@ -13,13 +13,16 @@ import com.pantrixui.foundation.icons.PantrixIcons
 
 /**
  * What is made of the document, each a view of its own: Query, Convert, Types and Schema. Each, pressed again, gives
- * the view the document opens with back. Types stands in words alone, as Compare and Schema do, as the boards draw it.
+ * the view the document opens with back. Types has the code's icon in a [wide] window (the owner's decision, Faz 21);
+ * a tablet's toolbar has no room for it beside its "more" button, and Types stands there in words alone until the
+ * toolbar moves what does not fit into a menu (PANTRIX_FINDINGS, "Sığmayan eylemleri menüsüne alan bir araç çubuğu
+ * yok"). Schema stands in words alone, as Compare does.
  */
 @Composable
-internal fun MadeButtons(document: OpenDocument, size: ButtonSize, onIntent: (WorkspaceIntent) -> Unit) {
+internal fun MadeButtons(document: OpenDocument, size: ButtonSize, wide: Boolean, onIntent: (WorkspaceIntent) -> Unit) {
     PaneButton(document, DocumentPane.Query, workspaceStrings.query, PantrixIcons.Search, size, onIntent, "query")
     PaneButton(document, DocumentPane.Convert, workspaceStrings.convert, PantrixIcons.ArrowForward, size, onIntent, "convert")
-    PaneButton(document, DocumentPane.Types, typesStrings.types, null, size, onIntent, "types")
+    PaneButton(document, DocumentPane.Types, typesStrings.types, PantrixIcons.Code.takeIf { wide }, size, onIntent, "types")
     PaneButton(document, DocumentPane.Schema, schemaStrings.schema, null, size, onIntent, "schema")
 }
 

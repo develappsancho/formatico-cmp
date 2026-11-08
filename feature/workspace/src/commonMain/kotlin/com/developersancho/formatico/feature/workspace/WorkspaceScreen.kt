@@ -254,7 +254,7 @@ private fun Toolbar(
         if (wide) ToolbarDivider(wide)
         EditButtons(state = state, layout = layout, onIntent = onIntent)
         ToolbarDivider(wide)
-        MadeButtons(document = document, size = size, onIntent = onIntent)
+        MadeButtons(document = document, size = size, wide = wide, onIntent = onIntent)
         if (wide) {
             PantrixButton(
                 text = workspaceStrings.compare,
