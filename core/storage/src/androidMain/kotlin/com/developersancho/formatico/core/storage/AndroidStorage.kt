@@ -21,10 +21,8 @@ object AndroidStorage {
 internal actual fun deviceStores(): DeviceStores {
     val context = AndroidStorage.context()
     val base = context.noBackupFilesDir
-    return DeviceStores(
-        small = KSafeSmallStore(KSafe(context = context, fileName = STORE_NAME, baseDir = File(base, "ksafe"))),
-        texts = FileTextStore(File(base, "texts"))
-    )
+    val ksafe = KSafe(context = context, fileName = STORE_NAME, baseDir = File(base, "ksafe"))
+    return DeviceStores(small = KSafeSmallStore(ksafe), texts = encryptedTexts(ksafe, FileTextStore(File(base, "texts"))))
 }
 
 internal actual suspend fun KSafe.awaitReady() = Unit

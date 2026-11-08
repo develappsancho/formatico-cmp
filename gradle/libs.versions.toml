@@ -13,6 +13,7 @@ kotlinx-coroutines = "1.11.0"
 kotlinx-serialization = "1.12.0"
 koin = "4.2.2"
 ksafe = "3.3.0"
+cryptography = "0.6.0"
 navigation3 = "1.2.0"
 pantrix = "0.1.2-SNAPSHOT"
 roborazzi = "1.77.0"
@@ -35,6 +36,10 @@ koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koin" }
 koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koin" }
 ksafe = { module = "eu.anifantakis:ksafe", version.ref = "ksafe" }
+cryptography-core = { module = "dev.whyoleg.cryptography:cryptography-core", version.ref = "cryptography" }
+cryptography-providerJdk = { module = "dev.whyoleg.cryptography:cryptography-provider-jdk", version.ref = "cryptography" }
+cryptography-providerCryptokit = { module = "dev.whyoleg.cryptography:cryptography-provider-cryptokit", version.ref = "cryptography" }
+cryptography-providerWebcrypto = { module = "dev.whyoleg.cryptography:cryptography-provider-webcrypto", version.ref = "cryptography" }
 compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "composeMultiplatform" }
 compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "composeMultiplatform" }
 compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "composeMultiplatform" }

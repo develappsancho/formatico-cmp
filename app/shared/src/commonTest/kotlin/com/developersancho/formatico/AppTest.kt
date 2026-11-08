@@ -10,6 +10,8 @@ import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.storage.memoryStorageModule
+import com.developersancho.formatico.core.testing.awaitNode
+import com.developersancho.formatico.core.testing.awaitText
 import com.pantrixui.foundation.adaptive.PantrixWindow
 import com.pantrixui.testing.PantrixTestTheme
 import com.pantrixui.testing.hasPantrixTag
@@ -30,22 +32,6 @@ class AppTest {
     @AfterTest
     fun closeTheApp() {
         stopKoin()
-    }
-
-    /**
-     * Waits for [text] to be shown once, letting the platform run meanwhile: in a browser the app's words are fetched
-     * after its first frame, and the fetch ends only while the page's event loop runs, which `waitUntil` holds.
-     */
-    private suspend fun ComposeUiTest.awaitText(text: String) = awaitNode(hasText(text), "\"$text\"")
-
-    /** Waits, as [awaitText] does, for one node that [matcher] finds, called [what] where it is not found. */
-    private suspend fun ComposeUiTest.awaitNode(matcher: SemanticsMatcher, what: String) {
-        val waited = TimeSource.Monotonic.markNow()
-        while (onAllNodes(matcher).fetchSemanticsNodes().size != 1) {
-            check(waited.elapsedNow() < 10.seconds) { "$what was not shown in 10 seconds" }
-            withContext(Dispatchers.Default) { delay(20.milliseconds) }
-            awaitIdle()
-        }
     }
 
     @Test

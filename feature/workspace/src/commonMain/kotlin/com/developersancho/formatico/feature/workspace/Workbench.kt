@@ -241,12 +241,16 @@ class Workbench(private val worker: CoroutineDispatcher = Dispatchers.Default) {
         change(previous.id) { it.copy(text = previous.text, edited = previous.edited) }
     }
 
-    private fun change(id: Long, change: (OpenDocument) -> OpenDocument) {
+    /** Changes the document whose id is [id], by [change]. */
+    internal fun change(id: Long, change: (OpenDocument) -> OpenDocument) {
         mutableState.update { state ->
             state.copy(documents = state.documents.map { if (it.id == id) change(it) else it })
         }
     }
 }
+
+/** The document whose id is [id] is no longer in Start's history: it is told of no changes and keeps its own text. */
+fun Workbench.leaveHistory(id: Long) = change(id) { it.copy(historyId = null) }
 
 /** What an edit makes of a document's text, before it is kept. */
 private sealed interface Edited {

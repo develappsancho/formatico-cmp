@@ -3,6 +3,7 @@ package com.developersancho.formatico.feature.workspace
 import com.developersancho.formatico.core.format.Format
 import com.developersancho.formatico.core.storage.SmallStore
 import com.developersancho.formatico.core.storage.TextStore
+import com.developersancho.formatico.core.storage.historyTextName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
@@ -17,10 +18,10 @@ import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Keeps the documents open in [workbench] on this device, and gives them back when the app opens again: their tabs in
- * [small], each text in [texts] under `open-<id>`. What is written follows the workbench a moment after it changes;
- * only the texts that changed are written again.
- *
- * What a document's tree was left showing is not kept: it opens on its tree, or its table, as a document opens.
+ * [small], with what each was left showing (its view, the tree's open branches and chosen value, the table's order,
+ * hidden columns and filter), and their texts in [texts]. A document open from Start's history has its text there
+ * once, under the history's name, which the history writes as it changes; any other has it under `open-<id>`. What is
+ * written follows the workbench a moment after it changes; only the texts that changed are written again.
  */
 class WorkbenchKeeper(
     private val workbench: Workbench,
@@ -28,7 +29,7 @@ class WorkbenchKeeper(
     private val texts: TextStore,
     private val scope: CoroutineScope
 ) {
-    // The text each document was last written with, by its id.
+    // The text each document kept under `open-<id>` was last written with, by its id.
     private val written = mutableMapOf<Long, String>()
     private val mutableRestored = MutableStateFlow(false)
 
@@ -52,20 +53,19 @@ class WorkbenchKeeper(
     private suspend fun reopen() {
         val kept = small.get(KEY, KeptWorkbench.serializer()) ?: return
         val documents = kept.tabs.mapNotNull { tab ->
-            val text = texts.read(textName(tab.id)) ?: return@mapNotNull null
-            written[tab.id] = text
+            val fromHistory = tab.historyId?.let { texts.read(historyTextName(it)) }
+            val text = fromHistory ?: texts.read(textName(tab.id)) ?: return@mapNotNull null
+            // A tab kept before its text was the history's has its own besides: it is not needed.
+            if (fromHistory != null) runCatching { texts.delete(textName(tab.id)) } else written[tab.id] = text
             OpenDocument(
                 id = tab.id,
                 name = tab.name,
                 text = text,
                 format = Format.entries.firstOrNull { it.name == tab.format },
                 edited = tab.edited,
-                view = DocumentView(
-                    pane = DocumentPane.entries.firstOrNull {
-                        it.name == tab.pane
-                    } ?: DocumentPane.Tree
-                ),
-                historyId = tab.historyId
+                view = tab.view(),
+                // A text that is no longer the history's is the tab's own.
+                historyId = tab.historyId.takeIf { fromHistory != null }
             )
         }
         if (documents.isNotEmpty()) workbench.reopen(documents, kept.selectedId)
@@ -75,9 +75,17 @@ class WorkbenchKeeper(
         // A write that fails leaves the device as it was; the next change writes again.
         runCatching {
             state.documents.forEach { document ->
-                if (written[document.id] != document.text) {
-                    texts.write(textName(document.id), document.text)
-                    written[document.id] = document.text
+                when {
+                    document.historyId == null && written[document.id] != document.text -> {
+                        texts.write(textName(document.id), document.text)
+                        written[document.id] = document.text
+                    }
+
+                    // The history keeps the text of a document opened from it.
+                    document.historyId != null && document.id in written -> {
+                        texts.delete(textName(document.id))
+                        written.remove(document.id)
+                    }
                 }
             }
             val open = state.documents.map { it.id }.toSet()
@@ -101,13 +109,20 @@ private data class KeptWorkbench(val tabs: List<KeptTab>, val selectedId: Long?)
     companion object {
         fun of(state: WorkbenchState) = KeptWorkbench(
             tabs = state.documents.map { document ->
+                val view = document.view
                 KeptTab(
                     id = document.id,
                     name = document.name,
                     format = document.format?.name,
                     edited = document.edited,
-                    pane = document.view.pane.name,
-                    historyId = document.historyId
+                    pane = view.pane.name,
+                    historyId = document.historyId,
+                    expanded = view.expanded,
+                    selected = view.selected,
+                    sortColumn = view.tableSort?.column,
+                    sortDescending = view.tableSort?.descending == true,
+                    hiddenColumns = view.hiddenColumns,
+                    tableFilter = view.tableFilter
                 )
             },
             selectedId = state.selectedId
@@ -115,7 +130,10 @@ private data class KeptWorkbench(val tabs: List<KeptTab>, val selectedId: Long?)
     }
 }
 
-/** A tab as it is kept; its document's text is kept apart, by [id]. */
+/**
+ * A tab as it is kept, with what its document was left showing; its text is kept apart, by [id]. What a tab kept before
+ * the view was is read with the view a document opens with.
+ */
 @Serializable
 private data class KeptTab(
     val id: Long,
@@ -123,7 +141,23 @@ private data class KeptTab(
     val format: String?,
     val edited: Boolean,
     val pane: String,
-    val historyId: Long?
-)
+    val historyId: Long?,
+    val expanded: Set<String>? = null,
+    val selected: String? = null,
+    val sortColumn: String? = null,
+    val sortDescending: Boolean = false,
+    val hiddenColumns: Set<String> = emptySet(),
+    val tableFilter: String = ""
+) {
+    /** What the document was left showing: its pane by name, or the tree where that pane is no longer one. */
+    fun view() = DocumentView(
+        expanded = expanded,
+        selected = selected,
+        pane = DocumentPane.entries.firstOrNull { it.name == pane } ?: DocumentPane.Tree,
+        tableSort = sortColumn?.let { TableSort(it, sortDescending) },
+        hiddenColumns = hiddenColumns,
+        tableFilter = tableFilter
+    )
+}
 
 private fun textName(id: Long) = "open-$id"

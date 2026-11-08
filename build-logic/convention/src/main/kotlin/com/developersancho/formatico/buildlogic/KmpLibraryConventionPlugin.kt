@@ -7,6 +7,7 @@ import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.targets.js.testing.KotlinJsTest
 import org.jetbrains.kotlin.gradle.tasks.Kotlin2JsCompile
 
 /**
@@ -57,6 +58,11 @@ class KmpLibraryConventionPlugin : Plugin<Project> {
             }
 
             // Klibs keep their sources' paths relative to the repository, not the building machine's own.
+            // Karma reads config/karma's parts as it runs, and Gradle does not know of them: a changed one tests again.
+            tasks.withType<KotlinJsTest>().configureEach {
+                inputs.dir(rootDir.resolve("config/karma")).withPropertyName("formaticoKarmaConfig")
+            }
+
             tasks.withType<Kotlin2JsCompile>().configureEach {
                 compilerOptions.freeCompilerArgs.add("-Xklib-relative-path-base=${rootDir.absolutePath}")
             }

@@ -1,9 +1,11 @@
 package com.developersancho.formatico.feature.workspace
 
 import com.developersancho.formatico.core.format.Format
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -32,7 +34,10 @@ class WorkspaceViewModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun viewModel(id: Long) = WorkspaceViewModel(documentId = id, workbench = workbench, reader = dispatcher)
+    private val readings = Readings(workbench)
+
+    private fun viewModel(id: Long, reader: CoroutineDispatcher = dispatcher) =
+        WorkspaceViewModel(documentId = id, workbench = workbench, readings = readings, reader = reader)
 
     @Test
     fun theDocumentIsReadAndOpensWithItsObjects() {
@@ -158,5 +163,30 @@ class WorkspaceViewModelTest {
 
         assertNull(viewModel.state.value.document)
         assertTrue(workbench.state.value.documents.isEmpty())
+    }
+
+    @Test
+    fun aWorkspaceMadeAgainFindsItsDocumentReadAndReadsItOnlyOnceChanged() {
+        val id = workbench.open("order.json", """{"a": 1}""", Format.Json)
+        assertIs<Reading.Read>(viewModel(id).state.value.reading)
+        val text = workbench.state.value.documents.single().text
+
+        // A reader that never runs: the workspace made again for the same document does not need it.
+        assertIs<Reading.Read>(viewModel(id, reader = StandardTestDispatcher()).state.value.reading)
+
+        // Another text, or the same in another format, is read again.
+        assertNull(readings.of(id, """{"a": 2}""", Format.Json))
+        assertNull(readings.of(id, text, Format.Json5))
+    }
+
+    @Test
+    fun aClosedDocumentsReadingIsForgotten() {
+        val id = workbench.open("order.json", """{"a": 1}""", Format.Json)
+        viewModel(id)
+        val text = workbench.state.value.documents.single().text
+
+        workbench.close(id)
+
+        assertNull(readings.of(id, text, Format.Json))
     }
 }

@@ -31,7 +31,7 @@ eksikler Faz 4'te.
 
 ## v1
 
-*   [ ] **Faz 4: Bitenlerin eksikleri.**
+*   [x] **Faz 4: Bitenlerin eksikleri.** Kapandı (2026-11-04); iOS'un iki "gözle doğrulanacak" maddesi kaldı.
     *   Kurulum ve test: Roborazzi ve Maestro; tarayıcıda atlanan 19 UI testi; testler arasında kapanmayan Koin
         bağlamı; web'de derleyen makinenin yolları ve konsoldaki hata satırı; iOS'un beyaz ilk karesi; uygulama
         simgeleri; Kotlin kaynaklarında görünmeyen karakter denetimi. Yapıldı (2026-11-03); simgeler 2026-11-04'te,
@@ -67,14 +67,16 @@ eksikler Faz 4'te.
         `PreviewCases`, `FormaticoPreview`), Roborazzi her çizen modülde; Start'ın dört hâli üç panoda, açık ve koyu (24
         görüntü), yeni UI testleri. Workspace ve çubuk yapıldı (2026-11-04): Workspace'in sekiz hâli üç panoda (48
         görüntü), sekiz bileşenin kendi hâlleri (58), çubuğun on hâli (20), uygulamanın panoları koyu temada da (12);
-        boş belge, sayı sütununun hizası ve hâllerin UI testleri. Menülerin açık hâli kaldı (OPEN_ITEMS).
+        boş belge, sayı sütununun hizası ve hâllerin UI testleri. Açık menüler, `core:testing`, metinlerin şifrelenmesi,
+        sekmenin görünümünün saklanması, tek metin, açılışın ve dönüşün yeniden okumaması da yapıldı (2026-11-04).
 *   [ ] **Faz 5: Metin editörü.** `PantrixCodeEditor` ve Formatico'nun renklendiricisi; metin ile ağacın seçimi iki
     yönde; Ln ve Col durum çubuğunda ve Table'da; telefonda "Show in text"; belge başına geri alma geçmişi; bul ve
     değiştir; sütun editörün saydığı birimle.
 *   [ ] **Faz 6: Geçersiz belge.** Satırlarda işaretler, bütün problemlerin listesi, her probleme kendi onarımı.
 *   [ ] **Faz 7: Kalan biçimler.** NDJSON, XML, TOML, properties ve INI: kayıpsız okuyucu, yazıcı ve ağaç.
 *   [ ] **Faz 8: Ağaç ve tablo.** Ağaçta arama, bir düzeye kadar açma, yolu JSONPath, JSON Pointer ya da jq olarak
-    kopyalama; sütun türleri; tabloyu kaydetme ve kopyalama menüsü; renk ve resim önizlemesi; Summary (v1'deyse).
+    kopyalama; sütun türleri; tabloyu kaydetme ve kopyalama menüsü; renk ve resim önizlemesi; Summary (sahibinin
+    kararıyla v1'de, 2026-11-04: düzen'den gelenlerin hepsi).
 *   [ ] **Faz 9: Query.** JSONPath ve XPath.
 *   [ ] **Faz 10: Convert.** Biçimler arasında; kaybolacak olan önceden söylenir.
 *   [ ] **Faz 11: Compare.** Anlamsal karşılaştırma.
@@ -104,6 +106,5 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
 
 ## Sahibinin kararını bekleyenler
 
-*   **Summary v1'de mi?** CLAUDE.md'nin v1 kapsamı onu anmıyor; şimdilik Faz 8'de.
 *   **Paylaşım:** CLAUDE.md fragment'ta paylaşımı v1'de, "share links"i v2'de anlatıyor. Şimdilik fragment
     bağlantısı Faz 13'te, şifreli bağlantılar Faz 16'da.

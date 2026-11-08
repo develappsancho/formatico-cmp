@@ -50,7 +50,6 @@ import formatico.feature.workspace.generated.resources.workspace_value_label
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.getPluralString
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.koinInject
 
 /**
  * What a document's buttons do that is not the workspace's state: copying, saving as a file, and saying what an edit
@@ -225,12 +224,11 @@ internal enum class DocumentMenuItems {
 }
 
 /**
- * The "more" button of a phone's bar while the document whose id is [documentId] is shown, and the menu it opens:
- * sorting the keys, comparing (not open yet) and closing the document.
+ * The "more" button of a phone's bar while the document of [workbench] whose id is [documentId] is shown, and the menu
+ * it opens: sorting the keys, comparing (not open yet) and closing the document.
  */
 @Composable
-fun DocumentMoreMenu(documentId: Long) {
-    val workbench = koinInject<Workbench>()
+fun DocumentMoreMenu(documentId: Long, workbench: Workbench) {
     val commands = rememberDocumentCommands(workbench)
     val scope = rememberCoroutineScope()
     val state by workbench.state.collectAsState()

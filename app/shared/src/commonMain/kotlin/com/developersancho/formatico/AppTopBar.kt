@@ -33,7 +33,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.developersancho.formatico.core.designsystem.FormaticoIcons
-import com.developersancho.formatico.feature.workspace.DocumentMoreMenu
 import com.developersancho.formatico.feature.workspace.OpenDocument
 import com.developersancho.formatico.feature.workspace.WorkbenchState
 import com.pantrixui.components.container.surface.PantrixSurface
@@ -95,6 +94,7 @@ private val BarHeight = 56.dp
  * @param onSelectTab chooses the tab of a document, by its id, or a new tab for null.
  * @param darkTheme whether the dark theme is in effect.
  * @param onToggleTheme asks for the other theme.
+ * @param documentMenu the "more" menu of the document a phone's bar is over, by its id.
  */
 @Composable
 internal fun AppTopBar(
@@ -103,6 +103,7 @@ internal fun AppTopBar(
     onSelectTab: (Long?) -> Unit,
     darkTheme: Boolean,
     onToggleTheme: () -> Unit,
+    documentMenu: @Composable (documentId: Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val window = PantrixTheme.window
@@ -126,6 +127,7 @@ internal fun AppTopBar(
                         onSelectTab = onSelectTab,
                         darkTheme = darkTheme,
                         onToggleTheme = onToggleTheme,
+                        documentMenu = documentMenu,
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -164,6 +166,7 @@ private fun AnimatedPhoneBar(
     onSelectTab: (Long?) -> Unit,
     darkTheme: Boolean,
     onToggleTheme: () -> Unit,
+    documentMenu: @Composable (documentId: Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val motion = PantrixTheme.motion
@@ -182,7 +185,13 @@ private fun AnimatedPhoneBar(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(PantrixTheme.spacing.xs)
         ) {
-            PhoneBar(workbench = shown, onSelectTab = onSelectTab, darkTheme = darkTheme, onToggleTheme = onToggleTheme)
+            PhoneBar(
+                workbench = shown,
+                onSelectTab = onSelectTab,
+                darkTheme = darkTheme,
+                onToggleTheme = onToggleTheme,
+                documentMenu = documentMenu
+            )
         }
     }
 }
@@ -196,7 +205,8 @@ private fun RowScope.PhoneBar(
     workbench: WorkbenchState,
     onSelectTab: (Long?) -> Unit,
     darkTheme: Boolean,
-    onToggleTheme: () -> Unit
+    onToggleTheme: () -> Unit,
+    documentMenu: @Composable (documentId: Long) -> Unit
 ) {
     val shown = workbench.selected
     when {
@@ -211,7 +221,7 @@ private fun RowScope.PhoneBar(
                 enabled = false,
                 tagKey = "launcher"
             )
-            DocumentMoreMenu(documentId = shown.id)
+            documentMenu(shown.id)
         }
 
         workbench.documents.isNotEmpty() -> {

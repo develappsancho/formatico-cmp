@@ -4,8 +4,10 @@ import eu.anifantakis.lib.ksafe.KSafe
 import kotlinx.coroutines.await
 import kotlin.js.Promise
 
-internal actual fun deviceStores(): DeviceStores =
-    DeviceStores(small = KSafeSmallStore(KSafe(fileName = STORE_NAME)), texts = IndexedDbTextStore(STORE_NAME))
+internal actual fun deviceStores(): DeviceStores {
+    val ksafe = KSafe(fileName = STORE_NAME)
+    return DeviceStores(small = KSafeSmallStore(ksafe), texts = encryptedTexts(ksafe, IndexedDbTextStore(STORE_NAME)))
+}
 
 /** A [TextStore] in the browser's IndexedDB, which takes a text as large as a document: localStorage does not. */
 internal class IndexedDbTextStore(private val database: String) : TextStore {

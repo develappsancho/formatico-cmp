@@ -7,6 +7,7 @@ import com.developersancho.formatico.feature.start.OpenedDocument
 import com.developersancho.formatico.feature.start.StoredDocumentHistory
 import com.developersancho.formatico.feature.workspace.DocumentEdit
 import com.developersancho.formatico.feature.workspace.Workbench
+import com.developersancho.formatico.feature.workspace.leaveHistory
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -17,6 +18,7 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.minutes
@@ -55,5 +57,21 @@ class FollowEditsTest {
         assertEquals(opened + 5.minutes, top.at)
         assertFalse(below.edited)
         assertEquals(workbench.state.value.documents.first().text, history.document(top.id)?.text)
+    }
+
+    @Test
+    fun aDocumentTheHistoryForgetsWhileItIsOpenLeavesIt() = runTest {
+        val history = StoredDocumentHistory(MemorySmallStore(), MemoryTextStore(), backgroundScope)
+        val workbench = Workbench(worker = StandardTestDispatcher(testScheduler))
+        val id = history.record(OpenedDocument("order.json", "{}", Format.Json), Instant.parse("2026-11-04T09:00:00Z"))
+        val open = workbench.open("order.json", "{}", Format.Json, historyId = id)
+        backgroundScope.launch { followForgotten(workbench, history) }
+        settle()
+        assertEquals(id, workbench.state.value.documents.single().historyId)
+
+        history.clear()
+        settle()
+
+        assertNull(workbench.state.value.documents.single { it.id == open }.historyId)
     }
 }

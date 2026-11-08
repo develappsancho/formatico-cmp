@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.v2.runComposeUiTest
+import com.developersancho.formatico.core.testing.awaitUntil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -26,16 +27,6 @@ class BrowserHistoryTest {
     @AfterTest
     fun giveThePageItsAddressBack() {
         window.history.replaceState(null, "", page)
-    }
-
-    /** Waits, letting the browser run, until [done] says so: a move in the tab's history comes back as an event. */
-    private suspend fun ComposeUiTest.awaitUntil(what: String, done: () -> Boolean) {
-        val waited = TimeSource.Monotonic.markNow()
-        while (!done()) {
-            check(waited.elapsedNow() < 5.seconds) { "$what did not happen in 5 seconds" }
-            withContext(Dispatchers.Default) { delay(20.milliseconds) }
-            awaitIdle()
-        }
     }
 
     @Test

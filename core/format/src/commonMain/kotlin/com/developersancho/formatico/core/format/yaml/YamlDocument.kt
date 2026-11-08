@@ -161,9 +161,7 @@ private class YamlReader(private val text: String) {
                 close(end = event.endMark?.let(offsets::of))
             }
 
-            else -> {
-                Unit
-            }
+            else -> {}
         }
     }
 

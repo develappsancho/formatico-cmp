@@ -21,5 +21,6 @@ val workspaceModule: Module = module {
             scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
         ).also { it.start() }
     }
-    viewModel { (documentId: Long) -> WorkspaceViewModel(documentId = documentId, workbench = get()) }
+    single { Readings(workbench = get()) }
+    viewModel { (documentId: Long) -> WorkspaceViewModel(documentId = documentId, workbench = get(), readings = get()) }
 }

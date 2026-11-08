@@ -127,22 +127,22 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Ne: Telefonda geri tuşu belgeyi açık bırakıp Start'a dönüyor. Start'ın çubuğunda belge değiştirici yok (panoda da yok); açık belgeye ancak Recent'ten ya da aynı örnekten dönülüyor (aynı ad ve metin, açık sekmeyi seçiyor).
     *   Öneri: telefonda Start'ın çubuğunda, açık belge varken değiştiriciyi ve sayısını göstermek; önce tuvalde Start-390'a çizilmeli.
     *   Durum: kapandı (2026-11-04). Start-390'a çizildi (durum `documents: open`, tuval sürüm 70): açık belge varken çubuk Workspace-390'daki değiştirici, "New tab" ve açık belgelerin sayısıyla. Kodda aynısı; `AppTest` telefonda sınıyor.
-*   [ ] **Açılışta Start bir an görünüyor, sonra geri gelen belgeye geçiliyor (2026-11-04).**
+*   [x] **Açılışta Start bir an görünüyor, sonra geri gelen belgeye geçiliyor (2026-11-04).**
     *   Ne: Açık belgeler depodan okunurken uygulama Start'ı gösteriyor; okuma bitince seçili belgeye geçiyor. Web'de (yerel dağıtım, tarayıcıda yeniden yükleme) bir iki saniye görülüyor, çünkü önce kelimeler ve KSafe'in önbelleği geliyor.
     *   Öneri: depo okunana kadar ilk ekranı göstermemek (Start'ın iskeleti ya da boş bir zemin), ya da geri gelen belgeyi beklemek.
-    *   Durum: açık.
-*   [ ] **Açık bir belgenin metni iki kez saklanıyor (2026-11-04).**
+    *   Durum: kapandı (2026-11-04). Açık belgeler depodan gelene kadar ekran boş kalıyor (`WorkbenchKeeper.restored`); sonra doğrudan geri gelen belge ya da Start çiziliyor.
+*   [x] **Açık bir belgenin metni iki kez saklanıyor (2026-11-04).**
     *   Ne: Recent'teki ve açık sekmedeki aynı belge, metnini iki ayrı adla tutuyor (`history-<id>`, `open-<id>`): 10 MB'lık bir belge web'de 20 MB yer tutuyor.
     *   Öneri: açık sekme history'deki metne bağlansın (`historyId` varken ayrı metin yazmasın), değişince ikisi birlikte yazılsın.
-    *   Durum: açık.
-*   [ ] **Bir belgenin ağacının hâli saklanmıyor (2026-11-04).**
+    *   Durum: kapandı (2026-11-04). Recent'ten açılan bir belgenin metni yalnızca history'de (`historyTextName`); keeper onu yazmıyor, açılışta oradan okuyor. History açık bir belgeyi unutursa (Clear history, 20'lik sınır) uygulama belgeyi history'den ayırıyor (`followForgotten`, `Workbench.leaveHistory`), metni o andan sonra `open-<id>`'de. Önceden iki kez saklanmış metnin kopyası açılışta siliniyor. `WorkbenchKeeperTest` ve `FollowEditsTest` sınıyor; iOS simülatöründe `open-*` kopyalarının kalktığı görüldü.
+*   [x] **Bir belgenin ağacının hâli saklanmıyor (2026-11-04).**
     *   Ne: Uygulama yeniden açılınca açık belgeler ve metinleri geliyor, ama ağacın açık dalları, seçili değer, tablonun sıralaması ve gizli sütunları gelmiyor; belge ağacında ya da tablosunda, açıldığı gibi açılıyor.
     *   Öneri: `DocumentView`'ın kalanını da `WorkbenchKeeper`'ın sekme kaydına yazmak.
-    *   Durum: açık.
-*   [ ] **Belgelerin metni cihazda şifresiz (2026-11-04).**
+    *   Durum: kapandı (2026-11-04). Sekmenin kaydı açık dalları, seçili değeri, tablonun sıralamasını, gizli sütunları ve süzgeci de tutuyor (`KeptTab`); önceden kaydedilmiş bir sekme belgenin açıldığı hâlle geliyor. `WorkbenchKeeperTest` sınıyor. Sütun genişlikleri hâlâ tutulmuyor.
+*   [x] **Belgelerin metni cihazda şifresiz (2026-11-04).**
     *   Ne: Recent'in ve açık sekmelerin listesi KSafe'te şifreli, metinler ise uygulamanın klasöründe (web'de IndexedDB'de) düz metin. Yapıştırılan bir belge bir anahtar ya da parola taşıyabilir.
     *   Öneri: sahibinin kararı: metinleri de şifrelemek (KSafe'in anahtarıyla) ya da Settings'e "geçmişi tutma" seçeneği.
-    *   Durum: açık.
+    *   Durum: kapandı (2026-11-04). Sahibinin kararıyla metinler şifreli: AES-GCM, KSafe'in kasasında duran 256 bitlik bir anahtarla (`getOrCreateSecret`), cryptography-kotlin 0.6.0 ile (JVM ve Android'de JDK, iOS'ta CryptoKit, web'de WebCrypto). Önceden şifresiz yazılmış metin olduğu gibi okunuyor ve bir sonraki yazışta şifreleniyor; çözülemeyen metin (anahtarı kaybolmuş) yok sayılıyor. `EncryptedTextStoreTest` her hedefte sınıyor; web'de IndexedDB'de yalnızca şifreli metin görüldü. Sorun olursa şifresize dönülür (sahibinin kararı). Metin Base64 yazıldığı için cihazda üçte bir daha yer tutuyor.
 *   [x] **Biçimlendirme sondaki virgülü siliyor, anahtarla değer arasındaki yorumu öne alıyor (2026-11-03).**
     *   Ne: `JsonDocument.formatted` JSONC ve JSON5'te sondaki virgülü yazmıyor; bir üyenin anahtarıyla değeri arasındaki yorum (`"b": /* not */ 2`) üyenin önüne kendi satırına geçiyor. İkisi de belgeyi geçerli bırakıyor, ama yazanın biçimi değil.
     *   Öneri: Settings'e "sondaki virgülü koru" seçeneği; ya da JSON5'te varsayılan olarak korumak.
@@ -200,7 +200,7 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Ne: Start'tan bir örnek açılırken bir an üst çubuk belgenin çubuğu ("countries.csv", sayaç, more) olurken içerik hâlâ Start'ı gösteriyor; geçiş bitince Table geliyor. Android'de gözle görülmedi.
     *   Öneri: çubuğu geri yığının o an gösterdiği hedefe göre değil, geçişin vardığı hedefe göre seçmek ya da çubuğu da geçişle birlikte değiştirmek.
     *   Durum: düzeltildi, gözle doğrulanacak (2026-11-04). Telefonun çubuğu ekranla birlikte, temanın yavaş süresinde (350 ms) bir kararmayla değişiyor; azaltılmış harekette hemen. Simülatörde geçişin ortası gözle görülmedi.
-*   [ ] **Panolar düzen'den alınanlarla genişledi, kod henüz değil (2026-11-03).**
+*   [x] **Panolar düzen'den alınanlarla genişledi, kod henüz değil (2026-11-03).**
     *   Ne: Sahibinin yaptırdığı ayrı tasarımdan ("düzen") seçilenler tuvale çizildi (sürüm 59).
         *   Workspace (1440, 834, 390): ağaçta arama, eşleşme sayısı ve önceki/sonraki (durum `search`); ağacı 1, 2, 3 ya da bütün düzeylere açma (1440, 834); seçili değerin yolunu JSONPath, JSON Pointer ya da jq olarak kopyalama (durum `path`).
         *   Table (1440, 834): her sütunun türü adının altında. Kaydetme düğmesi bir menü: CSV olarak kaydet, CSV ya da Markdown tablosu olarak kopyala (durum `save`, 1440 ve 390).
@@ -208,7 +208,7 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
         *   Kodda bunların hiçbiri yok; Table'ın kaydetme düğmesi hâlâ doğrudan "Save as CSV".
     *   Nerede: tuval, Workspace, Table ve Summary satırları; CLAUDE.md'nin v1 kapsamı ve pano listesi Summary'yi anmıyor.
     *   Öneri: sahibinin kararıyla v1 kapsamına ve pano listesine eklemek, sonra ekran ekran koda geçirmek.
-    *   Durum: açık.
+    *   Durum: kapandı (2026-11-04). Sahibinin kararıyla düzen'den alınanların hepsi v1'de: CLAUDE.md'nin v1 kapsamına ve pano listesine yazıldı; kodu Faz 8'de (ağaç ve tablo, Summary).
 *   [x] **Workspace panolarının durum çubuğu belgenin boyunu yanlış yazıyordu (2026-11-03).**
     *   Ne: Workspace panolarının (1440, 834, 390) editör hâli "30 lines · 742 B" diyordu; çizilen order.json 665 bayt, kodun durum çubuğu da 665 B diyor.
     *   Durum: kapandı (2026-11-03). Panolarda 665 B'ye düzeltildi (tuval sürüm 59).
@@ -224,29 +224,38 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Ne: Uygulama yeni bir sekmede açılıp saklanan belgeyi geri verince ekranlar `#start` ve `#document?id=1` olur, ama tarayıcının geçmişinde bunlar tek bir girdi (`history.state` ikisini de tutuyor). Tarayıcının geri tuşu Start'a değil, sitenin öncesine gidiyor. Start'tan bir belge açılınca ya da adres elle yazılınca geri ve ileri doğru çalışıyor (yerel dağıtımda, 2026-11-04).
     *   Öneri: `BrowserHistory` ilk yazışında, tarayıcının girdisinin hâli yokken ve birden çok ekran varken, kökü bulunduğu girdiye yazsın ve kalan ekranları birer yeni girdi olarak eklesin.
     *   Durum: kapandı (2026-11-04). Öneri gibi; `BrowserHistoryTest` sınıyor. Chrome, bir sayfanın kullanıcı ona dokunmadan eklediği girdiyi geri tuşunda atlıyor (history manipulation intervention): sayfa açılır açılmaz geri basılırsa Start atlanıyor, sayfaya bir kez tıklandıktan sonra geri Start'a dönüyor (yerel dağıtımda, uygulamanın tarayıcı bölmesinde denendi). Bu tarayıcının kuralı; değiştirilemez.
-*   [ ] **Start'a gidip dönünce belge yeniden okunuyor (2026-11-04).**
+*   [x] **Start'a gidip dönünce belge yeniden okunuyor (2026-11-04).**
     *   Ne: Workspace'in görünüm modeli gezinti girdisine bağlı (`rememberViewModelStoreNavEntryDecorator`). Start'a geçince girdi yığından çıkıyor, görünüm modeli siliniyor; belgeye dönünce yenisi belgeyi baştan okuyor (durum çubuğunda "Reading…"). Küçük belgede fark edilmiyor; 50 MB'lık bir belgede her dönüş yeniden okuma demek. Web'de geri ve ileri tuşlarıyla görüldü (2026-11-04); telefonun geri tuşunda da aynısı olmalı.
     *   Öneri: okunmuş belgeyi (`DocumentReading`) görünüm modeli yerine `Workbench`'te belgeyle birlikte tutmak ya da metni değişmeyen bir belgenin okumasını önbelleğe almak; Faz 14'ün büyük dosya ölçümüyle birlikte.
-    *   Durum: açık.
-*   [ ] **Geniş pencerede Recent ile Samples'ın kartları aynı hizada başlamıyor (2026-11-04).**
+    *   Durum: kapandı (2026-11-04). Açık belgelerin okunmuşu `Readings`'te tutuluyor; yeniden kurulan workspace metni ya da biçimi değişmemişse okumadan açılıyor, belge kapanınca okunmuşu bırakılıyor. `WorkspaceViewModelTest` sınıyor.
+*   [x] **Geniş pencerede Recent ile Samples'ın kartları aynı hizada başlamıyor (2026-11-04).**
     *   Ne: Geçmişte belge varken Recent'in başlık satırında "Clear history" bağlantısı var, Samples'ınkinde küçük bir metin. Bağlantı satırı daha yüksek tutuyor: 1440'ta Recent'in başlığı ve kartı Samples'ınkinden 11 px aşağıda başlıyor (önizleme `StartScreen`, `recent`, 1440). Geçmiş boşken bağlantı yok, ikisi hizalı; Start panosu da boş geçmişle çizili.
     *   Öneri: iki bölümün başlık satırına aynı en küçük yükseklik, ya da geniş pencerede başlıkları bir satırda, kartları altında bir satırda dizmek. Önce Start-1440'ın geçmişli hâli tuvalde çizilir.
-    *   Durum: açık.
-*   [ ] **Ekran görüntüsü testinin yardımcısı her modülde ayrı (2026-11-04).**
+    *   Durum: kapandı (2026-11-04). Yan yana duran iki bölümün başlığı en az platformun dokunma hedefi kadar yüksek; kartlar aynı hizada başlıyor. `StartScreenTest.aWideWindowStartsRecentAndSamplesOnOneLine` sınıyor. Geçmişli Start-1440 tuvale çizilmedi: hizalama tasarımın değişmesi değil, ama geçmiş boşken de Samples'ın başlığı birkaç piksel yükseldi.
+*   [x] **Ekran görüntüsü testinin yardımcısı her modülde ayrı (2026-11-04).**
     *   Ne: Bir önizlemeyi bir panonun penceresinde, `PantrixTestTheme`'in içinde çizip yazan küçük `capture` fonksiyonu her modülün `jvmTest`'inde yeniden yazılıyor (`feature:start`, sırada `feature:workspace` ve `app:shared`). KMP'nin `testFixtures`'ı yok; test kaynakları modüller arasında paylaşılmıyor.
     *   Öneri: yalnızca testlerin bağımlı olduğu bir `core:testing` modülü (Roborazzi, `PantrixTestTheme`, panolar). CLAUDE.md "her taban tek modülde" diyor: test yardımcısının `core:base`'e mi, yeni bir modüle mi gideceği sahibinin kararı.
-    *   Durum: açık.
+    *   Durum: kapandı (2026-11-04). Sahibinin kararıyla `core:testing`: önizlemenin ekran görüntüsü (`capturePreview`, `captureOpenMenu`), İngilizce çalıştırma ve tarayıcıda bekleme (`awaitText`, `awaitNode`, `awaitUntil`), yalnızca testlerin bağımlılığı.
 *   [x] **Bir JSON dizisinin tablosunda sayılar sütunun başında duruyordu (2026-11-04).**
     *   Ne: Sayı sütunlarının başlığı sona yaslıydı, hücreleri başa. Hücrenin kutusu, seçilince çevresine çizgi çekilsin diye sütun kadar geniş; içi kutunun başında duruyordu ve sütunun hizasını eziyordu. CSV'nin örneğinde sayı sütunu olmadığı için Table panosunda görünmemişti; önizleme (`WorkspaceScreen`, `json table`) gösterdi.
     *   Durum: kapandı (2026-11-04). Hücre sütununun hizasını alıyor; `WorkspaceScreenTest.aColumnOfNumbersLinesThemUpAtItsEndAsItsHeader` sınıyor.
 *   [x] **Yeni, boş bir belge "Plain text has no tree" diyordu (2026-11-04).**
     *   Ne: "New empty document" biçimsiz (düz metin) bir belge açıyor; ağacın yeri "The document is empty" yerine düz metnin sözünü söylüyordu. Boş belgenin sözü yalnızca okunan bir biçimde çıkıyordu.
     *   Durum: kapandı (2026-11-04). Boş bir belge, biçimi ne olursa olsun boş olduğunu söylüyor; `WorkspaceScreenTest.anEmptyDocumentSaysThereIsNothingToRead` sınıyor.
-*   [ ] **Telefonun çubuğundaki "more" menüsü belgeleri Koin'den alıyor (2026-11-04).**
+*   [x] **Telefonun çubuğundaki "more" menüsü belgeleri Koin'den alıyor (2026-11-04).**
     *   Ne: `DocumentMoreMenu(documentId)` `Workbench`'i kendi içinde `koinInject` ile buluyor. `AppTopBar`'ın önizlemesi ve testi bu yüzden kendi Koin'ini başlatıp `stopKoin()` diyor; çubuk dışarıdan verilenle çizilen bir bileşen değil.
     *   Öneri: `App`, menünün işlerini (sırala, kapat) ve belgenin biçimini çubuğa versin; menü Koin'i bilmesin.
-    *   Durum: açık.
-*   [ ] **Menülerin açık hâli önizlenmiyor (2026-11-04).**
+    *   Durum: kapandı (2026-11-04). `DocumentMoreMenu` workbench'i parametre olarak alıyor; çubuk menüyü uygulamadan bir yuva olarak alıyor (`documentMenu`). Önizleme ve test Koin'siz.
+*   [x] **Menülerin açık hâli önizlenmiyor (2026-11-04).**
     *   Ne: Biçim menüsü, "more" menüsü, sütun seçici ve telefonun belge listesi açılır pencereler. Önizlemeler ve ekran görüntüleri onları kapalı çiziyor; açık hâlleri yalnızca UI testlerinde sınanıyor. Masaüstünün testinde açılır pencere ayrı bir kök; Roborazzi'nin `onRoot()`'u birden çok kök görünce duruyor.
     *   Öneri: açık menüyü çizen ayrı bir ekran görüntüsü testi (menüyü açıp `onAllNodes(isRoot())`'un sonuncusunu yazmak), ya da Pantrix'in menüsünün yerinde açılan bir önizleme biçimi.
-    *   Durum: açık.
+    *   Durum: kapandı (2026-11-04). Ekran görüntüsü testi menüyü açıp onun penceresini yazıyor (`captureOpenMenu`): biçim menüsü, belgenin "more" menüsü, sütun seçici, telefonun belge listesi ve "more" sayfası. Bu sırada sütun seçicinin açılınca çöktüğü bulundu ve düzeltildi (aşağıda).
+*   [x] **Sütun seçici açılınca uygulama çöküyordu (2026-11-04).**
+    *   Ne: Table'ın "Columns" düğmesi `PantrixPopover` açıyor; içine Formatico kendi `verticalScroll`'unu koymuştu. Popover içindekini kendisi kaydırıyor (Pantrix'in Popover sayfası); iç içe iki kaydırma sonsuz yükseklikle ölçülüp çöküyordu. Hiçbir test seçiciyi açmamıştı; açık menünün ekran görüntüsü buldu.
+    *   Durum: kapandı (2026-11-04). İç kaydırma kalktı; `WorkspaceScreenTest.theColumnsChooserOpensAndHidesAColumn` açıp bir sütunu gizliyor.
+*   [x] **Web uygulaması şifrelemeyle açılmıyordu (2026-11-04).**
+    *   Ne: cryptography-kotlin'in getirdiği kotlinx-io, Node için yazdığı yardımcıda (`kotlinx.io.node.getRequire`) `import.meta`'yı çıplak okuyor; webpack onu klasik bir betikte bırakıyor, tarayıcı "Cannot use 'import.meta' outside a module" deyip uygulamayı başlatmıyordu. Testlerin Karma sayfası da aynı hatayla düşüyordu.
+    *   Durum: kapandı (2026-11-04). `config/webpack/node-only-import-meta.js` ve `config/karma/node-only-import-meta.js` çıplak `import.meta`'yı boş bir nesneye çeviriyor (tarayıcı o yardımcıyı hiç çağırmıyor). Yerel dağıtım tarayıcıda açıldı, belge şifreli yazılıp yeniden yüklemede geri geldi.
+*   [x] **Webpack'in ve Karma'nın parçaları değişince derleme kendini yenilemiyordu (2026-11-04).**
+    *   Ne: `config/webpack` ve `config/karma` Gradle'ın girdileri değildi: yeni bir parça eklenince web dağıtımı UP-TO-DATE kalıyor, eski betik çıkıyordu.
+    *   Durum: kapandı (2026-11-04). İki klasör `KotlinWebpack` ve `KotlinJsTest` görevlerinin girdisi.

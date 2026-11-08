@@ -13,13 +13,11 @@ import com.developersancho.formatico.core.designsystem.FormaticoPreview
 import com.developersancho.formatico.core.designsystem.PreviewCase
 import com.developersancho.formatico.core.designsystem.PreviewCases
 import com.developersancho.formatico.core.format.Format
+import com.developersancho.formatico.feature.workspace.DocumentMoreMenu
 import com.developersancho.formatico.feature.workspace.OpenDocument
 import com.developersancho.formatico.feature.workspace.Workbench
 import com.developersancho.formatico.feature.workspace.WorkbenchState
 import com.pantrixui.foundation.adaptive.PantrixWindowFrame
-import org.koin.compose.KoinApplication
-import org.koin.dsl.koinConfiguration
-import org.koin.dsl.module
 
 /** The bar as a case shows it: over [workbench]'s documents and its chosen tab, on [board]. */
 internal class AppTopBarCase(val workbench: WorkbenchState, val board: Board)
@@ -54,20 +52,18 @@ internal class AppTopBarCases :
 @Preview
 @Composable
 internal fun AppTopBarPreview(@PreviewParameter(AppTopBarCases::class) case: PreviewCase<AppTopBarCase>) {
-    // A phone's bar holds the document's "more" menu, which finds the documents in Koin.
-    val configuration = remember { koinConfiguration { modules(module { single { Workbench() } }) } }
-    KoinApplication(configuration = configuration) {
-        FormaticoPreview(case, Modifier.width(case.value.board.width.dp)) {
-            // The bar lays itself out by the window: its board's, whatever room the preview has.
-            PantrixWindowFrame(window = it.board.window) {
-                AppTopBar(
-                    insets = PaddingValues(),
-                    workbench = it.workbench,
-                    onSelectTab = {},
-                    darkTheme = case.dark,
-                    onToggleTheme = {}
-                )
-            }
+    val workbench = remember { Workbench() }
+    FormaticoPreview(case, Modifier.width(case.value.board.width.dp)) {
+        // The bar lays itself out by the window: its board's, whatever room the preview has.
+        PantrixWindowFrame(window = it.board.window) {
+            AppTopBar(
+                insets = PaddingValues(),
+                workbench = it.workbench,
+                onSelectTab = {},
+                darkTheme = case.dark,
+                onToggleTheme = {},
+                documentMenu = { id -> DocumentMoreMenu(documentId = id, workbench = workbench) }
+            )
         }
     }
 }

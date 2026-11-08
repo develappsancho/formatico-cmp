@@ -32,6 +32,12 @@ interface TextStore {
     suspend fun delete(name: String)
 }
 
+/**
+ * The name of the text of the document whose id in Start's history is [id]: the history keeps it, and a document open
+ * from the history is kept there too, once, while the history has it.
+ */
+fun historyTextName(id: Long): String = "history-$id"
+
 /** The stores of this device, as the platform has them. */
 class DeviceStores(val small: SmallStore, val texts: TextStore)
 

@@ -50,7 +50,12 @@ Formatico is also a test of Pantrix UI: it is built the way a developer who foun
   table views, JSONPath and XPath queries, convert between formats, semantic diff, tabs, local history, a command
   palette with shortcuts, drag and drop, the clipboard, English and Turkish, dark theme, adaptive layouts. In the
   tree, values are previewed (dates, colours, URLs, images); the text and the tree keep their selection in step.
+  From the "düzen" design (2026-11-04): a search in the tree, opening it to a level, copying a value's path as
+  JSONPath, JSON Pointer or jq, each column's type in the table, saving or copying the table (CSV, Markdown), and the
+  Summary of a document, opened from the status bar's size.
 - **Large files:** 50 MB on desktop, 10 MB on phones and the web, measured.
+- **On the device (2026-11-04):** the documents' texts are encrypted, AES-GCM with a key KSafe keeps
+  (cryptography-kotlin); should it cause trouble, they go back to plain text.
 - **v2:** share links, type generation (Kotlin, TypeScript, Swift, Go), a graph view, JSON Schema, in-app AI with the
   user's own key.
 - **Parsers:** our own lossless ones in a pure Kotlin `core:format` module (comments, the spelling of numbers and the
@@ -82,8 +87,8 @@ Formatico is also a test of Pantrix UI: it is built the way a developer who foun
   https://claude.ai/artifact/PKpxmvKfeisZ4bgPTWVdZp, with the "Pantrix UI" design system as an outsider finds it (its
   README first). Each screen is drawn at 1440, 834 and 390 wide. The design is matched one to one in code.
 - **The boards to draw:** Start; Workspace (the editor and the tree, the toolbar); an invalid document (the marks, the
-  list of problems, repair); Table; Query; Convert; Compare; the command palette; Settings; the share dialog. The
-  tree's value previews and the text and tree kept in step are shown on them.
+  list of problems, repair); Table; Query; Convert; Compare; Summary; the command palette; Settings; the share
+  dialog. The tree's value previews and the text and tree kept in step are shown on them.
 - The canvas already holds the identity boards (A is the pick). It reads the design system's `tokens.css`;
   `formatico-options.css` keeps only Formatico's brand, typefaces and syntax colours. Until the design system carries
   a code editor, the editor is drawn as markup, and that is a finding.

@@ -39,6 +39,8 @@ class WorkbenchKeeperTest {
 
     @Test
     fun theOpenDocumentsComeBackInTheirTabsWithTheOneChosen() = runTest {
+        // The history keeps the text of the document opened from it.
+        texts.write("history-4", "{\"a\": 1}")
         val before = opened()
         val order = before.open("order.json", "{\"a\": 1}", Format.Json, historyId = 4)
         before.open("countries.csv", "code,name\nAF,Afghanistan\n", Format.Csv)
@@ -86,5 +88,64 @@ class WorkbenchKeeperTest {
         assertEquals(listOf("order.json", null), state.documents.map { it.name })
         assertEquals(pasted, state.selectedId)
         assertEquals(state.documents.size, state.documents.map { it.id }.toSet().size)
+    }
+
+    @Test
+    fun whatADocumentWasLeftShowingComesBackWithIt() = runTest {
+        val before = opened()
+        val order = before.open("order.json", "{\"items\": [{\"price\": 2}, {\"price\": 1}]}", Format.Json)
+        before.changeView(order) {
+            it.copy(
+                expanded = setOf("$", "$.items"),
+                selected = "$.items[1].price",
+                pane = DocumentPane.Table,
+                tableSort = TableSort("price", descending = true),
+                hiddenColumns = setOf("name"),
+                tableFilter = "1"
+            )
+        }
+        settle()
+
+        val view = opened().state.value.documents.single().view
+
+        assertEquals(setOf("$", "$.items"), view.expanded)
+        assertEquals("$.items[1].price", view.selected)
+        assertEquals(DocumentPane.Table, view.pane)
+        assertEquals(TableSort("price", descending = true), view.tableSort)
+        assertEquals(setOf("name"), view.hiddenColumns)
+        assertEquals("1", view.tableFilter)
+    }
+
+    @Test
+    fun aDocumentFromTheHistoryHasItsTextThereOnce() = runTest {
+        texts.write("history-4", "{\"a\": 1}")
+        val before = opened()
+        before.open("order.json", "{\"a\": 1}", Format.Json, historyId = 4)
+        settle()
+
+        assertEquals(setOf("history-4"), texts.names())
+
+        // The history writes the changes it is told of; the tab comes back with them.
+        texts.write("history-4", "{\"a\": 2}")
+        val after = opened().state.value.documents.single()
+        assertEquals("{\"a\": 2}", after.text)
+        assertEquals(4L, after.historyId)
+    }
+
+    @Test
+    fun aDocumentTheHistoryForgetsKeepsATextOfItsOwn() = runTest {
+        texts.write("history-4", "{\"a\": 1}")
+        val before = opened()
+        val order = before.open("order.json", "{\"a\": 1}", Format.Json, historyId = 4)
+        settle()
+
+        before.leaveHistory(order)
+        settle()
+        texts.delete("history-4")
+
+        val after = opened().state.value.documents.single()
+        assertEquals("{\"a\": 1}", after.text)
+        assertEquals(null, after.historyId)
+        assertEquals(setOf("open-$order"), texts.names())
     }
 }

@@ -3,6 +3,7 @@ package com.developersancho.formatico.feature.start
 import com.developersancho.formatico.core.format.Format
 import com.developersancho.formatico.core.storage.SmallStore
 import com.developersancho.formatico.core.storage.TextStore
+import com.developersancho.formatico.core.storage.historyTextName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,6 +20,9 @@ import kotlin.time.Instant
 interface DocumentHistory {
     /** What Recent lists. */
     val documents: StateFlow<List<RecentDocument>>
+
+    /** Whether [documents] are the device's yet: until the history is read, they are none. */
+    val loaded: StateFlow<Boolean>
 
     /**
      * Puts [document] at the top, opened [at] that moment: a document already in the history moves there.
@@ -60,6 +64,9 @@ class StoredDocumentHistory(
     private val listed = MutableStateFlow<List<RecentDocument>>(emptyList())
 
     override val documents: StateFlow<List<RecentDocument>> = listed.asStateFlow()
+
+    private val mutableLoaded = MutableStateFlow(false)
+    override val loaded: StateFlow<Boolean> = mutableLoaded.asStateFlow()
 
     init {
         scope.launch { lock.withLock { loaded() } }
@@ -147,6 +154,7 @@ class StoredDocumentHistory(
         nextId = (read.maxOfOrNull { it.id } ?: 0L) + 1
         kept = read
         listed.value = read.map(KeptRecent::recent)
+        mutableLoaded.value = true
         read
     }
 
@@ -185,4 +193,4 @@ private data class KeptRecent(
     fun format(): Format? = Format.entries.firstOrNull { it.name == format }
 }
 
-private fun textName(id: Long) = "history-$id"
+private fun textName(id: Long) = historyTextName(id)

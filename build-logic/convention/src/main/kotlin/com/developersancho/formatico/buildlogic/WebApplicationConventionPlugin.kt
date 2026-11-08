@@ -10,6 +10,7 @@ import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack
 import org.jetbrains.kotlin.gradle.tasks.Kotlin2JsCompile
 
 /**
@@ -54,6 +55,11 @@ class WebApplicationConventionPlugin : Plugin<Project> {
                     }
                     binaries.executable()
                 }
+            }
+
+            // Webpack reads the plugins as it runs, and Gradle does not know of them: a changed one bundles again.
+            tasks.withType<KotlinWebpack>().configureEach {
+                inputs.dir(webpackConfig).withPropertyName("formaticoWebpackConfig")
             }
 
             tasks.withType<Kotlin2JsCompile>().configureEach {

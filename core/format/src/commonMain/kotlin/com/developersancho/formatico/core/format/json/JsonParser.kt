@@ -110,9 +110,7 @@ internal class JsonParser(
                     return JsonObject(TextRange(open.start, lastEnd), members)
                 }
 
-                else -> {
-                    Unit
-                }
+                else -> {}
             }
             val key = parseKey(depth) ?: continue
             val hasColon = current.kind == JsonTokenKind.Colon
@@ -176,9 +174,7 @@ internal class JsonParser(
                     continue
                 }
 
-                else -> {
-                    Unit
-                }
+                else -> {}
             }
             parseValue(depth + 1)?.let { items += it }
             separator(closer = JsonTokenKind.RightBracket)
@@ -196,9 +192,7 @@ internal class JsonParser(
                 }
             }
 
-            JsonTokenKind.RightBrace, JsonTokenKind.RightBracket, JsonTokenKind.EndOfFile -> {
-                Unit
-            }
+            JsonTokenKind.RightBrace, JsonTokenKind.RightBracket, JsonTokenKind.EndOfFile -> {}
 
             else -> {
                 error(ProblemCode.ExpectedCommaOrEnd, current)
@@ -228,9 +222,7 @@ internal class JsonParser(
                     if (nesting == 0) break
                 }
 
-                else -> {
-                    Unit
-                }
+                else -> {}
             }
         }
         return null

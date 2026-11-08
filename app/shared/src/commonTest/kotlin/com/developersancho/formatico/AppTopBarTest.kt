@@ -14,6 +14,8 @@ import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.v2.runComposeUiTest
 import com.developersancho.formatico.core.designsystem.Board
 import com.developersancho.formatico.core.format.Format
+import com.developersancho.formatico.core.testing.awaitNode
+import com.developersancho.formatico.feature.workspace.DocumentMoreMenu
 import com.developersancho.formatico.feature.workspace.OpenDocument
 import com.developersancho.formatico.feature.workspace.Workbench
 import com.developersancho.formatico.feature.workspace.WorkbenchState
@@ -22,11 +24,6 @@ import com.pantrixui.testing.onPantrixNode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-import org.koin.compose.KoinApplication
-import org.koin.core.context.stopKoin
-import org.koin.dsl.koinConfiguration
-import org.koin.dsl.module
-import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.time.Duration.Companion.milliseconds
@@ -35,42 +32,26 @@ import kotlin.time.TimeSource
 
 @OptIn(ExperimentalTestApi::class)
 class AppTopBarTest {
+    private val documents = Workbench()
     private val open = listOf(
         OpenDocument(id = 1, name = "order.json", text = "{}", format = Format.Json),
         OpenDocument(id = 2, name = "deployment.yaml", text = "a: 1", format = Format.Yaml, edited = true),
         OpenDocument(id = 3, name = null, text = "", format = null)
     )
 
-    // A phone's bar holds the document's "more" menu, which finds the documents in Koin: each test starts its own.
-    @AfterTest
-    fun stopTheirKoin() {
-        stopKoin()
-    }
-
     /** Draws the bar over [workbench] on [board]; a tab chosen goes to [onSelectTab]. */
     private fun ComposeUiTest.bar(workbench: WorkbenchState, board: Board, onSelectTab: (Long?) -> Unit = {}) {
         setContent {
-            KoinApplication(configuration = koinConfiguration { modules(module { single { Workbench() } }) }) {
-                PantrixTestTheme(platform = board.platform, window = board.window) {
-                    AppTopBar(
-                        insets = PaddingValues(),
-                        workbench = workbench,
-                        onSelectTab = onSelectTab,
-                        darkTheme = false,
-                        onToggleTheme = {}
-                    )
-                }
+            PantrixTestTheme(platform = board.platform, window = board.window) {
+                AppTopBar(
+                    insets = PaddingValues(),
+                    workbench = workbench,
+                    onSelectTab = onSelectTab,
+                    darkTheme = false,
+                    onToggleTheme = {},
+                    documentMenu = { DocumentMoreMenu(documentId = it, workbench = documents) }
+                )
             }
-        }
-    }
-
-    /** Waits for one node that [matcher] finds, letting the platform run meanwhile: a browser fetches the words. */
-    private suspend fun ComposeUiTest.awaitNode(matcher: SemanticsMatcher, what: String) {
-        val waited = TimeSource.Monotonic.markNow()
-        while (onAllNodes(matcher).fetchSemanticsNodes().size != 1) {
-            check(waited.elapsedNow() < 10.seconds) { "$what was not shown in 10 seconds" }
-            withContext(Dispatchers.Default) { delay(20.milliseconds) }
-            awaitIdle()
         }
     }
 

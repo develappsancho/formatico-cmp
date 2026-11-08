@@ -1,48 +1,52 @@
 package com.developersancho.formatico
 
-import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.v2.runDesktopComposeUiTest
-import com.developersancho.formatico.core.designsystem.PREVIEW_TAG
-import com.pantrixui.testing.PantrixTestTheme
-import io.github.takahirom.roborazzi.captureRoboImage
-import org.koin.core.context.stopKoin
-import java.util.Locale
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import com.developersancho.formatico.core.designsystem.FormaticoPreview
+import com.developersancho.formatico.core.designsystem.PreviewCase
+import com.developersancho.formatico.core.testing.captureOpenMenu
+import com.developersancho.formatico.core.testing.capturePreview
+import com.developersancho.formatico.feature.workspace.DocumentMoreMenu
+import com.developersancho.formatico.feature.workspace.Workbench
 import kotlin.test.Test
 
 /**
  * The bar's previews, every case on its board: `recordRoborazziJvm` writes each under `screenshots/AppTopBar/`, named
  * by its case and its board's width, and `verifyRoborazziJvm` compares against them.
  */
-@OptIn(ExperimentalTestApi::class)
 class AppTopBarScreenshotTest {
-    private var locale: Locale = Locale.getDefault()
-
-    // The bar's words are Compose resources, which read the JVM's language, not the theme's.
-    @BeforeTest
-    fun inEnglish() {
-        locale = Locale.getDefault()
-        Locale.setDefault(Locale.ENGLISH)
-    }
-
-    @AfterTest
-    fun inTheMachinesLanguage() {
-        Locale.setDefault(locale)
+    @Test
+    fun appTopBar() = AppTopBarCases().values.forEach { case ->
+        capturePreview("AppTopBar", case, case.value.board) { AppTopBarPreview(case) }
     }
 
     @Test
-    fun appTopBar() = AppTopBarCases().values.forEach { case ->
+    fun aPhonesMenus() = AppTopBarCases().values.filter { it.name == "document on a phone" }.forEach { case ->
         val board = case.value.board
-        runDesktopComposeUiTest(width = board.width, height = board.height) {
-            setContent {
-                PantrixTestTheme(platform = board.platform, dark = case.dark, window = board.window) { AppTopBarPreview(case) }
-            }
-            waitForIdle()
-            onNodeWithTag(PREVIEW_TAG).captureRoboImage("screenshots/AppTopBar/${case.fileName}-${board.width}.png")
-        }
-        // KoinApplication keeps its context once the preview is gone: each case starts its own.
-        stopKoin()
+        captureOpenMenu("DocumentSwitcher", case, board, opener = "switch_documents") { BarInItsWindow(case) }
+        captureOpenMenu("DocumentMoreMenu", case, board, opener = "more") { BarInItsWindow(case) }
+    }
+}
+
+/**
+ * The bar of [case] at the top of its board's whole window. A phone's menu opens as a sheet over the window it is in:
+ * in the preview's frame, which is as tall as the bar, it would have no room.
+ */
+@Composable
+private fun BarInItsWindow(case: PreviewCase<AppTopBarCase>) {
+    // The menus read the documents from the workbench: the case's, so that a YAML document can be sorted.
+    val workbench = remember { Workbench().apply { reopen(case.value.workbench.documents, case.value.workbench.selectedId) } }
+    FormaticoPreview(case, Modifier.fillMaxSize()) {
+        AppTopBar(
+            insets = PaddingValues(),
+            workbench = it.workbench,
+            onSelectTab = {},
+            darkTheme = case.dark,
+            onToggleTheme = {},
+            documentMenu = { id -> DocumentMoreMenu(documentId = id, workbench = workbench) }
+        )
     }
 }

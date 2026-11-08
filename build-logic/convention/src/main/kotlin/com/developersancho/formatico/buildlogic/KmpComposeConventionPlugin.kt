@@ -12,7 +12,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
 /**
  * A Kotlin Multiplatform library that draws: `formatico.kmp.library` with Compose Multiplatform, its resources and
- * Pantrix UI, and Pantrix's testing module for its tests. Its screenshots are Roborazzi's, drawn on the desktop:
+ * Pantrix UI, and Pantrix's testing module for its tests. Its screenshots are Roborazzi's, drawn on the desktop by `:core:testing`:
  * `recordRoborazziJvm` writes them under the module's `screenshots/`, `verifyRoborazziJvm` compares against them.
  */
 class KmpComposeConventionPlugin : Plugin<Project> {
@@ -51,7 +51,6 @@ class KmpComposeConventionPlugin : Plugin<Project> {
                 sourceSets.jvmTest.dependencies {
                     implementation(desktopSkiko)
                     implementation(libs.library("kotlinx-coroutinesSwing"))
-                    implementation(libs.library("roborazzi-composeDesktop"))
                 }
             }
 

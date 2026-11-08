@@ -5,10 +5,8 @@ import java.io.File
 
 internal actual fun deviceStores(): DeviceStores {
     val base = dataDirectory()
-    return DeviceStores(
-        small = KSafeSmallStore(KSafe(fileName = STORE_NAME, baseDir = File(base, "ksafe"))),
-        texts = FileTextStore(File(base, "texts"))
-    )
+    val ksafe = KSafe(fileName = STORE_NAME, baseDir = File(base, "ksafe"))
+    return DeviceStores(small = KSafeSmallStore(ksafe), texts = encryptedTexts(ksafe, FileTextStore(File(base, "texts"))))
 }
 
 internal actual suspend fun KSafe.awaitReady() = Unit

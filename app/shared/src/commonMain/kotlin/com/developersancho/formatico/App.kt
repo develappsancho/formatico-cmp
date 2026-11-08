@@ -27,12 +27,17 @@ import com.developersancho.formatico.core.storage.storageModule
 import com.developersancho.formatico.feature.start.DocumentHistory
 import com.developersancho.formatico.feature.start.StartRoute
 import com.developersancho.formatico.feature.start.startModule
+import com.developersancho.formatico.feature.workspace.DocumentMoreMenu
 import com.developersancho.formatico.feature.workspace.Workbench
 import com.developersancho.formatico.feature.workspace.WorkbenchKeeper
 import com.developersancho.formatico.feature.workspace.WorkspaceRoute
+import com.developersancho.formatico.feature.workspace.leaveHistory
 import com.developersancho.formatico.feature.workspace.workspaceModule
 import com.pantrixui.components.container.scaffold.PantrixScaffold
 import com.pantrixui.components.overlay.snackbar.rememberPantrixSnackbarState
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlinx.serialization.builtins.serializer
 import org.koin.compose.KoinApplication
@@ -71,7 +76,7 @@ internal fun App(systemDark: Boolean, storage: Module, followsBrowser: Boolean =
             val snackbars = rememberPantrixSnackbarState()
             val workbench = koinInject<Workbench>()
             val history = koinInject<DocumentHistory>()
-            LaunchedEffect(workbench, history) { followEdits(workbench, history, Clock.System) }
+            LaunchedEffect(workbench, history) { followHistory(workbench, history, Clock.System) }
             val open by workbench.state.collectAsState()
             val backStack = rememberNavBackStack(Destination.Saving, Destination.Start)
             LaunchedEffect(open.selectedId) { backStack.showDocument(open.selectedId) }
@@ -85,11 +90,15 @@ internal fun App(systemDark: Boolean, storage: Module, followsBrowser: Boolean =
                         workbench = open,
                         onSelectTab = workbench::select,
                         darkTheme = darkTheme,
-                        onToggleTheme = theme::toggle
+                        onToggleTheme = theme::toggle,
+                        documentMenu = { DocumentMoreMenu(documentId = it, workbench = workbench) }
                     )
                 },
                 snackbars = snackbars
             ) { padding ->
+                // Until what was open is back, the screen stays empty: Start for a moment, then the document, would be
+                // a screen the reader did not ask for.
+                if (!restored) return@PantrixScaffold
                 NavDisplay(
                     backStack = backStack,
                     modifier = Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding),
@@ -163,4 +172,24 @@ internal suspend fun followEdits(workbench: Workbench, history: DocumentHistory,
         }
         texts.keys.retainAll(state.documents.map { it.id }.toSet())
     }
+}
+
+/** Keeps [history] and [workbench] in step: the changes of its documents, and which of them it forgot. */
+internal suspend fun followHistory(workbench: Workbench, history: DocumentHistory, clock: Clock) = coroutineScope {
+    launch { followEdits(workbench, history, clock) }
+    followForgotten(workbench, history)
+}
+
+/**
+ * Tells [workbench] which of its documents [history] forgot, cleared or dropped past its last, while they were open:
+ * they leave the history, and keep their texts of their own. What the history lists counts once it is read.
+ */
+internal suspend fun followForgotten(workbench: Workbench, history: DocumentHistory) {
+    combine(history.loaded, history.documents) { loaded, listed -> listed.mapTo(HashSet()) { it.id }.takeIf { loaded } }
+        .filterNotNull()
+        .collect { listed ->
+            workbench.state.value.documents
+                .filter { it.historyId != null && it.historyId !in listed }
+                .forEach { workbench.leaveHistory(it.id) }
+        }
 }

@@ -28,6 +28,7 @@ class FeatureConventionPlugin : Plugin<Project> {
                     implementation(libs.library("koin-compose-viewmodel"))
                 }
                 sourceSets.commonTest.dependencies {
+                    implementation(project(":core:testing"))
                     implementation(libs.library("kotlinx-coroutines-test"))
                 }
             }

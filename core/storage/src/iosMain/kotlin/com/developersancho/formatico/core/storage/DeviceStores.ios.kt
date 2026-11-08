@@ -21,10 +21,8 @@ import platform.Foundation.writeToFile
 internal actual fun deviceStores(): DeviceStores {
     val support = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, true)
         .first() as String
-    return DeviceStores(
-        small = KSafeSmallStore(KSafe(fileName = STORE_NAME)),
-        texts = FileTextStore("$support/Formatico/texts")
-    )
+    val ksafe = KSafe(fileName = STORE_NAME)
+    return DeviceStores(small = KSafeSmallStore(ksafe), texts = encryptedTexts(ksafe, FileTextStore("$support/Formatico/texts")))
 }
 
 internal actual suspend fun KSafe.awaitReady() = Unit

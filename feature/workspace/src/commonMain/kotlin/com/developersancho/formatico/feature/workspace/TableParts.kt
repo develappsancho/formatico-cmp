@@ -3,8 +3,6 @@ package com.developersancho.formatico.feature.workspace
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -101,7 +99,9 @@ internal fun ColumnsChooser(
         title = stringResource(Res.string.workspace_columns),
         tagKey = "columns"
     ) {
-        Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+        // The popover scrolls what it holds, under its title, where the columns are more than its height takes: a
+        // scroll of their own inside it would be measured without an end, and fail.
+        Column {
             table.columns.forEachIndexed { index, name ->
                 PantrixCheckbox(
                     checked = name !in hidden,

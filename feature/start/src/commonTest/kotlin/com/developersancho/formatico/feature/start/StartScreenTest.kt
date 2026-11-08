@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
@@ -14,6 +15,7 @@ import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.format.Format
+import com.developersancho.formatico.core.testing.awaitText
 import com.pantrixui.foundation.adaptive.PantrixWindow
 import com.pantrixui.foundation.diagnostics.PantrixFindings
 import com.pantrixui.foundation.platform.PlatformType
@@ -38,28 +40,6 @@ class StartScreenTest {
     private val desktop = PantrixWindow(DpSize(1440.dp, 900.dp))
     private val phone = PantrixWindow(DpSize(390.dp, 844.dp))
     private val now = Instant.parse("2026-11-03T09:41:00Z")
-
-    /**
-     * Waits for [text] to be shown once, letting the platform run meanwhile: in a browser the screen's words are
-     * fetched after its first frame, and the fetch ends only while the page's event loop runs, which `waitUntil` holds.
-     *
-     * In a browser a row or a button has no name until its words come, and the diagnostics say so a frame later: what
-     * they found until then is [forgetting]'s to forget (PANTRIX_FINDINGS: "MissingName, kelimeler yüklenirken").
-     * Elsewhere the words are there from the first frame, and every finding is kept.
-     */
-    private suspend fun ComposeUiTest.awaitText(text: String, forgetting: PantrixFindings? = null) {
-        val waited = TimeSource.Monotonic.markNow()
-        while (onAllNodes(hasText(text)).fetchSemanticsNodes().size != 1) {
-            check(waited.elapsedNow() < 10.seconds) { "\"$text\" was not shown in 10 seconds" }
-            withContext(Dispatchers.Default) { delay(20.milliseconds) }
-            awaitIdle()
-        }
-        if (forgetting != null && currentPlatformType() == PlatformType.Web) {
-            withContext(Dispatchers.Default) { delay(100.milliseconds) }
-            awaitIdle()
-            forgetting.clear()
-        }
-    }
 
     @Test
     fun aFirstStartSaysNothingWasOpenedAndOffersTheSamples() = runComposeUiTest {
@@ -224,5 +204,22 @@ class StartScreenTest {
 
         onPantrixNode("ListItem", "recent_2").performClick()
         assertEquals(listOf<StartIntent>(StartIntent.OpenRecent(2)), intents)
+    }
+
+    @Test
+    fun aWideWindowStartsRecentAndSamplesOnOneLine() = runComposeUiTest {
+        val recent = listOf(RecentDocument(id = 1, name = "order.json", format = Format.Json, size = 665, at = now))
+        setContent {
+            PantrixTestTheme(platform = PlatformType.Desktop, window = desktop, clock = TestClock(now)) {
+                StartScreen(state = StartState(recent = recent), onIntent = {}, onPaste = {}, readsClipboard = true)
+            }
+        }
+        awaitText("Clear history")
+
+        assertEquals(onNodeWithText("Recent").getBoundsInRoot().top, onNodeWithText("Samples").getBoundsInRoot().top)
+        assertEquals(
+            onPantrixNode("ListItem", "recent_1").getBoundsInRoot().top,
+            onPantrixNode("ListItem", "sample_order").getBoundsInRoot().top
+        )
     }
 }

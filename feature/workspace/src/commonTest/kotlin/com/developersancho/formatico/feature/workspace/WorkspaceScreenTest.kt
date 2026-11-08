@@ -15,6 +15,7 @@ import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.format.Format
+import com.developersancho.formatico.core.testing.awaitText
 import com.pantrixui.foundation.adaptive.PantrixWindow
 import com.pantrixui.foundation.diagnostics.PantrixFindings
 import com.pantrixui.foundation.files.LocalFileSaver
@@ -69,32 +70,6 @@ class WorkspaceScreenTest {
         name: String = "order.json",
         view: DocumentView = DocumentView()
     ): WorkspaceState = readState(OpenDocument(id = 1, name = name, text = text, format = format, view = view))
-
-    /**
-     * Waits for [text] to be shown once, letting the platform run meanwhile: in a browser the screen's words are
-     * fetched after its first frame, and the fetch ends only while the page's event loop runs, which `waitUntil` holds.
-     *
-     * In a browser a row or a button has no name until its words come, and the diagnostics say so a frame later: what
-     * they found until then is [forgetting]'s to forget (PANTRIX_FINDINGS: "MissingName, kelimeler yüklenirken").
-     * Elsewhere the words are there from the first frame, and every finding is kept.
-     */
-    private suspend fun ComposeUiTest.awaitText(
-        text: String,
-        forgetting: PantrixFindings? = null,
-        substring: Boolean = false
-    ) {
-        val waited = TimeSource.Monotonic.markNow()
-        while (onAllNodes(hasText(text, substring = substring)).fetchSemanticsNodes().size != 1) {
-            check(waited.elapsedNow() < 10.seconds) { "\"$text\" was not shown in 10 seconds" }
-            withContext(Dispatchers.Default) { delay(20.milliseconds) }
-            awaitIdle()
-        }
-        if (forgetting != null && currentPlatformType() == PlatformType.Web) {
-            withContext(Dispatchers.Default) { delay(100.milliseconds) }
-            awaitIdle()
-            forgetting.clear()
-        }
-    }
 
     @Test
     fun aWideWindowShowsTheTreeBesideTheEditorsPlace() = runComposeUiTest {
@@ -441,5 +416,26 @@ class WorkspaceScreenTest {
         assertEquals(long.right, short.right, "the numbers' ends")
         assertTrue(short.left > long.left, "a shorter number starts further in")
         assertTrue(name.left < long.left, "text stays at its column's start")
+    }
+
+    @Test
+    fun theColumnsChooserOpensAndHidesAColumn() = runComposeUiTest {
+        val intents = mutableListOf<WorkspaceIntent>()
+        val items = "[{\"name\": \"Keyboard\", \"price\": 89.90}, {\"name\": \"Mouse\", \"price\": 5}]\n"
+        setContent {
+            PantrixTestTheme(window = desktop, clock = clock) {
+                WorkspaceScreen(
+                    state = stateOf(items, Format.Json, view = DocumentView(pane = DocumentPane.Table)),
+                    onIntent = { intents += it },
+                    commands = rememberDocumentCommands(Workbench())
+                )
+            }
+        }
+        awaitText("89.90")
+
+        onPantrixNode("Button", "columns").performClick()
+        onPantrixNode("Checkbox", "column_1").performClick()
+
+        assertEquals(WorkspaceIntent.HideColumns(setOf("price")), intents.last())
     }
 }

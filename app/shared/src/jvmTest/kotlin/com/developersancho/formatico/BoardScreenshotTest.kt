@@ -8,18 +8,14 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.v2.runDesktopComposeUiTest
 import androidx.compose.ui.test.waitUntilAtLeastOneExists
 import androidx.compose.ui.test.waitUntilExactlyOneExists
-import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.dp
+import com.developersancho.formatico.core.designsystem.Board
 import com.developersancho.formatico.core.storage.memoryStorageModule
-import com.pantrixui.foundation.adaptive.PantrixWindow
-import com.pantrixui.foundation.platform.PlatformType
+import com.developersancho.formatico.core.testing.inEnglish
 import com.pantrixui.testing.PantrixTestTheme
 import com.pantrixui.testing.onPantrixNode
 import io.github.takahirom.roborazzi.captureRoboImage
 import org.koin.core.context.stopKoin
-import java.util.Locale
 import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 /**
@@ -29,27 +25,10 @@ import kotlin.test.Test
  */
 @OptIn(ExperimentalTestApi::class)
 class BoardScreenshotTest {
-    /** A board's window: its width, its height and the platform its controls are sized for. */
-    private enum class Board(val width: Int, val height: Int, val platform: PlatformType) {
-        Desktop(1440, 900, PlatformType.Desktop),
-        Tablet(834, 1194, PlatformType.Android),
-        Phone(390, 844, PlatformType.Android)
-    }
-
-    private var locale: Locale = Locale.getDefault()
-
-    // The app's words are Compose resources, which read the JVM's language, not the theme's.
-    @BeforeTest
-    fun inEnglish() {
-        locale = Locale.getDefault()
-        Locale.setDefault(Locale.ENGLISH)
-    }
-
     // KoinApplication keeps its context once the app is gone: each board starts with nothing open.
     @AfterTest
     fun closeTheApp() {
         stopKoin()
-        Locale.setDefault(locale)
     }
 
     @Test
@@ -74,13 +53,14 @@ class BoardScreenshotTest {
      * waits for what it [shows], and writes the picture as `[name]-width.png`, or `[name]-width-dark.png`.
      */
     private fun capture(name: String, board: Board, dark: Boolean, sample: String? = null, shows: String? = null) {
+        inEnglish { draw(name, board, dark, sample, shows) }
+        stopKoin()
+    }
+
+    private fun draw(name: String, board: Board, dark: Boolean, sample: String?, shows: String?) =
         runDesktopComposeUiTest(width = board.width, height = board.height) {
             setContent {
-                PantrixTestTheme(
-                    platform = board.platform,
-                    dark = dark,
-                    window = PantrixWindow(DpSize(board.width.dp, board.height.dp))
-                ) {
+                PantrixTestTheme(platform = board.platform, dark = dark, window = board.window) {
                     App(systemDark = dark, storage = memoryStorageModule)
                 }
             }
@@ -92,6 +72,4 @@ class BoardScreenshotTest {
             }
             onRoot().captureRoboImage("screenshots/$name-${board.width}${if (dark) "-dark" else ""}.png")
         }
-        stopKoin()
-    }
 }

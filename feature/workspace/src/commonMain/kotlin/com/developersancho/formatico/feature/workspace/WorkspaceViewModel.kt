@@ -14,11 +14,13 @@ import kotlinx.coroutines.withContext
  * The workspace of the document whose id is [documentId]: reads it again whenever its text or its format changes, and
  * keeps how its tree is left in the [workbench], so that its tab shows it so again.
  *
+ * @param readings what the open documents were read as: a document read before is not read again.
  * @param reader where the document is read, off the main thread.
  */
 internal class WorkspaceViewModel(
     private val documentId: Long,
     private val workbench: Workbench,
+    private val readings: Readings = Readings(workbench),
     private val reader: CoroutineDispatcher = Dispatchers.Default
 ) : MviViewModel<WorkspaceState, WorkspaceIntent, WorkspaceEffect>(WorkspaceState()) {
     init {
@@ -34,7 +36,9 @@ internal class WorkspaceViewModel(
                 .distinctUntilChanged()
                 .collectLatest { source ->
                     val (text, format) = source ?: return@collectLatest
-                    val (reading, stats) = withContext(reader) { readDocument(text, format) to TextStats.of(text) }
+                    val (reading, stats) = readings.of(documentId, text, format)
+                        ?: withContext(reader) { readDocument(text, format) to TextStats.of(text) }
+                            .also { readings.keep(documentId, text, format, it) }
                     setState { copy(reading = reading, stats = stats).arranged() }
                 }
         }

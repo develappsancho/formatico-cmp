@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -202,7 +203,11 @@ private fun Section(
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(PantrixTheme.spacing.sm)) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            // Side by side, both heads are as tall as a link's row, the platform's touch target: Recent's "Clear
+            // history" would otherwise start its card lower than Samples' beside it.
+            modifier = Modifier
+                .fillMaxWidth()
+                .then(if (fillHeight) Modifier.heightIn(min = PantrixTheme.platform.minTouchTarget) else Modifier),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
