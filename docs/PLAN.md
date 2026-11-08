@@ -751,6 +751,9 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
         bağlantının Try again'i) artık Pantrix'in kısa süresiyle (4 sn) kendiliğinden gidiyor, kapatma düğmeleriyle
         (sahibinin kararı; Pantrix'te 5 sn gibi bir süre seçilemiyor). DMG 97,5 MB (iki denetimden geçti, Apple onaylı),
         APK 1.0.3; GitHub'ın SHA-256'ları yerel dosyalarınkiyle aynı, `releases/latest/download` 1.0.3'ü veriyor.
+        Web 1.0.3'te (`4addbc6`): sekiz denetim canlıda geçti; tarayıcıda About "Formatico 1.0.3", menü "released
+        Nov 13, 2026" ile DMG'yi (98 MB) ve APK'yı (42 MB) gösteriyor; örnek siparişte Minify'ın "Minified · Undo"
+        snackbar'ı kendiliğinden gitti; temiz bir sekmenin konsolunda hata yok.
     *   iOS simülatörü (2026-11-13): gece macOS 27.2.1'e geçildi; sabah iOS 26.5 simülatörü sistemce kaldırıldı ve
         Xcode iOS 27.2'yi kendisi indirdi. Testler artık iOS 27.2'deki iPhone 18 Pro Max'te. Bütün modüllerin iOS
         testleri (1.003) geçti; iOS'un 68 resminin 66'sı yeniden kaydedilince depodakilerle aynı çıktı, Settings-390'ın
