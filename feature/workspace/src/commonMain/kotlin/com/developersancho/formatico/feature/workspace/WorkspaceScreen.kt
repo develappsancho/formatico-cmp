@@ -122,6 +122,12 @@ internal fun WorkspaceScreen(
             StatusBar(state = state, layout = layout, onIntent = onIntent)
             return@Column
         }
+        if (document.view.pane == DocumentPane.Convert && !wide) {
+            // A tablet gives the conversion the whole room as well: Convert-834 draws the new document alone.
+            ConvertPane(state, layout, onIntent, commands, Modifier.weight(1f).fillMaxWidth())
+            StatusBar(state = state, layout = layout, onIntent = onIntent)
+            return@Column
+        }
         DocumentPanes(state, text, layout, onIntent, commands, Modifier.weight(1f).fillMaxWidth())
         StatusBar(state = state, layout = layout, editor = text, onIntent = onIntent)
     }
@@ -146,6 +152,10 @@ private fun DocumentPanes(
     val problems = pane == DocumentPane.Problems && state.problems.isNotEmpty()
     val summary = pane == DocumentPane.Summary
     val query = pane == DocumentPane.Query
+    if (wide && pane == DocumentPane.Convert) {
+        ConvertPanes(state, editor, onIntent, commands, modifier)
+        return
+    }
     // How tall the text stands on a tablet, as its handle leaves it.
     var textHeight by rememberSaveable { mutableFloatStateOf(TextHeight.value) }
     val second: @Composable () -> Unit = {
@@ -233,12 +243,14 @@ private fun Toolbar(
             leadingIcon = { PantrixIcon(imageVector = PantrixIcons.Search, contentDescription = null) },
             tagKey = "query"
         )
+        val converting = document.view.pane == DocumentPane.Convert
         PantrixButton(
             text = stringResource(Res.string.workspace_convert),
-            onClick = {},
-            variant = ButtonVariant.Text,
+            // Pressed again, it gives the view the document opens with back, as Query does.
+            onClick = { onIntent(WorkspaceIntent.ShowPane(if (converting) openingPane(document.format) else DocumentPane.Convert)) },
+            variant = if (converting) ButtonVariant.Soft else ButtonVariant.Text,
             size = size,
-            enabled = false,
+            enabled = document.format != null,
             leadingIcon = { PantrixIcon(imageVector = PantrixIcons.ArrowForward, contentDescription = null) },
             tagKey = "convert"
         )
@@ -382,9 +394,9 @@ internal fun FormatMenu(format: Format?, size: ButtonSize, onChange: (Format?) -
     }
 }
 
-/** What stands where the text editor will: a word on why it is not there yet. */
+/** The document's text in its editor, kept with the document and with the tree's choice. */
 @Composable
-private fun TextPane(
+internal fun TextPane(
     state: WorkspaceState,
     editor: CodeEditorState,
     onIntent: (WorkspaceIntent) -> Unit,

@@ -250,7 +250,7 @@ private fun ResultsHeader(state: WorkspaceState, layout: WorkspaceLayout, onInte
 /** Opens what the query found, [results], as a document of its own, in a tab beside this one. */
 @Composable
 internal fun OpenResultsButton(
-    results: QueryResults?,
+    results: NewDocument?,
     layout: WorkspaceLayout,
     onIntent: (WorkspaceIntent) -> Unit,
     commands: DocumentCommands

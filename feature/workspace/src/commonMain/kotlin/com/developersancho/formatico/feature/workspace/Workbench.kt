@@ -44,6 +44,7 @@ data class OpenDocument(
  * @property searching whether the tree's search bar is open: a phone's "more" menu opens it from the top bar.
  * @property query what the document is queried with, in its language: JSONPath, or XPath for XML; kept when the query
  *   is left for another view.
+ * @property convert how the document is converted, kept when Convert is left for another view.
  */
 data class DocumentView(
     val expanded: Set<String>? = null,
@@ -53,14 +54,15 @@ data class DocumentView(
     val hiddenColumns: Set<String> = emptySet(),
     val tableFilter: String = "",
     val searching: Boolean = false,
-    val query: String = ""
+    val query: String = "",
+    val convert: ConvertChoice = ConvertChoice()
 )
 
 /**
- * What is shown of a document: on a phone one at a time, elsewhere the tree, the table, its problems, its summary or
- * its query beside the text.
+ * What is shown of a document: on a phone one at a time, elsewhere the tree, the table, its problems, its summary, its
+ * query or its conversion beside the text; a tablet's conversion, and a phone's, take the whole room.
  */
-enum class DocumentPane { Text, Tree, Table, Problems, Summary, Query }
+enum class DocumentPane { Text, Tree, Table, Problems, Summary, Query, Convert }
 
 /** The view a document of [format] opens on: a table its table, any other its tree. */
 internal fun openingPane(format: Format?): DocumentPane =

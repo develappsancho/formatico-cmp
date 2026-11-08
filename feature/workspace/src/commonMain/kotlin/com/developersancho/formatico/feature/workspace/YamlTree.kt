@@ -28,7 +28,8 @@ internal fun readYaml(text: String): Reading {
     return Reading.Read(
         format = Format.Yaml,
         root = root,
-        problems = document.problems
+        problems = document.problems,
+        comments = document.comments.size
     )
 }
 

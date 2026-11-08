@@ -2,9 +2,13 @@ package com.developersancho.formatico.feature.workspace
 
 import androidx.lifecycle.viewModelScope
 import com.developersancho.formatico.core.base.MviViewModel
+import com.developersancho.formatico.core.format.Format
 import com.developersancho.formatico.core.format.Repairs
+import com.developersancho.formatico.core.format.convert.ConvertOptions
 import com.developersancho.formatico.core.format.xml.XmlDocument
 import com.developersancho.formatico.core.storage.MemorySmallStore
+import formatico.feature.workspace.generated.resources.Res
+import formatico.feature.workspace.generated.resources.convert_null_comment
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -13,6 +17,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.jetbrains.compose.resources.getString
 
 /**
  * The workspace of the document whose id is [documentId]: reads it again whenever its text or its format changes, and
@@ -100,6 +105,25 @@ internal class WorkspaceViewModel(
         }
     }
 
+    init {
+        // The document is converted while its Convert is shown, off the main thread, again as its text or the choice
+        // changes.
+        viewModelScope.launch {
+            workbench.state
+                .map { state -> state.documents.firstOrNull { it.id == documentId }?.takeIf { it.view.pane == DocumentPane.Convert } }
+                .map { shown -> shown?.let { it.copy(edited = false, view = DocumentView(convert = it.view.convert), historyId = null) } }
+                .distinctUntilChanged()
+                .collectLatest { shown ->
+                    if (shown == null) return@collectLatest setState { copy(conversion = null) }
+                    val reading = readings.of(documentId, shown.text, shown.format)?.first
+                        ?: withContext(reader) { readDocument(shown.text, shown.format) }
+                    val comment = (reading as? Reading.Read)?.let { nullCommentOf(it.format, targetOf(it.format, shown.view.convert)) }
+                    val outcome = withContext(reader) { conversionOf(shown, reading, shown.view.convert, comment.orEmpty()) }
+                    setState { copy(conversion = outcome) }
+                }
+        }
+    }
+
     // The XML an XPath is asked of, read once for each of its texts rather than once for each query.
     private var xml: XmlDocument? = null
 
@@ -130,6 +154,8 @@ internal class WorkspaceViewModel(
             }
 
             is WorkspaceIntent.Query -> workbench.changeView(documentId) { it.copy(query = intent.query) }
+
+            is WorkspaceIntent.Convert -> workbench.changeView(documentId) { it.copy(convert = intent.choice) }
 
             WorkspaceIntent.UseQuery -> state.value.let { shown ->
                 shown.queryLanguage?.let { queries.remember(it, shown.document?.view?.query.orEmpty()) }
@@ -188,6 +214,25 @@ internal fun readState(document: OpenDocument): WorkspaceState {
         json5Allows = json5Allows(document.text, document.format, reading),
         summary = if (shown) (reading as? Reading.Read)?.root?.let(::summaryOf) else null,
         sizes = if (shown) sizesOf(document, minifiedOf(document)) else null,
-        query = if (document.view.pane == DocumentPane.Query) queryOutcome(document, reading, document.view.query) else null
+        query = if (document.view.pane == DocumentPane.Query) queryOutcome(document, reading, document.view.query) else null,
+        conversion = if (document.view.pane == DocumentPane.Convert) previewConversion(document, reading) else null
     ).arranged()
 }
+
+/** [document], read as [reading], converted at once, for a preview or a test. */
+private fun previewConversion(document: OpenDocument, reading: Reading): ConvertOutcome {
+    val choice = document.view.convert
+    val comment = (reading as? Reading.Read)?.let { previewNullComment(it.format, targetOf(it.format, choice)) }
+    return conversionOf(document, reading, choice, comment.orEmpty())
+}
+
+/**
+ * The words that mark a null left out, in the reader's language, `{name}` standing for its name: a document of [from]
+ * converted to [to], which has no null.
+ */
+private suspend fun nullCommentOf(from: Format, to: Format): String =
+    getString(Res.string.convert_null_comment, ConvertOptions.NAME, from.displayName, to.displayName)
+
+/** What marks a null left out where a preview or a test works the state out at once: the English resources' words. */
+private fun previewNullComment(from: Format, to: Format): String =
+    "${ConvertOptions.NAME} = null in the ${from.displayName}: ${to.displayName} has no null"

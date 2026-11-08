@@ -64,6 +64,11 @@ internal fun PhoneWorkspace(
 ) {
     val spacing = PantrixTheme.spacing
     val pane = document.view.pane
+    // The conversion is a screen of its own, its bar in the app bar's place, as Convert-390 draws it.
+    if (pane == DocumentPane.Convert) {
+        PhoneConvert(state = state, onIntent = onIntent, commands = commands, modifier = modifier)
+        return
+    }
     Column(modifier = modifier.fillMaxSize().background(PantrixTheme.colors.surface)) {
         // A phone has room for three views: an invalid document's problems take the table's place, where it has none.
         ViewChoice(

@@ -44,7 +44,7 @@ internal val PreviewOrder =
     """.trimIndent() + "\n"
 
 /** A deployment: comments, an anchor and its aliases. */
-private val PreviewDeployment =
+internal val PreviewDeployment =
     """
     # A web service and its worker share their labels through an anchor.
     apiVersion: apps/v1
@@ -71,7 +71,7 @@ private val PreviewDeployment =
     """.trimIndent() + "\n"
 
 /** The first countries of ISO 3166-1: a column of codes with leading zeros among them. */
-private val PreviewCountries =
+internal val PreviewCountries =
     """
     code,code3,numeric,name,region,subregion
     AF,AFG,004,Afghanistan,Asia,Southern Asia
@@ -85,7 +85,7 @@ private val PreviewCountries =
     """.trimIndent() + "\n"
 
 /** The Invalid boards' settings: a comment, a missing comma, a key in no quotes and a trailing comma. */
-private val PreviewInvalid =
+internal val PreviewInvalid =
     """
     {
       "name": "formatico-web",
@@ -109,7 +109,7 @@ private val PreviewInvalid =
     """.trimIndent() + "\n"
 
 /** A service whose list of ports is never closed: a YAML flow left open, which its line's end closes. */
-private val PreviewInvalidYaml =
+internal val PreviewInvalidYaml =
     """
     # The web service and its ports.
     apiVersion: v1
@@ -151,7 +151,7 @@ internal val PreviewFeed =
     """.trimIndent() + "\n"
 
 /** Start's Rust manifest: tables, inline tables and arrays of tables. */
-private val PreviewCargo =
+internal val PreviewCargo =
     """
     [package]
     name = "formatico-cli"
@@ -183,12 +183,12 @@ private val PreviewCargo =
     """.trimIndent() + "\n"
 
 /** What was done in Formatico, an event to a line, as the Share board's events.ndjson has it. */
-private val PreviewEvents = listOf("open", "search", "format", "convert", "copy").mapIndexed { index, event ->
+internal val PreviewEvents = listOf("open", "search", "format", "convert", "copy").mapIndexed { index, event ->
     """{"at": "2026-10-29T09:0$index:12Z", "event": "$event", "bytes": ${1200 + 37 * index}}"""
 }.joinToString("\n", postfix = "\n")
 
 /** A Spring service's settings: dotted keys, a value carried on over two lines, an escape. */
-private val PreviewApplication =
+internal val PreviewApplication =
     """
     # The web service, as Spring reads it.
     server.port=8080
@@ -201,7 +201,7 @@ private val PreviewApplication =
     """.trimIndent() + "\n"
 
 /** An INI file of Formatico's own: keys before the first section, sections, comments. */
-private val PreviewSettings =
+internal val PreviewSettings =
     """
     ; Formatico's settings
     version = 3
@@ -286,7 +286,8 @@ internal class ScreenCase(val state: WorkspaceState, val caret: Int = 0)
  * The workspace's cases: a JSON document with its value previews, a YAML one with anchors, a CSV and a JSON array as
  * tables, a document with mistakes and its problems, a YAML one with a flow left open, an XML feed, a TOML manifest,
  * newline-delimited JSON, a properties file and an INI one, the order's Summary measured and being measured and a CSV's,
- * the order and the feed queried, as the Query boards draw them, one being read, and a new, empty one.
+ * the order and the feed queried, as the Query boards draw them, the order converted to YAML and to TOML, as the
+ * Convert boards draw it, one being read, and a new, empty one.
  */
 internal class WorkspaceScreenCases :
     PreviewCases<ScreenCase>(
@@ -308,6 +309,8 @@ internal class WorkspaceScreenCases :
         "query" to ScreenCase(OrderNames),
         "query xml" to ScreenCase(FeedReleases),
         "query prices" to ScreenCase(OrderPrices),
+        "convert" to ScreenCase(OrderToYaml),
+        "convert toml" to ScreenCase(OrderToToml),
         "reading" to ScreenCase(BeingRead),
         "empty" to ScreenCase(Empty)
     )

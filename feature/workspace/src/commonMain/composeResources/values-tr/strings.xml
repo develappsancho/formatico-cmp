@@ -428,4 +428,200 @@
     <string name="table_type_array">dizi</string>
     <string name="table_type_alias">alias</string>
     <string name="table_type_null">boş</string>
+    <string name="convert_to">Hedef</string>
+    <string name="convert_from_to">%1$s biçiminden</string>
+    <string name="convert_to_menu">%1$s biçimine dönüştür. Başka bir biçim seç</string>
+    <string name="convert_indentation">Girinti</string>
+    <string name="convert_copy">%1$s belgesini kopyala</string>
+    <string name="convert_save_as">%1$s olarak kaydet</string>
+    <string name="convert_title">%1$s belgesini dönüştür</string>
+    <string name="convert_nulls">Null bir değer</string>
+    <string name="convert_nulls_choice">Null bir değerin neye dönüşeceği</string>
+    <string name="convert_nulls_leave">Dışarıda bırak</string>
+    <string name="convert_nulls_empty">Boş bir dizgi yaz</string>
+    <string name="convert_sizes">%1$s %2$s → %3$s %4$s</string>
+    <string name="convert_label">Dönüştürülen belge</string>
+    <string name="convert_copied">Dönüştürülen belge kopyalandı</string>
+    <string name="convert_copy_failed">Dönüştürülen belge kopyalanamadı</string>
+    <string name="convert_null_comment">%1$s = null (%2$s); %3$s biçiminde null yok</string>
+    <plurals name="convert_source">
+        <item quantity="one">%1$s · %2$d satır</item>
+        <item quantity="other">%1$s · %2$d satır</item>
+    </plurals>
+    <plurals name="convert_invalid">
+        <item quantity="one">Bu %1$s belgesinde bir hata var. Belgeyi dönüştürmek için onu onar.</item>
+        <item quantity="other">Bu %1$s belgesinde %2$d hata var. Belgeyi dönüştürmek için onları onar.</item>
+    </plurals>
+    <string name="convert_nothing_lost">Hiçbir şey kaybolmuyor</string>
+    <string name="convert_back">Olduğu gibi bu %1$s belgesine geri dönüşüyor.</string>
+    <string name="convert_back_with">%1$s; böylece %2$s belgesi olduğu gibi bu %3$s belgesine geri dönüşüyor.</string>
+    <string name="convert_note_quoted_dates">%1$s biçiminin tarih diye okuyacağı dizgiler tırnak içinde yazıldı</string>
+    <string name="convert_note_quoted_values">%1$s biçiminin başka bir değer diye okuyacağı dizgiler tırnak içinde yazıldı</string>
+    <string name="convert_note_spelling_one">%1$s yazılışını koruyor</string>
+    <string name="convert_note_spelling_two">%1$s ve %2$s yazılışlarını koruyor</string>
+    <plurals name="convert_note_spelling_more">
+        <item quantity="one">%1$s ve %2$d sayı daha yazılışlarını koruyor</item>
+        <item quantity="other">%1$s ve %2$d sayı daha yazılışlarını koruyor</item>
+    </plurals>
+    <string name="convert_notes_and">%1$s, %2$s</string>
+    <plurals name="convert_losses">
+        <item quantity="one">%1$d kayıp</item>
+        <item quantity="other">%1$d kayıp</item>
+    </plurals>
+    <string name="convert_loss_nulls_title">%1$s biçiminde null yok</string>
+    <string name="convert_loss_nulls_left_one">%1$s, %2$s belgesinde null. Dışarıda bırakıldı, yerini bir yorum gösteriyor: geri dönüştürmek onu getirmez.</string>
+    <plurals name="convert_loss_nulls_left_many">
+        <item quantity="one">%1$s ve %2$d değer daha %3$s belgesinde null. Dışarıda bırakıldılar, yerlerini yorumlar gösteriyor: geri dönüştürmek onları getirmez.</item>
+        <item quantity="other">%1$s ve %2$d değer daha %3$s belgesinde null. Dışarıda bırakıldılar, yerlerini yorumlar gösteriyor: geri dönüştürmek onları getirmez.</item>
+    </plurals>
+    <string name="convert_loss_nulls_empty_one">%1$s, %2$s belgesinde null. Boş bir dizgi olarak yazıldı: geri dönüştürmek bir dizgi verir.</string>
+    <plurals name="convert_loss_nulls_empty_many">
+        <item quantity="one">%1$s ve %2$d değer daha %3$s belgesinde null. Boş dizgiler olarak yazıldılar: geri dönüştürmek dizgiler verir.</item>
+        <item quantity="other">%1$s ve %2$d değer daha %3$s belgesinde null. Boş dizgiler olarak yazıldılar: geri dönüştürmek dizgiler verir.</item>
+    </plurals>
+    <plurals name="convert_tag_nulls_left">
+        <item quantity="one">%1$d değer dışarıda kaldı</item>
+        <item quantity="other">%1$d değer dışarıda kaldı</item>
+    </plurals>
+    <plurals name="convert_tag_nulls_empty">
+        <item quantity="one">%1$d null boş yazıldı</item>
+        <item quantity="other">%1$d null boş yazıldı</item>
+    </plurals>
+    <string name="convert_loss_comments_title">Yorumlar geride kalıyor</string>
+    <plurals name="convert_loss_comments">
+        <item quantity="one">%1$s belgesinde bir yorum var; dönüştürme yorumları değil değerleri taşır: %3$s belgesinde o yok.</item>
+        <item quantity="other">%1$s belgesinde %2$d yorum var; dönüştürme yorumları değil değerleri taşır: %3$s belgesinde onlar yok.</item>
+    </plurals>
+    <plurals name="convert_tag_comments">
+        <item quantity="one">%1$d yorum geride kaldı</item>
+        <item quantity="other">%1$d yorum geride kaldı</item>
+    </plurals>
+    <string name="convert_loss_aliases_title">Takma adlar açılıyor</string>
+    <string name="convert_loss_aliases_one">%1$s bir takma ad; gösterdiği değer olarak yazıldı: geri dönüştürmek bir kopya verir.</string>
+    <plurals name="convert_loss_aliases_many">
+        <item quantity="one">%1$s ve %2$d takma ad daha gösterdikleri değerler olarak yazıldı: geri dönüştürmek kopyalar verir.</item>
+        <item quantity="other">%1$s ve %2$d takma ad daha gösterdikleri değerler olarak yazıldı: geri dönüştürmek kopyalar verir.</item>
+    </plurals>
+    <plurals name="convert_tag_aliases">
+        <item quantity="one">%1$d takma ad açıldı</item>
+        <item quantity="other">%1$d takma ad açıldı</item>
+    </plurals>
+    <string name="convert_loss_untyped_title">%1$s biçiminde yalnızca metin var</string>
+    <string name="convert_loss_untyped_one">%1$s metin olarak yazıldı: geri dönüştürmek bir dizgi verir.</string>
+    <plurals name="convert_loss_untyped_many">
+        <item quantity="one">%1$s ve %2$d değer daha metin olarak yazıldı: geri dönüştürmek dizgiler verir.</item>
+        <item quantity="other">%1$s ve %2$d değer daha metin olarak yazıldı: geri dönüştürmek dizgiler verir.</item>
+    </plurals>
+    <plurals name="convert_tag_untyped">
+        <item quantity="one">%1$d değer metin oldu</item>
+        <item quantity="other">%1$d değer metin oldu</item>
+    </plurals>
+    <string name="convert_loss_flattened_title">%1$s biçiminde tek düzey var</string>
+    <string name="convert_loss_flattened_one">%1$s kendi başına bir ad oldu: geri dönüştürmek onu tek düzeyde verir.</string>
+    <plurals name="convert_loss_flattened_many">
+        <item quantity="one">%1$s ve %2$d değer daha kendi başına adlar oldu: geri dönüştürmek onları tek düzeyde verir.</item>
+        <item quantity="other">%1$s ve %2$d değer daha kendi başına adlar oldu: geri dönüştürmek onları tek düzeyde verir.</item>
+    </plurals>
+    <plurals name="convert_tag_flattened">
+        <item quantity="one">%1$d değer düzleşti</item>
+        <item quantity="other">%1$d değer düzleşti</item>
+    </plurals>
+    <string name="convert_loss_wrapped_title">Belge %1$s altına kondu</string>
+    <string name="convert_loss_wrapped">%2$s belgesinin değeri olduğu gibi bir %1$s belgesi olamaz: geri dönüştürmek onu %3$s altında verir.</string>
+    <string name="convert_loss_row_title">Belge tek bir satır</string>
+    <string name="convert_loss_line_title">Belge tek bir satır</string>
+    <string name="convert_loss_in_array">%1$s biçimi bir liste yazar: geri dönüştürmek %2$s belgesinin değerini bir dizi içinde verir.</string>
+    <string name="convert_tag_wrapped">%1$s altına kondu</string>
+    <string name="convert_tag_row">Tek satır</string>
+    <string name="convert_tag_line">Tek satır</string>
+    <string name="convert_loss_renamed_title">Anahtarlar yeniden adlandırılıyor</string>
+    <string name="convert_loss_renamed_one">%1$s bir %2$s adı değil: %3$s olarak yazıldı.</string>
+    <plurals name="convert_loss_renamed_many">
+        <item quantity="one">%1$s ve %2$d anahtar daha %3$s adı değil: %1$s, %4$s olarak yazıldı.</item>
+        <item quantity="other">%1$s ve %2$d anahtar daha %3$s adı değil: %1$s, %4$s olarak yazıldı.</item>
+    </plurals>
+    <plurals name="convert_tag_renamed">
+        <item quantity="one">%1$d anahtar yeniden adlandırıldı</item>
+        <item quantity="other">%1$d anahtar yeniden adlandırıldı</item>
+    </plurals>
+    <string name="convert_loss_duplicates_title">İki kez verilen anahtarlar</string>
+    <string name="convert_loss_duplicates_one">%1$s iki kez verilmiş, %2$s biçimi bir anahtarı bir kez tutar: sonuncusu kaldı.</string>
+    <plurals name="convert_loss_duplicates_many">
+        <item quantity="one">%1$s ve %2$d anahtar daha iki kez verilmiş, %3$s biçimi bir anahtarı bir kez tutar: her birinin sonuncusu kaldı.</item>
+        <item quantity="other">%1$s ve %2$d anahtar daha iki kez verilmiş, %3$s biçimi bir anahtarı bir kez tutar: her birinin sonuncusu kaldı.</item>
+    </plurals>
+    <plurals name="convert_tag_duplicates">
+        <item quantity="one">%1$d anahtar düştü</item>
+        <item quantity="other">%1$d anahtar düştü</item>
+    </plurals>
+    <string name="convert_loss_respelled_title">Sayıların yazılışı değişiyor</string>
+    <string name="convert_loss_respelled_one">%1$s, %3$s biçiminin yazdığı gibi %2$s olarak yazıldı: geri dönüştürmek bu yazılışı korur.</string>
+    <plurals name="convert_loss_respelled_many">
+        <item quantity="one">%1$s ve %2$d sayı daha %3$s biçiminin yazdığı gibi yazıldı, %1$s %4$s olarak: geri dönüştürmek bu yazılışı korur.</item>
+        <item quantity="other">%1$s ve %2$d sayı daha %3$s biçiminin yazdığı gibi yazıldı, %1$s %4$s olarak: geri dönüştürmek bu yazılışı korur.</item>
+    </plurals>
+    <plurals name="convert_tag_respelled">
+        <item quantity="one">%1$d sayının yazılışı değişti</item>
+        <item quantity="other">%1$d sayının yazılışı değişti</item>
+    </plurals>
+    <string name="convert_loss_unwritable_title">Sayılar dizgi oluyor</string>
+    <string name="convert_loss_unwritable_one">%1$s için %2$s biçiminde bir değer yok: dizgi olarak yazıldı.</string>
+    <plurals name="convert_loss_unwritable_many">
+        <item quantity="one">%1$s ve %2$d sayı daha için %3$s biçiminde değer yok: dizgi olarak yazıldılar.</item>
+        <item quantity="other">%1$s ve %2$d sayı daha için %3$s biçiminde değer yok: dizgi olarak yazıldılar.</item>
+    </plurals>
+    <plurals name="convert_tag_unwritable">
+        <item quantity="one">%1$d sayı dizgi oldu</item>
+        <item quantity="other">%1$d sayı dizgi oldu</item>
+    </plurals>
+    <string name="convert_loss_dates_title">Tarihler dizgi oluyor</string>
+    <string name="convert_loss_dates_one">%1$s, %2$s belgesinde bir tarih, %3$s belgesinde bir dizgi: geri dönüştürmek bir dizgi verir.</string>
+    <plurals name="convert_loss_dates_many">
+        <item quantity="one">%1$s ve %2$d tarih daha %3$s belgesinde dizgi: geri dönüştürmek dizgiler verir.</item>
+        <item quantity="other">%1$s ve %2$d tarih daha %3$s belgesinde dizgi: geri dönüştürmek dizgiler verir.</item>
+    </plurals>
+    <plurals name="convert_tag_dates">
+        <item quantity="one">%1$d tarih dizgi oldu</item>
+        <item quantity="other">%1$d tarih dizgi oldu</item>
+    </plurals>
+    <string name="convert_loss_moved_title">Anahtarlar yukarı çıkıyor</string>
+    <string name="convert_loss_moved_one">%1$s biçimi bir düzeyin kendi değerlerini önce yazar: %2$s yukarı çıktı, geri dönüştürmek onu orada tutar.</string>
+    <plurals name="convert_loss_moved_many">
+        <item quantity="one">%1$s biçimi bir düzeyin kendi değerlerini önce yazar: %2$s ve %3$d anahtar daha yukarı çıktı, geri dönüştürmek onları orada tutar.</item>
+        <item quantity="other">%1$s biçimi bir düzeyin kendi değerlerini önce yazar: %2$s ve %3$d anahtar daha yukarı çıktı, geri dönüştürmek onları orada tutar.</item>
+    </plurals>
+    <plurals name="convert_tag_moved">
+        <item quantity="one">%1$d anahtar yer değiştirdi</item>
+        <item quantity="other">%1$d anahtar yer değiştirdi</item>
+    </plurals>
+    <string name="convert_loss_emptied_title">Boş değerler kayboluyor</string>
+    <string name="convert_loss_emptied_one">%1$s bir şey tutmuyor, %2$s biçimi boş bir nesneyi ya da diziyi olduğu gibi yazamaz: geri dönüştürmek onu öyle vermez.</string>
+    <plurals name="convert_loss_emptied_many">
+        <item quantity="one">%1$s ve %2$d değer daha bir şey tutmuyor, %3$s biçimi boş bir nesneyi ya da diziyi olduğu gibi yazamaz: geri dönüştürmek onları öyle vermez.</item>
+        <item quantity="other">%1$s ve %2$d değer daha bir şey tutmuyor, %3$s biçimi boş bir nesneyi ya da diziyi olduğu gibi yazamaz: geri dönüştürmek onları öyle vermez.</item>
+    </plurals>
+    <plurals name="convert_tag_emptied">
+        <item quantity="one">%1$d boş değer kayboldu</item>
+        <item quantity="other">%1$d boş değer kayboldu</item>
+    </plurals>
+    <string name="convert_loss_one_line_title">Değerler tek satıra iniyor</string>
+    <string name="convert_loss_one_line_one">%1$s satır sonları içeriyor, %2$s biçimi bir değeri tek satıra yazar: satır sonları \\n olarak yazıldı.</string>
+    <plurals name="convert_loss_one_line_many">
+        <item quantity="one">%1$s ve %2$d değer daha satır sonları içeriyor, %3$s biçimi bir değeri tek satıra yazar: satır sonları \\n olarak yazıldı.</item>
+        <item quantity="other">%1$s ve %2$d değer daha satır sonları içeriyor, %3$s biçimi bir değeri tek satıra yazar: satır sonları \\n olarak yazıldı.</item>
+    </plurals>
+    <plurals name="convert_tag_one_line">
+        <item quantity="one">%1$d değer tek satıra indi</item>
+        <item quantity="other">%1$d değer tek satıra indi</item>
+    </plurals>
+    <string name="convert_loss_items_title">Öğeler item adını alıyor</string>
+    <string name="convert_loss_items_one">%1$s bir dizinin içinde bir dizi; XML biçiminde onun adı yok: öğeleri item öğeleri olarak yazıldı.</string>
+    <plurals name="convert_loss_items_many">
+        <item quantity="one">%1$s ve %2$d değer daha dizilerin içinde diziler; XML biçiminde onların adı yok: öğeleri item öğeleri olarak yazıldı.</item>
+        <item quantity="other">%1$s ve %2$d değer daha dizilerin içinde diziler; XML biçiminde onların adı yok: öğeleri item öğeleri olarak yazıldı.</item>
+    </plurals>
+    <plurals name="convert_tag_items">
+        <item quantity="one">%1$d dizi adlandırıldı</item>
+        <item quantity="other">%1$d dizi adlandırıldı</item>
+    </plurals>
 </resources>

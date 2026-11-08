@@ -1,8 +1,10 @@
 package com.developersancho.formatico
 
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -85,5 +87,28 @@ class AppTest {
         onPantrixNode("Button", "switch_documents").performClick()
         onPantrixNode("MenuItem", "document_1", scope = "Menu_documents").performClick()
         awaitText("Valid JSON")
+    }
+
+    @Test
+    fun aPhonesConversionHasABarOfItsOwnInTheAppBarsPlace() = runComposeUiTest {
+        setContent {
+            PantrixTestTheme(window = PantrixWindow(DpSize(390.dp, 844.dp))) {
+                App(systemDark = false, storage = memoryStorageModule)
+            }
+        }
+        awaitText("Paste anything")
+        onPantrixNode("ListItem", "sample_order").performClick()
+        awaitText("Valid JSON")
+
+        onPantrixNode("IconButton", "more").performClick()
+        // The test draws in less than the phone's window, and the menu's row stands past its foot: it is pressed as a
+        // screen reader presses it (PANTRIX_FINDINGS, "Test temasına verilen pencere, testin çizdiği boy değil").
+        onPantrixNode("MenuItem", "convert", scope = "Menu_document").performSemanticsAction(SemanticsActions.OnClick)
+        awaitText("Convert order.json")
+        onPantrixNode("Button", "switch_documents").assertDoesNotExist()
+
+        onPantrixNode("IconButton", "back").performClick()
+        awaitText("Valid JSON")
+        onPantrixNode("Button", "switch_documents").assertExists()
     }
 }

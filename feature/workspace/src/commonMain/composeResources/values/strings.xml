@@ -428,4 +428,200 @@
     <string name="table_type_array">array</string>
     <string name="table_type_alias">alias</string>
     <string name="table_type_null">null</string>
+    <string name="convert_to">To</string>
+    <string name="convert_from_to">From %1$s to</string>
+    <string name="convert_to_menu">Convert to %1$s. Choose another format</string>
+    <string name="convert_indentation">Indentation</string>
+    <string name="convert_copy">Copy the %1$s</string>
+    <string name="convert_save_as">Save as %1$s</string>
+    <string name="convert_title">Convert %1$s</string>
+    <string name="convert_nulls">A null value</string>
+    <string name="convert_nulls_choice">What a null value becomes</string>
+    <string name="convert_nulls_leave">Leave it out</string>
+    <string name="convert_nulls_empty">Write an empty string</string>
+    <string name="convert_sizes">%1$s %2$s → %3$s %4$s</string>
+    <string name="convert_label">Converted document</string>
+    <string name="convert_copied">Converted document copied</string>
+    <string name="convert_copy_failed">The converted document couldn’t be copied</string>
+    <string name="convert_null_comment">%1$s = null in the %2$s: %3$s has no null</string>
+    <plurals name="convert_source">
+        <item quantity="one">%1$s · %2$d line</item>
+        <item quantity="other">%1$s · %2$d lines</item>
+    </plurals>
+    <plurals name="convert_invalid">
+        <item quantity="one">The %1$s has an error. Repair it to convert the document.</item>
+        <item quantity="other">The %1$s has %2$d errors. Repair them to convert the document.</item>
+    </plurals>
+    <string name="convert_nothing_lost">Nothing is lost</string>
+    <string name="convert_back">It converts back to this %1$s as it is.</string>
+    <string name="convert_back_with">%1$s, so the %2$s converts back to this %3$s as it is.</string>
+    <string name="convert_note_quoted_dates">Strings %1$s would read as dates are written in quotes</string>
+    <string name="convert_note_quoted_values">Strings %1$s would read as other values are written in quotes</string>
+    <string name="convert_note_spelling_one">%1$s keeps its spelling</string>
+    <string name="convert_note_spelling_two">%1$s and %2$s keep their spelling</string>
+    <plurals name="convert_note_spelling_more">
+        <item quantity="one">%1$s and %2$d more number keep their spelling</item>
+        <item quantity="other">%1$s and %2$d more numbers keep their spelling</item>
+    </plurals>
+    <string name="convert_notes_and">%1$s, and %2$s</string>
+    <plurals name="convert_losses">
+        <item quantity="one">%1$d loss</item>
+        <item quantity="other">%1$d losses</item>
+    </plurals>
+    <string name="convert_loss_nulls_title">%1$s has no null</string>
+    <string name="convert_loss_nulls_left_one">%1$s is null in the %2$s. It is left out, and a comment marks where it was: converting back will not bring it.</string>
+    <plurals name="convert_loss_nulls_left_many">
+        <item quantity="one">%1$s and %2$d more value are null in the %3$s. They are left out, and comments mark where they were: converting back will not bring them.</item>
+        <item quantity="other">%1$s and %2$d more values are null in the %3$s. They are left out, and comments mark where they were: converting back will not bring them.</item>
+    </plurals>
+    <string name="convert_loss_nulls_empty_one">%1$s is null in the %2$s. It is written as an empty string: converting back gives a string.</string>
+    <plurals name="convert_loss_nulls_empty_many">
+        <item quantity="one">%1$s and %2$d more value are null in the %3$s. They are written as empty strings: converting back gives strings.</item>
+        <item quantity="other">%1$s and %2$d more values are null in the %3$s. They are written as empty strings: converting back gives strings.</item>
+    </plurals>
+    <plurals name="convert_tag_nulls_left">
+        <item quantity="one">%1$d value left out</item>
+        <item quantity="other">%1$d values left out</item>
+    </plurals>
+    <plurals name="convert_tag_nulls_empty">
+        <item quantity="one">%1$d null written empty</item>
+        <item quantity="other">%1$d nulls written empty</item>
+    </plurals>
+    <string name="convert_loss_comments_title">The comments are left behind</string>
+    <plurals name="convert_loss_comments">
+        <item quantity="one">The %1$s has a comment, and a conversion carries values, not comments: the %3$s is without it.</item>
+        <item quantity="other">The %1$s has %2$d comments, and a conversion carries values, not comments: the %3$s is without them.</item>
+    </plurals>
+    <plurals name="convert_tag_comments">
+        <item quantity="one">%1$d comment left behind</item>
+        <item quantity="other">%1$d comments left behind</item>
+    </plurals>
+    <string name="convert_loss_aliases_title">Aliases are written out</string>
+    <string name="convert_loss_aliases_one">%1$s is an alias, and is written as the value it points at: converting back gives a copy.</string>
+    <plurals name="convert_loss_aliases_many">
+        <item quantity="one">%1$s and %2$d more alias are written as the values they point at: converting back gives copies.</item>
+        <item quantity="other">%1$s and %2$d more aliases are written as the values they point at: converting back gives copies.</item>
+    </plurals>
+    <plurals name="convert_tag_aliases">
+        <item quantity="one">%1$d alias written out</item>
+        <item quantity="other">%1$d aliases written out</item>
+    </plurals>
+    <string name="convert_loss_untyped_title">%1$s has only text</string>
+    <string name="convert_loss_untyped_one">%1$s is written as text: converting back gives a string.</string>
+    <plurals name="convert_loss_untyped_many">
+        <item quantity="one">%1$s and %2$d more value are written as text: converting back gives strings.</item>
+        <item quantity="other">%1$s and %2$d more values are written as text: converting back gives strings.</item>
+    </plurals>
+    <plurals name="convert_tag_untyped">
+        <item quantity="one">%1$d value made text</item>
+        <item quantity="other">%1$d values made text</item>
+    </plurals>
+    <string name="convert_loss_flattened_title">%1$s has one level</string>
+    <string name="convert_loss_flattened_one">%1$s is a name of its own: converting back gives it on one level.</string>
+    <plurals name="convert_loss_flattened_many">
+        <item quantity="one">%1$s and %2$d more are names of their own: converting back gives them on one level.</item>
+        <item quantity="other">%1$s and %2$d more are names of their own: converting back gives them on one level.</item>
+    </plurals>
+    <plurals name="convert_tag_flattened">
+        <item quantity="one">%1$d value flattened</item>
+        <item quantity="other">%1$d values flattened</item>
+    </plurals>
+    <string name="convert_loss_wrapped_title">The document is put under %1$s</string>
+    <string name="convert_loss_wrapped">The %2$s’s value is no %1$s document as it is: converting back gives it under %3$s.</string>
+    <string name="convert_loss_row_title">The document is one row</string>
+    <string name="convert_loss_line_title">The document is one line</string>
+    <string name="convert_loss_in_array">%1$s writes a list: converting back gives the %2$s’s value in an array.</string>
+    <string name="convert_tag_wrapped">Put under %1$s</string>
+    <string name="convert_tag_row">One row</string>
+    <string name="convert_tag_line">One line</string>
+    <string name="convert_loss_renamed_title">Keys are renamed</string>
+    <string name="convert_loss_renamed_one">%1$s is no %2$s name: it is written %3$s.</string>
+    <plurals name="convert_loss_renamed_many">
+        <item quantity="one">%1$s and %2$d more key are no %3$s names: %1$s is written %4$s.</item>
+        <item quantity="other">%1$s and %2$d more keys are no %3$s names: %1$s is written %4$s.</item>
+    </plurals>
+    <plurals name="convert_tag_renamed">
+        <item quantity="one">%1$d key renamed</item>
+        <item quantity="other">%1$d keys renamed</item>
+    </plurals>
+    <string name="convert_loss_duplicates_title">Keys given twice</string>
+    <string name="convert_loss_duplicates_one">%1$s is given twice, and %2$s keeps a key once: the last is kept.</string>
+    <plurals name="convert_loss_duplicates_many">
+        <item quantity="one">%1$s and %2$d more key are given twice, and %3$s keeps a key once: the last of each is kept.</item>
+        <item quantity="other">%1$s and %2$d more keys are given twice, and %3$s keeps a key once: the last of each is kept.</item>
+    </plurals>
+    <plurals name="convert_tag_duplicates">
+        <item quantity="one">%1$d key dropped</item>
+        <item quantity="other">%1$d keys dropped</item>
+    </plurals>
+    <string name="convert_loss_respelled_title">Numbers are respelled</string>
+    <string name="convert_loss_respelled_one">%1$s is written %2$s, as %3$s writes it: converting back keeps that spelling.</string>
+    <plurals name="convert_loss_respelled_many">
+        <item quantity="one">%1$s and %2$d more number are written as %3$s writes them, %1$s as %4$s: converting back keeps that spelling.</item>
+        <item quantity="other">%1$s and %2$d more numbers are written as %3$s writes them, %1$s as %4$s: converting back keeps that spelling.</item>
+    </plurals>
+    <plurals name="convert_tag_respelled">
+        <item quantity="one">%1$d number respelled</item>
+        <item quantity="other">%1$d numbers respelled</item>
+    </plurals>
+    <string name="convert_loss_unwritable_title">Numbers become strings</string>
+    <string name="convert_loss_unwritable_one">%1$s has no value in %2$s: it is written as a string.</string>
+    <plurals name="convert_loss_unwritable_many">
+        <item quantity="one">%1$s and %2$d more number have no value in %3$s: they are written as strings.</item>
+        <item quantity="other">%1$s and %2$d more numbers have no value in %3$s: they are written as strings.</item>
+    </plurals>
+    <plurals name="convert_tag_unwritable">
+        <item quantity="one">%1$d number made a string</item>
+        <item quantity="other">%1$d numbers made strings</item>
+    </plurals>
+    <string name="convert_loss_dates_title">Dates become strings</string>
+    <string name="convert_loss_dates_one">%1$s is a date in the %2$s and a string in the %3$s: converting back gives a string.</string>
+    <plurals name="convert_loss_dates_many">
+        <item quantity="one">%1$s and %2$d more date are strings in the %3$s: converting back gives strings.</item>
+        <item quantity="other">%1$s and %2$d more dates are strings in the %3$s: converting back gives strings.</item>
+    </plurals>
+    <plurals name="convert_tag_dates">
+        <item quantity="one">%1$d date made a string</item>
+        <item quantity="other">%1$d dates made strings</item>
+    </plurals>
+    <string name="convert_loss_moved_title">Keys move up</string>
+    <string name="convert_loss_moved_one">%1$s writes a level’s own values first: %2$s moves up, and converting back keeps it there.</string>
+    <plurals name="convert_loss_moved_many">
+        <item quantity="one">%1$s writes a level’s own values first: %2$s and %3$d more key move up, and converting back keeps them there.</item>
+        <item quantity="other">%1$s writes a level’s own values first: %2$s and %3$d more keys move up, and converting back keeps them there.</item>
+    </plurals>
+    <plurals name="convert_tag_moved">
+        <item quantity="one">%1$d key moved</item>
+        <item quantity="other">%1$d keys moved</item>
+    </plurals>
+    <string name="convert_loss_emptied_title">Empty values are lost</string>
+    <string name="convert_loss_emptied_one">%1$s holds nothing, and %2$s cannot write an empty object or array as it is: converting back does not give it so.</string>
+    <plurals name="convert_loss_emptied_many">
+        <item quantity="one">%1$s and %2$d more value hold nothing, and %3$s cannot write an empty object or array as it is: converting back does not give them so.</item>
+        <item quantity="other">%1$s and %2$d more values hold nothing, and %3$s cannot write an empty object or array as it is: converting back does not give them so.</item>
+    </plurals>
+    <plurals name="convert_tag_emptied">
+        <item quantity="one">%1$d empty value lost</item>
+        <item quantity="other">%1$d empty values lost</item>
+    </plurals>
+    <string name="convert_loss_one_line_title">Values are put on one line</string>
+    <string name="convert_loss_one_line_one">%1$s has line breaks, and %2$s writes a value on one line: they are written as \\n.</string>
+    <plurals name="convert_loss_one_line_many">
+        <item quantity="one">%1$s and %2$d more value have line breaks, and %3$s writes a value on one line: they are written as \\n.</item>
+        <item quantity="other">%1$s and %2$d more values have line breaks, and %3$s writes a value on one line: they are written as \\n.</item>
+    </plurals>
+    <plurals name="convert_tag_one_line">
+        <item quantity="one">%1$d value put on one line</item>
+        <item quantity="other">%1$d values put on one line</item>
+    </plurals>
+    <string name="convert_loss_items_title">Items are named item</string>
+    <string name="convert_loss_items_one">%1$s is an array in an array, which has no name in XML: its items are written as item elements.</string>
+    <plurals name="convert_loss_items_many">
+        <item quantity="one">%1$s and %2$d more are arrays in arrays, which have no name in XML: their items are written as item elements.</item>
+        <item quantity="other">%1$s and %2$d more are arrays in arrays, which have no name in XML: their items are written as item elements.</item>
+    </plurals>
+    <plurals name="convert_tag_items">
+        <item quantity="one">%1$d array named</item>
+        <item quantity="other">%1$d arrays named</item>
+    </plurals>
 </resources>

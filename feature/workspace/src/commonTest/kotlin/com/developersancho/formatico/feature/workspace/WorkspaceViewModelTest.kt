@@ -4,6 +4,7 @@ import com.developersancho.formatico.core.format.Format
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -187,5 +188,27 @@ class WorkspaceViewModelTest {
         workbench.close(id)
 
         assertNull(readings.of(id, text, Format.Json))
+    }
+
+    @Test
+    fun theDocumentIsConvertedWhileItsConvertIsShownAndAsItsChoiceSays() = runTest(dispatcher) {
+        val id = workbench.open("order.json", """{"coupon": null, "b": 1}""", Format.Json)
+        val viewModel = viewModel(id)
+        assertNull(viewModel.state.value.conversion)
+
+        viewModel.dispatch(WorkspaceIntent.ShowPane(DocumentPane.Convert))
+        val yaml = viewModel.state.first { it.conversion != null }.conversion.converted
+        assertEquals("coupon: null\nb: 1\n", yaml?.text)
+
+        viewModel.dispatch(WorkspaceIntent.Convert(ConvertChoice(to = Format.Toml)))
+        val toml = viewModel.state.first { it.conversion.converted?.to == Format.Toml }.conversion.converted
+        // The comment that marks the null left out is in the reader's language, with the formats' names in it.
+        val comment = toml?.text?.lines()?.first().orEmpty()
+        assertTrue(comment.startsWith("# coupon = null") && "JSON" in comment && "TOML" in comment, comment)
+        assertEquals("b = 1", toml?.text?.lines()?.get(1))
+        assertEquals(ConvertChoice(to = Format.Toml), workbench.state.value.documents.single().view.convert)
+
+        viewModel.dispatch(WorkspaceIntent.ShowPane(DocumentPane.Tree))
+        viewModel.state.first { it.conversion == null }
     }
 }

@@ -19,7 +19,8 @@ internal fun readJson(text: String, format: Format): Reading {
     return Reading.Read(
         format = format,
         root = document.root?.let { node(it, path = emptyList(), name = ROOT) },
-        problems = document.problems
+        problems = document.problems,
+        comments = document.comments.size
     )
 }
 

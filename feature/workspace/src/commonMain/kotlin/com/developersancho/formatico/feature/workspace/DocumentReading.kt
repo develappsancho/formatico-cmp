@@ -56,9 +56,10 @@ internal sealed interface Reading {
      * It was read.
      *
      * @property root its value, as much as could be read of it, or null where none could.
-     * @property errors how many errors it has: none, for a valid document.
+     * @property problems what is wrong in it.
+     * @property comments how many comments it has, which its tree does not show.
      */
-    data class Read(val format: Format, val root: ValueNode?, val problems: List<Problem>) : Reading {
+    data class Read(val format: Format, val root: ValueNode?, val problems: List<Problem>, val comments: Int = 0) : Reading {
         /** How many of the [problems] make the document invalid. */
         val errors: Int get() = problems.count { it.severity == Severity.Error }
     }

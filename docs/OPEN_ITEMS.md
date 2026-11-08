@@ -89,7 +89,7 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
 *   [ ] **Üst çubuğun bazı düğmeleri basılmıyor (2026-11-03).**
     *   Ne: Başlatıcı (komut paleti) ve Ayarlar kendi ekranları gelene kadar `enabled = false`; tek sekme var ve yeni sekme düğmesi çizilmiyor.
     *   Öneri: Palette, Settings ve sekmeler yazıldıkça bağlamak.
-    *   Durum: açık. Sekmeler ve yeni sekme düğmesi Workspace'le bağlandı (2026-11-03); başlatıcı ve Ayarlar hâlâ basılmıyor. Workspace'in Query, Convert, Compare, ağaçta arama ve Table görünümü de kendi ekranlarını bekliyor. Query bağlandı (2026-11-05); Convert ve Compare Faz 10 ve 11'i bekliyor.
+    *   Durum: açık. Sekmeler ve yeni sekme düğmesi Workspace'le bağlandı (2026-11-03); başlatıcı ve Ayarlar hâlâ basılmıyor. Workspace'in Query, Convert, Compare, ağaçta arama ve Table görünümü de kendi ekranlarını bekliyor. Query bağlandı (2026-11-05), Convert de (2026-11-05); Compare Faz 11'i bekliyor.
 *   [x] **Temanın seçimi saklanmıyor (2026-11-03).**
     *   Ne: Çubuğun tema düğmesi seçimi `rememberSaveable` ile tutuyor; uygulama yeniden açılınca sistemin teması geri geliyor.
     *   Öneri: Settings ekranıyla birlikte cihazda saklamak.
@@ -195,7 +195,7 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
 *   [ ] **CSV'de Format yalnızca tırnakları ve satır sonlarını düzeltiyor (2026-11-03).**
     *   Ne: `CsvDocument.formatted` her alanı yalnızca gerektiğinde tırnaklıyor, belgenin ayırıcısını ve satır sonunu koruyor, sona bir satır sonu koyuyor, boş satırları atıyor. Sütunları hizalamıyor. Minify ve Sort keys CSV ile TSV'de kapalı (panodaki gibi); kapalı düğmeler nedenini söylemiyor.
     *   Öneri: Settings'e ya da More menüsüne "ayırıcıyı değiştir" (CSV ↔ TSV dönüşümü Convert'le gelecek); hizalama istenirse ayrı bir eylem.
-    *   Durum: açık. Kapalı Minify ve Sort keys nedenini söylemiyor; panolar da söylemiyor, kapalı bir düğmenin ipucu Pantrix'te sınanmadı. Ayırıcı değiştirme Convert'le (Faz 10).
+    *   Durum: açık. Kapalı Minify ve Sort keys nedenini söylemiyor; panolar da söylemiyor, kapalı bir düğmenin ipucu Pantrix'te sınanmadı. CSV ↔ TSV Convert'te var (2026-11-05), ama yeni bir belge olarak: belgenin kendi ayırıcısını değiştirmek değil.
 *   [ ] **CSV'nin ilk satırı her zaman başlık; sayıya benzeyen alan sayı (2026-11-03).**
     *   Ne: İlk kayıt sütunların adları sayılıyor; başlıksız bir CSV'nin ilk satırı tabloda başlık olur. Bir alan sayıya benziyorsa (`020`, `1e3`) ağaçta ve tabloda sayı: sağa yaslanıyor, sayı olarak sıralanıyor ve özetleniyor (countries.csv'nin `numeric` sütunu, en küçük `004` "4" olarak). Yazılışı korunuyor (`020`).
     *   Öneri: "ilk satır başlık" seçeneği; baştaki sıfırı olan bir alanı kod sayıp metin olarak tutmak.
@@ -358,7 +358,7 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Durum: açık.
 *   [ ] **Önizlemelerin siparişi panolarınkinden başka (2026-11-05).**
     *   Ne: Panoların `order.json`'unda iki kalem var (T-shirt, Mug) ve bir `shipping` nesnesi; kodun önizlemelerindeki siparişte (`PreviewOrder`) üç kalem (Keyboard, Mouse, Desk pad) ve `shipping` yok. Query-1440 "2 matches" diyor, önizlemesi "3 matches"; çizim aynı, içerik değil. Önizlemeler bir zaman panolardan alınmış olmalı; panolar sonra değişmiş.
-    *   Öneri: `PreviewOrder`'ı panolardaki belgeye getirmek ve bütün ekran görüntülerini yeniden kaydetmek (Workspace, Table, Summary, Query, uygulamanın panoları), ayrı bir değişiklikte.
+    *   Öneri: `PreviewOrder`'ı panolardaki belgeye getirmek ve bütün ekran görüntülerini yeniden kaydetmek (Workspace, Table, Summary, Query, Convert, uygulamanın panoları), ayrı bir değişiklikte. Uygulamanın Convert panoları (`app/shared/screenshots/Convert-*`) panolardaki siparişle çiziliyor: uygulamanın örneği o.
     *   Durum: açık.
 *   [ ] **Büyük bir XML'de XPath her sorguda dizinini yeniden kuruyor (2026-11-05).**
     *   Ne: Workspace bir XML metnini her metin için bir kez okuyor, ama `XPath.evaluate` her sorguda belgenin dizinini (ebeveynler, sıra) yeniden kuruyor; her eşleşmenin değeri de (`XPathMatch.value`) hemen yazılıyor: `//*` büyük bir belgede metni derinlik kadar kopyalıyor. Sorgu her harfte soruluyor.
@@ -368,3 +368,39 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Ne: Table panolarının CSV hâlinde `numeric` sütununun türü `number`; değerleri ise başında sıfır olan kodlar ("004", "020"). Formatico böyle bir sütunu kod olarak, metin diye okuyor (Faz 4'ün kararı: baştaki sıfır kaybolmasın), türü de bu yüzden `text`, değerleri sola dayalı.
     *   Öneri: panoda o sütunu `text` yapmak, ya da sayı gibi görünen kodları sayı saymak (sıfırları kaybetmeden); karar tasarımın.
     *   Durum: açık. Kodda `text`.
+*   [ ] **Convert'in panolarda olmayan hâlleri kodda seçildi (2026-11-05).**
+    *   Ne: Convert panoları iki hâli çiziyor: hiçbir şeyin kaybolmadığı bir YAML (1440, 390) ve null'ı dışarıda kalan bir TOML (834). Kodda seçilenler:
+        *   Kaybın on beş türü var (null, yorumlar, YAML'ın takma adları, yalnızca metin, tek düzey, kök, ad, iki kez verilen anahtar, sayının yazılışı, yazılamayan sayı, TOML'ın tarihi, yer değiştiren anahtar, boş değer, tek satır, XML'in `item`'ı); her biri kendi uyarısı, başlığı ve iletisiyle, alt alta. Üçten fazlası 280 dp'lik bir alanda kayıyor.
+        *   Durum çubuğunun etiketi tek bir kayıpta onun etiketi ("2 values left out"), birden fazlasında sayısı ("3 losses").
+        *   Null'ın seçimi geniş pencerede ve telefonda da var, TOML'dan başka XML, properties ve INI için de; CSV'nin null'ı her zaman boş alan.
+        *   Tablette girintinin seçimi, girintili bir biçime (JSON, YAML, XML) dönüştürülürken; Convert-834 TOML'ı çizdiği için orada yok. Telefonda girintinin seçimi yok; belgenin seçimi geniş pencereden geliyorsa o kullanılıyor.
+        *   "Nothing is lost"un iletisi yapılanları sayıyor: "129.90 and 50.00 keep their spelling" (panoda yalnız 129.90).
+        *   Geçersiz bir belge dönüştürülmüyor: "The JSON has 2 errors. Repair them to convert the document."; düz metnin ağacın iletisi var.
+        *   Telefonda Convert More menüsünden, Query'nin altından açılıyor; çubuğun geri düğmesi ve sistemin geri hareketi ağaca (tablonun belgesinde tabloya) dönüyor.
+        *   Geniş pencerede soldaki metin editörün kendisi: yazılınca dönüşüm de yenileniyor.
+    *   Öneri: tuvale kayıplı birkaç hâlin (XML, CSV) ve telefonun null seçiminin çizilmesi, ya da kodun seçiminin kabulü.
+    *   Durum: açık.
+*   [ ] **Dönüştürmenin kuralları kodda seçildi (2026-11-05).**
+    *   Ne: Panolar JSON'ın YAML'a ve TOML'a nasıl yazıldığını gösteriyor; öteki biçimler kodda, Formatico'nun ağacının okuduğu gibi:
+        *   XML: `@ad` öznitelik, `#text` metin, bir dizi aynı adlı öğeler; tek üyeli bir nesne kök öğe, başka her şey `<root>`'ta; dizinin içindeki dizinin öğeleri `<item>`; XML'in adı olmayan anahtar `_` ile (`first name` → `first_name`); null bir yorum ya da boş öğe.
+        *   CSV ve TSV: dizinin öğeleri satırlar, bir nesne tek satır; iç değerler yolları adında sütunlar (`address.city`, `items[0].sku`); nesne olmayan bir öğe `value` sütunu; başlık satırların ilk verdiği sırayla.
+        *   Properties: Spring'in adlandırması (`server.port`, `hosts[0]`). INI: belgenin kendi anahtarları önce, her nesne bir bölüm, bölümün içindeki iç değerler yollarıyla; satır sonları `\n`.
+        *   TOML: bir tablonun kendi anahtarları tablolarından önce; nesne dizisi `[[ad]]`, öteki diziler satırında; tablo olmayan bir belge `items` ya da `value` altında; 64 biti aşan tam sayı dizgi.
+        *   YAML: YAML 1.1'in de başka bir değer diye okuyacağı her dizgi tırnakta (`yes`, `no`, `on`, `y`, `007`, `1:20`, tarihler).
+        *   JSON: sonsuz ve NaN dizgi; JSON5 kendi yazılışlarını (`0x1F`, `Infinity`) koruyor. NDJSON: dizinin öğeleri satırlar, başka her şey tek satır.
+        *   İki kez verilen anahtar JSON'da ikisiyle, öteki biçimlerde sonuncusuyla.
+    *   Öneri: bu kuralların sahibinin onayı; ayarlanabilir olması istenenler (CSV'nin düzleştirme biçimi, XML'in kök adı) Settings'e (Faz 12).
+    *   Durum: açık.
+*   [ ] **Telefonda sistemin geri hareketi Query ve Summary'den Start'a dönüyor (2026-11-05).**
+    *   Ne: Telefonun Convert'i kendi ekranı; çubuğunun geri düğmesi de sistemin geri hareketi de onu bırakıp ağaca dönüyor (`NavigationBackHandler`). Query ve Summary de telefonda More menüsünden açılıyor, ama sistemin geri hareketi onlarda `NavDisplay`'in `onBack`'ine gidiyor: sekme bırakılıyor, Start açılıyor.
+    *   Öneri: telefonda Query'nin ve Summary'nin de geri hareketiyle ağaca dönmesi.
+    *   Durum: açık.
+*   [ ] **Null'ın yorumu sistemin dilinde yazılıyor (2026-11-05).**
+    *   Ne: Dışarıda bırakılan bir null'ın yeni belgedeki yorumu (`# coupon = null in the JSON: TOML has no null`) view model'de `getString` ile okunuyor; o da sistemin dilini kullanıyor, uygulamanınkini değil.
+    *   Öneri: Settings uygulamanın kendi dilini getirince (Faz 12) yorumun dili de ondan.
+    *   Durum: açık, Faz 12'yle.
+*   [ ] **Sorgu sonuçlarının JSON'ı ayrı bir yazıcıyla yazılıyor (2026-11-05).**
+    *   Ne: `QueryResults.kt`'nin kendi `JsonWriter`'ı var; `core:format`'ın dönüştürücüsü aynı işi (değerleri JSON olarak yazmak, YAML'ın takma adlarını açmak, JSON'ın yazamadığı sayıları dizgi yapmak) yapıyor.
+    *   Öneri: sorgunun sonuçlarını dönüştürücüyle yazmak; ayrı bir temizlik değişikliği.
+    *   Durum: açık.
+

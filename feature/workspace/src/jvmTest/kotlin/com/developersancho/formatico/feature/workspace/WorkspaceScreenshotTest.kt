@@ -67,6 +67,11 @@ class WorkspaceScreenshotTest {
     }
 
     @Test
+    fun convert() = ConvertCases().values.forEach { case ->
+        capturePreview("Convert", case, case.value.board) { ConvertPreview(case) }
+    }
+
+    @Test
     fun treeSearchBar() = TreeSearchBarCases().values.forEach { case ->
         capturePreview("TreeSearchBar", case, case.value.board) { TreeSearchBarPreview(case) }
     }
@@ -83,6 +88,10 @@ class WorkspaceScreenshotTest {
 
             "yaml" -> {
                 captureOpenMenu("CopyPathMenu", case, Board.Phone, opener = "copy_path") { WorkspaceScreenPreview(case) }
+            }
+
+            "convert" -> {
+                captureOpenMenu("TargetMenu", case, Board.Desktop, opener = "convert_to") { WorkspaceScreenPreview(case) }
             }
 
             "json table" -> {

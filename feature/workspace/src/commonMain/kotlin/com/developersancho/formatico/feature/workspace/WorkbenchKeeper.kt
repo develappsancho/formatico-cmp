@@ -1,6 +1,7 @@
 package com.developersancho.formatico.feature.workspace
 
 import com.developersancho.formatico.core.format.Format
+import com.developersancho.formatico.core.format.convert.NullHandling
 import com.developersancho.formatico.core.storage.SmallStore
 import com.developersancho.formatico.core.storage.TextStore
 import com.developersancho.formatico.core.storage.historyTextName
@@ -123,7 +124,11 @@ private data class KeptWorkbench(val tabs: List<KeptTab>, val selectedId: Long?)
                     sortDescending = view.tableSort?.descending == true,
                     hiddenColumns = view.hiddenColumns,
                     tableFilter = view.tableFilter,
-                    query = view.query
+                    query = view.query,
+                    convertTo = view.convert.to?.name,
+                    convertIndent = view.convert.indent,
+                    convertSortKeys = view.convert.sortKeys,
+                    convertNulls = view.convert.nulls.name
                 )
             },
             selectedId = state.selectedId
@@ -149,7 +154,11 @@ private data class KeptTab(
     val sortDescending: Boolean = false,
     val hiddenColumns: Set<String> = emptySet(),
     val tableFilter: String = "",
-    val query: String = ""
+    val query: String = "",
+    val convertTo: String? = null,
+    val convertIndent: Int = 2,
+    val convertSortKeys: Boolean = false,
+    val convertNulls: String? = null
 ) {
     /** What the document was left showing: its pane by name, or the tree where that pane is no longer one. */
     fun view() = DocumentView(
@@ -159,7 +168,13 @@ private data class KeptTab(
         tableSort = sortColumn?.let { TableSort(it, sortDescending) },
         hiddenColumns = hiddenColumns,
         tableFilter = tableFilter,
-        query = query
+        query = query,
+        convert = ConvertChoice(
+            to = Format.entries.firstOrNull { it.name == convertTo },
+            indent = convertIndent,
+            sortKeys = convertSortKeys,
+            nulls = NullHandling.entries.firstOrNull { it.name == convertNulls } ?: NullHandling.LeaveOut
+        )
     )
 }
 

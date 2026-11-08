@@ -21,7 +21,7 @@ internal fun readProperties(text: String): Reading {
         values.add(entry.key, shown, entry.value, entry.valueRange.takeIf { it.length > 0 } ?: entry.keyRange)
     }
     val root = values.node(name = ROOT, range = TextRange(0, text.length)).takeIf { document.entries.isNotEmpty() }
-    return Reading.Read(format = Format.Properties, root = root, problems = document.problems)
+    return Reading.Read(format = Format.Properties, root = root, problems = document.problems, comments = document.comments.size)
 }
 
 /**
@@ -44,7 +44,7 @@ internal fun readIni(text: String): Reading {
         }
     }
     val tree = root.node(name = ROOT, range = TextRange(0, text.length)).takeIf { document.sections.isNotEmpty() }
-    return Reading.Read(format = Format.Ini, root = tree, problems = document.problems)
+    return Reading.Read(format = Format.Ini, root = tree, problems = document.problems, comments = document.comments.size)
 }
 
 /** [entry] of [text] as a string of these values: its value as written, quotes and all, and as read. */

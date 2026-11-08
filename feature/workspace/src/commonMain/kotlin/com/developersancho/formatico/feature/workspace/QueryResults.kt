@@ -3,14 +3,12 @@ package com.developersancho.formatico.feature.workspace
 import com.developersancho.formatico.core.format.Format
 
 /**
- * What a query found, as a document of its own: JSONPath's values as a JSON array, whatever the format they were found
- * in; XPath's nodes as an XML document's `<results>`, an element as it is written and any other node by its
- * string-value in a `<result>`; an XPath's own value in a `<result>` alone. Null where nothing was found.
+ * The results of [outcome], found in [document], whose value is [root], as a document of their own: JSONPath's values
+ * as a JSON array, whatever the format they were found in; XPath's nodes as an XML document's `<results>`, an element
+ * as it is written and any other node by its string-value in a `<result>`; an XPath's own value in a `<result>`
+ * alone. Null where it found nothing.
  */
-internal data class QueryResults(val name: String, val text: String, val format: Format)
-
-/** The results of [outcome], found in [document], whose value is [root]; null where it found nothing. */
-internal fun queryResults(document: OpenDocument, root: ValueNode?, outcome: QueryOutcome?): QueryResults? {
+internal fun queryResults(document: OpenDocument, root: ValueNode?, outcome: QueryOutcome?): NewDocument? {
     val language = document.format?.queryLanguage ?: return null
     val written = when (outcome) {
         is QueryOutcome.Found -> outcome.matches.takeIf { it.isNotEmpty() }?.let { matches ->
@@ -28,7 +26,7 @@ internal fun queryResults(document: OpenDocument, root: ValueNode?, outcome: Que
     val name = "${stemOf(document.name)}-query.${format.extensions.first()}"
     // Laid out as Format lays out a document; what cannot be laid out is kept as it was put together.
     val laid = edited(OpenDocument(id = 0, name = name, text = written, format = format), DocumentEdit.Format)
-    return QueryResults(name = name, text = (laid as? Edited.Text)?.text ?: written, format = format)
+    return NewDocument(name = name, text = (laid as? Edited.Text)?.text ?: written, format = format)
 }
 
 /** A file's name without its extension; `query` for a document with no name. */

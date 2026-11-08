@@ -31,6 +31,7 @@ import com.pantrixui.components.elements.divider.PantrixHorizontalDivider
 import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.foundation.theme.PantrixTheme
 import formatico.feature.workspace.generated.resources.Res
+import formatico.feature.workspace.generated.resources.convert_sizes
 import formatico.feature.workspace.generated.resources.query_match_of
 import formatico.feature.workspace.generated.resources.workspace_encoding
 import formatico.feature.workspace.generated.resources.workspace_indent_spaces
@@ -50,7 +51,8 @@ import org.jetbrains.compose.resources.stringResource
 /**
  * The bar under the panes: whether the document is valid, how long it is, the line and column of [editor]'s caret or
  * of the chosen value, the chosen value's path and the text's layout, or while the query is shown which of its matches
- * is chosen. How long it is shows its Summary, or hides it.
+ * is chosen. How long it is shows its Summary, or hides it. While it is converted, the bar says what is lost, where
+ * anything is, and how long the document is in each format.
  */
 @Composable
 internal fun StatusBar(
@@ -73,6 +75,13 @@ internal fun StatusBar(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(spacing.lg)
         ) {
+            val converted = state.conversion.converted?.takeIf { state.document?.view?.pane == DocumentPane.Convert }
+            if (converted != null) {
+                ConvertedStatus(state, converted)
+                Spacer(modifier = Modifier.weight(1f))
+                if (layout == WorkspaceLayout.Wide) state.stats?.let { PantrixText(text = layoutOf(it), style = style, color = quiet) }
+                return@Row
+            }
             StatusTag(state)
             state.stats?.let { stats -> SizeButton(state, stats, onIntent) }
             Spacer(modifier = Modifier.weight(1f))
@@ -201,5 +210,28 @@ private fun SizeButton(state: WorkspaceState, stats: TextStats, onIntent: (Works
         },
         contentDescription = stringResource(if (shown) Res.string.workspace_summary_shown else Res.string.workspace_show_summary, size),
         tagKey = "size"
+    )
+}
+
+/** What [converted] lost, a warning, or else whether the document is valid; and `JSON 742 B → YAML 512 B`. */
+@Composable
+private fun ConvertedStatus(state: WorkspaceState, converted: ConvertOutcome.Converted) {
+    if (converted.losses.isEmpty()) {
+        StatusTag(state)
+    } else {
+        PantrixTag(text = lossesTag(converted.losses, converted.from, converted.to), tone = TagTone.Warning, dot = true, tagKey = "status")
+    }
+    val strings = PantrixTheme.strings
+    PantrixText(
+        text = stringResource(
+            Res.string.convert_sizes,
+            converted.from.displayName,
+            strings.fileSize(state.stats?.bytes ?: 0),
+            converted.to.displayName,
+            strings.fileSize(converted.bytes)
+        ),
+        style = PantrixTheme.typography.footnote.copy(fontWeight = FontWeight.Medium),
+        color = PantrixTheme.colors.textSecondary,
+        maxLines = 1
     )
 }

@@ -33,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.developersancho.formatico.core.designsystem.FormaticoIcons
+import com.developersancho.formatico.feature.workspace.DocumentPane
 import com.developersancho.formatico.feature.workspace.OpenDocument
 import com.developersancho.formatico.feature.workspace.WorkbenchState
 import com.pantrixui.components.container.surface.PantrixSurface
@@ -85,7 +86,7 @@ private val BarHeight = 56.dp
  * Formatico's bar, over every screen: the mark and the name, the documents' tabs, the launcher of the command palette,
  * the theme's switch and the settings. A phone keeps the mark, the name, the launcher's button and the settings over a
  * new tab, and over a document the document's name, which switches documents, how many are open, the launcher's
- * button and the document's "more" menu.
+ * button and the document's "more" menu; over a document being converted, none: that screen has a bar of its own.
  *
  * The palette and the settings come with their screens; until then their buttons are drawn and not pressed.
  *
@@ -112,6 +113,8 @@ internal fun AppTopBar(
     val wide = window.widthClass >= WindowWidthClass.Expanded
     val shown = workbench.selected
     Column(modifier = modifier.fillMaxWidth().background(PantrixTheme.colors.surface).padding(insets)) {
+        // A phone's conversion is a screen with a bar of its own, Convert-390's, in this one's place.
+        if (phone && shown?.view?.pane == DocumentPane.Convert) return@Column
         Row(
             modifier = Modifier
                 .fillMaxWidth()

@@ -98,7 +98,12 @@ eksikler Faz 4'te.
     menüsünden. JSONPath XML dışındaki her biçimin ağacında, XPath XML'in kendi düğümlerinde; eşleşmeler ağaçta ve
     metinde seçiliyor, sonuçlar kopyalanıyor ya da belge olarak açılıyor, son sorgular cihazda. Eşleşmelerin metinde
     işaretlenmesi Pantrix'i bekliyor (PANTRIX_FINDINGS).
-*   [ ] **Faz 10: Convert.** Biçimler arasında; kaybolacak olan önceden söylenir.
+*   [x] **Faz 10: Convert.** Biçimler arasında; kaybolacak olan önceden söylenir. Yapıldı (2026-11-05): `core:format`'ta
+    dönüştürücü (`convert`): biçimden bağımsız bir değer, her biçimin yazıcısı ve kaybın on beş türü. Workspace'te Convert
+    görünümü üç genişlikte: geniş pencerede metnin yanında, tablette bütün alanda, telefonda kendi ekranı (More
+    menüsünden, kendi çubuğu ve geri hareketiyle). Hedef biçim, girinti, anahtarların sırası ve null'ın ne olacağı
+    belgenin görünümünde saklanıyor; yeni belge kopyalanıyor, kaydediliyor ya da kendi sekmesinde açılıyor. Panoda
+    olmayan hâller ve dönüştürmenin kuralları OPEN_ITEMS'ta.
 *   [ ] **Faz 11: Compare.** Anlamsal karşılaştırma.
 *   [ ] **Faz 12: Komut paleti, kısayollar ve Settings.** Faz 4'ün cihazda saklamasının üstünde.
 *   [ ] **Faz 13: Paylaşım.** Küçük bir belge sıkıştırılıp bağlantının fragment'ında; sunucu yok.

@@ -8,6 +8,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import com.developersancho.formatico.core.format.Format
 import com.pantrixui.components.elements.button.ButtonSize
 import com.pantrixui.components.elements.divider.PantrixDivider
 import com.pantrixui.components.elements.iconbutton.PantrixIconButton
@@ -24,6 +25,9 @@ import com.pantrixui.foundation.files.rememberFileSaver
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.platform.rememberPantrixClipboard
 import formatico.feature.workspace.generated.resources.Res
+import formatico.feature.workspace.generated.resources.convert_copied
+import formatico.feature.workspace.generated.resources.convert_copy_failed
+import formatico.feature.workspace.generated.resources.convert_label
 import formatico.feature.workspace.generated.resources.query_results_copied
 import formatico.feature.workspace.generated.resources.query_results_copy_failed
 import formatico.feature.workspace.generated.resources.query_results_label
@@ -36,6 +40,7 @@ import formatico.feature.workspace.generated.resources.workspace_already_minifie
 import formatico.feature.workspace.generated.resources.workspace_already_sorted
 import formatico.feature.workspace.generated.resources.workspace_close_document
 import formatico.feature.workspace.generated.resources.workspace_compare
+import formatico.feature.workspace.generated.resources.workspace_convert
 import formatico.feature.workspace.generated.resources.workspace_copied
 import formatico.feature.workspace.generated.resources.workspace_copy_failed
 import formatico.feature.workspace.generated.resources.workspace_document_label
@@ -67,12 +72,16 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.getPluralString
 import org.jetbrains.compose.resources.stringResource
 
+/** A document made from another, to be opened in a tab of its own: what a query found, or a conversion. */
+internal data class NewDocument(val name: String, val text: String, val format: Format)
+
 /** What is copied from a document besides the whole of it, each said in words of its own. */
-internal enum class Copied { Value, Path, Table, Summary, Results }
+internal enum class Copied { Value, Path, Table, Summary, Results, Converted }
 
 /**
  * What a document's buttons do that is not the workspace's state: copying it, or a part of it ([copyText]), saving as
- * a file, saying what an edit did, with its undo, and opening what a query found as a document of its own ([open]).
+ * a file, saying what an edit did, with its undo, and opening what a query found or a conversion as a document of its
+ * own ([open]).
  */
 internal class DocumentCommands(
     val copy: (OpenDocument) -> Unit,
@@ -80,7 +89,7 @@ internal class DocumentCommands(
     val save: (OpenDocument) -> Unit,
     val saveCsv: (OpenDocument, String) -> Unit,
     val report: (DocumentEdit, EditResult) -> Unit,
-    val open: (QueryResults) -> Unit = {}
+    val open: (NewDocument) -> Unit = {}
 )
 
 /** What a copy says: what is copied, for the system's own preview of it, and how it went. */
@@ -112,38 +121,7 @@ private fun commandWords() = CommandWords(
         failed = stringResource(Res.string.workspace_copy_failed),
         tag = "copied"
     ),
-    parts = mapOf(
-        Copied.Value to CopyWords(
-            label = stringResource(Res.string.workspace_value_label),
-            done = stringResource(Res.string.workspace_value_copied),
-            failed = stringResource(Res.string.workspace_value_copy_failed),
-            tag = "value_copied"
-        ),
-        Copied.Path to CopyWords(
-            label = stringResource(Res.string.workspace_path_label),
-            done = stringResource(Res.string.workspace_path_copied),
-            failed = stringResource(Res.string.workspace_path_copy_failed),
-            tag = "path_copied"
-        ),
-        Copied.Table to CopyWords(
-            label = stringResource(Res.string.workspace_table_label),
-            done = stringResource(Res.string.workspace_table_copied),
-            failed = stringResource(Res.string.workspace_table_copy_failed),
-            tag = "table_copied"
-        ),
-        Copied.Summary to CopyWords(
-            label = stringResource(Res.string.summary_label),
-            done = stringResource(Res.string.summary_copied),
-            failed = stringResource(Res.string.summary_copy_failed),
-            tag = "summary_copied"
-        ),
-        Copied.Results to CopyWords(
-            label = stringResource(Res.string.query_results_label),
-            done = stringResource(Res.string.query_results_copied),
-            failed = stringResource(Res.string.query_results_copy_failed),
-            tag = "results_copied"
-        )
-    ),
+    parts = partWords(),
     edits = EditWords(
         done = mapOf(
             DocumentEdit.Format to stringResource(Res.string.workspace_formatted),
@@ -215,6 +193,47 @@ internal fun rememberDocumentCommands(workbench: Workbench): DocumentCommands {
     }
 }
 
+/** The words of what is copied from a document besides the whole of it. */
+@Composable
+private fun partWords(): Map<Copied, CopyWords> = mapOf(
+    Copied.Value to CopyWords(
+        label = stringResource(Res.string.workspace_value_label),
+        done = stringResource(Res.string.workspace_value_copied),
+        failed = stringResource(Res.string.workspace_value_copy_failed),
+        tag = "value_copied"
+    ),
+    Copied.Path to CopyWords(
+        label = stringResource(Res.string.workspace_path_label),
+        done = stringResource(Res.string.workspace_path_copied),
+        failed = stringResource(Res.string.workspace_path_copy_failed),
+        tag = "path_copied"
+    ),
+    Copied.Table to CopyWords(
+        label = stringResource(Res.string.workspace_table_label),
+        done = stringResource(Res.string.workspace_table_copied),
+        failed = stringResource(Res.string.workspace_table_copy_failed),
+        tag = "table_copied"
+    ),
+    Copied.Summary to CopyWords(
+        label = stringResource(Res.string.summary_label),
+        done = stringResource(Res.string.summary_copied),
+        failed = stringResource(Res.string.summary_copy_failed),
+        tag = "summary_copied"
+    ),
+    Copied.Results to CopyWords(
+        label = stringResource(Res.string.query_results_label),
+        done = stringResource(Res.string.query_results_copied),
+        failed = stringResource(Res.string.query_results_copy_failed),
+        tag = "results_copied"
+    ),
+    Copied.Converted to CopyWords(
+        label = stringResource(Res.string.convert_label),
+        done = stringResource(Res.string.convert_copied),
+        failed = stringResource(Res.string.convert_copy_failed),
+        tag = "converted_copied"
+    )
+)
+
 /** Says what [edit] came to, [result], in [snackbars]: a change with its undo, which gives [workbench] the document back. */
 private suspend fun reportEdit(
     edit: DocumentEdit,
@@ -271,14 +290,17 @@ internal enum class DocumentMenuItems {
     /** In a tablet's toolbar: sorting the keys, comparing, saving and closing. */
     SortCompareSaveClose,
 
-    /** In a phone's bar, where Format, Minify, Copy and Save stand at the bottom: finding in the tree, the Summary and the query too. */
+    /**
+     * In a phone's bar, where Format, Minify, Copy and Save stand at the bottom: finding in the tree, the Summary, the
+     * query and Convert too.
+     */
     FindSummarySortCompareClose
 }
 
 /**
  * The "more" button of a phone's bar while the document of [workbench] whose id is [documentId] is shown, and the menu
- * it opens: finding in the tree, showing the Summary, querying, sorting the keys, comparing (not open yet) and closing
- * the document. A phone has no room for the search's button over its tree, nor a status bar whose size shows the Summary.
+ * it opens: finding in the tree, showing the Summary, querying, converting, sorting the keys, comparing (not open yet)
+ * and closing the document. A phone has no room for the search's button over its tree, nor a status bar whose size shows the Summary.
  */
 @Composable
 fun DocumentMoreMenu(documentId: Long, workbench: Workbench) {
@@ -294,6 +316,7 @@ fun DocumentMoreMenu(documentId: Long, workbench: Workbench) {
         onFind = { workbench.changeView(documentId) { it.copy(pane = DocumentPane.Tree, searching = true) } },
         onSummary = { workbench.changeView(documentId) { it.copy(pane = DocumentPane.Summary) } },
         onQuery = { workbench.changeView(documentId) { it.copy(pane = DocumentPane.Query) } },
+        onConvert = { workbench.changeView(documentId) { it.copy(pane = DocumentPane.Convert) } },
         // Whether the document is valid is the workspace's to know; one with errors is told why it is not sorted.
         canSort = format?.edits?.contains(DocumentEdit.SortKeys) == true,
         onSortKeys = {
@@ -313,6 +336,7 @@ internal fun DocumentMenu(
     onFind: () -> Unit = {},
     onSummary: () -> Unit = {},
     onQuery: () -> Unit = {},
+    onConvert: () -> Unit = {},
     canSort: Boolean,
     onSortKeys: () -> Unit,
     onSave: () -> Unit,
@@ -340,7 +364,7 @@ internal fun DocumentMenu(
         alignment = PopoverAlignment.End,
         tagKey = "document"
     ) {
-        if (items == DocumentMenuItems.FindSummarySortCompareClose) FindSummaryAndQueryItems(read, onFind, onSummary, onQuery)
+        if (items == DocumentMenuItems.FindSummarySortCompareClose) FindSummaryAndQueryItems(read, onFind, onSummary, onQuery, onConvert)
         if (items != DocumentMenuItems.Close) {
             PantrixMenuItem(
                 text = stringResource(Res.string.workspace_sort_keys),
@@ -374,11 +398,17 @@ internal fun DocumentMenu(
 }
 
 /**
- * The rows only a phone's menu holds: finding in the tree, showing the Summary and querying, which a [read] document
- * has. A phone has no room for the toolbar's Query.
+ * The rows only a phone's menu holds: finding in the tree, showing the Summary, querying and converting, which a [read]
+ * document has. A phone has no room for the toolbar's Query and Convert.
  */
 @Composable
-private fun FindSummaryAndQueryItems(read: Boolean, onFind: () -> Unit, onSummary: () -> Unit, onQuery: () -> Unit) {
+private fun FindSummaryAndQueryItems(
+    read: Boolean,
+    onFind: () -> Unit,
+    onSummary: () -> Unit,
+    onQuery: () -> Unit,
+    onConvert: () -> Unit
+) {
     PantrixMenuItem(
         text = stringResource(Res.string.workspace_find_in_tree),
         onClick = onFind,
@@ -397,5 +427,12 @@ private fun FindSummaryAndQueryItems(read: Boolean, onFind: () -> Unit, onSummar
         onClick = onQuery,
         enabled = read,
         tagKey = "query"
+    )
+    PantrixMenuItem(
+        text = stringResource(Res.string.workspace_convert),
+        onClick = onConvert,
+        icon = PantrixIcons.ArrowForward,
+        enabled = read,
+        tagKey = "convert"
     )
 }

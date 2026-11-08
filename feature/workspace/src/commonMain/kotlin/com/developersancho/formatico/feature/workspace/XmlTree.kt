@@ -23,7 +23,7 @@ internal fun readXml(text: String): Reading {
         val child = xmlNode(element, listOf(step), element.name, childKey(ROOT, step))
         ValueNode(ROOT, emptyList(), ROOT, ValueKind.Object, "{1}", null, null, listOf(child), TextRange(0, text.length))
     }
-    return Reading.Read(format = Format.Xml, root = root, problems = document.problems)
+    return Reading.Read(format = Format.Xml, root = root, problems = document.problems, comments = document.comments.size)
 }
 
 /** The node of [element], at [path] and keyed [key]. */

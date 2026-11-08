@@ -1,10 +1,12 @@
 package com.developersancho.formatico
 
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.v2.runDesktopComposeUiTest
 import androidx.compose.ui.test.waitUntilAtLeastOneExists
 import androidx.compose.ui.test.waitUntilDoesNotExist
@@ -44,6 +46,9 @@ class BoardScreenshotTest {
     @Test
     fun table() = boards { board, dark -> capture("Table", board, dark, sample = "countries", shows = "Afghanistan") }
 
+    @Test
+    fun convert() = boards { board, dark -> capture("Convert", board, dark, sample = "order", shows = "customer", convert = true) }
+
     /** Every board, in the light theme and the dark. */
     private fun boards(capture: (Board, Boolean) -> Unit) = Board.entries.forEach { board ->
         listOf(false, true).forEach { dark -> capture(board, dark) }
@@ -51,14 +56,22 @@ class BoardScreenshotTest {
 
     /**
      * Draws the app on [board], as dark as the system is where [dark] says so, opens [sample] where one is named and
-     * waits for what it [shows], and writes the picture as `[name]-width.png`, or `[name]-width-dark.png`.
+     * waits for what it [shows], converts it where [convert] says so, and writes the picture as `[name]-width.png`, or
+     * `[name]-width-dark.png`.
      */
-    private fun capture(name: String, board: Board, dark: Boolean, sample: String? = null, shows: String? = null) {
-        inEnglish { draw(name, board, dark, sample, shows) }
+    private fun capture(
+        name: String,
+        board: Board,
+        dark: Boolean,
+        sample: String? = null,
+        shows: String? = null,
+        convert: Boolean = false
+    ) {
+        inEnglish { draw(name, board, dark, sample, shows, convert) }
         stopKoin()
     }
 
-    private fun draw(name: String, board: Board, dark: Boolean, sample: String?, shows: String?) =
+    private fun draw(name: String, board: Board, dark: Boolean, sample: String?, shows: String?, convert: Boolean) =
         runDesktopComposeUiTest(width = board.width, height = board.height) {
             setContent {
                 PantrixTestTheme(platform = board.platform, dark = dark, window = board.window) {
@@ -73,6 +86,17 @@ class BoardScreenshotTest {
                 // The text shows what it [shows] at once, and the tree and the status only once the document is read,
                 // which on a busy machine is later.
                 waitUntilDoesNotExist(hasText("Reading…"), timeoutMillis = 10_000)
+            }
+            if (convert) {
+                // A phone converts from its bar's "more" menu, a wider window from its toolbar. The menu is opened as
+                // a screen reader opens it: a pointer left where "more" was would hover over the copy that stands there.
+                if (board == Board.Phone) {
+                    onPantrixNode("IconButton", "more").performSemanticsAction(SemanticsActions.OnClick)
+                    onPantrixNode("MenuItem", "convert", scope = "Menu_document").performSemanticsAction(SemanticsActions.OnClick)
+                } else {
+                    onPantrixNode("Button", "convert").performClick()
+                }
+                waitUntilAtLeastOneExists(hasText("Nothing is lost"), timeoutMillis = 10_000)
             }
             onRoot().captureRoboImage("screenshots/$name-${board.width}${if (dark) "-dark" else ""}.png")
         }

@@ -19,7 +19,12 @@ import com.developersancho.formatico.core.format.toml.TomlValue
  */
 internal fun readToml(text: String): Reading {
     val document = TomlDocument.parse(text)
-    return Reading.Read(format = Format.Toml, root = tomlNode(document.root, emptyList(), ROOT, ROOT), problems = document.problems)
+    return Reading.Read(
+        format = Format.Toml,
+        root = tomlNode(document.root, emptyList(), ROOT, ROOT),
+        problems = document.problems,
+        comments = document.comments.size
+    )
 }
 
 /** The node of [value], at [path] and keyed [key]. */

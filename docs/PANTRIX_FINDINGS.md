@@ -344,3 +344,16 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Nerede: kaynak jar'da `TreeRow.kt` (`RowAction`, `.size(style.iconSize + style.gap * 2)`) ve `TreeViewStyle`'ın platform ön ayarları.
     *   Öneri: düğmenin basılan alanı satırın boyunda ve en az platformun dokunma hedefi genişliğinde, satırın son boşluğuna taşarak; simge ise `trailing`'deki şeylerle aynı çizgide bitsin (basılan alan simgeden geniş, çizim simgenin yerinde).
     *   Durum: açık. Formatico'yu tıkamıyor. Bağlantının simgesi masaüstünde 6, telefonda 8 dp içeride; telefonda simge 20 dp (ağacın `iconSize`'ı), panoda 18.
+
+*   [ ] **SegmentButton'a grubun adı verilemiyor (2026-11-05).**
+    *   Ne: Convert panolarında girintinin seçimi (`2 spaces`, `4 spaces`) ekran okuyucuya "Indentation", null'ın seçimi (`Leave it out`, `Write an empty string`) "What a null value becomes" diye adlandırılıyor: tasarım sisteminin `SegmentButton`'ının `label`'ı. Compose'un `PantrixSegmentButton`'ında grubun adı için bir parametre yok (`options`, `selected`, `onSelect`, `enabled`, `fullWidth`, `style`, `colors`, `tagKey`, `labelStyle`); ekran okuyucu yalnızca seçenekleri duyuyor. Null'ın seçiminin yanında görünen bir etiket var ("A null value"), girintininkinin yok.
+    *   Nerede: MCP `get_component_metadata SegmentButton`, [segment-button](https://pantrixui.com/docs/components/segment-button).
+    *   Öneri: `label: String?`: grubun ekran okuyucudaki adı, tasarım sistemininki gibi; görünen bir etiketin yanında olan bir seçim için onunla aynı.
+    *   Durum: açık. Formatico'yu tıkamıyor; girintinin seçimi adsız.
+
+*   [ ] **Salt okunur kod editörü, odak yokken de imlecin satırını boyuyor (2026-11-05).**
+    *   Ne: Convert'in yeni belgesi `PantrixCodeEditor(readOnly = true)` ile gösteriliyor (seçilip kopyalanabilsin diye). Editör odakta değilken de ilk satırı imlecin satırı olarak boyuyor; Convert panolarının çıktısında böyle bir bant yok. Yazılabilen bir editörde bu bant imlecin yerini söylüyor; okunan bir metinde, imleç görünmezken, yalnızca bir satırı öne çıkarıyor.
+    *   Nerede: MCP `get_component_metadata CodeEditor` ("the line the caret is on marked"); seçenek yok.
+    *   Öneri: salt okunur bir editörde, ya da odak yokken, imlecin satırını boyamamak; ya da bunu bir parametreyle (`currentLine: Boolean`) seçtirmek.
+    *   Durum: açık. Formatico'yu tıkamıyor.
+

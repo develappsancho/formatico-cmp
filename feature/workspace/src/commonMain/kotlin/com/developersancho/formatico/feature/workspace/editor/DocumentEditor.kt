@@ -45,7 +45,7 @@ private val ChooseAfter = 150.milliseconds
  * The editor as a pane: square, with no edge of its own, the pane's dividers being its edges, and its lines as the
  * boards draw them, 22 high.
  */
-private val PaneEditorStyle = CodeEditorStyle(
+internal val PaneEditorStyle = CodeEditorStyle(
     shape = ShapeSpec.Fixed(RectangleShape),
     borderWidth = 0.dp,
     focusedBorderWidth = 0.dp,

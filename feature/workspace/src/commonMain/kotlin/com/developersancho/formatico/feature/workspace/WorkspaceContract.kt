@@ -18,6 +18,7 @@ import com.developersancho.formatico.core.format.Repairs
  * @property sizes how large the document is, written out and squeezed, while its Summary is shown.
  * @property query what the document's query found, while its Query is shown, or null.
  * @property recentQueries the queries used last on this device, the latest first.
+ * @property conversion what converting the document came to, while its Convert is shown, or null.
  */
 internal data class WorkspaceState(
     val document: OpenDocument? = null,
@@ -30,7 +31,8 @@ internal data class WorkspaceState(
     val summary: DocumentSummary? = null,
     val sizes: SizeSummary? = null,
     val query: QueryOutcome? = null,
-    val recentQueries: RecentQueries = RecentQueries()
+    val recentQueries: RecentQueries = RecentQueries(),
+    val conversion: ConvertOutcome? = null
 ) {
     /** What is wrong in the document, where it was read: its errors, and the warnings it is valid with. */
     val problems: List<Problem> get() = (reading as? Reading.Read)?.problems.orEmpty()
@@ -112,6 +114,9 @@ internal sealed interface WorkspaceIntent {
 
     /** The query the document is queried with was used: it is offered again, as a recent one. */
     data object UseQuery : WorkspaceIntent
+
+    /** Convert the document as [choice] says. */
+    data class Convert(val choice: ConvertChoice) : WorkspaceIntent
 
     /** The document's text is now [text], as its editor wrote it. */
     data class Write(val text: String) : WorkspaceIntent
