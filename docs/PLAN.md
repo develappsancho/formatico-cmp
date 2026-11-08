@@ -658,6 +658,10 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
             Android SDK'sız derleniyor (bu Mac'te SDK'sız bir kopyada denendi). Betik, Gradle dışında, sahte bir
             Windows'ta sahte bir `gh` ile denendi; gerçek bir Windows'ta denenmedi.
         *   Adımlar `docs/DEPLOY_GUIDE.md`'nin 6–9. bölümlerinde.
+        *   Windows sürümden bağımsız (sahibinin kararı, 2026-11-12): sürüm DMG ve APK ile yayımlanır (`publish` MSI'ı
+            beklemez, yoksa söyler); arkadaş `deploy/windows.sh`'ı istediği gün çalıştırır, MSI taslağa ya da
+            yayımlanmış sürüme konur. Deponun Immutable releases ayarı kapalı kalmalı (bugün kapalı). Betikler sahte bir
+            Windows'ta 15 durumda denendi.
 
 ## Sahibinin kararını bekleyenler
 

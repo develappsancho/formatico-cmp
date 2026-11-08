@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # Formatico's Windows installer: built on a Windows machine, as Compose makes an MSI on Windows alone, and added to the
-# draft release on GitHub that deploy/deploy.sh release made on the Mac. Run in Git Bash, at the repository's root.
+# release on GitHub that deploy/deploy.sh release made on the Mac, a draft or published already: on any day after it.
+# Run in Git Bash, at the repository's root.
 #
-#   deploy/windows.sh              the MSI built from the release's commit, added to the draft release with its SHA-256
+#   deploy/windows.sh              the MSI built from the release's commit, added to the release with its SHA-256
 #   deploy/windows.sh --dry-run    the MSI built from this commit, and sent nowhere
 #
 # What the machine needs (docs/DEPLOY_GUIDE.md, 7): Git for Windows (its Git Bash runs this), a JDK of 17 or later to
@@ -65,11 +66,25 @@ if ! $dry; then
     gh auth status > /dev/null 2>&1 || fail "gh is not signed in: gh auth login"
     [ "$(gh api "repos/$REPOSITORY" --jq .permissions.push 2> /dev/null)" = true ] ||
         fail "gh's account may not write to $REPOSITORY: the owner adds it as a collaborator"
-    [ "$(gh release view "$tag" -R "$REPOSITORY" --json isDraft --jq .isDraft 2> /dev/null)" = true ] ||
-        fail "$tag is no draft release on GitHub: the owner makes it first (deploy/deploy.sh release)"
-    target="$(gh release view "$tag" -R "$REPOSITORY" --json targetCommitish --jq .targetCommitish)"
+    # The release, a draft or published already: the MSI may come on any day after it, as the Windows machine allows.
+    release="$(gh release view "$tag" -R "$REPOSITORY" --json isDraft,isImmutable,targetCommitish \
+        --jq '[.isDraft, .isImmutable, .targetCommitish] | @tsv' 2> /dev/null | tr -d '\r')" ||
+        fail "there is no release $tag on GitHub yet: the owner makes it first (deploy/deploy.sh release)"
+    IFS=$'\t' read -r draft immutable target <<< "$release"
+    [ "$immutable" != true ] ||
+        fail "$tag is immutable: no file is added to it once it is out (the repository's Settings, Immutable releases)"
+    # A draft names the commit it is made from; a published release is its tag's commit, which may have been given
+    # as a branch's name instead.
+    if ! [[ "$target" =~ ^[0-9a-f]{40}$ ]]; then
+        # An annotated tag is listed twice, the tag and, as `^{}`, its commit: the commit, where it is there. The
+        # pattern ends in `*`, or ls-remote leaves the `^{}` line out.
+        target="$(git -C "$ROOT" ls-remote --tags origin "$tag*" | awk -v ref="refs/tags/$tag" '
+            $2 == ref "^{}" { peeled = $1 } $2 == ref { plain = $1 } END { print (peeled != "" ? peeled : plain) }')"
+        [ -n "$target" ] || fail "the commit of $tag could not be found on GitHub"
+    fi
     [ "$(git -C "$ROOT" rev-parse HEAD)" = "$target" ] ||
         fail "this is not the release's commit: git fetch origin && git checkout $target, then run this again"
+    $draft && kind="draft release" || kind="release"
 fi
 
 # --- The MSI ---------------------------------------------------------------------------------------------------------
@@ -99,7 +114,7 @@ fi
 
 # --- The release -----------------------------------------------------------------------------------------------------
 
-step "GitHub: $MSI_NAME on the draft release $tag"
+step "GitHub: $MSI_NAME on the $kind $tag"
 gh release upload "$tag" "$msi" --clobber -R "$REPOSITORY"
 
 # The notes keep what the Mac wrote, the macOS and Android sections; the Windows section is written again, whole.
@@ -115,4 +130,4 @@ printf '%s\n' "" "### Windows" "" \
     "" "$fence" "$sha" "$fence" >> "$notes"
 gh release edit "$tag" -R "$REPOSITORY" --notes-file "$notes"
 gh release view "$tag" -R "$REPOSITORY" --json url --jq .url
-echo "Done: the owner publishes the release (deploy/deploy.sh publish)."
+if $draft; then echo "Done: the owner publishes the release (deploy/deploy.sh publish)."; else echo "Done: the release has its MSI."; fi

@@ -17,8 +17,8 @@ yayımlanır (Bölüm 6–9); MSI, bir Windows makinesinde yapılır.
 | `deploy/deploy.sh desktop` | macOS uygulamasını derler, Developer ID ile imzalar, Apple'ın onayından geçirir: `build/release/Formatico-macOS.dmg` |
 | `deploy/deploy.sh android` | Android uygulamasını yayın anahtarıyla imzalı derler, imzasını denetler: `build/release/Formatico-Android.apk` |
 | `deploy/deploy.sh release` | GitHub'da taslak bir sürüm açar, DMG'yi ve APK'yı koyar; taslağı yalnızca deponun ortakları görür |
-| `deploy/windows.sh` | Windows'ta, Git Bash'te: MSI'ı derler ve taslak sürüme koyar (Bölüm 8) |
-| `deploy/deploy.sh publish` | Üç dosya da taslaktaysa sürümü yayımlar, son sürüm yapar |
+| `deploy/windows.sh` | Windows'ta, Git Bash'te: MSI'ı derler ve sürüme koyar, taslağa ya da yayımlanmışa (Bölüm 8) |
+| `deploy/deploy.sh publish` | DMG ve APK taslaktaysa sürümü yayımlar, son sürüm yapar; MSI sonra da gelebilir |
 
 `web`'in seçenekleri:
 
@@ -298,7 +298,9 @@ göndermez; böyle bir DMG sürüme konmaz (Gatekeeper durdurur) ve `release` on
 ## 8. Windows'un MSI'ı
 
 Compose bir MSI'ı yalnızca Windows'ta yapar. MSI, deponun ortağı olan bir arkadaşın Windows makinesinde, sahibinin
-Mac'te açtığı taslak sürümün commit'inden yapılır ve o taslağa konur. MSI imzasızdır: Windows ilk açılışta "Windows
+Mac'te açtığı sürümün commit'inden yapılır ve o sürüme konur: sürüm taslakken ya da yayımlandıktan sonra, arkadaşın
+makinesi hangi gün hazırsa. Sürüm MSI'ı beklemez; indirme menüsü Windows'u MSI sürüme konduğunda gösterir. MSI
+imzasızdır: Windows ilk açılışta "Windows
 bilgisayarınızı korudu" der (SmartScreen); **Ek bilgi** → **Yine de çalıştır**. Kurulum yalnızca kullanıcı içindir,
 yönetici izni istemez; bir sonraki sürüm aynı yükseltme koduyla (`app/desktopApp/build.gradle.kts`, `upgradeUuid`)
 eskisinin yerine kurulur.
@@ -306,7 +308,10 @@ eskisinin yerine kurulur.
 ### 8.1 Bir kerelik: sahibi
 
 GitHub'da depo → **Settings** → **Collaborators** → **Add people**: arkadaşın hesabı, **Write** yetkisiyle. Taslak
-sürümü yalnızca ortaklar görür ve yalnızca yazma yetkisi olan ona dosya koyabilir.
+sürümü yalnızca ortaklar görür; bir sürüme, taslak ya da yayımlanmış, yalnızca yazma yetkisi olan dosya koyabilir.
+
+Deponun ayarlarında **Immutable releases** kapalı kalır (bugün kapalı). Açılırsa yayımlanmış bir sürüme dosya
+eklenemez: MSI ancak sürüm taslakken gelebilir, betik de bunu söyleyip durur.
 
 ### 8.2 Bir kerelik: arkadaşın makinesi
 
@@ -342,7 +347,8 @@ onları CRLF yazar ve bash çalıştıramaz.
 
 ### 8.3 Her sürüm: arkadaş
 
-Sahibi taslak sürümü açtığında (Bölüm 9), Git Bash'te deponun kökünde:
+Sahibi sürümü açtıktan sonra (Bölüm 9), taslakken ya da yayımlandıktan sonra, istenen gün, Git Bash'te deponun
+kökünde:
 
 ```bash
 git fetch origin
@@ -350,10 +356,11 @@ deploy/windows.sh
 ```
 
 Betik önce bakar: Windows mı, `formatico.version`, Java, iki `GitHubPackages` satırı, temiz ağaç, `gh`'nin hesabının
-depoya yazabilmesi, `v<sürüm>` taslağı. Ağaç taslağın commit'inde değilse durur ve hangi commit'e geçileceğini söyler
-(`git checkout <commit>`). Sonra Gradle `:app:desktopApp:packageMsi` ile MSI'ı yapar (ilk derleme JDK'yı ve WiX'i
-indirdiği için uzun sürer), `build/release/Formatico-Windows.msi` olarak taslağa koyar ve notların Windows bölümünü
-SHA-256'sıyla yazar. Yeniden çalıştırılırsa MSI'ı ve bölümü yenisiyle değiştirir.
+depoya yazabilmesi, `v<sürüm>` sürümü. Ağaç sürümün commit'inde değilse durur ve hangi commit'e geçileceğini söyler
+(`git checkout <commit>`): taslağın hedefi, yayımlanmış sürümde etiketin commit'i. Sonra Gradle
+`:app:desktopApp:packageMsi` ile MSI'ı yapar (ilk derleme JDK'yı ve WiX'i indirdiği için uzun sürer),
+`build/release/Formatico-Windows.msi` olarak sürüme koyar ve notların Windows bölümünü SHA-256'sıyla yazar. Yeniden
+çalıştırılırsa MSI'ı ve bölümü yenisiyle değiştirir.
 
 `deploy/windows.sh --dry-run` MSI'ı bulunulan commit'ten yapar ve hiçbir yere göndermez: makinenin hazır olduğunu
 denemek için.
@@ -374,14 +381,16 @@ Bir sürüm GitHub'daki bir commit'ten, sırayla yapılır:
     hedefi bu commit, dosyaları DMG ve APK, notları her dosyanın platformu ve SHA-256'sı. Taslak zaten varsa
     dosyalarını ve notlarını yeniler; sürüm yayımlanmışsa durur: yeni bir sürüm yeni bir `formatico.version` ister.
     `deploy/deploy.sh release --dry-run` yalnızca notları yazar.
-2.  **Arkadaş, Windows'ta:** `deploy/windows.sh` (Bölüm 8.3).
-3.  **Sahibi:** sürüm, sahibinin onayıyla yayımlanır:
+2.  **Sahibi:** sürüm, sahibinin onayıyla yayımlanır:
 
     ```bash
     deploy/deploy.sh publish
     ```
 
-    Taslakta üç dosya da yoksa durur; varsa sürümü yayımlar ve son sürüm yapar.
+    Taslakta DMG ya da APK yoksa durur; ikisi varsa sürümü yayımlar ve son sürüm yapar. MSI henüz yoksa bunu söyler ve
+    yine yayımlar.
+3.  **Arkadaş, Windows'ta, istediği gün:** `deploy/windows.sh` (Bölüm 8.3). 2'den önce de olabilir, sonra da: MSI
+    taslağa ya da yayımlanmış sürüme konur.
 
 Dosyaların adı her sürümde aynıdır; bu yüzden `releases/latest/download/<ad>` hep son sürümün dosyasını verir:
 
@@ -398,7 +407,9 @@ Dosyaların adı her sürümde aynıdır; bu yüzden `releases/latest/download/<
 | `no signed APK` | `local.properties`'te anahtarın satırları yok (Bölüm 6) |
 | `… was built from …, not from …` | Dosya başka bir commit'ten: `desktop` ya da `android` yeniden |
 | `gh's account may not write` | `gh` başka bir hesapla açık, ya da hesap deponun ortağı değil (8.1) |
-| `is no draft release` | Taslak henüz açılmadı (`release`), ya da sürüm yayımlandı |
+| `there is no release v… on GitHub yet` | Sürüm henüz açılmadı: sahibinin `release`'i |
+| `is no draft release` (`publish`) | Taslak açılmadı, ya da sürüm zaten yayımlandı |
+| `is immutable` | Deponun ayarlarında Immutable releases açık (8.1): MSI, sürüm taslakken konur |
 | `this is not the release's commit` | Arkadaşın ağacı başka bir commit'te: betiğin söylediği `git checkout` |
 | `GitHubPackagesPassword is not in …` | 8.2, adım 3 |
 | Windows'ta `bash\r: No such file or directory` | Depo `.gitattributes`'tan önce klonlanmış: yeniden klonlamak |

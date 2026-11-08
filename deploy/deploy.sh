@@ -8,7 +8,7 @@
 #   deploy/deploy.sh desktop [options]     the macOS app in a DMG, signed with the Developer ID and notarized by Apple
 #   deploy/deploy.sh android [--no-gradle] the Android app's APK, signed with the release key, checked
 #   deploy/deploy.sh release [--dry-run]   a draft release on GitHub, with the DMG and the APK
-#   deploy/deploy.sh publish               the draft published, once the Windows MSI is on it too (deploy/windows.sh)
+#   deploy/deploy.sh publish               the draft published; the Windows MSI may come with it or later (windows.sh)
 #
 # The version is formatico.version in gradle.properties. Options: --dry-run builds both images for both architectures
 # and sends nothing, to GHCR or Coolify; for desktop it signs the DMG and sends nothing to Apple, and for release it
@@ -407,8 +407,9 @@ release_notes() {
 }
 
 # A draft release v<version> on GitHub, at this commit, with the DMG and the APK. A draft is seen by the repository's
-# collaborators alone: the Windows MSI is added to it on a Windows machine (deploy/windows.sh), and `publish` makes it
-# public. A release already published is never changed: a new one takes a new formatico.version.
+# collaborators alone, and `publish` makes it public. The Windows MSI is added on a Windows machine (deploy/windows.sh),
+# to the draft or, later, to the release once it is out. A published release is not made again: a new one takes a new
+# formatico.version.
 release() {
     local dry=false
     for argument in "$@"; do
@@ -445,10 +446,11 @@ release() {
         *) fail "$tag is published already: a new release takes a new formatico.version" ;;
     esac
     gh release view "$tag" -R "$REPOSITORY" --json url --jq .url
-    echo "A draft: the Windows MSI is added on Windows with deploy/windows.sh, then deploy/deploy.sh publish."
+    echo "A draft: deploy/deploy.sh publish makes it public; deploy/windows.sh adds the MSI, before or after."
 }
 
-# The draft release made public and the latest, once it holds the DMG, the APK and the MSI.
+# The draft release made public and the latest, once it holds the DMG and the APK. The MSI need not be there yet:
+# deploy/windows.sh adds it to the published release on whatever day the Windows machine builds it.
 publish() {
     [ $# -eq 0 ] || fail "unknown option: $1"
     local version
@@ -458,9 +460,11 @@ publish() {
     [ "$(gh release view "$tag" -R "$REPOSITORY" --json isDraft --jq .isDraft 2> /dev/null)" = true ] ||
         fail "$tag is no draft release on GitHub: deploy/deploy.sh release"
     assets="$(gh release view "$tag" -R "$REPOSITORY" --json assets --jq '.assets[].name')"
-    for name in "$DMG_NAME" "$APK_NAME" "$MSI_NAME"; do
+    for name in "$DMG_NAME" "$APK_NAME"; do
         grep -qx "$name" <<< "$assets" || fail "$tag has no $name yet"
     done
+    grep -qx "$MSI_NAME" <<< "$assets" ||
+        echo "$tag has no $MSI_NAME yet: it is published without it, and deploy/windows.sh adds it on Windows later."
     step "GitHub: $tag published, as the latest release"
     gh release edit "$tag" -R "$REPOSITORY" --draft=false --latest
     gh release view "$tag" -R "$REPOSITORY" --json url --jq .url
