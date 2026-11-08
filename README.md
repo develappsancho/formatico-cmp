@@ -47,8 +47,12 @@ loads it.
 - Detekt, with Pantrix UI's rules: `./gradlew detekt`
 - Kotlinter: `./gradlew lintKotlin`, and `./gradlew formatKotlin` to fix the form
 - Characters that cannot be seen, in the Kotlin sources: `./gradlew checkInvisibleCharacters` (part of `check`)
-- The boards' screens on the desktop (Roborazzi): `./gradlew :app:shared:verifyRoborazziJvm` compares against
-  [`app/shared/screenshots`](app/shared/screenshots), `./gradlew :app:shared:recordRoborazziJvm` writes them again
+- Screenshots on the desktop (Roborazzi): `./gradlew verifyRoborazziJvm` compares against each module's
+  `screenshots/`, `./gradlew recordRoborazziJvm` writes them again. A module's are its previews, every case
+  ([`feature/start/screenshots`](feature/start/screenshots), [`feature/workspace/screenshots`](feature/workspace/screenshots));
+  [`app/shared/screenshots`](app/shared/screenshots) has the app at the boards' widths and its bar's previews
+- Previews: every screen and component has them beside it (`StartPreviews.kt`, `WorkspacePreviews.kt`,
+  `AppPreviews.kt`), each case in the light theme and the dark, a screen at each board's width
 - The app icons, from the canvas's icon board: `python3 tools/icons/generate.py` (fontTools and Pillow; iconutil
   on macOS) writes them into each app's folders
 - On a device (Maestro, installed apart): install the debug build, then

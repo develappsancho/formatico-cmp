@@ -94,9 +94,7 @@ private fun layoutOf(stats: TextStats): String {
                 add(stringResource(Res.string.workspace_indent_tabs))
             }
 
-            null -> {
-                Unit
-            }
+            null -> {}
         }
     }
     return parts.joinToString(" · ")

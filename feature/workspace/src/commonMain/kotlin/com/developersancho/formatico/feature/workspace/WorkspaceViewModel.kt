@@ -73,14 +73,21 @@ internal class WorkspaceViewModel(
         val opened = if (expanded.containsAll(ancestors)) null else expanded + ancestors
         workbench.changeView(documentId) { view -> view.copy(selected = key, expanded = opened ?: view.expanded) }
     }
-
-    /** The state with its open branches and the trail to its chosen value, from its document's view and its tree. */
-    private fun WorkspaceState.arranged(): WorkspaceState {
-        val view = document?.view ?: DocumentView()
-        return copy(
-            expanded = view.expanded ?: defaultExpanded(root),
-            trail = trail(root, view.selected),
-            table = tableOf(root, view.selected)
-        )
-    }
 }
+
+/** The state with its open branches, the trail to its chosen value and its table, from its document's view and its tree. */
+internal fun WorkspaceState.arranged(): WorkspaceState {
+    val view = document?.view ?: DocumentView()
+    return copy(
+        expanded = view.expanded ?: defaultExpanded(root),
+        trail = trail(root, view.selected),
+        table = tableOf(root, view.selected)
+    )
+}
+
+/** The workspace of [document] once it is read: what its view model comes to, at once, for a preview or a test. */
+internal fun readState(document: OpenDocument): WorkspaceState = WorkspaceState(
+    document = document,
+    reading = readDocument(document.text, document.format),
+    stats = TextStats.of(document.text)
+).arranged()

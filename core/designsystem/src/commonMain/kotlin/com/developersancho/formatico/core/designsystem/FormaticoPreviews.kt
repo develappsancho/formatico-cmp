@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.DpSize
@@ -42,13 +43,16 @@ enum class Board(val width: Int, val height: Int, val platform: PlatformType) {
 @Preview(name = "390", group = "Phone", widthDp = 390, heightDp = 844)
 annotation class BoardPreviews
 
+/** What a case's name may not have in its screenshot's file name. */
+private val NotInFileName = Regex("[^a-z0-9]+")
+
 /**
  * One case of a preview and of the screenshot drawn from it: [value], what a screen or a component is shown with,
  * by its [name], in the light theme or the [dark] one.
  */
 class PreviewCase<T>(val name: String, val value: T, val dark: Boolean) {
-    /** The case as its screenshot's file is named: `first-start-dark`. */
-    val fileName: String get() = name.replace(' ', '-') + if (dark) "-dark" else "-light"
+    /** The case as its screenshot's file is named, in letters, digits and dashes: `first-start-dark`. */
+    val fileName: String get() = name.lowercase().replace(NotInFileName, "-").trim('-') + if (dark) "-dark" else "-light"
 
     override fun toString(): String = "$name, " + if (dark) "dark" else "light"
 }
@@ -64,6 +68,9 @@ open class PreviewCases<T>(vararg states: Pair<String, T>) : PreviewParameterPro
 
     override fun getDisplayName(index: Int): String = cases[index].toString()
 }
+
+/** The tag of what a preview draws: what its screenshot is taken of, a component's own size or a screen's window. */
+const val PREVIEW_TAG = "preview"
 
 /** The moment every preview is drawn at, in UTC: what "2 minutes ago" is counted from. */
 val PreviewNow: Instant = Instant.parse("2026-11-03T09:41:00Z")
@@ -84,7 +91,7 @@ private val PreviewClock = PantrixClock(
 fun <T> FormaticoPreview(case: PreviewCase<T>, modifier: Modifier = Modifier, content: @Composable (T) -> Unit) {
     FormaticoTheme(darkTheme = case.dark) {
         CompositionLocalProvider(LocalPantrixClock provides PreviewClock) {
-            Box(modifier = modifier.background(PantrixTheme.colors.background)) {
+            Box(modifier = modifier.testTag(PREVIEW_TAG).background(PantrixTheme.colors.background)) {
                 content(case.value)
             }
         }

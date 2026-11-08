@@ -6,6 +6,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertWidthIsAtLeast
+import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -29,6 +30,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
@@ -66,18 +68,7 @@ class WorkspaceScreenTest {
         format: Format?,
         name: String = "order.json",
         view: DocumentView = DocumentView()
-    ): WorkspaceState {
-        val reading = readDocument(text, format)
-        val root = (reading as? Reading.Read)?.root
-        return WorkspaceState(
-            document = OpenDocument(id = 1, name = name, text = text, format = format, view = view),
-            reading = reading,
-            stats = TextStats.of(text),
-            expanded = view.expanded ?: defaultExpanded(root),
-            trail = trail(root, view.selected),
-            table = tableOf(root, view.selected)
-        )
-    }
+    ): WorkspaceState = readState(OpenDocument(id = 1, name = name, text = text, format = format, view = view))
 
     /**
      * Waits for [text] to be shown once, letting the platform run meanwhile: in a browser the screen's words are
@@ -382,5 +373,73 @@ class WorkspaceScreenTest {
         }
 
         awaitText("No list to show as a table")
+    }
+
+    @Test
+    fun aDocumentWithMistakesSaysHowManyAndCannotBeFormatted() = runComposeUiTest {
+        setContent {
+            PantrixTestTheme(window = desktop, clock = clock) {
+                WorkspaceScreen(
+                    state = stateOf("{\n  \"id\": 1\n  \"total\": 129.\n}\n", Format.Json),
+                    onIntent = {},
+                    commands = rememberDocumentCommands(Workbench())
+                )
+            }
+        }
+
+        awaitText("2 problems", substring = true)
+        onPantrixNode("Button", "format").assertIsNotEnabled()
+        onPantrixNode("Button", "minify").assertIsNotEnabled()
+    }
+
+    @Test
+    fun aDocumentBeingReadSaysSo() = runComposeUiTest {
+        setContent {
+            PantrixTestTheme(window = desktop, clock = clock) {
+                WorkspaceScreen(
+                    state = WorkspaceState(document = OpenDocument(id = 1, name = "order.json", text = order, format = Format.Json)),
+                    onIntent = {},
+                    commands = rememberDocumentCommands(Workbench())
+                )
+            }
+        }
+
+        awaitText("Reading…")
+        onPantrixNode("Button", "format").assertIsNotEnabled()
+    }
+
+    @Test
+    fun anEmptyDocumentSaysThereIsNothingToRead() = runComposeUiTest {
+        setContent {
+            PantrixTestTheme(window = desktop, clock = clock) {
+                WorkspaceScreen(state = stateOf("", null, name = "Untitled"), onIntent = {
+                }, commands = rememberDocumentCommands(Workbench()))
+            }
+        }
+
+        awaitText("The document is empty")
+    }
+
+    @Test
+    fun aColumnOfNumbersLinesThemUpAtItsEndAsItsHeader() = runComposeUiTest {
+        val items = "[{\"name\": \"Keyboard\", \"price\": 89.90}, {\"name\": \"Mouse\", \"price\": 5}]\n"
+        setContent {
+            PantrixTestTheme(window = desktop, clock = clock) {
+                WorkspaceScreen(
+                    state = stateOf(items, Format.Json, view = DocumentView(pane = DocumentPane.Table)),
+                    onIntent = {},
+                    commands = rememberDocumentCommands(Workbench())
+                )
+            }
+        }
+        awaitText("89.90")
+
+        // A cell is pressed as a whole, and its text is merged into it: the text's own node is the unmerged one.
+        val long = onNode(hasText("89.90"), useUnmergedTree = true).getBoundsInRoot()
+        val short = onNode(hasText("5"), useUnmergedTree = true).getBoundsInRoot()
+        val name = onNode(hasText("Keyboard"), useUnmergedTree = true).getBoundsInRoot()
+        assertEquals(long.right, short.right, "the numbers' ends")
+        assertTrue(short.left > long.left, "a shorter number starts further in")
+        assertTrue(name.left < long.left, "text stays at its column's start")
     }
 }

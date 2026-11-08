@@ -262,18 +262,11 @@ private fun DocumentTabs(
             tagKey = "document_${document.id}",
             badge = if (document.edited) TabBadge(contentDescription = notSaved, tone = BadgeTone.Neutral) else null
         )
-    } +
-        listOfNotNull(
-            TabItem(label = stringResource(Res.string.new_tab), tagKey = "new").takeIf {
-                workbench.selected ==
-                    null
-            }
-        )
+    } + listOfNotNull(TabItem(label = stringResource(Res.string.new_tab), tagKey = "new").takeIf { workbench.selected == null })
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
         PantrixTabs(
             tabs = tabs,
-            selectedIndex =
-                documents.indexOfFirst { it.id == workbench.selectedId }.takeIf { it >= 0 } ?: documents.size,
+            selectedIndex = documents.indexOfFirst { it.id == workbench.selectedId }.takeIf { it >= 0 } ?: documents.size,
             onSelect = { index -> onSelectTab(documents.getOrNull(index)?.id) },
             modifier = Modifier.weight(1f, fill = false),
             scrollable = true,

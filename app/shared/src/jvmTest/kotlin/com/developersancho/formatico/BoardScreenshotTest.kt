@@ -23,8 +23,9 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 /**
- * The app as the canvas's boards draw it, at their three widths: `recordRoborazziJvm` writes each under
- * `screenshots/`, named as its board is (`Workspace-1440.png`), and `verifyRoborazziJvm` compares against them.
+ * The app as the canvas's boards draw it, at their three widths, in the light theme and the dark: `recordRoborazziJvm`
+ * writes each under `screenshots/`, named as its board is (`Workspace-1440.png`, and `Workspace-1440-dark.png` in the
+ * dark theme), and `verifyRoborazziJvm` compares against them.
  */
 @OptIn(ExperimentalTestApi::class)
 class BoardScreenshotTest {
@@ -52,29 +53,35 @@ class BoardScreenshotTest {
     }
 
     @Test
-    fun start() = Board.entries.forEach { capture("Start", it) }
+    fun start() = boards { board, dark -> capture("Start", board, dark) }
 
     @Test
-    fun workspace() = Board.entries.forEach { capture("Workspace", it, sample = "order", shows = "customer") }
+    fun workspace() = boards { board, dark -> capture("Workspace", board, dark, sample = "order", shows = "customer") }
 
     @Test
-    fun yaml() = Board.entries.forEach { capture("Yaml", it, sample = "deployment", shows = "apiVersion") }
+    fun yaml() = boards { board, dark -> capture("Yaml", board, dark, sample = "deployment", shows = "apiVersion") }
 
     @Test
-    fun table() = Board.entries.forEach { capture("Table", it, sample = "countries", shows = "Afghanistan") }
+    fun table() = boards { board, dark -> capture("Table", board, dark, sample = "countries", shows = "Afghanistan") }
+
+    /** Every board, in the light theme and the dark. */
+    private fun boards(capture: (Board, Boolean) -> Unit) = Board.entries.forEach { board ->
+        listOf(false, true).forEach { dark -> capture(board, dark) }
+    }
 
     /**
-     * Draws the app on [board], opens [sample] where one is named and waits for what it [shows], and writes the picture
-     * as `[name]-width.png`.
+     * Draws the app on [board], as dark as the system is where [dark] says so, opens [sample] where one is named and
+     * waits for what it [shows], and writes the picture as `[name]-width.png`, or `[name]-width-dark.png`.
      */
-    private fun capture(name: String, board: Board, sample: String? = null, shows: String? = null) {
+    private fun capture(name: String, board: Board, dark: Boolean, sample: String? = null, shows: String? = null) {
         runDesktopComposeUiTest(width = board.width, height = board.height) {
             setContent {
                 PantrixTestTheme(
                     platform = board.platform,
+                    dark = dark,
                     window = PantrixWindow(DpSize(board.width.dp, board.height.dp))
                 ) {
-                    App(systemDark = false, storage = memoryStorageModule)
+                    App(systemDark = dark, storage = memoryStorageModule)
                 }
             }
             waitUntilExactlyOneExists(hasText("Paste anything"), timeoutMillis = 10_000)
@@ -83,7 +90,7 @@ class BoardScreenshotTest {
                 onPantrixNode("ListItem", "sample_$sample").performScrollTo().performClick()
                 waitUntilAtLeastOneExists(hasText(shows, substring = true), timeoutMillis = 10_000)
             }
-            onRoot().captureRoboImage("screenshots/$name-${board.width}.png")
+            onRoot().captureRoboImage("screenshots/$name-${board.width}${if (dark) "-dark" else ""}.png")
         }
         stopKoin()
     }

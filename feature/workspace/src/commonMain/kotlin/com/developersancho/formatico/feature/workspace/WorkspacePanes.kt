@@ -116,16 +116,24 @@ internal fun EditorComing(state: WorkspaceState, modifier: Modifier = Modifier) 
     )
 }
 
-/** What the tree's pane says where there is no tree to show, or null where there is one. */
+/**
+ * What the tree's pane says where there is no tree to show, or null where there is one. An empty document says it is
+ * empty, whatever its format: a new one is plain text until something is written in it.
+ */
 @Composable
 internal fun treeMessage(state: WorkspaceState): Pair<String, String>? {
     val document = state.document ?: return null
-    return when (val reading = state.reading) {
-        Reading.Pending -> {
+    val reading = state.reading
+    return when {
+        reading == Reading.Pending -> {
             null
         }
 
-        is Reading.Unread -> {
+        document.text.isBlank() -> {
+            stringResource(Res.string.workspace_empty_title) to stringResource(Res.string.workspace_empty_body)
+        }
+
+        reading is Reading.Unread -> {
             val format = reading.format
             if (format == null) {
                 stringResource(Res.string.workspace_plain_title) to stringResource(Res.string.workspace_plain_body)
@@ -135,21 +143,12 @@ internal fun treeMessage(state: WorkspaceState): Pair<String, String>? {
             }
         }
 
-        is Reading.Read -> {
-            when {
-                reading.root != null -> {
-                    null
-                }
+        reading is Reading.Read && reading.root != null -> {
+            null
+        }
 
-                document.text.isBlank() -> {
-                    stringResource(Res.string.workspace_empty_title) to stringResource(Res.string.workspace_empty_body)
-                }
-
-                else -> {
-                    stringResource(Res.string.workspace_no_value_title) to
-                        stringResource(Res.string.workspace_no_value_body)
-                }
-            }
+        else -> {
+            stringResource(Res.string.workspace_no_value_title) to stringResource(Res.string.workspace_no_value_body)
         }
     }
 }

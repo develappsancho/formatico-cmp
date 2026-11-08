@@ -65,7 +65,9 @@ eksikler Faz 4'te.
         önizlemeler; aynı durumların ekran görüntüsü testleri; eksik Compose UI ve birim testleri.
         Start yapıldı (2026-11-04): `core:designsystem`'de önizlemenin parçaları (`Board`, `BoardPreviews`,
         `PreviewCases`, `FormaticoPreview`), Roborazzi her çizen modülde; Start'ın dört hâli üç panoda, açık ve koyu (24
-        görüntü), yeni UI testleri. Sırada Workspace, Table, çubuk ve öteki bileşenler.
+        görüntü), yeni UI testleri. Workspace ve çubuk yapıldı (2026-11-04): Workspace'in sekiz hâli üç panoda (48
+        görüntü), sekiz bileşenin kendi hâlleri (58), çubuğun on hâli (20), uygulamanın panoları koyu temada da (12);
+        boş belge, sayı sütununun hizası ve hâllerin UI testleri. Menülerin açık hâli kaldı (OPEN_ITEMS).
 *   [ ] **Faz 5: Metin editörü.** `PantrixCodeEditor` ve Formatico'nun renklendiricisi; metin ile ağacın seçimi iki
     yönde; Ln ve Col durum çubuğunda ve Table'da; telefonda "Show in text"; belge başına geri alma geçmişi; bul ve
     değiştir; sütun editörün saydığı birimle.

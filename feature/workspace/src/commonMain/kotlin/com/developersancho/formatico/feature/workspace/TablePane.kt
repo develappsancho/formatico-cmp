@@ -328,15 +328,15 @@ private fun RowsTable(
     val indexName = stringResource(Res.string.workspace_index)
     val columns = remember(table, visible, valueName, indexName) {
         listOf(indexColumn(indexName, choice, select)) + visible.map { name ->
-            val numbers = statsOf(table.rows, name) is ColumnStats.Numbers
+            val alignment = if (statsOf(table.rows, name) is ColumnStats.Numbers) Alignment.End else Alignment.Start
             DataTableColumn<TableRow>(
                 key = name,
                 header = if (name == VALUE_COLUMN) valueName else name,
                 minWidth = ColumnMinWidth,
-                alignment = if (numbers) Alignment.End else Alignment.Start,
+                alignment = alignment,
                 sortable = true,
                 resizable = true
-            ) { row -> TableCell(row, name, choice, select) }
+            ) { row -> TableCell(row, name, alignment, choice, select) }
         }
     }
     val sort = state.document?.view?.tableSort
@@ -392,9 +392,17 @@ private const val INDEX_KEY = "#index"
 /**
  * A cell: a value in the colour of its kind, a null in italics, a missing key as a dash, an object or an array as a
  * button that opens it in the table. A press chooses the cell's value in the tree, or the row where the key is missing.
+ * It is as wide as its column, so that the line round a chosen cell is, and stands at [alignment] in it as its header
+ * does: a column of numbers lines them up at their end.
  */
 @Composable
-private fun TableCell(row: TableRow, column: String, choice: State<TableChoice?>, select: (String) -> Unit) {
+private fun TableCell(
+    row: TableRow,
+    column: String,
+    alignment: Alignment.Horizontal,
+    choice: State<TableChoice?>,
+    select: (String) -> Unit
+) {
     val cell = row.cell(column)
     val chosen = choice.value.let { it != null && it.row == row.index && it.column == column }
     val syntax = LocalSyntaxColors.current
@@ -402,19 +410,10 @@ private fun TableCell(row: TableRow, column: String, choice: State<TableChoice?>
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .then(
-                if (chosen) {
-                    Modifier.border(
-                        ChosenCellLine,
-                        PantrixTheme.colors.focusRing,
-                        PantrixTheme.shapes.xs
-                    )
-                } else {
-                    Modifier
-                }
-            )
+            .then(if (chosen) Modifier.border(ChosenCellLine, PantrixTheme.colors.focusRing, PantrixTheme.shapes.xs) else Modifier)
             .clickable(role = Role.Button) { select(cell?.key ?: row.node.key) }
-            .padding(horizontal = PantrixTheme.spacing.xs)
+            .padding(horizontal = PantrixTheme.spacing.xs),
+        contentAlignment = if (alignment == Alignment.End) Alignment.CenterEnd else Alignment.CenterStart
     ) {
         when {
             cell == null -> {

@@ -2,9 +2,10 @@ package com.developersancho.formatico.feature.start
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.v2.runDesktopComposeUiTest
 import com.developersancho.formatico.core.designsystem.Board
+import com.developersancho.formatico.core.designsystem.PREVIEW_TAG
 import com.developersancho.formatico.core.designsystem.PreviewCase
 import com.pantrixui.testing.PantrixTestTheme
 import io.github.takahirom.roborazzi.captureRoboImage
@@ -45,6 +46,6 @@ class StartScreenshotTest {
                 PantrixTestTheme(platform = board.platform, dark = case.dark, window = board.window) { content() }
             }
             waitForIdle()
-            onRoot().captureRoboImage("screenshots/$name/${case.fileName}-${board.width}.png")
+            onNodeWithTag(PREVIEW_TAG).captureRoboImage("screenshots/$name/${case.fileName}-${board.width}.png")
         }
 }

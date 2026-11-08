@@ -236,3 +236,17 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Ne: Bir önizlemeyi bir panonun penceresinde, `PantrixTestTheme`'in içinde çizip yazan küçük `capture` fonksiyonu her modülün `jvmTest`'inde yeniden yazılıyor (`feature:start`, sırada `feature:workspace` ve `app:shared`). KMP'nin `testFixtures`'ı yok; test kaynakları modüller arasında paylaşılmıyor.
     *   Öneri: yalnızca testlerin bağımlı olduğu bir `core:testing` modülü (Roborazzi, `PantrixTestTheme`, panolar). CLAUDE.md "her taban tek modülde" diyor: test yardımcısının `core:base`'e mi, yeni bir modüle mi gideceği sahibinin kararı.
     *   Durum: açık.
+*   [x] **Bir JSON dizisinin tablosunda sayılar sütunun başında duruyordu (2026-11-04).**
+    *   Ne: Sayı sütunlarının başlığı sona yaslıydı, hücreleri başa. Hücrenin kutusu, seçilince çevresine çizgi çekilsin diye sütun kadar geniş; içi kutunun başında duruyordu ve sütunun hizasını eziyordu. CSV'nin örneğinde sayı sütunu olmadığı için Table panosunda görünmemişti; önizleme (`WorkspaceScreen`, `json table`) gösterdi.
+    *   Durum: kapandı (2026-11-04). Hücre sütununun hizasını alıyor; `WorkspaceScreenTest.aColumnOfNumbersLinesThemUpAtItsEndAsItsHeader` sınıyor.
+*   [x] **Yeni, boş bir belge "Plain text has no tree" diyordu (2026-11-04).**
+    *   Ne: "New empty document" biçimsiz (düz metin) bir belge açıyor; ağacın yeri "The document is empty" yerine düz metnin sözünü söylüyordu. Boş belgenin sözü yalnızca okunan bir biçimde çıkıyordu.
+    *   Durum: kapandı (2026-11-04). Boş bir belge, biçimi ne olursa olsun boş olduğunu söylüyor; `WorkspaceScreenTest.anEmptyDocumentSaysThereIsNothingToRead` sınıyor.
+*   [ ] **Telefonun çubuğundaki "more" menüsü belgeleri Koin'den alıyor (2026-11-04).**
+    *   Ne: `DocumentMoreMenu(documentId)` `Workbench`'i kendi içinde `koinInject` ile buluyor. `AppTopBar`'ın önizlemesi ve testi bu yüzden kendi Koin'ini başlatıp `stopKoin()` diyor; çubuk dışarıdan verilenle çizilen bir bileşen değil.
+    *   Öneri: `App`, menünün işlerini (sırala, kapat) ve belgenin biçimini çubuğa versin; menü Koin'i bilmesin.
+    *   Durum: açık.
+*   [ ] **Menülerin açık hâli önizlenmiyor (2026-11-04).**
+    *   Ne: Biçim menüsü, "more" menüsü, sütun seçici ve telefonun belge listesi açılır pencereler. Önizlemeler ve ekran görüntüleri onları kapalı çiziyor; açık hâlleri yalnızca UI testlerinde sınanıyor. Masaüstünün testinde açılır pencere ayrı bir kök; Roborazzi'nin `onRoot()`'u birden çok kök görünce duruyor.
+    *   Öneri: açık menüyü çizen ayrı bir ekran görüntüsü testi (menüyü açıp `onAllNodes(isRoot())`'un sonuncusunu yazmak), ya da Pantrix'in menüsünün yerinde açılan bir önizleme biçimi.
+    *   Durum: açık.
