@@ -59,9 +59,6 @@ internal interface TypesStrings {
     val jsonSchemaLibrary: String
     val swiftGuess: String
 
-    /** "{first} and {second} more" */
-    fun moreNames(first: String, second: Int): String
-
     /** "{first} is null in every value, so its type cannot be told: it is written as {second}." */
     fun onlyNullOne(first: String, second: String): String
 

@@ -1,8 +1,12 @@
 package com.developersancho.formatico.feature.workspace.strings
 
+import com.pantrixui.foundation.l10n.PantrixStrings
+
 /** [SchemaStrings] in English. */
 @Suppress("TooManyFunctions") // A sentence that holds values is a function of them.
 internal object SchemaStringsEnglish : SchemaStrings {
+    override val pantrix = PantrixStrings.English
+
     override val schema = "Schema"
     override val against = "Against"
 
@@ -75,10 +79,6 @@ internal object SchemaStringsEnglish : SchemaStrings {
     override val anInteger = "an integer"
     override val trueOrFalse = "true or false"
     override val nullValue = "null"
-
-    override fun either(first: String, second: String) = "$first or $second"
-
-    override fun both(first: String, second: String) = "$first and $second"
 
     override fun type(first: String, second: String, third: String) = "$first must be $second, and is $third."
 

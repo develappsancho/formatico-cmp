@@ -19,7 +19,6 @@ internal interface AppStrings {
     val useLightTheme: String
     val settings: String
     val untitled: String
-    val changesNotSaved: String
 
     /** "{first}, one of {second} open documents. Switch documents" */
     fun switchDocuments(first: String, second: Int): String

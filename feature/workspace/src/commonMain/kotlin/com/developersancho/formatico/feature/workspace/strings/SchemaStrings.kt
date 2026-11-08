@@ -3,6 +3,7 @@ package com.developersancho.formatico.feature.workspace.strings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import com.developersancho.formatico.core.designsystem.inTheLanguage
+import com.pantrixui.foundation.l10n.PantrixStrings
 
 /**
  * The words of Schema.
@@ -14,6 +15,9 @@ import com.developersancho.formatico.core.designsystem.inTheLanguage
  */
 @Suppress("TooManyFunctions") // A sentence that holds values is a function of them.
 internal interface SchemaStrings {
+    /** Pantrix's words of the same language, which join the names a sentence lists. */
+    val pantrix: PantrixStrings
+
     val schema: String
     val against: String
 
@@ -94,12 +98,6 @@ internal interface SchemaStrings {
     val anInteger: String
     val trueOrFalse: String
     val nullValue: String
-
-    /** "{first} or {second}" */
-    fun either(first: String, second: String): String
-
-    /** "{first} and {second}" */
-    fun both(first: String, second: String): String
 
     /** "{first} must be {second}, and is {third}." */
     fun type(first: String, second: String, third: String): String

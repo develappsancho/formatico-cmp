@@ -9,7 +9,6 @@ internal object AppStringsEnglish : AppStrings {
     override val useLightTheme = "Use the light theme"
     override val settings = "Settings"
     override val untitled = "Untitled"
-    override val changesNotSaved = "changes not saved to its file"
 
     override fun switchDocuments(first: String, second: Int) = "$first, one of $second open documents. Switch documents"
 

@@ -1,8 +1,12 @@
 package com.developersancho.formatico.feature.workspace.strings
 
+import com.pantrixui.foundation.l10n.PantrixStrings
+
 /** [SchemaStrings] in Turkish. */
 @Suppress("TooManyFunctions") // A sentence that holds values is a function of them.
 internal object SchemaStringsTurkish : SchemaStrings {
+    override val pantrix = PantrixStrings.Turkish
+
     override val schema = "Şema"
     override val against = "Şema"
 
@@ -76,10 +80,6 @@ internal object SchemaStringsTurkish : SchemaStrings {
     override val anInteger = "bir tam sayı"
     override val trueOrFalse = "true ya da false"
     override val nullValue = "null"
-
-    override fun either(first: String, second: String) = "$first ya da $second"
-
-    override fun both(first: String, second: String) = "$first ve $second"
 
     override fun type(first: String, second: String, third: String) = "$first $second olmalı, ama $third."
 

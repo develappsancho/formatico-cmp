@@ -818,7 +818,7 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
         bir metinle; ya da parçaları sırayla `CHUNK_LINES`'lık kesmek.
     *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-11). Kütüphane parçaların sınırlarını `Long`'la hesaplıyor; 1.100.000 satırlık bir metnin okunduğu bir testle sabit. Formatico'da yeniden ölçüldü (`AppLargeDocumentsMeasure`, `MEASURE.md`): 1.741.784 satırlık 50 MB'lık JSON masaüstü penceresinde 2,0 s'de açılıyor, yığın en çok 2.769 MB, açıldıktan sonra 1.049 MB. Önceki durum: açık, tıkıyor. 50 MB'lık JSON masaüstünde açılmıyor; Formatico'da geçici bir yol yok (parçalama editörün içinde). Kütüphane oturumuna iletildi.
 
-*   [ ] **Kaydedilmemiş bir sekmenin noktası çarpının yerinde durmuyor (2026-11-11).**
+*   [x] **Kaydedilmemiş bir sekmenin noktası çarpının yerinde durmuyor (2026-11-11).**
     *   Ne: Workspace panoları kaydedilmemiş bir belgenin sekmesinde çarpının yerine bir nokta çiziyor
         (`deployment.yaml •`), adı da "Close deployment.yaml, which has changes not saved to its file"; öteki sekmeler
         çarpıyla bitiyor. `TabItem.onClose` gelince Formatico'nun sekmesi `TabBadge`'in noktasını adın ardına, çarpıyı da
@@ -828,8 +828,8 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
         (`DocumentTabs`); tuvalde Workspace-1440, `tabs`.
     *   Öneri: `TabItem`'a kaydedilmemiş bir hâl (`unsaved: Boolean` ya da `TabBadge`'in çarpının yerinde durması):
         nokta çarpının yerinde, işaretçinin altında ve odakta çarpı; ekran okuyucuya kaydedilmediği söylenir.
-    *   Durum: açık. Formatico'yu tıkamıyor. Kodda nokta ve çarpı birlikte.
-*   [ ] **Adları "ya da" ile birleştiren bir liste yok (2026-11-11).**
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-11). `TabItem(unsaved = true)`: nokta çarpının yerinde, işaretçinin altında ve odakta çarpıya dönüyor; ekran okuyucu addan sonra "Unsaved" duyuyor (`PantrixStrings.unsaved`). Formatico'nun sekmeleri `TabBadge`'in noktasını bıraktı (`AppTopBar.kt`), "changes not saved to its file" sözü de kalktı; `AppTopBarTest` sekmenin durumunu sınıyor. Workspace panolarındaki gibi. Denendi: JVM, iOS simülatörü, Wasm ve JS testleri, tarayıcı testleri; JVM'in, Android'in ve iOS'un ekran görüntüleri. Önceki durum: açık. Formatico'yu tıkamıyor. Kodda nokta ve çarpı birlikte.
+*   [x] **Adları "ya da" ile birleştiren bir liste yok (2026-11-11).**
     *   Ne: `PantrixStrings.list(items)` adları dilin "ve"siyle birleştiriyor ("a, b, and c"). Formatico'nun şema
         cümleleri bir de "ya da" ile birleştiriyor: "coupon must be a string, an integer or null, and is true". Pantrix'te
         bunun karşılığı yok; Formatico iki birleştirmeyi de kendisi yazıyor (`SchemaWords.kt`, `either` ve `both`),
@@ -837,8 +837,8 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Nerede: MCP jar'ının `api/foundation.md`'si, `PantrixStrings.list`, `listPairTemplate`, `listEndTemplate`.
     *   Öneri: `list(items, conjunction = ListConjunction.And)` ve `Or`, CLDR'ın "or" liste kalıplarıyla; ve önerilen
         `listOf(first, more)` ("a ve 3 tane daha").
-    *   Durum: açık. Formatico'yu tıkamıyor.
-*   [ ] **PageScaffold'un içerikteki başlığı uygulamanın yazısıyla çizilemiyor (2026-11-11).**
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-11). `PantrixStrings.list(items, ListConjunction.Or)` ve `listWithMore(items, more)`. Schema'nın cümleleri ikisini de Pantrix'le birleştiriyor (`SchemaStrings.pantrix`); Formatico'nun `either`'ı ve `both`'u silindi. Types'ın notları "a ve 3 tane daha"yı `listWithMore`'la yazıyor; `moreNames` silindi. Pantrix CLDR'ın kalıplarını izliyor: İngilizcede üç ve daha çok addan sonuncunun önünde virgül ("a string, an integer, or null"), Türkçede "ya da" değil "veya"; `SchemaWordsTest` buna göre. Denendi: JVM, iOS simülatörü, Wasm ve JS testleri, tarayıcı testleri; JVM'in, Android'in ve iOS'un ekran görüntüleri. Önceki durum: açık. Formatico'yu tıkamıyor.
+*   [x] **PageScaffold'un içerikteki başlığı uygulamanın yazısıyla çizilemiyor (2026-11-11).**
     *   Ne: `PageTitlePlacement.Content` başlığı her genişlikte içerikte tutuyor, ama `headline` yazısında, alt yazıyı
         `body`'de çiziyor. Start panoları başlığı ("Paste anything") geniş pencerede ve tablette `display`'de (36/42),
         altındaki cümleyi `callout`'ta ve 720 genişlikte, telefonda `headline` ve `body`'de çiziyor. `PageScaffoldStyle`
@@ -847,8 +847,8 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Nerede: kaynak jar'da `container/page/PageFrame.kt` (`PageHeading`), `PageScaffoldStyle.kt`.
     *   Öneri: `PageScaffoldStyle`'a `titleStyle` ve `subtitleStyle` (ya da `PantrixPageScaffold`'a `heading` yuvası:
         uygulamanın başlığı, sayfanın başlık olarak tanıdığı).
-    *   Durum: açık. Formatico'yu tıkamıyor.
-*   [ ] **Basılabilen etiket dokunma hedefini yerleşimde ayırıyor (2026-11-11).**
+    *   Durum: kütüphanede kapandı (0.1.2-SNAPSHOT, 2026-11-11): `PantrixPageScaffold(titleStyle, subtitleStyle)`. Start yine de sayfa iskeletine geçemedi: içerik genişliğindeki bir sayfa (`PageWidth.Content`) pencerenin başında duruyor, Start panolarında 1040'lık sütun ortada; başlıkla alt yazının arası (panoda 8) ve alt yazının en çok 720'lik genişliği verilemiyor. Yeni bulgu: "PageScaffold içerik genişliğindeki sayfayı ortalayamıyor". Önceki durum: açık. Formatico'yu tıkamıyor.
+*   [x] **Basılabilen etiket dokunma hedefini yerleşimde ayırıyor (2026-11-11).**
     *   Ne: `PantrixTag(onClick)` "a button in the platform's touch target": `minTouchTarget` ile yerleşimde 48 dp
         (Android) ayırıyor. Workspace-390'ın yol satırı 44 dp ve telefonun durumu (`Tag_status`) onun içinde; Pantrix'in
         tanılaması Android'de "Tag is given 106x44dp of room, less than the 48dp touch target" buluyor. `PantrixStatusBar`'ın
@@ -857,8 +857,7 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
         `container/statusbar/PressReach.kt`; Formatico'da `PhoneWorkspace.kt`, `StatusFormatMenu.kt`.
     *   Öneri: basılabilen etiketin basma alanı, sıkışık bir satırda, çizdiğinin dışına platformun hedefine kadar uzansın
         (durum çubuğundaki gibi); ya da belgesi satırın en az hedef kadar olması gerektiğini söylesin.
-    *   Durum: açık. Formatico'yu tıkamıyor. Formatico yol satırını hedefe kadar uzatıyor (`heightIn(min = 44.dp)`):
-        Android'de 48, iOS'ta 44; Android'in telefon panoları 4 dp aşağı kayıyor.
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-11). Basılabilen `PantrixTag` yerleşimde kendi boyunda kalıyor, basışı çizdiğinin dışına platformun hedefine kadar uzanıyor ve tanılamaya bu uzanım bildiriliyor. Formatico'nun telefondaki yol satırı yine panodaki gibi 44 dp (`PhoneWorkspace.kt`); `BoardAccessibilityTest` Android'in telefon panolarında `SmallTouchTarget` bulmuyor. Android'in telefon panoları 4 dp yukarı, eski yerine döndü. Denendi: JVM, iOS simülatörü, Wasm ve JS testleri, tarayıcı testleri; JVM'in, Android'in ve iOS'un ekran görüntüleri. Önceki durum: açık. Formatico'yu tıkamıyor. Formatico yol satırını hedefe kadar uzatıyor (`heightIn(min = 44.dp)`): Android'de 48, iOS'ta 44; Android'in telefon panoları 4 dp aşağı kayıyor.
 *   [ ] **Tablonun seçili hücresinin çerçevesi üstte 1 piksel (2026-11-11).**
     *   Ne: `PantrixDataTable(selectedCell)`'in çerçevesi hücrenin üç kenarında 2 piksel, üst kenarında 1: üstteki
         satırın çizgisi çerçevenin ilk pikselinin üstüne çiziliyor. Formatico'nun `TablePane/sorted-light-1440.png`'inde
@@ -879,4 +878,15 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Öneri: `ToolbarItem.Button(selected: Boolean)` (ya da `pressed`): basılı çizim ve ekran okuyucuya açık olduğu
         (`aria-pressed`, Compose'da `selected` ya da `toggleableState`); "…" menüsündeki satırda da bir işaret. Tasarım
         sisteminde karşılığı.
+    *   Durum: açık. Formatico'yu tıkamıyor.
+*   [ ] **PageScaffold içerik genişliğindeki sayfayı ortalayamıyor (2026-11-11).**
+    *   Ne: `PantrixPageScaffold(titleStyle, subtitleStyle)` gelince Start'ı sayfa iskeletine geçirmek denendi (kaynak jar'dan
+        okunarak). Start panoları içeriği 1040 genişliğinde bir sütunda, geniş pencerenin ortasında çiziyor; başlıkla
+        altındaki cümlenin arası 8, cümle en çok 720 genişliğinde. `PageWidth.Content` sayfayı temanın içerik genişliğinde
+        ama pencerenin başında tutuyor ("stands at the start, under the title"); `PageWidth.Full` ortalamadan bütün
+        genişliği veriyor. İçerikteki başlıkla alt yazısı bir `Column`'da aralıksız ve alt yazı satırın bütün genişliğinde.
+        Start bu yüzden sütun olarak kalıyor; pencere başlığı, `show` olayı ve klavyeden kaçış elle.
+    *   Nerede: kaynak jar'da `container/page/PageScaffold.kt` (`width`, `PageWidth`), `PageFrame.kt` (`PageHeading`).
+    *   Öneri: `PageWidth.Content`'e ya da sayfaya bir hizalama (ortada); başlıkla alt yazının arası ve alt yazının en
+        çok genişliği için `PageScaffoldStyle`'da birer alan.
     *   Durum: açık. Formatico'yu tıkamıyor.

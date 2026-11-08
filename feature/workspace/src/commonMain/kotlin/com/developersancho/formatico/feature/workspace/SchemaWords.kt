@@ -5,6 +5,7 @@ import com.developersancho.formatico.core.schema.JsonType
 import com.developersancho.formatico.core.schema.SchemaProblem
 import com.developersancho.formatico.core.schema.SchemaRule
 import com.developersancho.formatico.feature.workspace.strings.SchemaStrings
+import com.pantrixui.foundation.l10n.ListConjunction
 
 /** How many of the values an `enum` allows a sentence names: past them, "…". */
 private const val MOST_NAMED_VALUES = 6
@@ -63,16 +64,11 @@ private fun SchemaStrings.kindOf(type: JsonType): String = when (type) {
     JsonType.Object -> anObject
 }
 
-/**
- * [items] as one or another: "a", "a or b", "a, b or c". Pantrix joins names with "and" alone, so this and [bothOf], its
- * pair, stay Formatico's (PANTRIX_FINDINGS, "Adları "ya da" ile birleştiren bir liste yok").
- */
-private fun SchemaStrings.eitherOf(items: List<String>): String =
-    if (items.size < 2) items.firstOrNull().orEmpty() else either(items.dropLast(1).joinToString(", "), items.last())
+/** [items] as one or another: "a", "a or b", "a, b, or c", as the language joins them. */
+private fun SchemaStrings.eitherOf(items: List<String>): String = pantrix.list(items, ListConjunction.Or)
 
-/** [items] all together: "a", "a and b", "a, b and c". */
-internal fun SchemaStrings.bothOf(items: List<String>): String =
-    if (items.size < 2) items.firstOrNull().orEmpty() else both(items.dropLast(1).joinToString(", "), items.last())
+/** [items] all together: "a", "a and b", "a, b, and c", as the language joins them. */
+internal fun SchemaStrings.bothOf(items: List<String>): String = pantrix.list(items)
 
 /** The values an `enum` allows, the first [MOST_NAMED_VALUES] of them and "…" for the rest. */
 private fun namedValues(values: List<String>): List<String> =

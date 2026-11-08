@@ -62,9 +62,9 @@ private fun TypesStrings.sentenceOf(note: TypeNote, language: TypeLanguage, root
     TypeNote.RootList -> rootList(root)
 }
 
-/** [names] in a sentence: one or two as the language joins them, more as the first and how many others. */
-private fun TypesStrings.namesOf(names: List<String>, words: PantrixStrings): String =
-    if (names.size <= 2) words.list(names) else moreNames(names.first(), names.size - 1)
+/** [names] in a sentence as the language joins them: one or two, or the first and how many others. */
+private fun namesOf(names: List<String>, words: PantrixStrings): String =
+    if (names.size <= 2) words.list(names) else words.listWithMore(names.take(1), more = names.size - 1)
 
 /**
  * What a value whose type cannot be told is written as in [language]: Kotlin's `JsonElement`, nullable where it is

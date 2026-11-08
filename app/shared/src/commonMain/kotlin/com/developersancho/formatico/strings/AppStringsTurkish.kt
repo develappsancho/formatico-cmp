@@ -9,7 +9,6 @@ internal object AppStringsTurkish : AppStrings {
     override val useLightTheme = "Açık temayı kullan"
     override val settings = "Ayarlar"
     override val untitled = "Adsız"
-    override val changesNotSaved = "dosyasına kaydedilmemiş değişiklikleri var"
 
     override fun switchDocuments(first: String, second: Int) = "$first, açık $second belgeden biri. Belgeler arasında geçiş yap"
 

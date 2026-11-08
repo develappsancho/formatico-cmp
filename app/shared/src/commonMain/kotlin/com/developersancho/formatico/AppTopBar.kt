@@ -37,7 +37,6 @@ import com.developersancho.formatico.feature.workspace.WorkbenchState
 import com.developersancho.formatico.strings.appStrings
 import com.pantrixui.components.container.surface.PantrixSurface
 import com.pantrixui.components.container.tab.PantrixTabs
-import com.pantrixui.components.container.tab.TabBadge
 import com.pantrixui.components.container.tab.TabItem
 import com.pantrixui.components.container.tab.TabsStyle
 import com.pantrixui.components.elements.badge.BadgeTone
@@ -277,7 +276,8 @@ private fun OpenDocument.label(): String = name ?: appStrings.untitled
 
 /**
  * The open documents' tabs, and a new tab's while it is chosen, with the button that opens a new tab right after the
- * last. A document with changes not saved to its file has a dot after its name. Each tab closes by the cross at its
+ * last. A document with changes not saved to its file has a dot in its cross's place, which turns to the cross under a
+ * pointer and in the focus. Each tab closes by the cross at its
  * end: a document's closes it, Settings' leaves Settings, and a new tab's goes back to the last document, where there is
  * one to go back to.
  */
@@ -291,7 +291,6 @@ private fun DocumentTabs(
     size: ButtonSize,
     modifier: Modifier = Modifier
 ) {
-    val notSaved = appStrings.changesNotSaved
     val documents = workbench.documents
     // Settings has a tab of its own while it is shown, as a new tab has while it is chosen; each goes once another tab
     // is chosen. The new tab is closed only where a document is open: there is nothing else to show.
@@ -309,7 +308,7 @@ private fun DocumentTabs(
     val tabs = documents.map { document ->
         TabItem(
             label = document.label(),
-            badge = if (document.edited) TabBadge(contentDescription = notSaved, tone = BadgeTone.Neutral) else null,
+            unsaved = document.edited,
             onClose = { onCloseTab(document.id) },
             tagKey = "document_${document.id}"
         )

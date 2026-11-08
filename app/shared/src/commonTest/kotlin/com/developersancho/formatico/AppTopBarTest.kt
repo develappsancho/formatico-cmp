@@ -3,6 +3,7 @@ package com.developersancho.formatico
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
@@ -26,6 +27,7 @@ import com.developersancho.formatico.feature.workspace.OpenDocument
 import com.developersancho.formatico.feature.workspace.Workbench
 import com.developersancho.formatico.feature.workspace.WorkbenchState
 import com.pantrixui.testing.PantrixTestTheme
+import com.pantrixui.testing.hasPantrixTag
 import com.pantrixui.testing.onPantrixNode
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -144,7 +146,14 @@ class AppTopBarTest {
     fun aDocumentWithChangesNotSavedSaysSoInItsTab() = runComposeUiTest {
         bar(WorkbenchState(open, selectedId = 1), Board.Desktop)
 
-        awaitNode(hasContentDescription("changes not saved", substring = true), "The tab's mark")
+        // The tab says it is unsaved after its name; the saved one says nothing of it.
+        val unsaved = SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Unsaved")
+        awaitNode(hasPantrixTag("Tab", "document_2", "Tabs_documents") and unsaved, "The unsaved tab")
+        onPantrixNode(
+            "Tab",
+            "document_1",
+            scope = "Tabs_documents"
+        ).assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.StateDescription))
     }
 
     @Test

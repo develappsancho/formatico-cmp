@@ -118,6 +118,8 @@ class BoardScreenshotAndroidTest {
             }
         }
         tour(board, window, BoardWords.English, files)
+        // What the tour waited for is in the semantics once it is laid out; the screen is written once it is drawn too.
+        waitForIdle()
         captureScreenRoboImage("screenshots/android/${board.fileName}-${window.width}${if (dark) "-dark" else ""}.png")
         assertNoFindingsOnBoard(findings)
     }

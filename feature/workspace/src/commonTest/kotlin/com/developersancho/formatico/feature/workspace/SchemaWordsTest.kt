@@ -23,7 +23,7 @@ class SchemaWordsTest {
         with(SchemaStringsEnglish) {
             assertEquals("coupon must be a string, and is null.", of(SchemaRule.Type(listOf(JsonType.String))))
             assertEquals(
-                "coupon must be a string, an integer or null, and is true.",
+                "coupon must be a string, an integer, or null, and is true.",
                 of(SchemaRule.Type(listOf(JsonType.String, JsonType.Integer, JsonType.Null)), value = "true")
             )
             assertEquals(
@@ -31,7 +31,7 @@ class SchemaWordsTest {
                 of(SchemaRule.Required(listOf("phone")), listOf(PathStep.Key("customer")))
             )
             assertEquals(
-                "customer must have phone, fax and mobile, and has none of them.",
+                "customer must have phone, fax, and mobile, and has none of them.",
                 of(SchemaRule.Required(listOf("phone", "fax", "mobile")), listOf(PathStep.Key("customer")))
             )
             assertEquals(
@@ -107,7 +107,7 @@ class SchemaWordsTest {
                 "price 0 değerinden büyük olmalı, ama 0.",
                 of(SchemaRule.Bound("0", lower = true, exclusive = true), listOf(PathStep.Key("price")), JsonType.Integer, "0")
             )
-            assertEquals("coupon şunlardan biri olmalı: \"A\" ya da \"B\"; ama null.", of(SchemaRule.Enum(listOf("\"A\"", "\"B\""))))
+            assertEquals("coupon şunlardan biri olmalı: \"A\" veya \"B\"; ama null.", of(SchemaRule.Enum(listOf("\"A\"", "\"B\""))))
             assertEquals(
                 "Belge bir nesne olmalı, ama bir dizi.",
                 of(SchemaRule.Type(listOf(JsonType.Object)), emptyList(), JsonType.Array, null)
@@ -120,7 +120,7 @@ class SchemaWordsTest {
     fun anEnumNamesItsFirstSixValues() {
         val values = (1..8).map { "\"$it\"" }
         assertEquals(
-            "coupon must be one of \"1\", \"2\", \"3\", \"4\", \"5\", \"6\" or …, and is null.",
+            "coupon must be one of \"1\", \"2\", \"3\", \"4\", \"5\", \"6\", or …, and is null.",
             SchemaStringsEnglish.of(SchemaRule.Enum(values))
         )
     }

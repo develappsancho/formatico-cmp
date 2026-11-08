@@ -154,10 +154,7 @@ private fun UnderTheViews(
 
         else -> {
             Row(
-                // 44 tall, as Workspace-390 has it, and as tall as the status's touch target where that is more, Android's
-                // 48: the tag keeps its target in its layout (PANTRIX_FINDINGS, "Basılabilen etiket dokunma hedefini
-                // yerleşimde ayırıyor").
-                modifier = Modifier.fillMaxWidth().heightIn(min = 44.dp).padding(horizontal = spacing.lg),
+                modifier = Modifier.fillMaxWidth().height(44.dp).padding(horizontal = spacing.lg),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(spacing.sm)
             ) {

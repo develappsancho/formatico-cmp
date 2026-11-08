@@ -168,8 +168,9 @@ internal fun StartScreen(state: StartState, onIntent: (StartIntent) -> Unit, mod
 
 /**
  * Start's title and the sentence under it, in the page's content at every width as the boards have them, in the
- * display's type: the page scaffold's title in its content is a headline (PANTRIX_FINDINGS, "PageScaffold'un içerikteki
- * başlığı uygulamanın yazısıyla çizilemiyor").
+ * display's type, the sentence 720 wide and close under it, in a column in the middle of a wide window: the page
+ * scaffold keeps a page of the content's width at the window's start (PANTRIX_FINDINGS, "PageScaffold içerik
+ * genişliğindeki sayfayı ortalayamıyor").
  */
 @Composable
 private fun Heading(layout: StartLayout) {
