@@ -746,6 +746,15 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
         onaylı DMG'si ve imzalı APK'sıyla; indirme menüsü Start'ta ve Settings'te. Fazı bekletmeden kalanlar: arkadaşın
         Windows MSI'ı (`v1.0.2`'den, `deploy/windows.sh`; menü o güne dek "Not in this release yet" diyor) ve Coolify
         panelinin 8000, 6001, 6002 portlarının kapanması (sahibinin, sunucunun güvenlik duvarında).
+    *   **Formatico 1.0.3 yayımlandı** (2026-11-13, sahibinin onayıyla): etiketi `v1.0.3` (`0fe306a`), GitHub'ın son
+        sürümü. Eylemli snackbar'lar (Format, Minify ve Sort keys'in Undo'su, indirmenin Copy SHA-256'sı, şifreli
+        bağlantının Try again'i) artık Pantrix'in kısa süresiyle (4 sn) kendiliğinden gidiyor, kapatma düğmeleriyle
+        (sahibinin kararı; Pantrix'te 5 sn gibi bir süre seçilemiyor). DMG 97,5 MB (iki denetimden geçti, Apple onaylı),
+        APK 1.0.3; GitHub'ın SHA-256'ları yerel dosyalarınkiyle aynı, `releases/latest/download` 1.0.3'ü veriyor.
+    *   iOS simülatörü (2026-11-13): gece macOS 27.2.1'e geçildi; sabah iOS 26.5 simülatörü sistemce kaldırıldı ve
+        Xcode iOS 27.2'yi kendisi indirdi. Testler artık iOS 27.2'deki iPhone 18 Pro Max'te. Bütün modüllerin iOS
+        testleri (1.003) geçti; iOS'un 68 resminin 66'sı yeniden kaydedilince depodakilerle aynı çıktı, Settings-390'ın
+        ikisi yeni simülatörde yeniden kaydedildi. iPhone Duo'ya özel ikinci iOS 27.2 sahibinin isteğiyle silindi.
 
 ## Sahibinin kararını bekleyenler
 
