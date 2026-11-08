@@ -237,4 +237,8 @@ internal object WorkspaceStringsEnglish : WorkspaceStrings {
     override fun summaryShown(first: String) = "$first. The summary is shown"
 
     override val share = "Share"
+    override val dropToOpen = "Drop to open in a new tab"
+
+    override fun dropSupporting(first: String) =
+        "JSON, JSONC, JSON5, NDJSON, XML, YAML, TOML, CSV, TSV, properties and INI, up to $first"
 }

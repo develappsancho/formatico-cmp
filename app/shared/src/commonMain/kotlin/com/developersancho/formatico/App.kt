@@ -40,6 +40,7 @@ import com.developersancho.formatico.feature.start.UnknownFormatDialog
 import com.developersancho.formatico.feature.start.rememberDocumentOpening
 import com.developersancho.formatico.feature.start.startModule
 import com.developersancho.formatico.feature.workspace.DocumentMoreMenu
+import com.developersancho.formatico.feature.workspace.LocalDocumentDrop
 import com.developersancho.formatico.feature.workspace.LocalSchemaOpener
 import com.developersancho.formatico.feature.workspace.Workbench
 import com.developersancho.formatico.feature.workspace.WorkbenchKeeper
@@ -163,7 +164,9 @@ private fun AppContent(
             if (!restored) return@PantrixScaffold
             // A schema is opened beside the document it validates, as the palette opens a file or an address.
             val schemaOpener = remember(documentOpening, workbench) { AppSchemaOpener(documentOpening, workbench) }
-            CompositionLocalProvider(LocalSchemaOpener provides schemaOpener) {
+            // A file dropped on an open document opens in a new tab, as the palette opens one.
+            val documentDrop = remember(documentOpening) { AppDocumentDrop(documentOpening) }
+            CompositionLocalProvider(LocalSchemaOpener provides schemaOpener, LocalDocumentDrop provides documentDrop) {
                 AppScreens(
                     backStack = backStack,
                     workbench = workbench,

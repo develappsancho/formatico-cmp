@@ -3,21 +3,27 @@ package com.developersancho.formatico.feature.workspace
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import com.developersancho.formatico.feature.workspace.strings.tableStrings
 import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.components.elements.button.ButtonSize
 import com.pantrixui.components.elements.button.ButtonVariant
 import com.pantrixui.components.elements.button.PantrixButton
 import com.pantrixui.components.elements.checkbox.PantrixCheckbox
+import com.pantrixui.components.elements.divider.PantrixHorizontalDivider
 import com.pantrixui.components.elements.icon.PantrixIcon
 import com.pantrixui.components.elements.iconbutton.PantrixIconButton
 import com.pantrixui.components.elements.text.PantrixText
+import com.pantrixui.components.overlay.common.OverlayPresentation
 import com.pantrixui.components.overlay.popover.PantrixPopover
 import com.pantrixui.components.overlay.popover.PopoverAlignment
 import com.pantrixui.foundation.icons.PantrixIcons
@@ -29,17 +35,24 @@ private const val MOST_FRACTION_DIGITS = 4
 /** The digits after the mark an average is written with, at the least. */
 private const val AVERAGE_FRACTION_DIGITS = 2
 
+/** Where a checkbox's label starts after its box: the line under the header's checkbox stands in by it. */
+private val CheckboxLabelInset = 28.dp
+
 /**
  * The button that says how many of the table's columns are shown, and opens a box of them, each with a checkbox that
- * shows it or hides it: a button with its word in a wide window, an icon elsewhere.
+ * shows it or hides it: a button with its word in a wide window, an icon elsewhere. A CSV's or a TSV's box has the
+ * checkbox that reads its first row as the header over the columns, which it names, where [header] is not null: its
+ * state.
  */
 @Composable
 internal fun ColumnsChooser(
     table: TableModel,
     hidden: Set<String>,
-    wide: Boolean,
+    layout: WorkspaceLayout,
     size: ButtonSize,
-    onHide: (Set<String>) -> Unit
+    onHide: (Set<String>) -> Unit,
+    header: Boolean? = null,
+    onHeader: (Boolean) -> Unit = {}
 ) {
     var open by rememberSaveable { mutableStateOf(false) }
     val total = table.columns.size
@@ -50,6 +63,9 @@ internal fun ColumnsChooser(
         workspaceStrings.columnsSome(shown, total)
     }
     val valueName = workspaceStrings.valueColumn
+    val wide = layout == WorkspaceLayout.Wide
+    val phone = layout == WorkspaceLayout.Phone
+    val spacing = PantrixTheme.spacing
     PantrixPopover(
         visible = open,
         onDismissRequest = { open = false },
@@ -76,11 +92,15 @@ internal fun ColumnsChooser(
         },
         alignment = PopoverAlignment.End,
         title = workspaceStrings.columns,
+        // A phone's choice is a sheet from the bottom, as Table-390 draws it.
+        presentation = OverlayPresentation.Adaptive,
         tagKey = "columns"
     ) {
         // The popover scrolls what it holds, under its title, where the columns are more than its height takes: a
-        // scroll of their own inside it would be measured without an end, and fail.
-        Column {
+        // scroll of their own inside it would be measured without an end, and fail. A phone's sheet spaces its rows
+        // wider, as Table-390 draws it.
+        Column(verticalArrangement = Arrangement.spacedBy(if (phone) spacing.sm else spacing.xs)) {
+            if (header != null) FirstRowHeader(header, onHeader, phone)
             table.columns.forEachIndexed { index, name ->
                 PantrixCheckbox(
                     checked = name !in hidden,
@@ -91,6 +111,28 @@ internal fun ColumnsChooser(
             }
         }
     }
+}
+
+/**
+ * The checkbox that reads a CSV's or a TSV's first row as its header, [header] its state, the line that says what it
+ * does under it, and the line that holds it apart from the columns: wider apart on a [phone]'s sheet.
+ */
+@Composable
+private fun FirstRowHeader(header: Boolean, onHeader: (Boolean) -> Unit, phone: Boolean) {
+    PantrixCheckbox(
+        checked = header,
+        onCheckedChange = onHeader,
+        label = tableStrings.firstRowHeader,
+        tagKey = "first_row_header"
+    )
+    PantrixText(
+        text = tableStrings.firstRowHeaderOff,
+        modifier = Modifier.padding(start = CheckboxLabelInset),
+        style = PantrixTheme.typography.footnote,
+        color = PantrixTheme.colors.textSecondary
+    )
+    val spacing = PantrixTheme.spacing
+    PantrixHorizontalDivider(modifier = Modifier.padding(vertical = if (phone) spacing.xs else spacing.sm))
 }
 
 /** What [column]'s values come to: `total · 248 numbers · min 4.50 · max 1,250.00 · average 128.24`. */

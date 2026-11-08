@@ -20,6 +20,15 @@ internal interface TableStrings {
     val typeArray: String
     val typeAlias: String
     val typeNull: String
+
+    /** The checkbox in a CSV's or a TSV's columns' choice that reads its first row as the header. */
+    val firstRowHeader: String
+
+    /** What reading the first row as a record does, under the checkbox. */
+    val firstRowHeaderOff: String
+
+    /** The name of the column at [place], counted from 1, in a CSV or a TSV whose first row is no header. */
+    fun columnAt(place: Int): String
 }
 
 /** [TableStrings] in the theme's language. */

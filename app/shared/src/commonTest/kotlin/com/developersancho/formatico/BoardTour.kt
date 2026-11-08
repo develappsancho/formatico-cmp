@@ -24,6 +24,8 @@ import com.developersancho.formatico.core.designsystem.Board
 import com.developersancho.formatico.core.testing.awaitNode
 import com.developersancho.formatico.core.testing.awaitText
 import com.developersancho.formatico.core.testing.awaitUntil
+import com.developersancho.formatico.feature.workspace.PictureThumbnailState
+import com.developersancho.formatico.feature.workspace.ThumbnailState
 import com.pantrixui.foundation.diagnostics.PantrixFindings
 import com.pantrixui.foundation.files.FilePickRequest
 import com.pantrixui.foundation.files.FilePicker
@@ -244,6 +246,14 @@ private class Trip(
                 press("Button", "paste")
                 awaitShown(words.linkBroken)
             }
+        }
+        // A picture value's thumbnail is read away from the main thread: once the board is laid out, each one shown is
+        // waited for, as the boards draw the order's avatar.
+        test.awaitIdle()
+        test.awaitUntil("The thumbnails shown were read") {
+            test.onAllNodes(SemanticsMatcher.expectValue(PictureThumbnailState, ThumbnailState.Reading), useUnmergedTree = true)
+                .fetchSemanticsNodes()
+                .isEmpty()
         }
     }
 

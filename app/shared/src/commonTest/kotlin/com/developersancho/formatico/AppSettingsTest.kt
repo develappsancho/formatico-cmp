@@ -41,7 +41,7 @@ class AppSettingsTest {
 
     private fun ComposeUiTest.app(window: PantrixWindow = desktop, clipboard: TestClipboard? = null) = setContent {
         PantrixTestTheme(platform = PlatformType.Desktop, system = mac, window = window, clipboard = clipboard) {
-            App(systemDark = false, storage = memoryStorageModule)
+            App(systemDark = false, storage = memoryStorageModule, network = boardNetworkModule)
         }
     }
 
@@ -120,7 +120,7 @@ class AppSettingsTest {
     fun aBrowsersSettingsListsNoKeysTheBrowserKeeps() = runComposeUiTest {
         setContent {
             PantrixTestTheme(platform = PlatformType.Web, system = mac, window = desktop) {
-                App(systemDark = false, storage = memoryStorageModule)
+                App(systemDark = false, storage = memoryStorageModule, network = boardNetworkModule)
             }
         }
         awaitText("Paste anything")

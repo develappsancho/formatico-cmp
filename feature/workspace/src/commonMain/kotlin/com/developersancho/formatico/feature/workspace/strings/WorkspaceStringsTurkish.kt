@@ -232,4 +232,8 @@ internal object WorkspaceStringsTurkish : WorkspaceStrings {
     override fun summaryShown(first: String) = "$first. Özet gösteriliyor"
 
     override val share = "Paylaş"
+    override val dropToOpen = "Yeni bir sekmede açmak için bırakın"
+
+    override fun dropSupporting(first: String) =
+        "JSON, JSONC, JSON5, NDJSON, XML, YAML, TOML, CSV, TSV, properties ve INI, en çok $first"
 }

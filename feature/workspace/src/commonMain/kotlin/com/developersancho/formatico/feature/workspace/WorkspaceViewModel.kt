@@ -53,13 +53,13 @@ internal class WorkspaceViewModel(
         }
         viewModelScope.launch {
             document
-                .map { open -> open?.let { it.text to it.format } }
+                .map { open -> open?.let { Triple(it.text, it.format, it.csvHeader(language())) } }
                 .distinctUntilChanged()
                 .collectLatest { source ->
-                    val (text, format) = source ?: return@collectLatest
-                    val (reading, stats) = readings.of(documentId, text, format)
-                        ?: withContext(reader) { readDocument(text, format) to TextStats.of(text) }
-                            .also { readings.keep(documentId, text, format, it) }
+                    val (text, format, header) = source ?: return@collectLatest
+                    val (reading, stats) = readings.of(documentId, text, format, header)
+                        ?: withContext(reader) { readDocument(text, format, header) to TextStats.of(text) }
+                            .also { readings.keep(documentId, text, format, it, header) }
                     // Only a JSON document with errors is read again, as JSON5, to say what that would leave out.
                     val invalid = reading is Reading.Read && reading.errors > 0
                     val allows = if (invalid) withContext(reader) { json5Allows(text, format, reading) } else 0
@@ -132,8 +132,7 @@ internal class WorkspaceViewModel(
                 .distinctUntilChanged()
                 .collectLatest { shown ->
                     if (shown == null) return@collectLatest setState { copy(summary = null, sizes = null) }
-                    val reading = readings.of(documentId, shown.text, shown.format)?.first
-                        ?: withContext(reader) { readDocument(shown.text, shown.format) }
+                    val reading = readingOf(shown)
                     val (summary, minified) = withContext(reader) {
                         (reading as? Reading.Read)?.root?.let(::summaryOf) to minifiedOf(shown)
                     }
@@ -165,8 +164,7 @@ internal class WorkspaceViewModel(
                     // query takes seconds, and one set aside goes on to its end.
                     if (asked != null && asked != shown.view.query) delay(TYPING_PAUSE)
                     asked = shown.view.query
-                    val reading = readings.of(documentId, shown.text, shown.format)?.first
-                        ?: withContext(reader) { readDocument(shown.text, shown.format) }
+                    val reading = readingOf(shown)
                     val outcome = withContext(reader) { queryOutcome(shown, reading, shown.view.query, ::xmlOf) }
                     setState { copy(query = outcome) }
                     val first = outcome.matches.firstOrNull { it.key != null } ?: return@collectLatest
@@ -188,8 +186,7 @@ internal class WorkspaceViewModel(
                 .distinctUntilChanged()
                 .collectLatest { shown ->
                     if (shown == null) return@collectLatest setState { copy(conversion = null) }
-                    val reading = readings.of(documentId, shown.text, shown.format)?.first
-                        ?: withContext(reader) { readDocument(shown.text, shown.format) }
+                    val reading = readingOf(shown)
                     val comment = (reading as? Reading.Read)?.let {
                         nullCommentOf(it.format, targetOf(it.format, shown.view.convert), language())
                     }
@@ -209,8 +206,7 @@ internal class WorkspaceViewModel(
                 .distinctUntilChanged()
                 .collectLatest { shown ->
                     if (shown == null) return@collectLatest setState { copy(types = null) }
-                    val reading = readings.of(documentId, shown.text, shown.format)?.first
-                        ?: withContext(reader) { readDocument(shown.text, shown.format) }
+                    val reading = readingOf(shown)
                     val outcome = withContext(reader) { typesOf(shown, reading, shown.view.types) }
                     setState { copy(types = outcome) }
                 }
@@ -295,9 +291,11 @@ internal class WorkspaceViewModel(
     }
 
     /** What [document] was read as: kept where it was read before, read again off the main thread otherwise. */
-    private suspend fun readingOf(document: OpenDocument): Reading =
-        readings.of(document.id, document.text, document.format)?.first
-            ?: withContext(reader) { readDocument(document.text, document.format) }
+    private suspend fun readingOf(document: OpenDocument): Reading {
+        val header = document.csvHeader(language())
+        return readings.of(document.id, document.text, document.format, header)?.first
+            ?: withContext(reader) { readDocument(document.text, document.format, header) }
+    }
 
     // The XML an XPath is asked of, read once for each of its texts rather than once for each query.
     private var xml: XmlDocument? = null
@@ -327,6 +325,8 @@ internal class WorkspaceViewModel(
             is WorkspaceIntent.SortTable -> workbench.changeView(documentId) { it.copy(tableSort = intent.sort) }
 
             is WorkspaceIntent.FilterTable -> workbench.changeView(documentId) { it.copy(tableFilter = intent.filter) }
+
+            is WorkspaceIntent.FirstRowHeader -> workbench.change(documentId) { it.withFirstRowHeader(intent.header) }
 
             is WorkspaceIntent.HideColumns -> workbench.changeView(documentId) {
                 it.copy(hiddenColumns = intent.hidden)
@@ -436,7 +436,7 @@ internal fun WorkspaceState.arranged(): WorkspaceState {
  * preview or a test.
  */
 internal fun readState(document: OpenDocument, others: List<OpenDocument> = emptyList()): WorkspaceState {
-    val reading = readDocument(document.text, document.format)
+    val reading = readDocument(document.text, document.format, document.csvHeader(PREVIEW_LANGUAGE))
     // Its summary is worked out where it is shown, all but its gzipped size, which the platform measures in its time.
     val shown = document.view.pane == DocumentPane.Summary
     return WorkspaceState(
@@ -461,7 +461,9 @@ internal fun readState(document: OpenDocument, others: List<OpenDocument> = empt
 private fun WorkspaceState.withSchema(document: OpenDocument, reading: Reading, others: List<OpenDocument>): WorkspaceState {
     val view = document.view
     if (view.pane != DocumentPane.Schema && view.schema.with == null) return this
-    val schemas = others.mapNotNull { other -> schemaDocumentOf(other, readDocument(other.text, other.format)) }
+    val schemas = others.mapNotNull { other ->
+        schemaDocumentOf(other, readDocument(other.text, other.format, other.csvHeader(PREVIEW_LANGUAGE)))
+    }
     val validation = schemaCheckOf(document, reading, view.schema, schemas)
     return copy(schema = validation.check, schemas = schemas.map { OfferedSchema(it.id, it.name, it.schemaId) })
 }
@@ -469,7 +471,8 @@ private fun WorkspaceState.withSchema(document: OpenDocument, reading: Reading, 
 /** [document], read as [reading], compared at once with the one of [others] its view chooses, for a preview or a test. */
 private fun previewComparison(document: OpenDocument, reading: Reading, others: List<OpenDocument>): CompareOutcome {
     val partner = partnerOf(document.id, listOf(document) + others, document.view.compare)
-    return comparisonOf(document, reading, partner, partner?.let { readDocument(it.text, it.format) }, document.view.compare.by)
+    val partnerReading = partner?.let { readDocument(it.text, it.format, it.csvHeader(PREVIEW_LANGUAGE)) }
+    return comparisonOf(document, reading, partner, partnerReading, document.view.compare.by)
 }
 
 /** [document], read as [reading], converted at once, for a preview or a test. */
@@ -487,4 +490,7 @@ private fun nullCommentOf(from: Format, to: Format, language: String): String =
     convertStringsIn(language).nullComment(ConvertOptions.NAME, from.displayName, to.displayName)
 
 /** What marks a null left out where a preview or a test works the state out at once: the English words. */
-private fun previewNullComment(from: Format, to: Format): String = nullCommentOf(from, to, "en")
+private fun previewNullComment(from: Format, to: Format): String = nullCommentOf(from, to, PREVIEW_LANGUAGE)
+
+/** The language a preview or a test works the state out in, where words go into the document: English. */
+private const val PREVIEW_LANGUAGE = "en"

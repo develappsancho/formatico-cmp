@@ -56,7 +56,7 @@ class AppLargeDocumentsMeasure {
         val picker = BoardFiles()
         setContent {
             PantrixTestTheme(platform = PlatformType.Desktop, window = Board.Desktop.window, filePicker = picker) {
-                App(systemDark = false, storage = memoryStorageModule)
+                App(systemDark = false, storage = memoryStorageModule, network = boardNetworkModule)
             }
         }
         awaitText(BoardWords.English.start)

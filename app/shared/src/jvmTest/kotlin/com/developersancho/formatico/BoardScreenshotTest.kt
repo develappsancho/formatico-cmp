@@ -121,7 +121,7 @@ class BoardScreenshotTest {
                     clipboard = board.clipboard(),
                     filePicker = files
                 ) {
-                    App(systemDark = look.dark, storage = memoryStorageModule)
+                    App(systemDark = look.dark, storage = memoryStorageModule, network = boardNetworkModule)
                 }
             }
             try {

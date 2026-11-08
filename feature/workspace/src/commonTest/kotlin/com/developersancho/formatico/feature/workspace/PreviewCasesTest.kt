@@ -240,6 +240,8 @@ class PreviewCasesTest {
             "columns hidden" to listOf("American Samoa", "Polynesia"),
             "tsv on a tablet" to listOf("4 rows", "AFG"),
             "csv on a phone" to listOf("8 rows", "code3: AFG  numeric: 004  region: Asia  subregion: Southern Asia"),
+            "csv no header" to listOf("9 rows · 6 columns", "column 5"),
+            "csv no header on a phone" to listOf("9 rows", "column 3: numeric  column 4: name  column 5: region  column 6: subregion"),
             "no records" to listOf("No list to show as a table", "The table shows an array, and this document has none.")
         )
 
@@ -291,7 +293,13 @@ class PreviewCasesTest {
             "long lines wrapped" to listOf("title: \"Release checklist\""),
             "reading" to listOf("Reading…"),
             "empty" to listOf("The document is empty", "Plain text"),
-            "plain" to listOf("Plain text")
+            "plain" to listOf("Plain text"),
+            "picture unread" to listOf("customer", "avatar"),
+            "csv no header" to listOf("code", "code3"),
+            "drop" to listOf(
+                "Drop to open in a new tab",
+                "JSON, JSONC, JSON5, NDJSON, XML, YAML, TOML, CSV, TSV, properties and INI, up to 50 MB"
+            )
         )
 
         val ShareTexts = mapOf(

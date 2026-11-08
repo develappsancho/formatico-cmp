@@ -18,6 +18,7 @@ import com.pantrixui.components.overlay.snackbar.SnackbarResult
 import com.pantrixui.components.overlay.snackbar.SnackbarTone
 import com.pantrixui.foundation.files.FilePickRequest
 import com.pantrixui.foundation.files.FilePicker
+import com.pantrixui.foundation.files.PantrixFile
 import com.pantrixui.foundation.files.rememberFilePicker
 import com.pantrixui.foundation.platform.PantrixClipboard
 import com.pantrixui.foundation.platform.rememberPantrixClipboard
@@ -36,6 +37,7 @@ internal data class AddressAsk(val text: String = "", val opening: Boolean = fal
  * snackbar; a web address that was not opened, in its dialog.
  */
 @Stable
+@Suppress("TooManyFunctions") // Each is a way of opening a document, from anywhere the app is: none is a part of another.
 class DocumentOpening internal constructor(
     private val scope: CoroutineScope,
     internal val opener: DocumentOpener,
@@ -114,6 +116,23 @@ class DocumentOpening internal constructor(
             scope.launch { show(opener.open(file)) }
         }
     }
+
+    /**
+     * Opens the first of [files], dropped on an open document, as the Start screen's zone opens a file dropped on it:
+     * one of a kind Formatico does not read is refused, as one larger than a file may be, and why a file was not opened
+     * is said in a snackbar.
+     */
+    fun openDropped(files: List<PantrixFile>) {
+        val file = files.firstOrNull() ?: return
+        if (DocumentFileTypes.none { it.accepts(file) }) {
+            said.value = OpeningMessage.Refused(FileRefusal.WrongType(file.name))
+            return
+        }
+        scope.launch { show(opener.open(file)) }
+    }
+
+    /** The most bytes a file may have, which a place that takes files says. */
+    val maxFileSize: Long get() = opener.maxFileSize
 
     /**
      * Opens the platform's picker, and hands the file chosen in it to [onOpened] rather than to the screen's `onOpen`:

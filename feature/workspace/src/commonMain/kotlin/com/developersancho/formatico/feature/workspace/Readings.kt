@@ -12,27 +12,28 @@ import com.pantrixui.foundation.platform.PlatformType
  * times its text, and the one used longest ago is let go first, to be read again when it is shown again.
  */
 internal class Readings(private val workbench: Workbench, private val budget: Long = Long.MAX_VALUE) {
-    private class Kept(val text: String, val format: Format?, val reading: Reading, val stats: TextStats)
+    private class Kept(val text: String, val format: Format?, val header: CsvHeader, val reading: Reading, val stats: TextStats)
 
     // In the order they were last used, the one used longest ago first.
     private val kept = LinkedHashMap<Long, Kept>()
 
-    /** What the document whose id is [id] was read as, where it was read with [text] in [format]. */
-    fun of(id: Long, text: String, format: Format?): Pair<Reading, TextStats>? {
+    /** What the document whose id is [id] was read as, where it was read with [text] in [format], its columns named as [header] says. */
+    fun of(id: Long, text: String, format: Format?, header: CsvHeader = CsvHeader.FirstRow): Pair<Reading, TextStats>? {
         forgetClosed()
         val found = kept[id] ?: return null
         // The same text is mostly the same string: comparing it whole is for the rest.
-        if (found.format != format || (found.text !== text && found.text != text)) return null
+        val sameText = found.text === text || found.text == text
+        if (found.format != format || found.header != header || !sameText) return null
         kept.remove(id)
         kept[id] = found
         return found.reading to found.stats
     }
 
-    /** Keeps what the document whose id is [id] was read as, with [text] in [format]. */
-    fun keep(id: Long, text: String, format: Format?, read: Pair<Reading, TextStats>) {
+    /** Keeps what the document whose id is [id] was read as, with [text] in [format], its columns named as [header] says. */
+    fun keep(id: Long, text: String, format: Format?, read: Pair<Reading, TextStats>, header: CsvHeader = CsvHeader.FirstRow) {
         forgetClosed()
         kept.remove(id)
-        kept[id] = Kept(text, format, read.first, read.second)
+        kept[id] = Kept(text, format, header, read.first, read.second)
         var total = kept.values.sumOf { it.text.length.toLong() }
         val oldest = kept.entries.iterator()
         while (total > budget && oldest.hasNext()) {

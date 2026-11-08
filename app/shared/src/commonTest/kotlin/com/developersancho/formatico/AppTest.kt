@@ -30,7 +30,7 @@ class AppTest {
 
     @Test
     fun theAppOpensOnStartUnderItsBar() = runComposeUiTest {
-        setContent { App(systemDark = false, storage = memoryStorageModule) }
+        setContent { App(systemDark = false, storage = memoryStorageModule, network = boardNetworkModule) }
 
         awaitText("Paste anything")
         awaitText("Formatico")
@@ -38,7 +38,7 @@ class AppTest {
 
     @Test
     fun theBarSwitchesTheTheme() = runComposeUiTest {
-        setContent { App(systemDark = false, storage = memoryStorageModule) }
+        setContent { App(systemDark = false, storage = memoryStorageModule, network = boardNetworkModule) }
         awaitText("Paste anything")
         val theme = onPantrixNode("IconButton", "theme")
         val before = theme.fetchSemanticsNode().config.toString()
@@ -51,7 +51,7 @@ class AppTest {
 
     @Test
     fun aSampleOpensInATabOfItsOwnAndANewTabGoesBackToStart() = runComposeUiTest {
-        setContent { App(systemDark = false, storage = memoryStorageModule) }
+        setContent { App(systemDark = false, storage = memoryStorageModule, network = boardNetworkModule) }
         awaitText("Paste anything")
 
         onPantrixNode("ListItem", "sample_order").performClick()
@@ -71,7 +71,7 @@ class AppTest {
     fun aPhonesStartLeadsBackToTheDocumentsLeftOpen() = runComposeUiTest {
         setContent {
             PantrixTestTheme(window = PantrixWindow(DpSize(390.dp, 844.dp))) {
-                App(systemDark = false, storage = memoryStorageModule)
+                App(systemDark = false, storage = memoryStorageModule, network = boardNetworkModule)
             }
         }
         awaitText("Paste anything")
@@ -94,7 +94,7 @@ class AppTest {
     fun aPhonesConversionHasABarOfItsOwnInTheAppBarsPlace() = runComposeUiTest {
         setContent {
             PantrixTestTheme(window = PantrixWindow(DpSize(390.dp, 844.dp))) {
-                App(systemDark = false, storage = memoryStorageModule)
+                App(systemDark = false, storage = memoryStorageModule, network = boardNetworkModule)
             }
         }
         awaitText("Paste anything")
@@ -117,7 +117,7 @@ class AppTest {
     fun aPhonesComparisonHasABarOfItsOwnInTheAppBarsPlace() = runComposeUiTest {
         setContent {
             PantrixTestTheme(window = PantrixWindow(DpSize(390.dp, 844.dp))) {
-                App(systemDark = false, storage = memoryStorageModule)
+                App(systemDark = false, storage = memoryStorageModule, network = boardNetworkModule)
             }
         }
         awaitText("Paste anything")

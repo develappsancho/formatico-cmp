@@ -31,7 +31,7 @@ class AppLanguageTest {
     fun aLanguageChosenInSettingsIsTheOneTheAppSpeaksAtOnce() = runComposeUiTest {
         setContent {
             PantrixTestTheme(platform = PlatformType.Desktop, window = PantrixWindow(DpSize(1440.dp, 900.dp))) {
-                App(systemDark = false, storage = memoryStorageModule)
+                App(systemDark = false, storage = memoryStorageModule, network = boardNetworkModule)
             }
         }
         awaitText("Paste anything")
@@ -51,7 +51,7 @@ class AppLanguageTest {
     fun aLanguageChosenCanBeLeftForTheSystemsAgain() = runComposeUiTest {
         setContent {
             PantrixTestTheme(platform = PlatformType.Desktop, window = PantrixWindow(DpSize(1440.dp, 900.dp))) {
-                App(systemDark = false, storage = memoryStorageModule)
+                App(systemDark = false, storage = memoryStorageModule, network = boardNetworkModule)
             }
         }
         awaitText("Paste anything")
@@ -72,7 +72,7 @@ class AppLanguageTest {
     fun theCommentThatMarksANullLeftOutIsInTheLanguageChosen() = runComposeUiTest {
         setContent {
             PantrixTestTheme(platform = PlatformType.Desktop, window = PantrixWindow(DpSize(1440.dp, 900.dp))) {
-                App(systemDark = false, storage = memoryStorageModule)
+                App(systemDark = false, storage = memoryStorageModule, network = boardNetworkModule)
             }
         }
         awaitText("Paste anything")

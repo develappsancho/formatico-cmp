@@ -280,6 +280,12 @@ internal interface WorkspaceStrings {
     fun summaryShown(first: String): String
 
     val share: String
+
+    /** What the cover over an open document says while a file is dragged over it. */
+    val dropToOpen: String
+
+    /** "JSON, JSONC, …, properties and INI, up to {first}": what the cover takes, [first] the largest file's size. */
+    fun dropSupporting(first: String): String
 }
 
 /** [WorkspaceStrings] in the theme's language. */

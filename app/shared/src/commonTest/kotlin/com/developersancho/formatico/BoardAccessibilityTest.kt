@@ -125,7 +125,7 @@ class BoardAccessibilityTest {
                 filePicker = files
             ) {
                 PantrixWindowFrame(window.window, Modifier.requiredSize(window.width.dp, window.height.dp)) {
-                    App(systemDark = false, storage = memoryStorageModule)
+                    App(systemDark = false, storage = memoryStorageModule, network = boardNetworkModule)
                 }
             }
         }

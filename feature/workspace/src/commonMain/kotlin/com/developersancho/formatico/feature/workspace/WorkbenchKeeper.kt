@@ -22,8 +22,9 @@ import kotlin.time.Duration.Companion.milliseconds
  * Keeps the documents open in [workbench] on this device, and gives them back when the app opens again: their tabs in
  * [small], with what each was left showing (its view, the tree's open branches and chosen value, the table's order,
  * hidden columns and filter, and its query), and their texts in [texts]. A document open from Start's history has its text there
- * once, under the history's name, which the history writes as it changes; any other has it under `open-<id>`. What is
- * written follows the workbench a moment after it changes; only the texts that changed are written again.
+ * once, under the history's name, which the history writes as it changes; any other has it under `open-<id>`. A CSV's
+ * or a TSV's tab keeps whether its first row is the header. What is written follows the workbench a moment after it
+ * changes; only the texts that changed are written again.
  */
 class WorkbenchKeeper(
     private val workbench: Workbench,
@@ -67,7 +68,8 @@ class WorkbenchKeeper(
                 edited = tab.edited,
                 view = tab.view(),
                 // A text that is no longer the history's is the tab's own.
-                historyId = tab.historyId.takeIf { fromHistory != null }
+                historyId = tab.historyId.takeIf { fromHistory != null },
+                firstRowHeader = tab.firstRowHeader
             )
         }
         if (documents.isNotEmpty()) workbench.reopen(documents, kept.selectedId)
@@ -134,7 +136,8 @@ private data class KeptWorkbench(val tabs: List<KeptTab>, val selectedId: Long?)
                     compareBy = view.compare.by.name,
                     typesLanguage = view.types.language.name,
                     typesRoot = view.types.root,
-                    schemaWith = view.schema.with
+                    schemaWith = view.schema.with,
+                    firstRowHeader = document.firstRowHeader
                 )
             },
             selectedId = state.selectedId
@@ -169,7 +172,8 @@ private data class KeptTab(
     val compareBy: String? = null,
     val typesLanguage: String? = null,
     val typesRoot: String? = null,
-    val schemaWith: Long? = null
+    val schemaWith: Long? = null,
+    val firstRowHeader: Boolean = true
 ) {
     /** What the document was left showing: its pane by name, or the tree where that pane is no longer one. */
     fun view() = DocumentView(

@@ -154,6 +154,12 @@ class WorkspaceScreenshotTest {
                 captureOpenMenu("TableOutMenu", case, Board.Desktop, opener = "table_out") { WorkspaceScreenPreview(case) }
             }
 
+            // The Table boards' `noheader` state: the columns' choice open over the countries read with no header, its
+            // checkbox off, as a popover in a wide window and on a tablet and as a sheet on a phone.
+            "csv no header" -> Board.entries.forEach { board ->
+                captureOpenMenu("ColumnsChooser", case, board, opener = "columns") { WorkspaceScreenPreview(case) }
+            }
+
             // Workspace-390's `format` state: a new document's text, still plain text, and the formats its status opens.
             "plain" -> {
                 captureOpenMenu("StatusFormatMenu", case, Board.Phone, opener = "status") { WorkspaceScreenPreview(case) }

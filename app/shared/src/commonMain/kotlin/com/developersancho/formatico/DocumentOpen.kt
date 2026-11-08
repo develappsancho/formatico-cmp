@@ -9,8 +9,10 @@ import com.developersancho.formatico.core.settings.SettingsStore
 import com.developersancho.formatico.core.settings.UnknownFormat
 import com.developersancho.formatico.feature.start.DocumentOpening
 import com.developersancho.formatico.feature.start.OpenedDocument
+import com.developersancho.formatico.feature.workspace.DocumentDrop
 import com.developersancho.formatico.feature.workspace.SchemaOpener
 import com.developersancho.formatico.feature.workspace.Workbench
+import com.pantrixui.foundation.files.PantrixFile
 
 /**
  * Opens what Start and the command palette hand on in a tab of [workbench]: a text whose format could not be told as
@@ -60,4 +62,14 @@ internal class AppSchemaOpener(private val opening: DocumentOpening, private val
 
     private fun beside(document: OpenedDocument): Long =
         workbench.open(document.name, document.text, document.format ?: Format.Json, document.historyId, choose = false)
+}
+
+/**
+ * Opens a file dropped on an open document as [opening] opens one: in a new tab, chosen, Settings left; what could not be
+ * opened is said in a snackbar, as Start's zone says it.
+ */
+internal class AppDocumentDrop(private val opening: DocumentOpening) : DocumentDrop {
+    override val maxFileSize: Long get() = opening.maxFileSize
+
+    override fun open(files: List<PantrixFile>) = opening.openDropped(files)
 }

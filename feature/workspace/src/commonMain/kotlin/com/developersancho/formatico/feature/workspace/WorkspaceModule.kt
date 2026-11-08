@@ -12,7 +12,7 @@ import org.koin.dsl.module
 
 /**
  * What the workspaces are built from: the open documents and the queries used, kept on this device from the moment the
- * app opens, and a view model for each document's workspace.
+ * app opens, the thumbnails of picture values, and a view model for each document's workspace.
  */
 val workspaceModule: Module = module {
     // Format writes as Settings has it.
@@ -32,13 +32,16 @@ val workspaceModule: Module = module {
     single { Editors(workbench = get()) }
     // The encrypted links made on this device, with what deleting them takes.
     single { SharedLinks(small = get()) }
+    // The thumbnails of picture values, read once while the app runs.
+    single<PictureThumbnails> { LoadedThumbnails(pictures = get()) }
     viewModel { (documentId: Long) ->
         WorkspaceViewModel(
             documentId = documentId,
             workbench = get(),
             readings = get(),
             queries = get(),
-            // The words a conversion writes into the document are in the language the reader chose, the system's else.
+            // The words a conversion writes into the document, and a CSV's columns named by their places, are in the
+            // language the reader chose, the system's else.
             language = { get<SettingsStore>().preferences.value.language?.tag ?: Locale.current.language },
             sharing = EncryptedSharing(shares = get(), links = get())
         )

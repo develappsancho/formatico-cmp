@@ -47,7 +47,7 @@ class AppLinkTest {
         PantrixTestTheme(platform = PlatformType.Desktop, system = mac, window = desktop, clipboard = clipboard) {
             val pantrixClipboard = rememberPantrixClipboard()
             if (copied != null) LaunchedEffect(Unit) { pantrixClipboard.copyText(copied) }
-            App(systemDark = false, storage = memoryStorageModule)
+            App(systemDark = false, storage = memoryStorageModule, network = boardNetworkModule)
         }
     }
 

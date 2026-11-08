@@ -8,8 +8,10 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -24,6 +26,7 @@ import com.pantrixui.components.container.twopane.TwoPaneOrientation
 import com.pantrixui.components.data.codeeditor.CodeEditorState
 import com.pantrixui.components.elements.divider.PantrixHorizontalDivider
 import com.pantrixui.components.elements.divider.PantrixVerticalDivider
+import com.pantrixui.foundation.files.fileDropTarget
 import com.pantrixui.foundation.theme.PantrixTheme
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -47,27 +50,32 @@ fun WorkspaceRoute(documentId: Long, modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<WorkspaceViewModel>(key = "workspace_$documentId") { parametersOf(documentId) }
     val commands = rememberDocumentCommands(koinInject())
     val editors = koinInject<Editors>()
-    MviScreen(
-        viewModel = viewModel,
-        onEffect = { effect ->
-            when (effect) {
-                is WorkspaceEffect.Edited -> commands.report(effect.edit, effect.result)
+    // A picture value's thumbnail is read from its address once while the app runs.
+    CompositionLocalProvider(LocalPictureThumbnails provides koinInject<PictureThumbnails>()) {
+        MviScreen(
+            viewModel = viewModel,
+            onEffect = { effect ->
+                when (effect) {
+                    is WorkspaceEffect.Edited -> commands.report(effect.edit, effect.result)
+                }
             }
+        ) { state, dispatch ->
+            WorkspaceScreen(
+                state = state,
+                onIntent = dispatch,
+                commands = commands,
+                editor = state.document?.let(editors::of),
+                modifier = modifier
+            )
         }
-    ) { state, dispatch ->
-        WorkspaceScreen(
-            state = state,
-            onIntent = dispatch,
-            commands = commands,
-            editor = state.document?.let(editors::of),
-            modifier = modifier
-        )
     }
 }
 
 /**
  * A workspace drawn from [state]; what the user does goes to [onIntent], or to [commands]. Its text is [editor]'s, the
- * document's own editor, which outlives the workspace; a preview or a test that gives none has one made for it.
+ * document's own editor, which outlives the workspace; a preview or a test that gives none has one made for it. A file
+ * dropped on it opens in a new tab, as [LocalDocumentDrop] opens it, and while one is dragged over it, or where
+ * [dropping] says so, as a preview draws it, a cover says so over everything under the tabs.
  */
 @Composable
 internal fun WorkspaceScreen(
@@ -75,11 +83,40 @@ internal fun WorkspaceScreen(
     onIntent: (WorkspaceIntent) -> Unit,
     commands: DocumentCommands,
     editor: CodeEditorState? = null,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    dropping: Boolean = false
+) {
+    if (state.document == null) return
+    val drop = LocalDocumentDrop.current
+    var over by remember { mutableStateOf(false) }
+    val layout = workspaceLayout()
+    Box(
+        modifier = modifier.fileDropTarget(
+            enabled = drop != null,
+            onOver = { over = it },
+            onFiles = { files -> drop?.open(files) }
+        )
+    ) {
+        WorkspaceContent(state, onIntent, commands, editor, layout, Modifier.fillMaxSize())
+        if (over || dropping) DropCover(maxFileSize = drop?.maxFileSize ?: PREVIEW_MAX_FILE_SIZE, layout = layout)
+    }
+}
+
+/** The largest file a preview's cover says a document takes, where no app gives it: a desktop's 50 MB. */
+private const val PREVIEW_MAX_FILE_SIZE = 50_000_000L
+
+/** The workspace itself, under the cover a file dragged over it shows: its toolbar, its panes and its status bar. */
+@Composable
+private fun WorkspaceContent(
+    state: WorkspaceState,
+    onIntent: (WorkspaceIntent) -> Unit,
+    commands: DocumentCommands,
+    editor: CodeEditorState?,
+    layout: WorkspaceLayout,
+    modifier: Modifier
 ) {
     val document = state.document ?: return
     val text = editor ?: remember(document.id) { CodeEditorState(document.text) }
-    val layout = workspaceLayout()
     ShareDocument(state = state, layout = layout, onIntent = onIntent, commands = commands)
     if (layout == WorkspaceLayout.Phone) {
         when (document.view.pane) {

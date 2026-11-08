@@ -81,13 +81,13 @@ internal data class TextStats(val lines: Int, val bytes: Long, val layout: TextL
     }
 }
 
-/** Reads [text] as [format], for its tree. */
-internal fun readDocument(text: String, format: Format?): Reading = when (format) {
+/** Reads [text] as [format], for its tree; a CSV's or a TSV's columns named as [header] says. */
+internal fun readDocument(text: String, format: Format?, header: CsvHeader = CsvHeader.FirstRow): Reading = when (format) {
     null -> Reading.PlainText
     Format.Json, Format.Jsonc, Format.Json5 -> readJson(text, format)
     Format.Ndjson -> readNdjson(text)
     Format.Yaml -> readYaml(text)
-    Format.Csv, Format.Tsv -> readCsv(text, format)
+    Format.Csv, Format.Tsv -> readCsv(text, format, header)
     Format.Toml -> readToml(text)
     Format.Xml -> readXml(text)
     Format.Properties -> readProperties(text)

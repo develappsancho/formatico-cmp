@@ -18,7 +18,10 @@ internal sealed interface ValuePreview {
     /** An address on the web. */
     data class Link(val url: String) : ValuePreview
 
-    /** The address of a picture on the web: one whose path ends in a picture's extension. */
+    /**
+     * The address of a picture: one on the web whose path ends in a picture's extension, or a picture written into its
+     * address, `data:image/png;base64,…`.
+     */
     data class Picture(val url: String) : ValuePreview
 }
 
@@ -27,6 +30,7 @@ private val DayPattern = wholeRegex("""\d{4}-\d{2}-\d{2}""")
 private val ColourPattern = wholeRegex("""#([0-9A-Fa-f]{3,4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})""")
 private val LinkPattern = wholeRegex("""https?://[^\s/$.?#][^\s]*""", RegexOption.IGNORE_CASE)
 private val PicturePath = Regex("""\.(png|jpe?g|gif|webp|avif|svg)$""", RegexOption.IGNORE_CASE)
+private val DataPicturePattern = wholeRegex("""data:image/(png|jpe?g|gif|webp);base64,[A-Za-z0-9+/=\s]+""", RegexOption.IGNORE_CASE)
 
 private const val HEX_RADIX = 16
 private const val OPAQUE = 0xFF000000L
@@ -46,6 +50,10 @@ internal fun previewOf(value: String): ValuePreview? = when {
 
     ColourPattern.containsMatchIn(value) -> {
         ValuePreview.Colour(argbOf(value.drop(1)))
+    }
+
+    DataPicturePattern.containsMatchIn(value) -> {
+        ValuePreview.Picture(value)
     }
 
     LinkPattern.containsMatchIn(value) -> {

@@ -230,6 +230,25 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Öneri: `rangeMarks`'a `style: 'current'`.
     *   Durum: açık. Formatico'yu tıkamıyor; Query panoları bekliyor.
 
+*   [ ] **Tasarım sisteminin FileDrop'unda sürüklenirken görünen bir hâl yok (2026-11-12).**
+    *   Ne: Compose'daki `PantrixFileDrop` bir dosya üstündeyken kendi sözünü (`dragOverLabel`) söylüyor ve rengini
+        değiştiriyor; tasarım sisteminin `FileDrop`'unda böyle bir hâl yok. Tuval oturumu bunu 2026-11-10'da, açık bir
+        belgeye dosya bırakmanın panolarını çizerken gördü: Workspace-1440 ve -834'ün `drop` hâli (sekmelerin altını
+        örten zemin ve ortada kesik çizgili, birincil renkte alan) panonun kendi işaretlemesiyle (`.fx-drop`,
+        `.fx-drop-zone`) çizildi.
+    *   Nerede: tuvalin kopyası, `project/ds/pantrix/components/index.d.ts` (`FileDropProps`); Workspace-1440 ve -834.
+    *   Öneri: `FileDrop`'a sürüklenirken hâli (`dragOver`) ve `dragOverLabel`; kütüphaneye bir kapak gelirse
+        (bkz. "Bir pencerenin ya da bölmenin üstüne dosya sürüklenince görünen bir kapak yok") onun karşılığı.
+    *   Durum: açık. Formatico'yu tıkamıyor.
+*   [ ] **Tasarım sisteminin Sheet'i başlıksızken de kapatma düğmesini ve boş bir başlık satırını çiziyor (2026-11-12).**
+    *   Ne: Workspace-390'ın `format` ve `more` menüleri alttan açılan, başlıksız sayfalar; uygulamada Pantrix'in sayfası
+        başlıksızken başlık satırı da kapatma düğmesi de çizmiyor. Tasarım sisteminin `Sheet`'i `title` verilmeyince de
+        kapatma düğmesini ve boş bir başlık satırını çiziyor; tuval oturumu (2026-11-10) panoları `dismissible` kapalı
+        çizdi.
+    *   Nerede: tuvalin kopyası, `project/ds/pantrix/components/index.d.ts` (`SheetProps`); Workspace-390.
+    *   Öneri: başlıksız `Sheet` Compose'daki gibi başlık satırını ve kapatma düğmesini çizmesin.
+    *   Durum: açık. Formatico'yu tıkamıyor.
+
 ## 3. Detekt
 
 *   [x] **Kuralların hangi detekt'e yazıldığı söylenmiyor (2026-11-02).**
@@ -476,7 +495,7 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
         *   **Web'de:** başka bir sitedeki resmi Compose'un çözmesi için baytların okunabilmesi gerekiyor, bu da CORS ister; çoğu resim sunucusu izin vermez. O zaman da yer tutucu kalmalı. Uygulama, adresten bir şey indirmeden önce okuyucuya sormak (ya da Settings'te kapatmak) isteyebilir: belgedeki bir adres, belgeyi açanın IP'sini o sunucuya verir.
         *   **Önbellek:** aynı adres bir oturumda bir kez indirilmeli.
     *   Öneri: `PantrixImage(url = …, placeholder = …, error = …)` ya da ayrı bir `PantrixAsyncImage`; ya da Pantrix'in bir yükleyiciyle (Coil 3) nasıl kullanılacağını gösteren bir sayfa.
-    *   Durum: kapandı, sahibinin kararıyla (2026-11-04, Pantrix oturumundan iletildi: "coil kullanılacak ihtiyaç olursa"). Pantrix'e bir yükleyici eklenmeyecek. Formatico gerçek bir küçük resme geçerse Coil 3'ü kendisi ekler: `rememberAsyncImagePainter(url)` ile `PantrixImage(painter = …)`; yüklenirken ve yüklenemeyince yer tutucu, web'de CORS, önbellek ve adresi indirmeden önce sormak o zaman Formatico'nun işi. Şimdilik kodda resim adresi panodaki yer tutucuyla gösterilecek; resim simgesi yok (bkz. "Resmin ve bağlantının simgesi yok").
+    *   Durum: kapandı, sahibinin kararıyla (2026-11-04, Pantrix oturumundan iletildi: "coil kullanılacak ihtiyaç olursa"). Pantrix'e bir yükleyici eklenmeyecek. Formatico gerçek bir küçük resme geçerse Coil 3'ü kendisi ekler: `rememberAsyncImagePainter(url)` ile `PantrixImage(painter = …)`; yüklenirken ve yüklenemeyince yer tutucu, web'de CORS, önbellek ve adresi indirmeden önce sormak o zaman Formatico'nun işi. Şimdilik kodda resim adresi panodaki yer tutucuyla gösterilecek; resim simgesi yok (bkz. "Resmin ve bağlantının simgesi yok"). Ek (2026-11-12): Formatico gerçek küçük resme geçti, Coil yerine `core:network`'ün Ktor'uyla ve Compose'un `decodeToImageBitmap`'iyle (sahibinin onayladığı plan, 2026-11-11; yeni bağımlılık yok): yalnızca https, yalnızca görünen satırlar, resim başına 2 MB, bellekte 64 küçük resim, `data:image` adresleri ağa çıkmadan; yüklenirken ve yüklenemeyince panonun yer tutucusu (`PictureThumbnails.kt`, `TreeRowEnd.kt`).
 *   [x] **Sık bir çubuktaki bir düğme dokunma hedefini alamıyor (2026-11-04).**
     *   Ne: Workspace panolarının durum çubuğu 1440'ta 28, 834'te 32 piksel; Summary'yi açan boyut bu çubukta bir düğme. Pantrix bir denetime platformun dokunma hedefini yerleşimde ayırıyor (masaüstünde 32, iOS'ta 44, Android'de 48 dp); daha az yer verilen düğme teşhislerde `SmallTouchTarget` oluyor. Masaüstü uygulamalarının durum çubukları (bir düzenleyicinin satır, sütun ve kodlama düğmeleri) işaretçiyle kullanılan sık çubuklar.
     *   Nerede: MCP `get_documentation_page skill/accessibility` ("Touch targets", `Modifier.minTouchTarget`).
@@ -890,3 +909,17 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Öneri: `PageWidth.Content`'e ya da sayfaya bir hizalama (ortada); başlıkla alt yazının arası ve alt yazının en
         çok genişliği için `PageScaffoldStyle`'da birer alan.
     *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-11), sahibinin onayıyla, üretim paketinden önce. `PageWidth.Centered` sayfayı temanın içerik genişliğinde, başlığıyla birlikte ortada tutuyor; `PageScaffoldStyle(headingGap, subtitleMaxWidth)`. Start artık `PantrixPageScaffold`: başlık içerikte (`PageTitlePlacement.Content`), geniş pencerede ve tablette `display` ve `callout`, telefonda `headline` ve `body`; başlıkla cümlenin arası 8, cümle geniş pencerede en çok 720; üstteki ve alttaki boşluk panolarınki (stilin `verticalPadding`'i ve sayfanın `padding`'i). Kendi sütunu, kaydırması ve başlık parçası kalktı. Start'ın bütün resimleri (JVM, Android, iOS; Start'ın üstündeki diyaloglar da) piksel piksel aynı kaldı. Sayfa pencereyi adlandırıyor: uygulamanın kökü `LocalPantrixWindowTitleFormat` ile ekranın adından sonra uygulamanın adını yazıyor; Start açıkken tarayıcının sekmesi "Paste anything · Formatico", belge açılınca "Formatico" (`WebAppTest.startNamesTheTabAndADocumentGivesItBack`). Önceki durum: açık. Formatico'yu tıkamıyor.
+*   [ ] **Bir pencerenin ya da bölmenin üstüne dosya sürüklenince görünen bir kapak yok (2026-11-12).**
+    *   Ne: Workspace panolarının `drop` hâli (sahibinin kararı, 2026-11-10: açık bir belgeye bırakılan dosya yeni bir
+        sekmede açılır): bir dosya belgenin üstüne sürüklenince sekmelerin altındaki her şey sayfanın zemininin %80'iyle
+        örtülüyor, ortada 2 piksel kesik çizgili, birincil renkte, `lg` köşeli bir alan, bir yükleme simgesi, "Drop to
+        open in a new tab" ve alınan biçimler. `Modifier.fileDropTarget` dosyayı alıyor ve `onOver` ile üstünde bir şey
+        olduğunu söylüyor, ama bir şey çizmiyor; `PantrixFileDrop` basılınca seçiciyi açan, sayfada duran bir alan, bir
+        kapağın içinde değil. Formatico kapağı kendisi çiziyor: `DocumentDrop.kt`'nin `DropCover`'ı, kesik çizgili kenarı
+        `drawBehind` ile.
+    *   Nerede: MCP `get_api fileDropTarget`, `get_component FileDrop`; sitenin Files sayfası ("Files dropped on a
+        place").
+    *   Öneri: `Modifier.fileDropTarget` ile birlikte kullanılan bir kapak, `PantrixFileDropCover(visible, label,
+        supportingText)` gibi: verilen yerin üstünde temanın renkleriyle bir örtü, ortada `PantrixFileDrop`'un kesik
+        çizgisiyle basılmayan bir alan, ekran okuyucuya geldiğinde söylenen; ya da `PantrixFileDrop`'a böyle bir biçim.
+    *   Durum: açık. Formatico'yu tıkamıyor.

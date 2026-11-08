@@ -122,6 +122,16 @@ class WorkbenchKeeperTest {
     }
 
     @Test
+    fun aCsvKeepsWhetherItsFirstRowIsTheHeader() = runTest {
+        val before = opened()
+        val countries = before.open("countries.csv", "code,name\nAF,Afghanistan\n", Format.Csv)
+        before.change(countries) { it.withFirstRowHeader(false) }
+        settle()
+
+        assertEquals(false, opened().state.value.documents.single().firstRowHeader)
+    }
+
+    @Test
     fun aDocumentFromTheHistoryHasItsTextThereOnce() = runTest {
         texts.write("history-4", "{\"a\": 1}")
         val before = opened()

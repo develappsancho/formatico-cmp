@@ -143,6 +143,9 @@ internal sealed interface WorkspaceIntent {
     /** Hide the table's columns named in [hidden], and show the others. */
     data class HideColumns(val hidden: Set<String>) : WorkspaceIntent
 
+    /** Read a CSV's or a TSV's first row as its header where [header] is true, or as a record. */
+    data class FirstRowHeader(val header: Boolean) : WorkspaceIntent
+
     /** Filter the table's rows by [filter], or show them all where it is empty. */
     data class FilterTable(val filter: String) : WorkspaceIntent
 

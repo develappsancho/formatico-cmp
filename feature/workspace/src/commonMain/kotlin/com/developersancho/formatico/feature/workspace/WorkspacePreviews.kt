@@ -299,6 +299,21 @@ private val Deployment = previewState(
     DocumentView(selected = "$.spec.template.spec.containers[0].env[0].name")
 )
 internal val Countries = previewState("countries.csv", PreviewCountries, Format.Csv, DocumentView(pane = DocumentPane.Table))
+
+/**
+ * The countries with their first row read as a record, as the Table boards' `noheader` state has them: the columns
+ * named by their places, and Albania's region chosen, on the text's fourth line.
+ */
+internal val CountriesWithoutHeader = readState(
+    OpenDocument(
+        id = 1,
+        name = "countries.csv",
+        text = PreviewCountries,
+        format = Format.Csv,
+        view = DocumentView(pane = DocumentPane.Table, selected = "$[3]['column 5']"),
+        firstRowHeader = false
+    )
+)
 internal val OrderItems = previewState(
     "order.json",
     PreviewOrder,
@@ -345,8 +360,17 @@ private val PreviewLongLines =
 
 private val LongLines = previewState("checklist.json", PreviewLongLines, Format.Json)
 
-/** A case of the screen: [state], with its editor's caret at [caret], its long lines wrapped where [wrapLines] says. */
-internal class ScreenCase(val state: WorkspaceState, val caret: Int = 0, val wrapLines: Boolean = false)
+/**
+ * A case of the screen: [state], with its editor's caret at [caret], its long lines wrapped where [wrapLines] says, its
+ * pictures' thumbnails read where [picturesRead] says, and a file dragged over it where [dropping] says.
+ */
+internal class ScreenCase(
+    val state: WorkspaceState,
+    val caret: Int = 0,
+    val wrapLines: Boolean = false,
+    val picturesRead: Boolean = true,
+    val dropping: Boolean = false
+)
 
 /**
  * The workspace's cases: a JSON document with its value previews, a YAML one with anchors, a CSV and a JSON array as
@@ -355,7 +379,9 @@ internal class ScreenCase(val state: WorkspaceState, val caret: Int = 0, val wra
  * order's Summary measured and being measured and a CSV's, the order and the feed queried, as the Query boards draw
  * them, the order converted to YAML and to TOML, as the Convert boards draw it, the order validated against its schema,
  * its caret in its first problem, as the Schema boards draw it, the boards' two orders compared by meaning and by
- * text, a note with long lines left long and wrapped, one being read, and a new, empty one.
+ * text, a note with long lines left long and wrapped, one being read, and a new, empty one; the order whose avatar could
+ * not be read, the countries with no header, and a file dragged over the order, as the boards' `nopicture`, `noheader`
+ * and `drop` states draw them.
  */
 internal class WorkspaceScreenCases :
     PreviewCases<ScreenCase>(
@@ -390,7 +416,10 @@ internal class WorkspaceScreenCases :
         "long lines wrapped" to ScreenCase(LongLines, wrapLines = true),
         "reading" to ScreenCase(BeingRead),
         "empty" to ScreenCase(Empty),
-        "plain" to ScreenCase(previewState(null, PreviewTyped, null, DocumentView(pane = DocumentPane.Text)))
+        "plain" to ScreenCase(previewState(null, PreviewTyped, null, DocumentView(pane = DocumentPane.Text))),
+        "picture unread" to ScreenCase(Order, picturesRead = false),
+        "csv no header" to ScreenCase(CountriesWithoutHeader),
+        "drop" to ScreenCase(OrderUnchosen, dropping = true)
     )
 
 @BoardPreviews
@@ -401,12 +430,15 @@ internal fun WorkspaceScreenPreview(@PreviewParameter(WorkspaceScreenCases::clas
             screen.state.document?.let { CodeEditorState(it.text, initialSelection = TextRange(screen.caret)) }
         }
         CompositionLocalProvider(LocalWrapLines provides screen.wrapLines) {
-            WorkspaceScreen(
-                state = screen.state,
-                onIntent = {},
-                commands = rememberDocumentCommands(remember { Workbench() }),
-                editor = editor
-            )
+            PreviewPictures(read = screen.picturesRead) {
+                WorkspaceScreen(
+                    state = screen.state,
+                    onIntent = {},
+                    commands = rememberDocumentCommands(remember { Workbench() }),
+                    editor = editor,
+                    dropping = screen.dropping
+                )
+            }
         }
     }
 }

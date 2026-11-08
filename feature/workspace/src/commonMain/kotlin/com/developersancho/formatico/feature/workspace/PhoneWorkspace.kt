@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -335,11 +336,7 @@ private fun SelectedValueCard(
                     modifier = Modifier.outset(end = spacing.sm, vertical = spacing.sm)
                 )
             }
-            PantrixText(
-                text = reading.headline,
-                style = PantrixTheme.typography.callout.copy(fontWeight = FontWeight.SemiBold),
-                maxLines = 2
-            )
+            ValueHeadline(node, reading.headline)
             listOfNotNull(reading.detail, match).joinToString(" · ").ifEmpty { null }?.let {
                 PantrixText(
                     text = it,
@@ -355,6 +352,33 @@ private fun SelectedValueCard(
                 modifier = Modifier.padding(top = spacing.xs)
             )
         }
+    }
+}
+
+/** The size of a picture's thumbnail on the chosen value's card. */
+private val CardThumbnailSize = 56.dp
+
+/**
+ * The chosen value itself, [headline]: a picture's address with its thumbnail before it, once it is read, as
+ * Workspace-390's `picture` state draws it.
+ */
+@Composable
+private fun ValueHeadline(node: ValueNode, headline: String) {
+    val picture = (node.preview as? ValuePreview.Picture)?.let { (thumbnailOf(it.url) as? Thumbnail.Shown)?.image }
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(PantrixTheme.spacing.md)) {
+        picture?.let {
+            ThumbnailImage(
+                image = it,
+                description = workspaceStrings.pictureAt,
+                modifier = Modifier.size(CardThumbnailSize),
+                shape = PantrixTheme.shapes.md
+            )
+        }
+        PantrixText(
+            text = headline,
+            style = PantrixTheme.typography.callout.copy(fontWeight = FontWeight.SemiBold),
+            maxLines = 2
+        )
     }
 }
 

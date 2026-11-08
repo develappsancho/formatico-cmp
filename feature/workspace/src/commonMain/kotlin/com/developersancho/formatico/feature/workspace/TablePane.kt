@@ -160,9 +160,17 @@ private fun TableToolbar(toolbar: TableToolbarState, layout: WorkspaceLayout, on
     val count = countOf(toolbar, wide = layout == WorkspaceLayout.Wide)
     val tools: @Composable () -> Unit = {
         if (table != null) {
-            ColumnsChooser(table, toolbar.hidden, wide = layout == WorkspaceLayout.Wide, size = size, onHide = {
-                onIntent(WorkspaceIntent.HideColumns(it))
-            })
+            val document = toolbar.state.document
+            ColumnsChooser(
+                table = table,
+                hidden = toolbar.hidden,
+                layout = layout,
+                size = size,
+                onHide = { onIntent(WorkspaceIntent.HideColumns(it)) },
+                // Only a CSV or a TSV has a first row that may be its header.
+                header = document?.takeIf { it.format == Format.Csv || it.format == Format.Tsv }?.firstRowHeader,
+                onHeader = { onIntent(WorkspaceIntent.FirstRowHeader(it)) }
+            )
             TableOutMenu(size = size, onOut = toolbar.onOut)
         }
     }

@@ -678,6 +678,50 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
         dışında bırakmak, yalnızca seçimle göstermek.
     *   Durum: açık.
 
+*   [ ] **Başlığı olmayan bir CSV'nin sütun adları dil değişince yenilenmiyor (2026-11-12).**
+    *   Ne: "First row is the header" kapalıyken sütunlar okuyucunun dilinde adlandırılıyor ("column 1", "sütun 1").
+        Workspace'in view model'i dili belgeyi okurken soruyor; Settings'te dil değişince açık belge yeniden okunmuyor,
+        adlar metin, biçim ya da seçenek değişene kadar eski dilde kalıyor.
+    *   Öneri: view model dili bir akış olarak izlesin, ya da Settings dil değişince okunanları (`Readings`) bıraksın.
+    *   Durum: açık.
+*   [ ] **Başlığı olmayan bir CSV'nin ilk satırı metinde hâlâ anahtar renginde (2026-11-12).**
+    *   Ne: CSV'nin renklendiricisi (`TableHighlighter`) ilk satırı her zaman başlık (anahtar) renginde çiziyor. "First
+        row is the header" kapalıyken ilk satır bir kayıt, ama Table panolarının `noheader` hâli de metnin ilk satırını
+        anahtar renginde çiziyor; kod panoyla aynı.
+    *   Öneri: sahibine sorulacak: seçenek kapalıyken ilk satır kayıtlar gibi mi renklensin? Öyleyse önce panolar.
+    *   Durum: açık.
+*   [ ] **Android'in pano görüntülerinde küçük resim yok (2026-11-12).**
+    *   Ne: Robolectric, ağaçtaki bir satırın küçük resmini, resim ekranın son karesinden sonra (arka planda) okununca
+        kimi kayıtta çiziyor kimi kayıtta çizmiyor: anlam ağacı resmin çizildiğini söylerken yakalanan karede simgeli
+        kutu kalabiliyor; `invalidateDescendants` ve ana döngünün zamanını ilerletmek kararlı yapmadı. Tek başına,
+        ana iş parçacığında değişen bir resmi doğru çiziyor. Doğrulama kararsız olmasın diye Android'in panoları
+        resimsiz ağla (`noPicturesNetworkModule`) çiziliyor: avatarın yerinde panoların `nopicture` hâlindeki simge.
+        JVM'de ve iOS'ta panolar küçük resimle.
+    *   Öneri: Robolectric'in ya da Roborazzi'nin yeni sürümünde yeniden denemek; Android'de küçük resmi gerçek bir
+        cihazda ya da emülatörde görmek.
+    *   Durum: açık.
+*   [ ] **Web'de ağdaki resimlerin küçük resmi yok (2026-11-12).**
+    *   Ne: Web uygulamasının içerik güvenliği politikası (`deploy/web/headers.conf`) `connect-src 'self'` diyor: sayfa
+        yalnızca kendi sitesine istek atabiliyor. Bir değerin `https` adresindeki resim istense politika engeller,
+        konsola bir hata düşerdi. Bu yüzden web'de ağdaki resimler hiç istenmiyor (`HttpWebPictures`), yerlerinde
+        simge kalıyor; `data:image` değerleri web'de de küçük resimle gösteriliyor. Öteki platformlarda resim, adresin
+        sunucusundan okunuyor.
+    *   Öneri: sahibinin kararı: web'de de gösterilsin mi? Öyleyse `connect-src`'a `https:` eklenir (politika
+        gevşer), resim sunucusunun CORS izni de gerekir; çoğu vermez.
+    *   Durum: açık.
+*   [ ] **Sorgu sonuçlarının yazılmasında derleyicinin uyarısı (2026-11-12).**
+    *   Ne: `QueryResults.kt:18`'de `document.format ?: return null`: biçim satır 14'te `?: return null` ile zaten
+        denetlenmiş, Kotlin onu boş olamaz biliyor ve her derlemede "Elvis operator always returns the left operand"
+        uyarısı veriyor (`c1f1dec`'ten beri).
+    *   Öneri: ikinci `?: return null`'ı kaldırmak.
+    *   Durum: açık.
+*   [ ] **Telefonun bırakma kapağının panosu yok (2026-11-12).**
+    *   Ne: Açık belgeye dosya bırakmanın panoları 1440 ve 834'te; telefonda bir dosya yalnızca yan yana iki uygulama
+        açıkken sürüklenebiliyor. Kod telefonda da aynı kapağı çiziyor (`DropCover`, 600 genişliğe kadar), ekran
+        görüntüsü testi onu 390'da da kaydediyor (`WorkspaceScreen/drop-*-390.png`); panoda karşılığı yok.
+    *   Öneri: Workspace-390'a `drop` hâli, ya da telefonda kapağın kapatılması.
+    *   Durum: açık.
+
 ## Üst çubuk
 
 *   [ ] **Sekmeler sığmayınca ilki logonun yanında yarım kesiliyor (2026-11-06).**

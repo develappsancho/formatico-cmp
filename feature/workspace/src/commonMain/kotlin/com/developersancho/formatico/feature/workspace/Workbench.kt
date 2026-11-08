@@ -21,6 +21,8 @@ import kotlinx.coroutines.withContext
  * @property edited whether its text was changed since it was opened.
  * @property view how its tree was left, to be found so again when its tab is chosen.
  * @property historyId its place in Start's history, which is told of its changes; null for a document not there.
+ * @property firstRowHeader whether a CSV's or a TSV's first row is its header, which names its columns; where it is not,
+ *   the first row is a record and the columns are named by their places.
  */
 data class OpenDocument(
     val id: Long,
@@ -29,7 +31,8 @@ data class OpenDocument(
     val format: Format?,
     val edited: Boolean = false,
     val view: DocumentView = DocumentView(),
-    val historyId: Long? = null
+    val historyId: Long? = null,
+    val firstRowHeader: Boolean = true
 )
 
 /** How long a search or a query waits after a letter for the next before it is looked for, in milliseconds. */

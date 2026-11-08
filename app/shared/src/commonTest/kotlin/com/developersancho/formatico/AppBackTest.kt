@@ -32,7 +32,7 @@ class AppBackTest {
     private fun ComposeUiTest.app(platform: PlatformType) = setContent {
         PantrixTestTheme(platform = platform, window = desktop) {
             SendsSystemBack(back)
-            App(systemDark = false, storage = memoryStorageModule)
+            App(systemDark = false, storage = memoryStorageModule, network = boardNetworkModule)
         }
     }
 

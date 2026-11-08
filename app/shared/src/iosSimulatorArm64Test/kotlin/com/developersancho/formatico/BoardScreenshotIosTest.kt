@@ -113,7 +113,7 @@ class BoardScreenshotIosTest {
                 clipboard = board.clipboard(),
                 filePicker = files
             ) {
-                App(systemDark = dark, storage = memoryStorageModule)
+                App(systemDark = dark, storage = memoryStorageModule, network = boardNetworkModule)
             }
         }
         tour(board, window, BoardWords.English, files)

@@ -109,7 +109,8 @@ private fun countriesTable(view: DocumentView) = previewState(
 /**
  * The table's cases: the countries, as the Table boards draw them; the order's items sorted by price; the countries
  * filtered to Europe, filtered to nothing, and with two columns hidden; a TSV on a tablet; the countries on a phone;
- * and a document with no list of records to make a table of.
+ * the countries read with no header, beside the text and on a phone; and a document with no list of records to make a
+ * table of.
  */
 internal class TablePaneCases :
     PreviewCases<PaneCase>(
@@ -128,6 +129,8 @@ internal class TablePaneCases :
             height = 560
         ),
         "csv on a phone" to PaneCase(Countries, WorkspaceLayout.Phone, height = 760),
+        "csv no header" to PaneCase(CountriesWithoutHeader, WorkspaceLayout.Wide, height = 560),
+        "csv no header on a phone" to PaneCase(CountriesWithoutHeader, WorkspaceLayout.Phone, height = 760),
         "no records" to PaneCase(
             previewState("theme.json", "{ \"accent\": \"#0F766E\" }\n", Format.Json, DocumentView(pane = DocumentPane.Table)),
             WorkspaceLayout.Wide,

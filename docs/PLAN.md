@@ -461,6 +461,41 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
                 `AtWindowSize` ile tanılamayı da soruyor. Yeni bir bulgu: "Test rehberinin pencere boyundaki kutusu
                 ekranı odanın ortasına koyuyor".
         *   7 ve 8 sırada.
+    *   **Yayına kadar kalan (sahibinin kararı, 2026-11-11):**
+        *   **5 iptal:** tuval olduğu gibi kabul edildi. Tuval oturumunda onay bekleyen üç düzenleme düştü.
+        *   **6'dan kalan üç karar koda girer,** 2026-11-10'da çizilen panolarına göre:
+            *   Resim değerinin küçük resmi. Pantrix resim yüklemiyor; Formatico `core:network`'ün Ktor'uyla yükler:
+                yalnızca https, yalnızca görünen satırlar, resim başına bir boyut sınırı, bellekte önbellek;
+                `data:image` adresleri ağa çıkmadan çözülür. Yüklenemeyen resim bugünkü simgeli kutuda kalır; web'de
+                CORS izni vermeyen sunucuların resimleri böyle kalır.
+            *   CSV'de "First row is the header": Columns seçicisinde, yalnızca CSV ve TSV'de; kapalıyken sütunlar
+                "column 1, column 2…". Seçim sekmeyle saklanır; tablo, tablonun kaydetmesi ve kopyalaması ona uyar.
+                Convert'in kodu değişmez; seçenek belgenin okunuşu olduğu için onun çıktısı da ona uyar (2026-11-12).
+            *   Açık belgeye bırakılan dosya yeni bir sekmede açılır. Pantrix'in `fileDropTarget`'ıyla; sürüklenirken
+                görünen katmanı Formatico çizer, Pantrix'te olmayışı bulgu olarak yazılır.
+        *   **8'in son denetimi yayından önce:** bütün hedeflerde testler, `verifyRoborazzi`, web testleri, lint ve
+            detekt.
+        *   **Yayından sonra:** `OPEN_ITEMS.md`'deki açık maddeler, 4'ün Android kısmı (ortak testler Android'in ana
+            makine testlerinde), 7 (gerçek cihazda ekran okuyucu, tablette odak halkası, görüntülerin topluca yeniden
+            kaydı) ve kalan bulguların kütüphaneye iletilmesi.
+        *   **İlerleme (2026-11-12):** üç karar kodda.
+            *   Resmin küçük resmi: `core:network`'te `WebPictures` (yalnızca https, 2 MB'a kadar, resim olmayan cevap
+                yok sayılır, Formatico'nun sunucusundan hiç geçmez; web'de sayfanın politikası `connect-src 'self'`
+                olduğu için ağdaki resim hiç istenmez, yalnızca `data:image` gösterilir); Workspace'te `PictureThumbnails` (bir kez okunur,
+                ortasından kare kesilir, en çok 192 piksel, bellekte 64 tane, `data:image` ağa çıkmadan). Ağaçta 24'lük,
+                telefonda 28'lik; telefonun seçili değer kartında 56'lık. Okunamayan ya da okunurken bugünkü simgeli kutu.
+                Uygulamanın testleri resimleri ağdan değil, `boardNetworkModule`'den alıyor.
+            *   CSV'de "First row is the header": Columns seçicisinde (telefonda alttan açılan sayfa), yalnızca CSV ve
+                TSV'de; kapalıyken sütunlar okuyucunun dilinde "column 1"/"sütun 1". Seçenek belgenin okunuşu: ağaç,
+                tablo, sorgu ve dönüştürme ona uyuyor (Convert'in kodu değişmedi, belgenin okunuşunu alıyor). Seçili kayıt
+                metindeki satırında kalıyor; sekmeyle saklanıyor.
+            *   Açık belgeye bırakılan dosya: Pantrix'in `fileDropTarget`'ı, Start'ın açıcısı (`openDropped`: tür ve
+                boyut Start'taki gibi denetleniyor), yeni bir sekmede. Kapağı Formatico çiziyor (`DropCover`); bulgusu
+                yazıldı.
+            *   Denetim: JVM, iOS simülatörü, Wasm ve JS testleri (Workspace, Start, `core:network`, uygulama); web
+                testleri; `verifyRoborazzi` JVM'de, Android'de (Robolectric) ve iOS'ta; lint ve detekt temiz. Android'de
+                Pixel 7 Pro emülatöründe bir `data:image` değeriyle ağaçtaki ve karttaki küçük resim görüldü. Android'in
+                panoları küçük resimsiz (`OPEN_ITEMS.md`, "Android'in pano görüntülerinde küçük resim yok").
     *   **Sahibinin kararları (2026-11-10):** sahibi önerileri kabul etti ("önerilerin olsun"):
         *   **Kodda seçilip panolarda olmayanlar: kod onaylandı, panolar koda göre çizilir.**
             *   Query'nin, Convert'in ve Compare'in hâlleri ve kuralları.

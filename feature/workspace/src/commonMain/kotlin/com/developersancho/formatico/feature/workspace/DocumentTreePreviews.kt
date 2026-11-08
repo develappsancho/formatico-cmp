@@ -56,6 +56,6 @@ internal class DocumentTreeCases :
 @Composable
 internal fun DocumentTreePreview(@PreviewParameter(DocumentTreeCases::class) case: PreviewCase<TreeCase>) {
     FormaticoPreview(case, Modifier.width(case.value.width.dp).height(case.value.height.dp)) { tree ->
-        DocumentTree(state = tree.state, layout = tree.layout, onIntent = {}, marks = tree.marks)
+        PreviewPictures { DocumentTree(state = tree.state, layout = tree.layout, onIntent = {}, marks = tree.marks) }
     }
 }

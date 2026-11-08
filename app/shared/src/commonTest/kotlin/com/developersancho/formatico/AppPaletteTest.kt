@@ -62,7 +62,7 @@ class AppPaletteTest {
     fun theLauncherOpensThePaletteAndACommandRunsFromIt() = runComposeUiTest {
         setContent {
             PantrixTestTheme(platform = PlatformType.Desktop, system = mac, window = desktop) {
-                App(systemDark = false, storage = memoryStorageModule)
+                App(systemDark = false, storage = memoryStorageModule, network = boardNetworkModule)
             }
         }
         awaitText("Paste anything")
@@ -83,7 +83,7 @@ class AppPaletteTest {
     fun commandAndKOpensThePaletteAnywhereWithTheAppsOwnCommands() = runComposeUiTest {
         setContent {
             PantrixTestTheme(platform = PlatformType.Desktop, system = mac, window = desktop) {
-                App(systemDark = false, storage = memoryStorageModule)
+                App(systemDark = false, storage = memoryStorageModule, network = boardNetworkModule)
             }
         }
         awaitText("Paste anything")
@@ -104,7 +104,7 @@ class AppPaletteTest {
     fun theSettingsCommandOpensSettingsAndListsNoDocumentsCommandsOverIt() = runComposeUiTest {
         setContent {
             PantrixTestTheme(platform = PlatformType.Desktop, system = mac, window = desktop) {
-                App(systemDark = false, storage = memoryStorageModule)
+                App(systemDark = false, storage = memoryStorageModule, network = boardNetworkModule)
             }
         }
         awaitText("Paste anything")
@@ -128,7 +128,7 @@ class AppPaletteTest {
     fun aCommandsOwnKeysRunItWithoutThePalette() = runComposeUiTest {
         setContent {
             PantrixTestTheme(platform = PlatformType.Desktop, system = mac, window = desktop) {
-                App(systemDark = false, storage = memoryStorageModule)
+                App(systemDark = false, storage = memoryStorageModule, network = boardNetworkModule)
             }
         }
         awaitText("Paste anything")
@@ -146,7 +146,7 @@ class AppPaletteTest {
         val clipboard = TestClipboard().apply { putText("name: Formatico\n") }
         setContent {
             PantrixTestTheme(platform = PlatformType.Desktop, system = mac, window = desktop, clipboard = clipboard) {
-                App(systemDark = false, storage = memoryStorageModule)
+                App(systemDark = false, storage = memoryStorageModule, network = boardNetworkModule)
             }
         }
         awaitText("Paste anything")
@@ -161,7 +161,7 @@ class AppPaletteTest {
     fun aPhonesPaletteListsFewerCommands() = runComposeUiTest {
         setContent {
             PantrixTestTheme(window = phone) {
-                App(systemDark = false, storage = memoryStorageModule)
+                App(systemDark = false, storage = memoryStorageModule, network = boardNetworkModule)
             }
         }
         awaitText("Paste anything")

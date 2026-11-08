@@ -5,12 +5,22 @@ import io.ktor.client.plugins.HttpTimeout
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
-/** Formatico's server and the documents at web addresses, in Koin, on the platform's own HTTP client. */
-val networkModule: Module = module {
+/**
+ * Formatico's server, the documents at web addresses and the pictures at them, in Koin, on the platform's own HTTP
+ * client.
+ */
+val networkModule: Module = networkModule(pictures = null)
+
+/**
+ * [networkModule], its pictures read by [pictures] where it is given: a test's, which has them on the machine it runs on,
+ * since a document's picture values would otherwise ask the network for theirs.
+ */
+fun networkModule(pictures: WebPictures?): Module = module {
     single { formaticoClient() }
     single { FormaticoServer(get(), platformServer()) }
     single<EncryptedShares> { ServerShares(get()) }
     single<WebAddresses> { HttpWebAddresses(get(), get()) }
+    single<WebPictures> { pictures ?: HttpWebPictures(get()) }
     single { Online(get(), get()) }
 }
 
