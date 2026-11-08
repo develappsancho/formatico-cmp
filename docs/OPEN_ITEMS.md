@@ -705,6 +705,10 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
         (`waitForIdle`); yani düğme bir an basılabilir olup yine boş geçmişe dönüyor. Geçmişi kaydeden (`DocumentOpener`)
         ve budayan (`keepHistory`) aynı saati kullanıyor (`Clock.System`), budama kaydı silmemeli. Hemen ardından üç koşu
         geçti; açık temada, tablette ve öteki platformlarda görülmedi.
+        Ertesi koşuda (2026-11-11, kütüphanenin tablo değişikliğiyle) kayıt adımının kendisi resmi yanlış hâlde kaydetti;
+        commit'teki resim geri yazıldı. Yani `recordRoborazziAndroidHostTest`'ten sonra `Settings-390-dark.png`'ye
+        bakılmalı. Settings'in "Clear" düğmesi tek (`Button_clear_history`; Start'ınki bir `Link`), turun beklediği o;
+        Settings geçmişin özetini `HistoryForSettings`'ten alıyor (`DocumentHistory.documents`'tan, `Dispatchers.Default`'ta).
     *   Öneri: telefonda Settings açılırken geçmişin özetini kuran akışa bakılsın (`newTab` ile Start'a dönüş, Settings'in
         view model'inin geçmişi ilk okuyuşu); tur geçmişin satırında "1 document"ı da beklesin.
     *   Durum: açık.
