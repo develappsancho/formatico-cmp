@@ -16,29 +16,21 @@ Formatico is also a test of Pantrix UI: it is built the way a developer who foun
 
 - **Learn Pantrix UI only from what an outsider has:** pantrixui.com (its Installation, Docs and For AI pages, the
   guides and the component pages), the Claude Code plugin and skill the site describes, the MCP server, and the
-  packages (the jars and source jars Gradle resolves): the published ones, and for now the local build below.
-- **Until the release before production, Pantrix's local build stands in for the published one** (the owner's
-  decision, 2026-11-03). Fixes for the findings go into it as they come; the real release is made once, before
-  production.
-  - **Packages:** 0.1.2-SNAPSHOT from `mavenLocal`, which `settings.gradle.kts` reads for `com.pantrixui` SNAPSHOTs
-    only; GitHub Packages stays listed for the release.
-  - **Plugin:** `pantrix-ui@pantrix-ui-local` from `~/.pantrix/marketplace`, installed with `--scope local`, in place
-    of the disabled `pantrix-ui@pantrix-ui`. Its MCP server is the jar in the plugin's folder, run with `java` over
-    stdio, not `pantrixui.com/mcp`; its `get_changelog` says under Unreleased what is new, which the site does not
-    show yet.
-  - **A new local build:** reload the plugins (`/reload-plugins`, or a new session) and sync Gradle again; a SNAPSHOT
-    in `mavenLocal` is read as it is, with no cache in the way.
-  - **A finding that blocks the work** is marked `tıkıyor` in `docs/PANTRIX_FINDINGS.md`; it is fixed first and the
-    local package rebuilt.
+  published packages (the jars and source jars Gradle resolves).
+- **Pantrix comes from its releases** (the owner's decision, 2026-11-11; until 0.2.1 a local build stood in for them):
+  - **Packages:** the `pantrix` version in `gradle/libs.versions.toml`, from GitHub Packages.
+  - **Plugin:** `pantrix-ui@pantrix-ui` at project scope; its MCP server is `pantrixui.com/mcp`. For a new release,
+    `claude plugin marketplace update pantrix-ui`, then `claude plugin update pantrix-ui@pantrix-ui --scope project`;
+    the plugin loads in a new session.
+  - **A new version:** its download needs the owner's yes; the pictures that show Settings' About line, which prints
+    the version, are recorded again; Formatico is built and verified on every target.
+  - **A finding that blocks the work** is marked `tıkıyor` in `docs/PANTRIX_FINDINGS.md`; it is fixed first and
+    released.
   - **A workaround in Formatico's code** says in a comment which finding it is for, and is removed when the fix
     lands.
-  - **Before production:** the version goes back to the released one and the `mavenLocal` block is removed;
-    `claude plugin enable pantrix-ui@pantrix-ui --scope local` and `claude plugin marketplace remove pantrix-ui-local`
-    are run; Formatico is built again on every target with the package from GitHub Packages.
 - **Never read the library's or the site's repositories** on this machine (`../pantrix-ui-cmp`, `../pantrix-ui-site`)
-  or anything of theirs that is not published, beyond the local packages and plugin above. One exception (the
-  owner's decision, 2026-11-06): for Formatico's hosting beside the site, the site's `deploy/` and `docs/deploy/` may
-  be read, and nothing else of it.
+  or anything of theirs that is not published. One exception (the owner's decision, 2026-11-06): for Formatico's
+  hosting beside the site, the site's `deploy/` and `docs/deploy/` may be read, and nothing else of it.
 - **Every gap goes into `docs/PANTRIX_FINDINGS.md`**, as its header says: what was looked for, where on the site, what
   was missing, what is proposed. The library and the site are fixed in another session, with the owner's yes; this
   project never edits them.
@@ -62,14 +54,13 @@ Formatico is also a test of Pantrix UI: it is built the way a developer who foun
   user's own key was dropped (the owner's decision, 2026-11-09).
 - **Parsers:** our own lossless ones in a pure Kotlin `core:format` module (comments, the spelling of numbers and the
   order of keys kept), except YAML, which is parsed by `snakeyaml-engine-kmp` and printed by our own printer.
-- **Editor:** `PantrixCodeEditor` is the workspace's text pane (in the local package since 2026-11-03).
+- **Editor:** `PantrixCodeEditor` is the workspace's text pane (since 2026-11-03).
 - **No backend in v1:** a small document is shared compressed in the link's fragment. v2 brings a Spring Boot server
   for end-to-end encrypted links and a URL proxy.
 - **Navigation:** Compose's navigation3.
-- **Stack:** Compose Multiplatform 1.12.2, Kotlin 2.4.21, Pantrix UI 0.1.2-SNAPSHOT from `mavenLocal` until the
-  release before production (from GitHub Packages then), MVI with feature modules and Koin, detekt with
-  `com.pantrixui:detekt-rules`, Kotlinter, tests in `commonTest` with Pantrix's testing module, Roborazzi, Maestro and
-  browser tests, the web in Wasm with a JavaScript fallback.
+- **Stack:** Compose Multiplatform 1.12.2, Kotlin 2.4.21, Pantrix UI 0.2.1 from GitHub Packages, MVI with feature
+  modules and Koin, detekt with `com.pantrixui:detekt-rules`, Kotlinter, tests in `commonTest` with Pantrix's testing
+  module, Roborazzi, Maestro and browser tests, the web in Wasm with a JavaScript fallback.
 - **Build logic:** convention plugins are Kotlin classes (`Plugin<Project>`), never precompiled `.gradle.kts` script
   plugins.
 - **MVI:** the base view model, the base screen and every other base live in one module.
