@@ -434,6 +434,62 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
             *   Belge açıkken sürükle bırak.
             *   Önizleme ve ekran görüntüsü tabanlarının `core:base` dışında kalması.
             *   CLAUDE.md'de editörün hâlâ beklendiğini söyleyen cümleler.
+    *   **Kimin işi (2026-11-10):** `PANTRIX_FINDINGS.md`'deki açık bulgular kütüphanenin, `OPEN_ITEMS.md`'deki
+        maddeler ve denetimin çıkardıkları Formatico'nun. Ayrıntısı:
+        *   **Kütüphanenin oturumu yapar.** 70 açık bulgu var, ikisi aynı (460 ve 478); başına sayı konanlar
+            bulgunun dosyadaki satırı.
+            *   **Kütüphanenin kodu (37):**
+                *   Tema ve platform: 239 temanın koyu olup olmadığı okunamıyor, 407 dile göre küçük harf,
+                    417 haftanın günü olmayan tarih, 526 iOS'ta cihazın dili, 562 adları birleştirme.
+                *   Testler: 223 test temasının penceresi, 295 dialog 0×0.
+                *   Bileşenler: 261 `onKeyboardAction`, 289 paylaşım hizmeti, 301 kapatılabilen sekme,
+                    316 JsonView'in seçili yolu, 331 yan yana karşılaştırma, 336 DataTable'da hücre seçimi,
+                    351 menüden yapıştırma, 356 PageScaffold'un başlığı, 361 boş hâl, 381 menünün başlığı ve
+                    sondaki yazısı, 402 sık çubukta dokunma hedefi, 422 Breadcrumb'ın taşması, 432 FileDrop'un
+                    sözcükleri, 437 sekmelerin çizgisi, 460 ve 478 SegmentButton grubunun adı, 472 satırın eylem
+                    düğmesi, 550 paletin arama alanının adı, 610 taşan araç çubuğu.
+                *   Simgeler: 427 `ChevronUp`, 555 kod simgesi.
+                *   Kod editörü: 442 işaretin iletisinde düğme, 448 imlecin satırındaki işaret, 454 aralıkların
+                    vurgusu (şimdiki eşleşmenin çerçevesi), 484 salt okunur editörün imleç satırı, 508 işaretli
+                    satırın ekran okuyucuya söylenmesi.
+                *   Ağaç: 532 seçili satırın biçimli etiketi, 538 tembel ağaç, 544 yüklenmemiş dalın çocuk
+                    sayısı.
+                *   Web: 275 kelimeler yüklenirken MissingName, 281 snackbar'ın iletisi ekran okuyucuya.
+            *   **Tasarım sistemi (9):** 141 DataTable, 147 CodeBlock, 152 simgelerin kapalı listesi,
+                157 açık Menu ve Popover, 162 `Button`'ın `loading`'i, 167 CodeEditor'ün stili ve renkleri,
+                172 CodeEditor'ün bir satırdan açılması, 177 yerinde çizilen Dialog'un karartması, 412 bölme
+                tutamacı (kütüphanenin yarısı geldi).
+            *   **Site ve belgeler (21):**
+                *   Kurulum: 13, 18, 23, 28, 33, 38, 43, 48, 53.
+                *   Detekt: 185, 190, 195.
+                *   API başvurusu ve "For AI": 203, 208.
+                *   Test rehberi: 218, 229, 234, 251, 256.
+                *   Web ve dil: 269 webpack eklentisi, 520 uygulamanın kendi sözcükleri.
+            *   **MCP ve eklenti (2):** 213 ekipçe kurulum ve oturumun yenilenmesi, 245 eski jar'la cevap veren
+                sunucu.
+        *   **Formatico yapar:**
+            *   `OPEN_ITEMS.md`'deki 56 maddenin 51'i: kapanacak üç madde, kararlar, küçük hatalar, tuval ile
+                kodun eşlenmesi, özellikler ve performans, ekran görüntüleri ve cihazlar.
+            *   CLAUDE.md denetiminin çıkardıkları:
+                *   önizleme ve test eksikleri;
+                *   Android ve JavaScript'te testler;
+                *   bulgusunu anmayan yaklaşık 25 geçici çözümün yorumu;
+                *   `EditorComing`'in silinmesi;
+                *   lisans listesi;
+                *   yapıştırmanın sınırı ve MiB ile MB farkı.
+            *   Bulgulardan şimdi yapılabilenler:
+                *   Query'de öteki eşleşmelerin `CodeRangeStyle.Highlight` ile işaretlenmesi (454'ün yarısı);
+                *   tuvalde Workspace-834'ün tutamacı (412);
+                *   460 ile 478'in birleştirilmesi.
+        *   **Önce kütüphane, sonra Formatico:**
+            *   `OPEN_ITEMS.md`'de: Start'ın bırakma alanının sözcükleri (432'yi bekliyor), durum çubuğunun boyu
+                (402'yi bekliyor), sekmelerin kesilen ilki (önce bir bulgu olarak yazılmalı).
+            *   Kütüphane her bulguyu düzelttikçe, Formatico'daki geçici çözümü sökülür.
+        *   **İkisinin de elinde değil:** Compose Multiplatform'un iki maddesi: web konsolundaki `wasmExports`
+            uyarısı ve Wasm'da kütüphane modüllerinin `binaries.executable()` gerektirmesi (CMP-4906).
+        *   **Sahibinin kararı:** 316, 331 ve 275 Formatico'yu artık ilgilendirmiyor. Formatico'nun ağacı
+            `PantrixLazyTreeView`, karşılaştırması iki `PantrixCodeEditor`, MissingName de artık görünmüyor.
+            Bunlar kapatılır mı, yoksa yalnızca kütüphanenin işi olarak açık mı kalır?
 *   [ ] **Faz 22: Yayın.** Pantrix'in gerçek yayını; Formatico'nun yayımlanan sürüme dönmesi (`mavenLocal` bloğu
     kalkar, `pantrix-ui@pantrix-ui` açılır, `pantrix-ui-local` kaldırılır); GitHub Packages'tan gelen paketle bütün
     hedeflerde yeniden derleme ve testler; `formatico.pantrixui.com`'un ve v2 sunucusunun yayını. Sahibinin planı
