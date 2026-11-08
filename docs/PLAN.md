@@ -480,8 +480,9 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
             kaydı) ve kalan bulguların kütüphaneye iletilmesi.
         *   **İlerleme (2026-11-12):** üç karar kodda.
             *   Resmin küçük resmi: `core:network`'te `WebPictures` (yalnızca https, 2 MB'a kadar, resim olmayan cevap
-                yok sayılır, Formatico'nun sunucusundan hiç geçmez; web'de sayfanın politikası `connect-src 'self'`
-                olduğu için ağdaki resim hiç istenmez, yalnızca `data:image` gösterilir); Workspace'te `PictureThumbnails` (bir kez okunur,
+                yok sayılır, Formatico'nun sunucusundan hiç geçmez; web'de sayfanın politikası resmin sitesine https
+                ile ulaşmaya izin verir, `connect-src https:` (sahibinin kararı, 2026-11-12), resmi CORS izni veren site
+                verir); Workspace'te `PictureThumbnails` (bir kez okunur,
                 ortasından kare kesilir, en çok 192 piksel, bellekte 64 tane, `data:image` ağa çıkmadan). Ağaçta 24'lük,
                 telefonda 28'lik; telefonun seçili değer kartında 56'lık. Okunamayan ya da okunurken bugünkü simgeli kutu.
                 Uygulamanın testleri resimleri ağdan değil, `boardNetworkModule`'den alıyor.

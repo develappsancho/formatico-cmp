@@ -22,16 +22,13 @@ fun interface WebPictures {
 }
 
 /**
- * [WebPictures] on HTTP, by the platform itself where it reads other sites, [itself]. A picture is never fetched through
- * Formatico's server, which would learn the addresses a document holds; so on the web, whose page may reach its own
- * site alone (its Content-Security-Policy's `connect-src 'self'`), none is read, and no request is refused there.
+ * [WebPictures] on HTTP, always by the platform itself: a picture is never fetched through Formatico's server, which
+ * would learn the addresses a document holds. On the web the page reaches a picture's site over https
+ * (`deploy/web/headers.conf`, `connect-src https:`), and a browser hands it the picture only where that site lets a page
+ * read it (CORS); a picture of any other site keeps its icon.
  */
-internal class HttpWebPictures(
-    private val client: HttpClient,
-    private val itself: Boolean = downloadsItself
-) : WebPictures {
+internal class HttpWebPictures(private val client: HttpClient) : WebPictures {
     override suspend fun read(address: String, maxBytes: Long): ByteArray? {
-        if (!itself) return null
         val url = parseUrl(address.trim())?.takeIf { it.host.isNotEmpty() && it.protocol == URLProtocol.HTTPS } ?: return null
         return reaching(null) {
             client.prepareGet(url).execute { response ->

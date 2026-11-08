@@ -700,7 +700,7 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Öneri: Robolectric'in ya da Roborazzi'nin yeni sürümünde yeniden denemek; Android'de küçük resmi gerçek bir
         cihazda ya da emülatörde görmek.
     *   Durum: kapandı (2026-11-12). Sebep, resmin arka plandan gelen geç bir durum değişikliği olmasıydı. Küçük resmin okunması artık isteyen iş parçacığında başlıyor (ağ beklenirken tutulmuyor), 32 KB'a kadarki resim orada hemen kesiliyor, büyüğü arka planda (`LoadedThumbnails`). Android'in panoları küçük resimle, iki kayıtta da aynı.
-*   [ ] **Web'de ağdaki resimlerin küçük resmi yok (2026-11-12).**
+*   [x] **Web'de ağdaki resimlerin küçük resmi yok (2026-11-12).**
     *   Ne: Web uygulamasının içerik güvenliği politikası (`deploy/web/headers.conf`) `connect-src 'self'` diyor: sayfa
         yalnızca kendi sitesine istek atabiliyor. Bir değerin `https` adresindeki resim istense politika engeller,
         konsola bir hata düşerdi. Bu yüzden web'de ağdaki resimler hiç istenmiyor (`HttpWebPictures`), yerlerinde
@@ -708,7 +708,9 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
         sunucusundan okunuyor.
     *   Öneri: sahibinin kararı: web'de de gösterilsin mi? Öyleyse `connect-src`'a `https:` eklenir (politika
         gevşer), resim sunucusunun CORS izni de gerekir; çoğu vermez.
-    *   Durum: açık.
+    *   Durum: kapandı (2026-11-12), sahibinin kararıyla ("Evet, ekle"). Politika `connect-src 'self' https:`; web
+        de resmi kendi okuyor (`HttpWebPictures`). Resmi yalnızca CORS izni veren site veriyor, ötekinin resmi simgede
+        kalıyor; `data:image` her yerde gösteriliyor.
 *   [x] **Sorgu sonuçlarının yazılmasında derleyicinin uyarısı (2026-11-12).**
     *   Ne: `QueryResults.kt:18`'de `document.format ?: return null`: biçim satır 14'te `?: return null` ile zaten
         denetlenmiş, Kotlin onu boş olamaz biliyor ve her derlemede "Elvis operator always returns the left operand"

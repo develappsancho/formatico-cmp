@@ -17,18 +17,14 @@ class WebPicturesTest {
     private val address = "https://images.example.com/u/elif.png"
     private val bytes = ByteArray(16) { it.toByte() }
 
-    /**
-     * Pictures read through a client whose every request [answer] answers, by the platform [itself] or not; [asked]
-     * says whether one was sent.
-     */
-    private class Answered(itself: Boolean = true, answer: suspend MockRequestHandleScope.() -> HttpResponseData) {
+    /** Pictures read through a client whose every request [answer] answers; [asked] says whether one was sent. */
+    private class Answered(answer: suspend MockRequestHandleScope.() -> HttpResponseData) {
         var asked = false
         val pictures = HttpWebPictures(
             clientOf {
                 asked = true
                 answer()
-            },
-            itself = itself
+            }
         )
     }
 
@@ -47,13 +43,6 @@ class WebPicturesTest {
         assertNull(answered.pictures.read("http://images.example.com/u/elif.png", maxBytes = 100))
         assertNull(answered.pictures.read("file:///Users/elif/elif.png", maxBytes = 100))
         assertNull(answered.pictures.read("not an address", maxBytes = 100))
-        assertTrue(!answered.asked)
-    }
-
-    @Test
-    fun theWebAsksForNoPicture() = runTest {
-        val answered = Answered(itself = false) { picture(bytes) }
-        assertNull(answered.pictures.read(address, maxBytes = 100))
         assertTrue(!answered.asked)
     }
 
