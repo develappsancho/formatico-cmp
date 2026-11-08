@@ -97,7 +97,7 @@ class StartScreenTest {
             format = Format.Yaml,
             size = 1946,
             at =
-            now - 5.minutes
+                now - 5.minutes
         )
         val intents = mutableListOf<StartIntent>()
         setContent {

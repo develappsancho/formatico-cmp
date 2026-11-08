@@ -28,6 +28,7 @@ import com.developersancho.formatico.feature.start.DocumentHistory
 import com.developersancho.formatico.feature.start.StartRoute
 import com.developersancho.formatico.feature.start.startModule
 import com.developersancho.formatico.feature.workspace.Workbench
+import com.developersancho.formatico.feature.workspace.WorkbenchKeeper
 import com.developersancho.formatico.feature.workspace.WorkspaceRoute
 import com.developersancho.formatico.feature.workspace.workspaceModule
 import com.pantrixui.components.container.scaffold.PantrixScaffold
@@ -47,19 +48,21 @@ import kotlin.time.Clock
  * document stays open in its own.
  *
  * The theme is the system's until the bar's switch is pressed, and the choice is kept on this device. A change made
- * to a document in its workspace is told to Start's history.
+ * to a document in its workspace is told to Start's history. In a browser, the tab's history and address follow the
+ * screen shown, once the documents open when the app last closed are back.
  */
 @Composable
 fun App() {
-    App(systemDark = isSystemInDarkTheme(), storage = storageModule)
+    App(systemDark = isSystemInDarkTheme(), storage = storageModule, followsBrowser = true)
 }
 
 /**
  * The app with the system's dark mode and the stores given: a test pins the one, as it pins the rest of the theme,
- * and gives stores that keep nothing past it.
+ * and gives stores that keep nothing past it. Where [followsBrowser] says so, a browser's history follows the app; a
+ * test leaves it out, since its page holds many apps one after another.
  */
 @Composable
-internal fun App(systemDark: Boolean, storage: Module) {
+internal fun App(systemDark: Boolean, storage: Module, followsBrowser: Boolean = false) {
     val configuration = remember(storage) { koinConfiguration { modules(storage, startModule, workspaceModule) } }
     KoinApplication(configuration = configuration, logLevel = Level.ERROR) {
         val theme = rememberKeptTheme(small = koinInject(), systemDark = systemDark)
@@ -72,6 +75,8 @@ internal fun App(systemDark: Boolean, storage: Module) {
             val open by workbench.state.collectAsState()
             val backStack = rememberNavBackStack(Destination.Saving, Destination.Start)
             LaunchedEffect(open.selectedId) { backStack.showDocument(open.selectedId) }
+            val restored by koinInject<WorkbenchKeeper>().restored.collectAsState()
+            if (followsBrowser && restored) FollowBrowserHistory(workbench)
             PantrixScaffold(
                 modifier = Modifier.fillMaxSize(),
                 topBar = { insets ->

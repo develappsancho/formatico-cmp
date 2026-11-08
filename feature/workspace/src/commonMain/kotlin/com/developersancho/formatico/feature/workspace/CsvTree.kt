@@ -4,6 +4,7 @@ import com.developersancho.formatico.core.format.Format
 import com.developersancho.formatico.core.format.Severity
 import com.developersancho.formatico.core.format.csv.CsvDocument
 import com.developersancho.formatico.core.format.csv.CsvField
+import com.developersancho.formatico.core.format.csv.CsvRecord
 import com.developersancho.formatico.core.format.json.PathStep
 import com.developersancho.formatico.core.format.text.TextRange
 
@@ -31,31 +32,16 @@ internal fun readCsv(text: String, format: Format): Reading {
     val root = if (document.records.isEmpty()) {
         null
     } else {
-        val children = rows.mapIndexed { index, record ->
-            val step = PathStep.Index(index)
-            val key = childKey(ROOT, step)
-            val seen = HashSet<String>()
-            val fields = record.fields.mapIndexed { column, field ->
-                val name = header.getOrNull(column) ?: "${column + 1}"
-                val fieldStep = PathStep.Key(name)
-                val place = FieldPlace(
-                    path = listOf(step, fieldStep),
-                    name = name,
-                    key = childKey(key, fieldStep, column.takeUnless { seen.add(name) }),
-                    inCodes = column in codes
-                )
-                field(field, text, place)
-            }
-            ValueNode(
-                key,
-                listOf(
-                    step
-                ),
-                "$index", ValueKind.Object, "{${fields.size}}", null, null, fields, record.range
-            )
-        }
+        val children = rows.mapIndexed { index, record -> record(record, index, header, codes, text) }
         ValueNode(
-            ROOT, emptyList(), ROOT, ValueKind.Array, "[${rows.size}]", null, null, children,
+            ROOT,
+            emptyList(),
+            ROOT,
+            ValueKind.Array,
+            "[${rows.size}]",
+            null,
+            null,
+            children,
             TextRange(
                 0,
                 text.length
@@ -68,6 +54,35 @@ internal fun readCsv(text: String, format: Format): Reading {
         errors = document.problems.count {
             it.severity == Severity.Error
         }
+    )
+}
+
+/** The node of the record at [index]: an object of its fields, each named by its column's name in [header]. */
+private fun record(record: CsvRecord, index: Int, header: List<String>, codes: Set<Int>, text: String): ValueNode {
+    val step = PathStep.Index(index)
+    val key = childKey(ROOT, step)
+    val seen = HashSet<String>()
+    val fields = record.fields.mapIndexed { column, field ->
+        val name = header.getOrNull(column) ?: "${column + 1}"
+        val fieldStep = PathStep.Key(name)
+        val place = FieldPlace(
+            path = listOf(step, fieldStep),
+            name = name,
+            key = childKey(key, fieldStep, column.takeUnless { seen.add(name) }),
+            inCodes = column in codes
+        )
+        field(field, text, place)
+    }
+    return ValueNode(
+        key = key,
+        path = listOf(step),
+        name = "$index",
+        kind = ValueKind.Object,
+        text = "{${fields.size}}",
+        value = null,
+        preview = null,
+        children = fields,
+        range = record.range
     )
 }
 

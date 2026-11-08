@@ -11,7 +11,8 @@ import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class YamlDocumentTest {
-    private val deployment = """
+    private val deployment =
+        """
         # A service
         metadata:
           name: formatico-web
@@ -22,7 +23,7 @@ class YamlDocumentTest {
           selector:
             matchLabels: *labels
           args: ["--queue", 'conversions', 4]
-    """.trimIndent() + "\n"
+        """.trimIndent() + "\n"
 
     private fun YamlNode?.asMapping(): YamlMapping = assertIs<YamlMapping>(this)
 

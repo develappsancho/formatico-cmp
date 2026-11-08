@@ -73,9 +73,13 @@ class StartViewModel(
         viewModelScope.launch {
             val bytes = runCatching { file.readBytes() }.getOrNull()
             when {
-                bytes == null -> setState { copy(refusal = FileRefusal.Unreadable(file.name)) }
+                bytes == null -> {
+                    setState { copy(refusal = FileRefusal.Unreadable(file.name)) }
+                }
 
-                bytes.size > maxFileSize -> setState { copy(refusal = FileRefusal.TooLarge(file.name, maxFileSize)) }
+                bytes.size > maxFileSize -> {
+                    setState { copy(refusal = FileRefusal.TooLarge(file.name, maxFileSize)) }
+                }
 
                 else -> {
                     val document = withContext(reader) {

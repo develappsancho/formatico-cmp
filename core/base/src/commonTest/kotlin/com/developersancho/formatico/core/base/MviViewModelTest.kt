@@ -18,6 +18,7 @@ class MviViewModelTest {
 
     private sealed interface CounterIntent {
         data object Increment : CounterIntent
+
         data object Share : CounterIntent
     }
 

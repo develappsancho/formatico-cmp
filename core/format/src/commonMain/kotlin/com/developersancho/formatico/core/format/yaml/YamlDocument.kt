@@ -141,17 +141,29 @@ private class YamlReader(private val text: String) {
                 lastDocumentEnd = event.endMark?.let(offsets::of) ?: lastDocumentEnd
             }
 
-            is ScalarEvent -> add(scalar(event))
+            is ScalarEvent -> {
+                add(scalar(event))
+            }
 
-            is AliasEvent -> add(alias(event))
+            is AliasEvent -> {
+                add(alias(event))
+            }
 
-            is MappingStartEvent -> open(event.startMark, mapping = true, flow = event.flowStyle == FlowStyle.FLOW)
+            is MappingStartEvent -> {
+                open(event.startMark, mapping = true, flow = event.flowStyle == FlowStyle.FLOW)
+            }
 
-            is SequenceStartEvent -> open(event.startMark, mapping = false, flow = event.flowStyle == FlowStyle.FLOW)
+            is SequenceStartEvent -> {
+                open(event.startMark, mapping = false, flow = event.flowStyle == FlowStyle.FLOW)
+            }
 
-            is MappingEndEvent, is SequenceEndEvent -> close(end = event.endMark?.let(offsets::of))
+            is MappingEndEvent, is SequenceEndEvent -> {
+                close(end = event.endMark?.let(offsets::of))
+            }
 
-            else -> Unit
+            else -> {
+                Unit
+            }
         }
     }
 
@@ -261,7 +273,9 @@ private fun commentsOf(text: String, scalars: List<TextRange>): List<TextRange> 
         while (next < inside.size && inside[next].end <= index) next++
         val scalar = inside.getOrNull(next)?.takeIf { it.start <= index && index < it.end }
         when {
-            scalar != null -> index = scalar.end
+            scalar != null -> {
+                index = scalar.end
+            }
 
             text[index] == '#' && (index == 0 || text[index - 1].isWhitespace()) -> {
                 var end = index
@@ -270,7 +284,9 @@ private fun commentsOf(text: String, scalars: List<TextRange>): List<TextRange> 
                 index = end
             }
 
-            else -> index++
+            else -> {
+                index++
+            }
         }
     }
     return comments

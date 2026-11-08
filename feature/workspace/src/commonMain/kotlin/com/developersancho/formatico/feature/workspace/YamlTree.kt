@@ -47,7 +47,14 @@ private class YamlTree(private val text: String) {
         }
         val text = "[${documents.size}]"
         return ValueNode(
-            ROOT, emptyList(), ROOT, ValueKind.Array, text, null, null, children,
+            ROOT,
+            emptyList(),
+            ROOT,
+            ValueKind.Array,
+            text,
+            null,
+            null,
+            children,
             TextRange(
                 0,
                 this.text.length
@@ -59,7 +66,9 @@ private class YamlTree(private val text: String) {
         // An alias inside its own anchor's value points at a node still being made: its place is known already.
         if (value.anchor != null) anchored[value] = ValueReference(key, path)
         return when (value) {
-            is YamlMapping -> mapping(value, path, name, key)
+            is YamlMapping -> {
+                mapping(value, path, name, key)
+            }
 
             is YamlSequence -> {
                 val children = value.items.mapIndexed { index, item ->
@@ -67,25 +76,37 @@ private class YamlTree(private val text: String) {
                     node(item, path + step, "$index", childKey(key, step))
                 }
                 ValueNode(
-                    key, path, name, ValueKind.Array, "[${value.items.size}]", null, null, children, value.range,
+                    key,
+                    path,
+                    name,
+                    ValueKind.Array,
+                    "[${value.items.size}]",
+                    null,
+                    null,
+                    children,
+                    value.range,
                     anchor = value.anchor
                 )
             }
 
-            is YamlScalar -> scalar(value, path, name, key)
+            is YamlScalar -> {
+                scalar(value, path, name, key)
+            }
 
-            is YamlAlias -> ValueNode(
-                key = key,
-                path = path,
-                name = name,
-                kind = ValueKind.Alias,
-                text = "*${value.name}",
-                value = null,
-                preview = null,
-                children = emptyList(),
-                range = value.range,
-                target = value.target?.let { anchored[it] }
-            )
+            is YamlAlias -> {
+                ValueNode(
+                    key = key,
+                    path = path,
+                    name = name,
+                    kind = ValueKind.Alias,
+                    text = "*${value.name}",
+                    value = null,
+                    preview = null,
+                    children = emptyList(),
+                    range = value.range,
+                    target = value.target?.let { anchored[it] }
+                )
+            }
         }
     }
 
@@ -109,7 +130,15 @@ private class YamlTree(private val text: String) {
             )
         }
         return ValueNode(
-            key, path, name, ValueKind.Object, "{${value.entries.size}}", null, null, children, value.range,
+            key,
+            path,
+            name,
+            ValueKind.Object,
+            "{${value.entries.size}}",
+            null,
+            null,
+            children,
+            value.range,
             anchor = value.anchor
         )
     }
@@ -144,6 +173,8 @@ private class YamlTree(private val text: String) {
             "$indicator ${lines.first()}" + if (lines.size > 1) " …" else ""
         }
 
-        else -> value.raw.lines().joinToString(" ") { it.trim() }
+        else -> {
+            value.raw.lines().joinToString(" ") { it.trim() }
+        }
     }
 }

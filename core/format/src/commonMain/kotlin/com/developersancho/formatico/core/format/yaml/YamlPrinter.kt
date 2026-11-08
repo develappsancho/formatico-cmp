@@ -340,12 +340,16 @@ private class YamlFormatter(
      * later lines moved to [lineIndent] as its first line is.
      */
     private fun inline(node: YamlNode, lineIndent: Int): String = when (node) {
-        is YamlAlias -> "*${node.name}"
+        is YamlAlias -> {
+            "*${node.name}"
+        }
 
-        is YamlScalar -> when {
-            node.raw.none { it == '\n' || it == '\r' } -> node.raw
-            node.style == YamlScalarStyle.Plain -> node.value
-            else -> doubleQuoted(node.value)
+        is YamlScalar -> {
+            when {
+                node.raw.none { it == '\n' || it == '\r' } -> node.raw
+                node.style == YamlScalarStyle.Plain -> node.value
+                else -> doubleQuoted(node.value)
+            }
         }
 
         else -> {
@@ -357,9 +361,13 @@ private class YamlFormatter(
                     shifted(raw, lineIndent - text.indentOfLine(node.range.start), newline)
                 }
 
-                raw.none { it == '\n' || it == '\r' } -> raw
+                raw.none { it == '\n' || it == '\r' } -> {
+                    raw
+                }
 
-                else -> flow(node, text).removePrefix(propertiesOf(node)).trimStart()
+                else -> {
+                    flow(node, text).removePrefix(propertiesOf(node)).trimStart()
+                }
             }
         }
     }

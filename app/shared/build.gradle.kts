@@ -19,6 +19,7 @@ kotlin {
         commonMain.dependencies {
             implementation(projects.core.base)
             implementation(projects.core.designsystem)
+            implementation(projects.core.navigation)
             implementation(projects.core.storage)
             implementation(projects.feature.start)
             implementation(projects.feature.workspace)

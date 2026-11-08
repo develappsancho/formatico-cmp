@@ -212,3 +212,19 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
 *   [x] **Workspace panolarının durum çubuğu belgenin boyunu yanlış yazıyordu (2026-11-03).**
     *   Ne: Workspace panolarının (1440, 834, 390) editör hâli "30 lines · 742 B" diyordu; çizilen order.json 665 bayt, kodun durum çubuğu da 665 B diyor.
     *   Durum: kapandı (2026-11-03). Panolarda 665 B'ye düzeltildi (tuval sürüm 59).
+*   [ ] **Web'de gezinti ile paylaşım bağlantısı aynı fragment'ı istiyor (2026-11-04).**
+    *   Ne: `core:navigation` ekranı adresin `#` kısmına yazıyor (`#start`, `#document?id=3`). v1'in paylaşımı (Faz 13) da belgeyi bağlantının fragment'ında taşıyacak. Bir paylaşım bağlantısıyla açılan sayfa ilk ekranı yazınca bağlantının fragment'ı siliniyor; bugün tanımadığı bir `#` kısmını uygulama yok sayıyor, ama adresi yine kendi girdisiyle değiştiriyor.
+    *   Öneri: Faz 13'te paylaşılan belgeyi fragment'tan okuyup açtıktan sonra adresi gezintiye bırakmak (`#share=…` okunur, sonra `#document?id=N` olur); ya da navigation3-browser'ın birleşmemiş PR #9'u gibi gezintiyi yola (`/document/3`) taşımak, bu da sunucunun her yolu `index.html`'e yönlendirmesini ister.
+    *   Durum: açık, Faz 13'le.
+*   [ ] **Uygulama aldığı kodun lisanslarını göstermiyor (2026-11-04).**
+    *   Ne: navigation3-browser'dan alınan kodun MIT lisansı web dağıtımında bir dosya olarak gidiyor (`licenses/navigation3-browser.txt`); uygulamanın içinde, öteki platformlarda ve öteki bağımlılıklar (Geist, KSafe, snakeyaml-engine-kmp, Koin, Compose) için bir lisans sayfası yok. Geist'in OFL'si de yazı tipiyle birlikte lisansının verilmesini istiyor.
+    *   Öneri: Settings'e (Faz 12) bir "Licenses" satırı; önce tuvalde Settings panosuna çizilir.
+    *   Durum: açık, Faz 12'yle.
+*   [x] **Web'de geri gelen belgeden geri tuşu Start'a dönmüyor (2026-11-04).**
+    *   Ne: Uygulama yeni bir sekmede açılıp saklanan belgeyi geri verince ekranlar `#start` ve `#document?id=1` olur, ama tarayıcının geçmişinde bunlar tek bir girdi (`history.state` ikisini de tutuyor). Tarayıcının geri tuşu Start'a değil, sitenin öncesine gidiyor. Start'tan bir belge açılınca ya da adres elle yazılınca geri ve ileri doğru çalışıyor (yerel dağıtımda, 2026-11-04).
+    *   Öneri: `BrowserHistory` ilk yazışında, tarayıcının girdisinin hâli yokken ve birden çok ekran varken, kökü bulunduğu girdiye yazsın ve kalan ekranları birer yeni girdi olarak eklesin.
+    *   Durum: kapandı (2026-11-04). Öneri gibi; `BrowserHistoryTest` sınıyor. Chrome, bir sayfanın kullanıcı ona dokunmadan eklediği girdiyi geri tuşunda atlıyor (history manipulation intervention): sayfa açılır açılmaz geri basılırsa Start atlanıyor, sayfaya bir kez tıklandıktan sonra geri Start'a dönüyor (yerel dağıtımda, uygulamanın tarayıcı bölmesinde denendi). Bu tarayıcının kuralı; değiştirilemez.
+*   [ ] **Start'a gidip dönünce belge yeniden okunuyor (2026-11-04).**
+    *   Ne: Workspace'in görünüm modeli gezinti girdisine bağlı (`rememberViewModelStoreNavEntryDecorator`). Start'a geçince girdi yığından çıkıyor, görünüm modeli siliniyor; belgeye dönünce yenisi belgeyi baştan okuyor (durum çubuğunda "Reading…"). Küçük belgede fark edilmiyor; 50 MB'lık bir belgede her dönüş yeniden okuma demek. Web'de geri ve ileri tuşlarıyla görüldü (2026-11-04); telefonun geri tuşunda da aynısı olmalı.
+    *   Öneri: okunmuş belgeyi (`DocumentReading`) görünüm modeli yerine `Workbench`'te belgeyle birlikte tutmak ya da metni değişmeyen bir belgenin okumasını önbelleğe almak; Faz 14'ün büyük dosya ölçümüyle birlikte.
+    *   Durum: açık.

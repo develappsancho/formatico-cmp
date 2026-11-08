@@ -266,25 +266,29 @@ private fun lastTouched(at: Instant, edited: Boolean, short: Boolean): String {
     val clock = LocalPantrixClock.current
     val strings = PantrixTheme.strings
     return when (val recency = recency(then = at, now = clock.clock.now(), utcOffset = clock.utcOffset)) {
-        Recency.JustNow -> stringResource(
-            when {
-                short -> Res.string.start_just_now
-                edited -> Res.string.start_edited_just_now
-                else -> Res.string.start_opened_just_now
-            }
-        )
+        Recency.JustNow -> {
+            stringResource(
+                when {
+                    short -> Res.string.start_just_now
+                    edited -> Res.string.start_edited_just_now
+                    else -> Res.string.start_opened_just_now
+                }
+            )
+        }
 
-        is Recency.MinutesAgo -> pluralStringResource(
-            when {
-                short -> Res.plurals.start_minutes_ago
-                edited -> Res.plurals.start_edited_minutes_ago
-                else -> Res.plurals.start_opened_minutes_ago
-            },
-            recency.minutes,
-            recency.minutes
-        )
+        is Recency.MinutesAgo -> {
+            pluralStringResource(
+                when {
+                    short -> Res.plurals.start_minutes_ago
+                    edited -> Res.plurals.start_edited_minutes_ago
+                    else -> Res.plurals.start_opened_minutes_ago
+                },
+                recency.minutes,
+                recency.minutes
+            )
+        }
 
-        is Recency.Today ->
+        is Recency.Today -> {
             if (short) {
                 stringResource(Res.string.start_today)
             } else {
@@ -293,32 +297,31 @@ private fun lastTouched(at: Instant, edited: Boolean, short: Boolean): String {
                     strings.clock(recency.hour, recency.minute)
                 )
             }
+        }
 
-        Recency.Yesterday -> stringResource(
-            when {
-                short -> Res.string.start_yesterday
-                edited -> Res.string.start_edited_yesterday
-                else -> Res.string.start_opened_yesterday
-            }
-        )
+        Recency.Yesterday -> {
+            stringResource(
+                when {
+                    short -> Res.string.start_yesterday
+                    edited -> Res.string.start_edited_yesterday
+                    else -> Res.string.start_opened_yesterday
+                }
+            )
+        }
 
         is Recency.OnDate -> {
-            val date = recency.date
-            val day = if (recency.thisYear) {
-                strings.dayMonth(date.day, date.month)
-            } else {
-                strings.date(date.day, date.month, date.year)
-            }
-            if (short) {
-                day
-            } else {
-                stringResource(
-                    if (edited) Res.string.start_edited_on else Res.string.start_opened_on,
-                    day
-                )
-            }
+            onDate(recency, edited = edited, short = short)
         }
     }
+}
+
+/** A day before yesterday, as Recent says it: its day and month in this year, and its whole date before. */
+@Composable
+private fun onDate(recency: Recency.OnDate, edited: Boolean, short: Boolean): String {
+    val strings = PantrixTheme.strings
+    val date = recency.date
+    val day = if (recency.thisYear) strings.dayMonth(date.day, date.month) else strings.date(date.day, date.month, date.year)
+    return if (short) day else stringResource(if (edited) Res.string.start_edited_on else Res.string.start_opened_on, day)
 }
 
 @Composable
@@ -334,13 +337,20 @@ private fun sampleName(sample: Sample, short: Boolean): String = stringResource(
 @Composable
 private fun sampleDetail(sample: Sample, short: Boolean): String = stringResource(
     when (sample) {
-        Sample.Order -> if (short) Res.string.start_sample_order_detail_short else Res.string.start_sample_order_detail
+        Sample.Order -> {
+            if (short) Res.string.start_sample_order_detail_short else Res.string.start_sample_order_detail
+        }
 
-        Sample.Deployment ->
+        Sample.Deployment -> {
             if (short) Res.string.start_sample_deployment_detail_short else Res.string.start_sample_deployment_detail
+        }
 
-        Sample.Manifest -> Res.string.start_sample_manifest_detail
+        Sample.Manifest -> {
+            Res.string.start_sample_manifest_detail
+        }
 
-        Sample.Countries -> Res.string.start_sample_countries_detail
+        Sample.Countries -> {
+            Res.string.start_sample_countries_detail
+        }
     }
 )

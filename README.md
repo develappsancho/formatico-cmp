@@ -12,6 +12,8 @@ properties. It is a Compose Multiplatform app for Android, iOS, the desktop and 
 | [`app/androidApp`](app/androidApp), [`app/desktopApp`](app/desktopApp), [`app/webApp`](app/webApp), [`app/iosApp`](app/iosApp) | Each platform's entry point |
 | [`core/format`](core/format) | Pure Kotlin: the formats, their lossless parsers, format detection, problems with their line and column, JSON formatted, minified and with its keys sorted, YAML read through snakeyaml-engine-kmp and written by Formatico's own printer, CSV and TSV read and written by Formatico's own reader and printer, JSONPath |
 | [`core/base`](core/base) | The bases every feature builds on: `MviViewModel`, `MviScreen` |
+| [`core/storage`](core/storage) | What is kept on the device: the small values in KSafe, the documents' texts as files, and in a browser in IndexedDB |
+| [`core/navigation`](core/navigation) | A browser tab's history and address kept with the app's screens (adapted from navigation3-browser, MIT) |
 | [`core/designsystem`](core/designsystem) | Formatico's look over Pantrix UI: `FormaticoPreset` (Teal), Geist and Geist Mono, the syntax colours, `FormaticoTheme`, Formatico's own icons |
 | [`feature/start`](feature/start) | The Start screen: paste, open, drop, recent documents and samples |
 | [`feature/workspace`](feature/workspace) | The open documents and their workspace: the toolbar, the tree with its value previews, the table of an array or a CSV (sorting, filtering, columns, a column summed up, saved as CSV), the status bar |

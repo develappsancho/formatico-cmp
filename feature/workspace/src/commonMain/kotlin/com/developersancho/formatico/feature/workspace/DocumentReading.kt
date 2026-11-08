@@ -125,7 +125,9 @@ private fun node(value: JsonValue, path: List<PathStep>, name: String, key: Stri
             ValueNode(key, path, name, ValueKind.Array, "[${value.items.size}]", null, null, children, value.range)
         }
 
-        else -> leaf(key, path, name, value)
+        else -> {
+            leaf(key, path, name, value)
+        }
     }
 
 /** The node of a string, a number, `true`, `false` or `null`. */

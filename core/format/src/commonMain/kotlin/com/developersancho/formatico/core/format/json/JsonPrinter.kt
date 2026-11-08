@@ -62,13 +62,21 @@ private fun StringBuilder.appendMinified(value: JsonValue) {
             append(']')
         }
 
-        is JsonString -> append(value.raw)
+        is JsonString -> {
+            append(value.raw)
+        }
 
-        is JsonNumber -> append(value.raw)
+        is JsonNumber -> {
+            append(value.raw)
+        }
 
-        is JsonBoolean -> append(if (value.value) "true" else "false")
+        is JsonBoolean -> {
+            append(if (value.value) "true" else "false")
+        }
 
-        is JsonNull -> append("null")
+        is JsonNull -> {
+            append("null")
+        }
     }
 }
 

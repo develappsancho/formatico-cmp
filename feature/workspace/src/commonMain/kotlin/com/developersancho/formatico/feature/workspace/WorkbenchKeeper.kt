@@ -6,6 +6,9 @@ import com.developersancho.formatico.core.storage.TextStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
@@ -27,11 +30,22 @@ class WorkbenchKeeper(
 ) {
     // The text each document was last written with, by its id.
     private val written = mutableMapOf<Long, String>()
+    private val mutableRestored = MutableStateFlow(false)
+
+    /**
+     * Whether what was open has been given back: what has to wait for it, as an address that names a document, can go
+     * on.
+     */
+    val restored: StateFlow<Boolean> = mutableRestored.asStateFlow()
 
     /** Gives back what was open, then keeps what is, for as long as [scope] lives. */
     @OptIn(FlowPreview::class)
     fun start(): Job = scope.launch {
-        reopen()
+        try {
+            reopen()
+        } finally {
+            mutableRestored.value = true
+        }
         workbench.state.drop(1).debounce(KEEP_AFTER).collect { keep(it) }
     }
 

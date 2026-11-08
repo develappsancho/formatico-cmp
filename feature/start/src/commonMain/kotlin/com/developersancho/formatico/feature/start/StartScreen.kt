@@ -317,14 +317,19 @@ private fun RejectedFile.toRefusal(maxSize: Long): FileRefusal? = when (reason) 
 
 @Composable
 private fun refusalText(refusal: FileRefusal): String = when (refusal) {
-    is FileRefusal.TooLarge ->
+    is FileRefusal.TooLarge -> {
         stringResource(
             Res.string.start_file_too_large,
             refusal.fileName,
             PantrixTheme.strings.fileSize(refusal.maxSize)
         )
+    }
 
-    is FileRefusal.WrongType -> stringResource(Res.string.start_file_wrong_type, refusal.fileName)
+    is FileRefusal.WrongType -> {
+        stringResource(Res.string.start_file_wrong_type, refusal.fileName)
+    }
 
-    is FileRefusal.Unreadable -> stringResource(Res.string.start_file_unreadable, refusal.fileName)
+    is FileRefusal.Unreadable -> {
+        stringResource(Res.string.start_file_unreadable, refusal.fileName)
+    }
 }

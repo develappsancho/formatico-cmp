@@ -24,6 +24,9 @@ complexity:
     ignoreSimpleWhenEntries: true
 
 style:
+  # As long as .editorconfig's max_line_length, which ktlint reads: the two say the same.
+  MaxLineLength:
+    maxLineLength: 140
   MagicNumber:
     ignorePropertyDeclaration: true
     ignoreCompanionObjectPropertyDeclaration: true

@@ -86,12 +86,17 @@ private fun layoutOf(stats: TextStats): String {
         add(stringResource(Res.string.workspace_encoding))
         stats.layout.lineEnding?.let { add(lineEndingName(it)) }
         when (val indentation = stats.layout.indentation) {
-            is Indentation.Spaces ->
+            is Indentation.Spaces -> {
                 add(pluralStringResource(Res.plurals.workspace_indent_spaces, indentation.count, indentation.count))
+            }
 
-            Indentation.Tabs -> add(stringResource(Res.string.workspace_indent_tabs))
+            Indentation.Tabs -> {
+                add(stringResource(Res.string.workspace_indent_tabs))
+            }
 
-            null -> Unit
+            null -> {
+                Unit
+            }
         }
     }
     return parts.joinToString(" · ")
@@ -107,7 +112,9 @@ private fun lineEndingName(lineEnding: LineEnding): String = when (lineEnding) {
 @Composable
 internal fun StatusTag(state: WorkspaceState) {
     val (text, tone) = when (val reading = state.reading) {
-        Reading.Pending -> stringResource(Res.string.workspace_status_reading) to TagTone.Neutral
+        Reading.Pending -> {
+            stringResource(Res.string.workspace_status_reading) to TagTone.Neutral
+        }
 
         is Reading.Unread -> {
             val format = reading.format
@@ -119,11 +126,13 @@ internal fun StatusTag(state: WorkspaceState) {
             text to TagTone.Neutral
         }
 
-        is Reading.Read -> if (reading.errors == 0) {
-            stringResource(Res.string.workspace_status_valid, reading.format.displayName) to TagTone.Success
-        } else {
-            pluralStringResource(Res.plurals.workspace_status_problems, reading.errors, reading.errors) to
-                TagTone.Danger
+        is Reading.Read -> {
+            if (reading.errors == 0) {
+                stringResource(Res.string.workspace_status_valid, reading.format.displayName) to TagTone.Success
+            } else {
+                pluralStringResource(Res.plurals.workspace_status_problems, reading.errors, reading.errors) to
+                    TagTone.Danger
+            }
         }
     }
     PantrixTag(text = text, tone = tone, dot = true, tagKey = "status")

@@ -289,9 +289,13 @@ private fun editedYaml(text: String, edit: DocumentEdit, indentation: Indentatio
     val yaml = YamlDocument.parse(text)
     if (!yaml.isValid) return Edited.NotPossible
     return when (edit) {
-        DocumentEdit.Format -> Edited.Text(yaml.formatted(indentation))
+        DocumentEdit.Format -> {
+            Edited.Text(yaml.formatted(indentation))
+        }
 
-        DocumentEdit.Minify -> Edited.Text(yaml.minified(), commentsRemoved = yaml.comments.size)
+        DocumentEdit.Minify -> {
+            Edited.Text(yaml.minified(), commentsRemoved = yaml.comments.size)
+        }
 
         DocumentEdit.SortKeys -> {
             val sorted = yaml.formatted(indentation, sortKeys = true)

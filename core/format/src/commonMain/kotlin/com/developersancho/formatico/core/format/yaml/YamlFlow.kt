@@ -75,20 +75,33 @@ internal fun doubleQuoted(value: String): String = buildString(value.length + 2)
     append('"')
     value.forEach { char ->
         when (char) {
-            '\\' -> append("\\\\")
+            '\\' -> {
+                append("\\\\")
+            }
 
-            '"' -> append("\\\"")
+            '"' -> {
+                append("\\\"")
+            }
 
-            '\n' -> append("\\n")
+            '\n' -> {
+                append("\\n")
+            }
 
-            '\r' -> append("\\r")
+            '\r' -> {
+                append("\\r")
+            }
 
-            '\t' -> append("\\t")
+            '\t' -> {
+                append("\\t")
+            }
 
-            in '\u0000'..'\u001F', '\u007F' ->
+            in '\u0000'..'\u001F', '\u007F' -> {
                 append("\\u").append(char.code.toString(HEX_RADIX).padStart(ESCAPE_DIGITS, '0'))
+            }
 
-            else -> append(char)
+            else -> {
+                append(char)
+            }
         }
     }
     append('"')

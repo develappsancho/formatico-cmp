@@ -123,16 +123,17 @@ internal class JsonLexer(
                     break
                 }
 
-                char == '\\' -> escape()
-
-                char < ' ' -> {
-                    if (!(dialect.isJson5 && char == '\t')) {
-                        report(ProblemCode.ControlCharacterInString, position, position + 1)
-                    }
-                    position++
+                char == '\\' -> {
+                    escape()
                 }
 
-                else -> position++
+                char < ' ' -> {
+                    controlCharacter(char)
+                }
+
+                else -> {
+                    position++
+                }
             }
         }
         if (quote == '\'') {
@@ -140,6 +141,12 @@ internal class JsonLexer(
             if (!dialect.isJson5) report(ProblemCode.SingleQuotedString, start, position)
         }
         return JsonTokenKind.String
+    }
+
+    /** A control character in a string, which only JSON5 allows, and only a tab. */
+    private fun controlCharacter(char: Char) {
+        if (!(dialect.isJson5 && char == '\t')) report(ProblemCode.ControlCharacterInString, position, position + 1)
+        position++
     }
 
     private fun escape() {
@@ -174,7 +181,9 @@ internal class JsonLexer(
     private fun json5Escape(start: Int) {
         val char = text[position]
         when {
-            char == 'x' -> hexEscape(start, HEX_ESCAPE_DIGITS, json5Only = true)
+            char == 'x' -> {
+                hexEscape(start, HEX_ESCAPE_DIGITS, json5Only = true)
+            }
 
             char in '1'..'9' || (char == '0' && peek(1)?.isDigit() == true) -> {
                 position++
@@ -239,18 +248,26 @@ internal class JsonLexer(
         val start = position
         while (position < text.length && isIdentifierPart(text[position])) position++
         return when (text.substring(start, position)) {
-            "true" -> JsonTokenKind.True
+            "true" -> {
+                JsonTokenKind.True
+            }
 
-            "false" -> JsonTokenKind.False
+            "false" -> {
+                JsonTokenKind.False
+            }
 
-            "null" -> JsonTokenKind.Null
+            "null" -> {
+                JsonTokenKind.Null
+            }
 
             "Infinity", "NaN" -> {
                 json5Number(start)
                 JsonTokenKind.Number
             }
 
-            else -> JsonTokenKind.Identifier
+            else -> {
+                JsonTokenKind.Identifier
+            }
         }
     }
 

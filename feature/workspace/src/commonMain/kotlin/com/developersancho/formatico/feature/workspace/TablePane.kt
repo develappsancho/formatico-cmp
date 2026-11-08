@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -121,34 +122,36 @@ internal fun TablePane(
         Column(modifier = modifier.fillMaxSize().background(PantrixTheme.colors.background)) {
             TableToolbar(toolbar, layout, onIntent)
             val message = treeMessage(state)
+            val phone = layout == WorkspaceLayout.Phone
             val gap = PantrixTheme.spacing.md
+            // On a phone the trail over the table stands in for the gap above it.
+            val around = PaddingValues(start = gap, end = gap, bottom = gap, top = if (phone) PantrixTheme.spacing.none else gap)
             when {
-                message != null ->
+                message != null -> {
                     PaneMessage(PantrixIcons.Info, message.first, message.second, Modifier.fillMaxSize())
+                }
 
-                table == null -> PaneMessage(
-                    icon = PantrixIcons.Info,
-                    title = stringResource(Res.string.workspace_no_table_title),
-                    body = stringResource(Res.string.workspace_no_table_body),
-                    modifier = Modifier.fillMaxSize()
-                )
-
-                else -> RowsTable(
-                    table = table,
-                    visible = visible,
-                    shown = shown,
-                    state = state,
-                    query = query,
-                    phone = layout == WorkspaceLayout.Phone,
-                    onIntent = onIntent,
-                    // On a phone the trail over the table stands in for the gap above it.
-                    modifier = Modifier.weight(1f).padding(
-                        start = gap,
-                        end = gap,
-                        bottom = gap,
-                        top = if (layout == WorkspaceLayout.Phone) PantrixTheme.spacing.none else gap
+                table == null -> {
+                    PaneMessage(
+                        icon = PantrixIcons.Info,
+                        title = stringResource(Res.string.workspace_no_table_title),
+                        body = stringResource(Res.string.workspace_no_table_body),
+                        modifier = Modifier.fillMaxSize()
                     )
-                )
+                }
+
+                else -> {
+                    RowsTable(
+                        table = table,
+                        visible = visible,
+                        shown = shown,
+                        state = state,
+                        query = query,
+                        phone = phone,
+                        onIntent = onIntent,
+                        modifier = Modifier.weight(1f).padding(around)
+                    )
+                }
             }
         }
     }
@@ -423,28 +426,32 @@ private fun TableCell(row: TableRow, column: String, choice: State<TableChoice?>
                 )
             }
 
-            cell.kind.isContainer -> PantrixButton(
-                text = cell.text,
-                onClick = { select(cell.key) },
-                variant = ButtonVariant.Outline,
-                size = ButtonSize.Small,
-                trailingIcon = { PantrixIcon(imageVector = PantrixIcons.ChevronForward, contentDescription = null) },
-                contentDescription = stringResource(Res.string.workspace_open_value, cell.text),
-                tagKey = "open_${row.index}_$column"
-            )
+            cell.kind.isContainer -> {
+                PantrixButton(
+                    text = cell.text,
+                    onClick = { select(cell.key) },
+                    variant = ButtonVariant.Outline,
+                    size = ButtonSize.Small,
+                    trailingIcon = { PantrixIcon(imageVector = PantrixIcons.ChevronForward, contentDescription = null) },
+                    contentDescription = stringResource(Res.string.workspace_open_value, cell.text),
+                    tagKey = "open_${row.index}_$column"
+                )
+            }
 
-            else -> PantrixText(
-                text = cell.shownText,
-                style = if (cell.kind == ValueKind.Null) code.copy(fontStyle = FontStyle.Italic) else code,
-                color = when (cell.kind) {
-                    ValueKind.Number -> syntax.number
-                    ValueKind.Boolean, ValueKind.Null -> syntax.literal
-                    ValueKind.Alias -> PantrixTheme.colors.textSecondary
-                    else -> PantrixTheme.colors.textPrimary
-                },
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            else -> {
+                PantrixText(
+                    text = cell.shownText,
+                    style = if (cell.kind == ValueKind.Null) code.copy(fontStyle = FontStyle.Italic) else code,
+                    color = when (cell.kind) {
+                        ValueKind.Number -> syntax.number
+                        ValueKind.Boolean, ValueKind.Null -> syntax.literal
+                        ValueKind.Alias -> PantrixTheme.colors.textSecondary
+                        else -> PantrixTheme.colors.textPrimary
+                    },
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
     }
 }

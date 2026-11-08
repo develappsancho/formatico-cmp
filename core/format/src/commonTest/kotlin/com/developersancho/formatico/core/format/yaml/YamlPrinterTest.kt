@@ -8,7 +8,8 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class YamlPrinterTest {
-    private val deployment = """
+    private val deployment =
+        """
         # A service
         apiVersion: apps/v1
         metadata:
@@ -28,7 +29,7 @@ class YamlPrinterTest {
                     value: "50"
             -   name: worker
                 env: *env
-    """.trimIndent() + "\n"
+        """.trimIndent() + "\n"
 
     /** The values of [text] in a form that says nothing of how they are written: what two equal documents share. */
     private fun valuesOf(text: String): String {
@@ -58,7 +59,8 @@ class YamlPrinterTest {
 
     @Test
     fun aDocumentIsIndentedAgainAndKeepsWhatIsWrittenInIt() {
-        val expected = """
+        val expected =
+            """
             # A service
             apiVersion: apps/v1
             metadata:
@@ -78,7 +80,7 @@ class YamlPrinterTest {
                       value: "50"
                 - name: worker
                   env: *env
-        """.trimIndent() + "\n"
+            """.trimIndent() + "\n"
 
         assertEquals(expected, format(deployment))
         assertEquals(valuesOf(deployment), valuesOf(expected))
@@ -141,20 +143,22 @@ class YamlPrinterTest {
 
     @Test
     fun sortingTheKeysTakesEachEntrysCommentsAlong() {
-        val text = """
+        val text =
+            """
             # zebra's
             zebra: 1 # stripes
             apple:
               y: 2
               x: 1
-        """.trimIndent() + "\n"
-        val expected = """
+            """.trimIndent() + "\n"
+        val expected =
+            """
             apple:
               x: 1
               y: 2
             # zebra's
             zebra: 1 # stripes
-        """.trimIndent() + "\n"
+            """.trimIndent() + "\n"
 
         assertEquals(expected, format(text, sortKeys = true))
     }

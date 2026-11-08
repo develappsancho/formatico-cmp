@@ -48,19 +48,33 @@ internal class JsonParser(
     private fun parseValue(depth: Int): JsonValue? {
         val token = current
         return when (token.kind) {
-            JsonTokenKind.LeftBrace -> if (depth > MAX_DEPTH) skipTooDeep() else parseObject(depth)
+            JsonTokenKind.LeftBrace -> {
+                if (depth > MAX_DEPTH) skipTooDeep() else parseObject(depth)
+            }
 
-            JsonTokenKind.LeftBracket -> if (depth > MAX_DEPTH) skipTooDeep() else parseArray(depth)
+            JsonTokenKind.LeftBracket -> {
+                if (depth > MAX_DEPTH) skipTooDeep() else parseArray(depth)
+            }
 
-            JsonTokenKind.String -> JsonString(advance().range, text.substring(token.start, token.end))
+            JsonTokenKind.String -> {
+                JsonString(advance().range, text.substring(token.start, token.end))
+            }
 
-            JsonTokenKind.Number -> JsonNumber(advance().range, text.substring(token.start, token.end))
+            JsonTokenKind.Number -> {
+                JsonNumber(advance().range, text.substring(token.start, token.end))
+            }
 
-            JsonTokenKind.True -> JsonBoolean(advance().range, value = true)
+            JsonTokenKind.True -> {
+                JsonBoolean(advance().range, value = true)
+            }
 
-            JsonTokenKind.False -> JsonBoolean(advance().range, value = false)
+            JsonTokenKind.False -> {
+                JsonBoolean(advance().range, value = false)
+            }
 
-            JsonTokenKind.Null -> JsonNull(advance().range)
+            JsonTokenKind.Null -> {
+                JsonNull(advance().range)
+            }
 
             // The lexer has said what is wrong with an error token already.
             JsonTokenKind.Error -> {
@@ -86,7 +100,9 @@ internal class JsonParser(
         val names = HashSet<String>()
         while (true) {
             when (current.kind) {
-                JsonTokenKind.RightBrace -> return JsonObject(TextRange(open.start, advance().end), members)
+                JsonTokenKind.RightBrace -> {
+                    return JsonObject(TextRange(open.start, advance().end), members)
+                }
 
                 // A bracket of the other kind is the end of something around this object: it is left to that.
                 JsonTokenKind.EndOfFile, JsonTokenKind.RightBracket -> {
@@ -94,7 +110,9 @@ internal class JsonParser(
                     return JsonObject(TextRange(open.start, lastEnd), members)
                 }
 
-                else -> Unit
+                else -> {
+                    Unit
+                }
             }
             val key = parseKey(depth) ?: continue
             val hasColon = current.kind == JsonTokenKind.Colon
@@ -109,7 +127,9 @@ internal class JsonParser(
     private fun parseKey(depth: Int): JsonKey? {
         val token = current
         return when (token.kind) {
-            JsonTokenKind.String -> JsonKey(advance().range, text.substring(token.start, token.end), quoted = true)
+            JsonTokenKind.String -> {
+                JsonKey(advance().range, text.substring(token.start, token.end), quoted = true)
+            }
 
             JsonTokenKind.Identifier, JsonTokenKind.True, JsonTokenKind.False, JsonTokenKind.Null -> {
                 advance()
@@ -142,7 +162,9 @@ internal class JsonParser(
         val items = ArrayList<JsonValue>()
         while (true) {
             when (current.kind) {
-                JsonTokenKind.RightBracket -> return JsonArray(TextRange(open.start, advance().end), items)
+                JsonTokenKind.RightBracket -> {
+                    return JsonArray(TextRange(open.start, advance().end), items)
+                }
 
                 JsonTokenKind.EndOfFile, JsonTokenKind.RightBrace -> {
                     error(ProblemCode.Unclosed, open)
@@ -154,7 +176,9 @@ internal class JsonParser(
                     continue
                 }
 
-                else -> Unit
+                else -> {
+                    Unit
+                }
             }
             parseValue(depth + 1)?.let { items += it }
             separator(closer = JsonTokenKind.RightBracket)
@@ -172,9 +196,13 @@ internal class JsonParser(
                 }
             }
 
-            JsonTokenKind.RightBrace, JsonTokenKind.RightBracket, JsonTokenKind.EndOfFile -> Unit
+            JsonTokenKind.RightBrace, JsonTokenKind.RightBracket, JsonTokenKind.EndOfFile -> {
+                Unit
+            }
 
-            else -> error(ProblemCode.ExpectedCommaOrEnd, current)
+            else -> {
+                error(ProblemCode.ExpectedCommaOrEnd, current)
+            }
         }
     }
 
@@ -191,14 +219,18 @@ internal class JsonParser(
         var nesting = 0
         while (current.kind != JsonTokenKind.EndOfFile) {
             when (advance().kind) {
-                JsonTokenKind.LeftBrace, JsonTokenKind.LeftBracket -> nesting++
+                JsonTokenKind.LeftBrace, JsonTokenKind.LeftBracket -> {
+                    nesting++
+                }
 
                 JsonTokenKind.RightBrace, JsonTokenKind.RightBracket -> {
                     nesting--
                     if (nesting == 0) break
                 }
 
-                else -> Unit
+                else -> {
+                    Unit
+                }
             }
         }
         return null

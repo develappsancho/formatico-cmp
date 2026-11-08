@@ -7,7 +7,8 @@ import kotlin.test.assertIs
 import kotlin.test.assertNull
 
 class TableModelTest {
-    private val orders = """
+    private val orders =
+        """
         {
           "store": "north",
           "orders": [
@@ -16,7 +17,7 @@ class TableModelTest {
             {"id": "c", "total": 1250, "items": ["z"], "paid": true}
           ]
         }
-    """.trimIndent()
+        """.trimIndent()
 
     private fun root(text: String = orders, format: Format = Format.Json) =
         assertIs<Reading.Read>(readDocument(text, format)).root

@@ -41,22 +41,24 @@ class WorkspaceScreenTest {
     private val phone = PantrixWindow(DpSize(390.dp, 844.dp))
     private val clock = TestClock(Instant.parse("2026-11-02T09:41:00Z"))
 
-    private val order = """
+    private val order =
+        """
         {
           "id": "ord_8842",
           "createdAt": "2026-10-28T14:32:00Z",
           "customer": {"name": "Elif"}
         }
-    """.trimIndent()
+        """.trimIndent()
 
-    private val deployment = """
+    private val deployment =
+        """
         metadata:
           labels: &labels
             app: formatico
         spec:
           selector:
             matchLabels: *labels
-    """.trimIndent()
+        """.trimIndent()
 
     /** A workspace's state as its view model makes it, for [text] read as [format]. */
     private fun stateOf(
@@ -265,13 +267,14 @@ class WorkspaceScreenTest {
         onPantrixNode("Card", "selected_value").assertDoesNotExist()
     }
 
-    private val orders = """
+    private val orders =
+        """
         {"orders": [
           {"id": "a", "total": 129.90, "coupon": "AUTUMN"},
           {"id": "b", "total": 4.50, "coupon": null},
           {"id": "c", "total": 1250.00}
         ]}
-    """.trimIndent()
+        """.trimIndent()
 
     @Test
     fun aWideTableOrdersFiltersSumsUpAndSaves() = runComposeUiTest {

@@ -77,13 +77,21 @@ internal data class PreviewWords(
             fill(utc, strings.date(date.day, date.month, date.year), strings.clock(reading.hour, reading.minute))
         }
 
-        is ValuePreview.Day -> strings.date(preview.date.day, preview.date.month, preview.date.year)
+        is ValuePreview.Day -> {
+            strings.date(preview.date.day, preview.date.month, preview.date.year)
+        }
 
-        is ValuePreview.Colour -> colour
+        is ValuePreview.Colour -> {
+            colour
+        }
 
-        is ValuePreview.Link -> link
+        is ValuePreview.Link -> {
+            link
+        }
 
-        is ValuePreview.Picture -> picture
+        is ValuePreview.Picture -> {
+            picture
+        }
     }
 }
 
@@ -124,30 +132,40 @@ internal fun readValue(node: ValueNode): ValueReading {
             ValueReading(stringResource(Res.string.workspace_kind_date), PantrixIcons.Calendar, headline, detail)
         }
 
-        is ValuePreview.Day -> ValueReading(
-            kind = stringResource(Res.string.workspace_kind_date),
-            icon = PantrixIcons.Calendar,
-            headline = strings.longDate(preview.date.day, preview.date.month, preview.date.year),
-            detail = dayDetail(preview.date)
-        )
+        is ValuePreview.Day -> {
+            ValueReading(
+                kind = stringResource(Res.string.workspace_kind_date),
+                icon = PantrixIcons.Calendar,
+                headline = strings.longDate(preview.date.day, preview.date.month, preview.date.year),
+                detail = dayDetail(preview.date)
+            )
+        }
 
-        is ValuePreview.Colour -> ValueReading(
-            stringResource(Res.string.workspace_kind_colour),
-            null,
-            node.value.orEmpty(),
-            null
-        )
+        is ValuePreview.Colour -> {
+            ValueReading(
+                stringResource(Res.string.workspace_kind_colour),
+                null,
+                node.value.orEmpty(),
+                null
+            )
+        }
 
-        is ValuePreview.Link -> ValueReading(stringResource(Res.string.workspace_kind_link), null, preview.url, null)
+        is ValuePreview.Link -> {
+            ValueReading(stringResource(Res.string.workspace_kind_link), null, preview.url, null)
+        }
 
-        is ValuePreview.Picture -> ValueReading(
-            stringResource(Res.string.workspace_kind_picture),
-            null,
-            preview.url,
-            null
-        )
+        is ValuePreview.Picture -> {
+            ValueReading(
+                stringResource(Res.string.workspace_kind_picture),
+                null,
+                preview.url,
+                null
+            )
+        }
 
-        null -> plainReading(node)
+        null -> {
+            plainReading(node)
+        }
     }
 }
 
@@ -155,19 +173,23 @@ internal fun readValue(node: ValueNode): ValueReading {
 private fun plainReading(node: ValueNode): ValueReading {
     val count = node.children.size
     return when (node.kind) {
-        ValueKind.Object -> ValueReading(
-            kind = stringResource(Res.string.workspace_kind_object),
-            icon = null,
-            headline = pluralStringResource(Res.plurals.workspace_keys, count, count),
-            detail = null
-        )
+        ValueKind.Object -> {
+            ValueReading(
+                kind = stringResource(Res.string.workspace_kind_object),
+                icon = null,
+                headline = pluralStringResource(Res.plurals.workspace_keys, count, count),
+                detail = null
+            )
+        }
 
-        ValueKind.Array -> ValueReading(
-            kind = stringResource(Res.string.workspace_kind_array),
-            icon = null,
-            headline = pluralStringResource(Res.plurals.workspace_items, count, count),
-            detail = null
-        )
+        ValueKind.Array -> {
+            ValueReading(
+                kind = stringResource(Res.string.workspace_kind_array),
+                icon = null,
+                headline = pluralStringResource(Res.plurals.workspace_items, count, count),
+                detail = null
+            )
+        }
 
         ValueKind.String -> {
             val value = node.value.orEmpty()
@@ -179,11 +201,17 @@ private fun plainReading(node: ValueNode): ValueReading {
             )
         }
 
-        ValueKind.Number -> ValueReading(stringResource(Res.string.workspace_kind_number), null, node.text, null)
+        ValueKind.Number -> {
+            ValueReading(stringResource(Res.string.workspace_kind_number), null, node.text, null)
+        }
 
-        ValueKind.Boolean -> ValueReading(stringResource(Res.string.workspace_kind_boolean), null, node.text, null)
+        ValueKind.Boolean -> {
+            ValueReading(stringResource(Res.string.workspace_kind_boolean), null, node.text, null)
+        }
 
-        ValueKind.Null -> ValueReading(stringResource(Res.string.workspace_kind_null), null, node.text, null)
+        ValueKind.Null -> {
+            ValueReading(stringResource(Res.string.workspace_kind_null), null, node.text, null)
+        }
 
         ValueKind.Alias -> {
             val anchor = node.text.removePrefix("*")

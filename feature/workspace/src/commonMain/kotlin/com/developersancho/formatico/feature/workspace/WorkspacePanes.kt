@@ -121,7 +121,9 @@ internal fun EditorComing(state: WorkspaceState, modifier: Modifier = Modifier) 
 internal fun treeMessage(state: WorkspaceState): Pair<String, String>? {
     val document = state.document ?: return null
     return when (val reading = state.reading) {
-        Reading.Pending -> null
+        Reading.Pending -> {
+            null
+        }
 
         is Reading.Unread -> {
             val format = reading.format
@@ -133,15 +135,21 @@ internal fun treeMessage(state: WorkspaceState): Pair<String, String>? {
             }
         }
 
-        is Reading.Read -> when {
-            reading.root != null -> null
+        is Reading.Read -> {
+            when {
+                reading.root != null -> {
+                    null
+                }
 
-            document.text.isBlank() ->
-                stringResource(Res.string.workspace_empty_title) to stringResource(Res.string.workspace_empty_body)
+                document.text.isBlank() -> {
+                    stringResource(Res.string.workspace_empty_title) to stringResource(Res.string.workspace_empty_body)
+                }
 
-            else ->
-                stringResource(Res.string.workspace_no_value_title) to
-                    stringResource(Res.string.workspace_no_value_body)
+                else -> {
+                    stringResource(Res.string.workspace_no_value_title) to
+                        stringResource(Res.string.workspace_no_value_body)
+                }
+            }
         }
     }
 }

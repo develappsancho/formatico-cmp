@@ -13,7 +13,8 @@ class JsonPrinterTest {
     @Test
     fun aValueGoesOnALineOfItsOwnAndKeepsItsSpelling() {
         val formatted = format("""{"total":129.90,"big":1E3,"items":[1,{"a":null}],"empty":{},"none":[],"s":"ç"}""")
-        val expected = """
+        val expected =
+            """
             {
               "total": 129.90,
               "big": 1E3,
@@ -27,7 +28,7 @@ class JsonPrinterTest {
               "none": [],
               "s": "ç"
             }
-        """.trimIndent()
+            """.trimIndent()
         assertEquals(expected, formatted)
     }
 
@@ -46,7 +47,8 @@ class JsonPrinterTest {
 
     @Test
     fun commentsStayWithTheValuesTheyAreWrittenAgainstAndATrailingCommaStays() {
-        val text = """
+        val text =
+            """
             // The settings
             {
               // Leading
@@ -55,8 +57,9 @@ class JsonPrinterTest {
               "c": [ /* first */ 3, 4 /* after 4 */ ],
               // left over
             } // the end
-        """.trimIndent()
-        val expected = """
+            """.trimIndent()
+        val expected =
+            """
             // The settings
             {
               // Leading
@@ -69,7 +72,7 @@ class JsonPrinterTest {
               ],
               // left over
             } // the end
-        """.trimIndent()
+            """.trimIndent()
         assertEquals(expected, format(text, JsonDialect.Jsonc))
     }
 
@@ -93,14 +96,16 @@ class JsonPrinterTest {
 
     @Test
     fun sortingTheKeysTakesEachMembersCommentsAlong() {
-        val text = """
+        val text =
+            """
             {
               "zebra": {"y": 1, "x": 2}, // stripes
               // fruit
               "apple": [{"d": 1, "c": 2}]
             }
-        """.trimIndent()
-        val expected = """
+            """.trimIndent()
+        val expected =
+            """
             {
               // fruit
               "apple": [
@@ -114,7 +119,7 @@ class JsonPrinterTest {
                 "y": 1
               } // stripes
             }
-        """.trimIndent()
+            """.trimIndent()
         assertEquals(expected, format(text, JsonDialect.Jsonc, sortKeys = true))
     }
 

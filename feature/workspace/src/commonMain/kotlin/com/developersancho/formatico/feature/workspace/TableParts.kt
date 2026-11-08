@@ -200,12 +200,17 @@ internal fun SortSummary(table: TableModel, sort: TableSort) {
     val first = table.rows.firstNotNullOfOrNull { it.cell(sort.column)?.takeIf { cell -> cell.kind != ValueKind.Null } }
     val dates = first?.preview is ValuePreview.Moment || first?.preview is ValuePreview.Day
     val order = when {
-        dates -> if (sort.descending) Res.string.workspace_newest_first else Res.string.workspace_oldest_first
+        dates -> {
+            if (sort.descending) Res.string.workspace_newest_first else Res.string.workspace_oldest_first
+        }
 
-        first?.kind == ValueKind.Number ->
+        first?.kind == ValueKind.Number -> {
             if (sort.descending) Res.string.workspace_largest_first else Res.string.workspace_smallest_first
+        }
 
-        else -> if (sort.descending) Res.string.workspace_z_to_a else Res.string.workspace_a_to_z
+        else -> {
+            if (sort.descending) Res.string.workspace_z_to_a else Res.string.workspace_a_to_z
+        }
     }
     val name = if (sort.column == VALUE_COLUMN) stringResource(Res.string.workspace_value_column) else sort.column
     Quiet(stringResource(Res.string.workspace_sorted_by, name, stringResource(order)))

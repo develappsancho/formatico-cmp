@@ -35,18 +35,26 @@ private const val ALPHA_SHIFT = 24
 
 /** What [value] looks like it holds, or null for a string that is only a string. */
 internal fun previewOf(value: String): ValuePreview? = when {
-    MomentPattern.matches(value) -> momentOf(value)
+    MomentPattern.matches(value) -> {
+        momentOf(value)
+    }
 
-    DayPattern.matches(value) -> runCatching { ValuePreview.Day(PantrixDate.parse(value)) }.getOrNull()
+    DayPattern.matches(value) -> {
+        runCatching { ValuePreview.Day(PantrixDate.parse(value)) }.getOrNull()
+    }
 
-    ColourPattern.matches(value) -> ValuePreview.Colour(argbOf(value.drop(1)))
+    ColourPattern.matches(value) -> {
+        ValuePreview.Colour(argbOf(value.drop(1)))
+    }
 
     LinkPattern.matches(value) -> {
         val path = value.substringBefore('?').substringBefore('#')
         if (PicturePath.containsMatchIn(path)) ValuePreview.Picture(value) else ValuePreview.Link(value)
     }
 
-    else -> null
+    else -> {
+        null
+    }
 }
 
 /** The moment ISO 8601 writes as [value], its `T` a space or in lower case as RFC 3339 allows. */

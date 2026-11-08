@@ -183,24 +183,28 @@ internal fun rememberDocumentCommands(workbench: Workbench): DocumentCommands {
                             if (answer == SnackbarResult.ActionPerformed) workbench.restore(result.previous)
                         }
 
-                        EditResult.Unchanged -> snackbars?.show(
-                            message = words.edits.already.getValue(edit),
-                            tagKey = "unchanged"
-                        )
+                        EditResult.Unchanged -> {
+                            snackbars?.show(
+                                message = words.edits.already.getValue(edit),
+                                tagKey = "unchanged"
+                            )
+                        }
 
-                        EditResult.NotPossible ->
+                        EditResult.NotPossible -> {
                             snackbars?.show(
                                 message = words.edits.impossible,
                                 tone = SnackbarTone.Warning,
                                 tagKey = "not_possible"
                             )
+                        }
 
-                        EditResult.AliasBeforeAnchor ->
+                        EditResult.AliasBeforeAnchor -> {
                             snackbars?.show(
                                 message = words.edits.aliasBeforeAnchor,
                                 tone = SnackbarTone.Warning,
                                 tagKey = "alias_before_anchor"
                             )
+                        }
                     }
                 }
             }

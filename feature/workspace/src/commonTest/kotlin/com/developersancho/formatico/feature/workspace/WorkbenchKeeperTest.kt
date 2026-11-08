@@ -11,6 +11,7 @@ import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.seconds
 
@@ -28,8 +29,11 @@ class WorkbenchKeeperTest {
     /** A workbench as the app opens it: given back what was kept, and kept from then on. */
     private fun TestScope.opened(): Workbench {
         val workbench = Workbench(worker = StandardTestDispatcher(testScheduler))
-        WorkbenchKeeper(workbench = workbench, small = small, texts = texts, scope = backgroundScope).start()
+        val keeper = WorkbenchKeeper(workbench = workbench, small = small, texts = texts, scope = backgroundScope)
+        assertFalse(keeper.restored.value)
+        keeper.start()
         settle()
+        assertTrue(keeper.restored.value, "The keeper says when what was open is back")
         return workbench
     }
 

@@ -30,20 +30,33 @@ fun jsonPath(steps: List<PathStep>): String = buildString {
                 append("['")
                 step.name.forEach { char ->
                     when (char) {
-                        '\'' -> append("\\'")
+                        '\'' -> {
+                            append("\\'")
+                        }
 
-                        '\\' -> append("\\\\")
+                        '\\' -> {
+                            append("\\\\")
+                        }
 
-                        '\n' -> append("\\n")
+                        '\n' -> {
+                            append("\\n")
+                        }
 
-                        '\r' -> append("\\r")
+                        '\r' -> {
+                            append("\\r")
+                        }
 
-                        '\t' -> append("\\t")
+                        '\t' -> {
+                            append("\\t")
+                        }
 
-                        in '\u0000'..'\u001F' ->
+                        in '\u0000'..'\u001F' -> {
                             append("\\u").append(char.code.toString(HEX_RADIX).padStart(UNICODE_ESCAPE_DIGITS, '0'))
+                        }
 
-                        else -> append(char)
+                        else -> {
+                            append(char)
+                        }
                     }
                 }
                 append("']")

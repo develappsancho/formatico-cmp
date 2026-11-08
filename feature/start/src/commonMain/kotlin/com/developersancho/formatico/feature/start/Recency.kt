@@ -41,9 +41,13 @@ internal fun recency(then: Instant, now: Instant, utcOffset: (Instant) -> Durati
             )
         }
 
-        1L -> Recency.Yesterday
+        1L -> {
+            Recency.Yesterday
+        }
 
-        else -> Recency.OnDate(date = day, thisYear = day.year == today.year)
+        else -> {
+            Recency.OnDate(date = day, thisYear = day.year == today.year)
+        }
     }
 }
 

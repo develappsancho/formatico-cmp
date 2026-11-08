@@ -11,7 +11,8 @@ import kotlin.test.assertNull
 import kotlin.time.Instant
 
 class DocumentReadingTest {
-    private val order = """
+    private val order =
+        """
         {
           "id": "ord_8842",
           "createdAt": "2026-10-28T14:32:00Z",
@@ -21,7 +22,7 @@ class DocumentReadingTest {
           "items": [{"sku": "TS-001"}, {"sku": "MG-014"}],
           "eta": "2026-11-04"
         }
-    """.trimIndent()
+        """.trimIndent()
 
     private fun root(text: String = order): ValueNode = assertIs<Reading.Read>(readDocument(text, Format.Json)).root!!
 
@@ -103,7 +104,8 @@ class DocumentReadingTest {
 
     @Test
     fun aYamlTreeKeepsItsAnchorsAndItsAliases() {
-        val yaml = """
+        val yaml =
+            """
             metadata:
               labels: &labels
                 app: formatico
@@ -112,7 +114,7 @@ class DocumentReadingTest {
               size: "50"
               selector:
                 matchLabels: *labels
-        """.trimIndent()
+            """.trimIndent()
         val root = assertIs<Reading.Read>(readDocument(yaml, Format.Yaml)).root!!
 
         assertEquals("labels", root.find("$.metadata.labels").anchor)

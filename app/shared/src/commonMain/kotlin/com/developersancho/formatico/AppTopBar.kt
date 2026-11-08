@@ -120,13 +120,15 @@ internal fun AppTopBar(
             horizontalArrangement = Arrangement.spacedBy(spacing.xs)
         ) {
             when {
-                phone -> AnimatedPhoneBar(
-                    workbench = workbench,
-                    onSelectTab = onSelectTab,
-                    darkTheme = darkTheme,
-                    onToggleTheme = onToggleTheme,
-                    modifier = Modifier.weight(1f)
-                )
+                phone -> {
+                    AnimatedPhoneBar(
+                        workbench = workbench,
+                        onSelectTab = onSelectTab,
+                        darkTheme = darkTheme,
+                        onToggleTheme = onToggleTheme,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
 
                 else -> {
                     // A tablet over a document keeps the mark, the tabs and two buttons, as its boards draw it.
@@ -271,7 +273,7 @@ private fun DocumentTabs(
         PantrixTabs(
             tabs = tabs,
             selectedIndex =
-            documents.indexOfFirst { it.id == workbench.selectedId }.takeIf { it >= 0 } ?: documents.size,
+                documents.indexOfFirst { it.id == workbench.selectedId }.takeIf { it >= 0 } ?: documents.size,
             onSelect = { index -> onSelectTab(documents.getOrNull(index)?.id) },
             modifier = Modifier.weight(1f, fill = false),
             scrollable = true,
