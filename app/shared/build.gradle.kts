@@ -1,7 +1,6 @@
 plugins {
     alias(libs.plugins.formatico.kmpCompose)
     alias(libs.plugins.kotlinSerialization)
-    alias(libs.plugins.roborazzi)
 }
 
 kotlin {
@@ -31,11 +30,6 @@ kotlin {
             implementation(libs.navigation3.ui)
             implementation(libs.androidx.lifecycle.viewmodelNavigation3)
             implementation(libs.kotlinx.serialization.core)
-        }
-        // The boards' screens drawn on the desktop, at their widths: recordRoborazziJvm writes them under
-        // screenshots/, verifyRoborazziJvm compares against them.
-        jvmTest.dependencies {
-            implementation(libs.roborazzi.composeDesktop)
         }
     }
 }

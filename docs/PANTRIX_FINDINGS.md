@@ -141,6 +141,16 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Nerede: MCP `get_documentation_page guide/testing`, bölüm 3.6 ve 3.7.
     *   Öneri: Roborazzi rehberi sitede ve MCP'de; Maestro görevleri yayımlanan bir Gradle eklentisi ya da rehberde kopyalanabilir bir görev.
     *   Durum: açık.
+*   [ ] **Bir ekranın önizlemesi nasıl yazılır, belgelerde yok (2026-11-04).**
+    *   Ne: Formatico her ekranı ve bileşeni `@Preview` ile, her hâlini sayan bir `PreviewParameterProvider`'la, panoların genişliklerinde, açık ve koyu temada önizliyor. Belgelerde önizlemeye dair bir rehber yok: hangi temanın içinde çizileceği, bir önizlemede masaüstünün ya da telefonun platformunun nasıl verileceği, saatin nasıl durdurulacağı yazmıyor. Sayfalar yalnızca geçerken anıyor ("a preview or a test gives…": `LocalPantrixClock`, `LocalFilePicker`, `PantrixWindowFrame`). `PantrixTestTheme` tam bunu yapıyor (platform, pencere, koyu tema, saat), ama `com.pantrixui:testing`'de: uygulamanın `commonMain`'indeki bir önizleme onu kullanamaz. Test rehberi ekran görüntüsünü bilerek uygulamaya bırakıyor ("There is no helper in the module for screenshot tests").
+    *   Nerede: MCP `search_documentation "preview"`, `search_api "preview"`; `guide/testing`.
+    *   Öneri: `guide/previews`: bir ekranın önizlemesi uygulamanın temasında, bir `PreviewParameterProvider`'la hâlleri, `@Preview(widthDp, heightDp)` ile pencereleri; ve `foundation`'da `PantrixTestTheme`'in önizlemeye uyan bir eşi (`PantrixPreviewTheme(platform, dark, window, clock)`), aynı hâller hem önizlemede hem ekran görüntüsünde çizilsin diye.
+    *   Durum: açık. Formatico kendisi yazdı (`core:designsystem`'de `FormaticoPreview`, `PreviewCases`, `BoardPreviews`, `Board`): önizleme Formatico'nun temasında, saat sabit; ekran görüntüsü aynı önizlemeyi `PantrixTestTheme`'in içinde çiziyor.
+*   [ ] **Bir bileşen, içinde durduğu temanın koyu olup olmadığını okuyamıyor (2026-11-04).**
+    *   Ne: `PantrixTheme`'in koyu temayı dıştaki temadan alan varsayılanı `inheritedDarkThemeOrSystem()`; API'de yok, uygulama çağıramıyor. Formatico'nun teması (`FormaticoTheme`) kendi sözdizimi renklerini koyu ya da açık seçiyor; dışında koyu bir tema varken onu bilemiyor, `isSystemInDarkTheme()`'e bakıyor. Bir testte `PantrixTestTheme(dark = true)` içine konan `FormaticoTheme()` sistemin moduna göre açık çiziliyor; önizlemede de aynı.
+    *   Nerede: MCP `get_api com.pantrixui.foundation.theme.PantrixTheme` (`darkTheme`'in `defaultNote`'u), `search_api "isDark"`.
+    *   Öneri: `inheritedDarkThemeOrSystem()`'i açmak ya da `PantrixTheme.isDark` (renklerin koyu takımdan olup olmadığı).
+    *   Durum: açık. Formatico'nun önizleme hâlleri koyu ya da açık olduklarını kendileri taşıyor ve temayı açıkça veriyor.
 
 ## 5. Web
 

@@ -1,3 +1,6 @@
+import org.gradle.initialization.DependenciesAccessors
+import org.gradle.kotlin.dsl.support.serviceOf
+
 plugins {
     `kotlin-dsl`
 }
@@ -5,6 +8,10 @@ plugins {
 group = "com.developersancho.formatico.buildlogic"
 
 dependencies {
+    gradle.serviceOf<DependenciesAccessors>().classes.asFiles.forEach {
+        compileOnly(files(it.absolutePath))
+    }
+
     compileOnly(libs.android.gradlePlugin)
     compileOnly(libs.kotlin.gradlePlugin)
     compileOnly(libs.compose.gradlePlugin)

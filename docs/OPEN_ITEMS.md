@@ -228,3 +228,11 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Ne: Workspace'in görünüm modeli gezinti girdisine bağlı (`rememberViewModelStoreNavEntryDecorator`). Start'a geçince girdi yığından çıkıyor, görünüm modeli siliniyor; belgeye dönünce yenisi belgeyi baştan okuyor (durum çubuğunda "Reading…"). Küçük belgede fark edilmiyor; 50 MB'lık bir belgede her dönüş yeniden okuma demek. Web'de geri ve ileri tuşlarıyla görüldü (2026-11-04); telefonun geri tuşunda da aynısı olmalı.
     *   Öneri: okunmuş belgeyi (`DocumentReading`) görünüm modeli yerine `Workbench`'te belgeyle birlikte tutmak ya da metni değişmeyen bir belgenin okumasını önbelleğe almak; Faz 14'ün büyük dosya ölçümüyle birlikte.
     *   Durum: açık.
+*   [ ] **Geniş pencerede Recent ile Samples'ın kartları aynı hizada başlamıyor (2026-11-04).**
+    *   Ne: Geçmişte belge varken Recent'in başlık satırında "Clear history" bağlantısı var, Samples'ınkinde küçük bir metin. Bağlantı satırı daha yüksek tutuyor: 1440'ta Recent'in başlığı ve kartı Samples'ınkinden 11 px aşağıda başlıyor (önizleme `StartScreen`, `recent`, 1440). Geçmiş boşken bağlantı yok, ikisi hizalı; Start panosu da boş geçmişle çizili.
+    *   Öneri: iki bölümün başlık satırına aynı en küçük yükseklik, ya da geniş pencerede başlıkları bir satırda, kartları altında bir satırda dizmek. Önce Start-1440'ın geçmişli hâli tuvalde çizilir.
+    *   Durum: açık.
+*   [ ] **Ekran görüntüsü testinin yardımcısı her modülde ayrı (2026-11-04).**
+    *   Ne: Bir önizlemeyi bir panonun penceresinde, `PantrixTestTheme`'in içinde çizip yazan küçük `capture` fonksiyonu her modülün `jvmTest`'inde yeniden yazılıyor (`feature:start`, sırada `feature:workspace` ve `app:shared`). KMP'nin `testFixtures`'ı yok; test kaynakları modüller arasında paylaşılmıyor.
+    *   Öneri: yalnızca testlerin bağımlı olduğu bir `core:testing` modülü (Roborazzi, `PantrixTestTheme`, panolar). CLAUDE.md "her taban tek modülde" diyor: test yardımcısının `core:base`'e mi, yeni bir modüle mi gideceği sahibinin kararı.
+    *   Durum: açık.

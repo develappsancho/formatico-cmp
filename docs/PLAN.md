@@ -63,6 +63,9 @@ eksikler Faz 4'te.
     *   Önizlemeler ve testler (sahibinin kuralı, 2026-11-04; CLAUDE.md): bugüne kadarki her ekrana ve bileşene
         (Start, Workspace, Table, çubuk, değiştirici, kayıt ve ötekiler) her durumu içeren `PreviewParameterProvider`'lı
         önizlemeler; aynı durumların ekran görüntüsü testleri; eksik Compose UI ve birim testleri.
+        Start yapıldı (2026-11-04): `core:designsystem`'de önizlemenin parçaları (`Board`, `BoardPreviews`,
+        `PreviewCases`, `FormaticoPreview`), Roborazzi her çizen modülde; Start'ın dört hâli üç panoda, açık ve koyu (24
+        görüntü), yeni UI testleri. Sırada Workspace, Table, çubuk ve öteki bileşenler.
 *   [ ] **Faz 5: Metin editörü.** `PantrixCodeEditor` ve Formatico'nun renklendiricisi; metin ile ağacın seçimi iki
     yönde; Ln ve Col durum çubuğunda ve Table'da; telefonda "Show in text"; belge başına geri alma geçmişi; bul ve
     değiştir; sütun editörün saydığı birimle.

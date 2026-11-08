@@ -1,8 +1,10 @@
 package com.developersancho.formatico.buildlogic
 
+import com.developersancho.formatico.buildlogic.utils.androidRuntimeClasspath
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.getByType
 import org.jetbrains.compose.ComposeExtension
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
@@ -10,7 +12,8 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
 /**
  * A Kotlin Multiplatform library that draws: `formatico.kmp.library` with Compose Multiplatform, its resources and
- * Pantrix UI, and Pantrix's testing module for its tests.
+ * Pantrix UI, and Pantrix's testing module for its tests. Its screenshots are Roborazzi's, drawn on the desktop:
+ * `recordRoborazziJvm` writes them under the module's `screenshots/`, `verifyRoborazziJvm` compares against them.
  */
 class KmpComposeConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
@@ -18,6 +21,7 @@ class KmpComposeConventionPlugin : Plugin<Project> {
             pluginManager.apply(KmpLibraryConventionPlugin::class.java)
             pluginManager.apply("org.jetbrains.compose")
             pluginManager.apply("org.jetbrains.kotlin.plugin.compose")
+            pluginManager.apply("io.github.takahirom.roborazzi")
             val desktopSkiko = extensions.getByType<ComposeExtension>().dependencies.desktop.currentOs
 
             extensions.configure<KotlinMultiplatformExtension> {
@@ -47,7 +51,15 @@ class KmpComposeConventionPlugin : Plugin<Project> {
                 sourceSets.jvmTest.dependencies {
                     implementation(desktopSkiko)
                     implementation(libs.library("kotlinx-coroutinesSwing"))
+                    implementation(libs.library("roborazzi-composeDesktop"))
                 }
+            }
+
+            // What Android Studio draws a preview with. It goes on the module's own runtime classpath and nowhere else:
+            // as a dependency of androidMain it travelled to every app that uses the library, release builds included,
+            // and took its preview activity into their manifests.
+            dependencies {
+                androidRuntimeClasspath(libs.library("compose-uiTooling"))
             }
         }
     }

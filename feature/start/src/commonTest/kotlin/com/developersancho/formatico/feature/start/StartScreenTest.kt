@@ -96,8 +96,7 @@ class StartScreenTest {
             name = "deployment.yaml",
             format = Format.Yaml,
             size = 1946,
-            at =
-                now - 5.minutes
+            at = now - 5.minutes
         )
         val intents = mutableListOf<StartIntent>()
         setContent {
@@ -125,9 +124,12 @@ class StartScreenTest {
         val intents = mutableListOf<StartIntent>()
         setContent {
             PantrixTestTheme(window = desktop) {
-                StartScreen(state = StartState(), onIntent = {
-                    intents += it
-                }, onPaste = { pasted++ }, readsClipboard = true)
+                StartScreen(
+                    state = StartState(),
+                    onIntent = { intents += it },
+                    onPaste = { pasted++ },
+                    readsClipboard = true
+                )
             }
         }
 
@@ -172,5 +174,55 @@ class StartScreenTest {
         state = StartState(refusal = FileRefusal.TooLarge("big.json", 10_000_000))
 
         awaitText("big.json is larger than 10 MB")
+
+        state = StartState(refusal = FileRefusal.WrongType("photo.png"))
+        awaitText("photo.png is not a kind of text Formatico reads")
+
+        state = StartState(refusal = FileRefusal.Unreadable("locked.json"))
+        awaitText("locked.json could not be read")
+    }
+
+    @Test
+    fun theKeyboardsPasteIsOfferedOnlyWhereTheClipboardIsRead() = runComposeUiTest {
+        var readsClipboard by mutableStateOf(true)
+        setContent {
+            PantrixTestTheme(window = desktop) {
+                StartScreen(state = StartState(), onIntent = {}, onPaste = {}, readsClipboard = readsClipboard)
+            }
+        }
+        awaitText("Paste from clipboard")
+        onAllNodes(hasText("anywhere on this screen", substring = true)).assertCountEquals(1)
+
+        // A browser's clipboard is not read: the button says why when pressed, and no key is offered for it.
+        readsClipboard = false
+        awaitIdle()
+        onAllNodes(hasText("anywhere on this screen", substring = true)).assertCountEquals(0)
+        onPantrixNode("Button", "paste").assertExists()
+    }
+
+    @Test
+    fun aPhoneListsThreeOfRecentAndSaysOnlyWhenOfEach() = runComposeUiTest {
+        val clock = TestClock(now)
+        val recent = listOf(
+            RecentDocument(id = 1, name = "order.json", format = Format.Json, size = 665, at = now - 2.minutes, edited = true),
+            RecentDocument(id = 2, name = null, format = Format.Json, size = 118, at = now - 3.minutes),
+            RecentDocument(id = 3, name = "notes.txt", format = null, size = 2048, at = now - 4.minutes),
+            RecentDocument(id = 4, name = "countries.csv", format = Format.Csv, size = 12_311, at = now - 5.minutes)
+        )
+        val intents = mutableListOf<StartIntent>()
+        setContent {
+            PantrixTestTheme(window = phone, clock = clock) {
+                StartScreen(state = StartState(recent = recent), onIntent = { intents += it }, onPaste = {}, readsClipboard = true)
+            }
+        }
+
+        awaitText("JSON · 665 B · 2 minutes ago")
+        // A pasted text has no name, and a document in no format is text.
+        awaitText("Untitled")
+        awaitText("Text · 2 KB · 4 minutes ago")
+        onPantrixNode("ListItem", "recent_4").assertDoesNotExist()
+
+        onPantrixNode("ListItem", "recent_2").performClick()
+        assertEquals(listOf<StartIntent>(StartIntent.OpenRecent(2)), intents)
     }
 }
