@@ -123,6 +123,11 @@ Her madde: **ne**, **nerede** (sitenin sayfası ya da aracı), **öneri**, **dur
     *   Nerede: `skill/testing` ("Running"); MCP `search_documentation testing`.
     *   Öneri: rehberde `binaries.executable()` şartı ve uygulama kaynaklı metinlerin tarayıcıda nasıl beklenip yükleneceği; olmuyorsa tarayıcı testlerinin etiketle sınanması gerektiği.
     *   Durum: açık.
+*   [ ] **Test temasına verilen pencere, testin çizdiği boy değil (2026-11-03).**
+    *   Ne: `PantrixTestTheme(window = PantrixWindow(DpSize(1440.dp, 900.dp)))` ekrana 1440'lık bir pencerede olduğunu söylüyor, ama masaüstünde `runComposeUiTest` ekranı kendi 1024×768 piksellik yüzeyinde çiziyor. Formatico'nun geniş Table testi bu yüzden 1024'te koştu: araç çubuğu sığmadı, sondaki "Save as CSV" düğmesi sıfır genişlikte kaldı ve tıklama hiçbir şey yapmadı. Test ekranın kendisi değil, düzenin pencereden küçük olduğu bir hâli sınıyordu; hata bulunana kadar "düğme çalışmıyor" gibi göründü. `window`'un belgesi "the window the screen is told it is in" diyor, yani söylenen bu; ama test rehberi, ekranı o boyda çizmek için `PantrixWindowFrame`'in boyutlu bir kutuyla kullanılacağını söylemiyor (yalnızca uyarlanabilir rehberde, katlanan pencere örneğinde geçiyor).
+    *   Nerede: MCP `get_api PantrixTestTheme` (`window`); `guide/testing`; `guide/adaptive` ("A folding window in a preview and a test").
+    *   Öneri: test rehberine "bir genişlikteki düzeni sınamak için ekranı o boyda bir `PantrixWindowFrame`'e koyun" cümlesi ve örneği; ya da `PantrixTestTheme`'in `window` verildiğinde içeriği o boyda çizmesi.
+    *   Durum: açık. Formatico (2026-11-03) araç çubuğunu dar genişlikte de sığacak biçimde düzeltti (yol izi önce daralıyor); testler 1024'te koşmaya devam ediyor.
 
 ## 5. Web
 
@@ -168,7 +173,7 @@ Her madde: **ne**, **nerede** (sitenin sayfası ya da aracı), **öneri**, **dur
     *   Ne: Formatico'da metindeki imleç tabloda bir hücreyi gösteriyor (`$.orders[2].total`): satırı seçili, hücresi çerçeveli. `PantrixDataTable` satırları seçiyor (`selected`, `rowTone`), ama hücre düzeyinde bir seçim, odak ya da işaret yok. `cell` yalnızca hücrenin iç dolgusunun içini çiziyor; hücrenin tamamını çevreleyen bir çerçeveyi uygulama çizemez. Table panolarında (1440, 834) seçili hücre bu yüzden işaretleme.
     *   Nerede: [Data Table](https://pantrixui.com/components/data-table); MCP `get_api PantrixDataTable`, `DataTableColumn`.
     *   Öneri: `selectedCell` (satırın anahtarı ve sütunun anahtarı) ya da hücre başına bir ton; klavyeyle hücreden hücreye gidiş istenmiyorsa yalnızca çizim yeterli.
-    *   Durum: açık.
+    *   Durum: açık. Kodda (2026-11-03) seçili satır `selected` ile çiziliyor: kutular olmadan da (`onSelectionChange` verilmeden) `primary`'nin soluk dolgusu geliyor, panodaki gibi. Belge bunu söylemiyor ("Null leaves the table without boxes"); denenerek görüldü. Seçili hücrenin çerçevesini Formatico hücrenin içeriğine kendisi çiziyor: çerçeve hücrenin iç dolgusunun içinde kalıyor ve yalnızca yazının yüksekliğinde, panodaki gibi hücrenin tamamında değil.
 *   [ ] **Pano okunamıyor; Pantrix yalnızca yazıyor (2026-11-03).**
     *   Ne: Start'ın "Panodan yapıştır" düğmesi ve `⌘V` kısayolu panodaki metni okumalı. `PantrixClipboard` yalnızca `copyText` veriyor; okuma yolu yok. Compose'un ortak `Clipboard`'ı bir `ClipEntry` veriyor, ama `ClipEntry` her platformda başka bir tür ve ortak kodda metni okumanın yolu yok. Formatico bu yüzden Compose'un artık önerilmeyen `LocalClipboardManager`'ının `getText()`'ini kullanıyor: masaüstünde, Android'de ve iOS'ta çalışıyor; web'de her zaman `null` dönüyor (`WasmPlatformClipboardManager`: "Clipboard.readText() is async; no synchronous access on Web"). Web'de düğme bunu söyleyen bir ileti gösteriyor, kısayolun ipucu gösterilmiyor.
     *   Nerede: belgelerin `clipboard` sayfası; MCP `get_api PantrixClipboard`; `skill/platform` ("Clipboard").
@@ -194,3 +199,8 @@ Her madde: **ne**, **nerede** (sitenin sayfası ya da aracı), **öneri**, **dur
     *   Nerede: MCP `get_api PantrixStrings` (`date`, `longDate`, `longDateTemplate`); MCP `get_documentation_page guide/date-time`.
     *   Öneri: `fullDate(day, month, year)` ve bir `fullDateTemplate` ("{month} {day}, {year}", "{day} {month} {year}").
     *   Durum: açık. Kodda (2026-11-03) kartın başlığı `longDate`, haftanın günü başlıkta; alt satır yalnızca ne kadar önce olduğunu ve okuyucunun saatini söylüyor.
+*   [ ] **Breadcrumb, kısa bir sayfaya yetmeyen yerde sınırının dışına taşıyor (2026-11-03).**
+    *   Ne: Table'ın araç çubuğunda yol izi (`$ › orders`) dar pencerede önce daralsın diye `Modifier.weight(1f, fill = false)` alıyor. 800 piksellik bir tarayıcı penceresinde ona "$"dan az yer kaldı; `PantrixBreadcrumb` "$"ı yine de çizdi ve yanındaki sayının üstüne bindi ("$249 rows"). Belge "a short one keeps all of its own" diyor, yani kısa sayfa kesilmiyor; ama tek bir kısa sayfa bile sığmadığında ne olduğunu söylemiyor ve bileşen kendi sınırını kırpmıyor.
+    *   Nerede: [Breadcrumb](https://pantrixui.com/components/breadcrumb); MCP `get_api PantrixBreadcrumb`.
+    *   Öneri: izin kendi sınırında kırpılması ya da en kısa hâlinin genişliğini en küçük içsel genişlik olarak vermesi (satırın ağırlıkları onu gözetsin); belgede bu durumun bir cümlesi.
+    *   Durum: açık. Formatico (2026-11-03) izi `clipToBounds()` ile kırpıyor: yer kalmayınca iz görünmüyor, sayı okunuyor.

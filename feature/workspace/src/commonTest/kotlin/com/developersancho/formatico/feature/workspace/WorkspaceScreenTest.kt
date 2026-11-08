@@ -1,12 +1,15 @@
 package com.developersancho.formatico.feature.workspace
 
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.test.waitUntilExactlyOneExists
 import androidx.compose.ui.unit.DpSize
@@ -14,8 +17,11 @@ import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.format.Format
 import com.pantrixui.foundation.adaptive.PantrixWindow
 import com.pantrixui.foundation.diagnostics.PantrixFindings
+import com.pantrixui.foundation.files.LocalFileSaver
+import com.pantrixui.foundation.platform.PlatformType
 import com.pantrixui.testing.PantrixTestTheme
 import com.pantrixui.testing.TestClock
+import com.pantrixui.testing.TestFileSaver
 import com.pantrixui.testing.assertNoFindings
 import com.pantrixui.testing.onPantrixNode
 import kotlin.test.Test
@@ -61,7 +67,8 @@ class WorkspaceScreenTest {
             reading = reading,
             stats = TextStats.of(text),
             expanded = view.expanded ?: defaultExpanded(root),
-            trail = trail(root, view.selected)
+            trail = trail(root, view.selected),
+            table = tableOf(root, view.selected)
         )
     }
 
@@ -228,5 +235,120 @@ class WorkspaceScreenTest {
         awaitText("Text editing is on its way")
         onPantrixNode("TreeView", "document").assertDoesNotExist()
         onPantrixNode("Card", "selected_value").assertDoesNotExist()
+    }
+
+    private val orders = """
+        {"orders": [
+          {"id": "a", "total": 129.90, "coupon": "AUTUMN"},
+          {"id": "b", "total": 4.50, "coupon": null},
+          {"id": "c", "total": 1250.00}
+        ]}
+    """.trimIndent()
+
+    @Test
+    fun aWideTableOrdersFiltersSumsUpAndSaves() = runComposeUiTest {
+        val findings = PantrixFindings()
+        val saver = TestFileSaver()
+        val intents = mutableListOf<WorkspaceIntent>()
+        setContent {
+            PantrixTestTheme(window = desktop, findings = findings, clock = clock) {
+                CompositionLocalProvider(LocalFileSaver provides saver) {
+                    WorkspaceScreen(
+                        state = stateOf(
+                            orders,
+                            Format.Json,
+                            name = "orders.json",
+                            view = DocumentView(selected = "$.orders[1].total", pane = DocumentPane.Table)
+                        ),
+                        onIntent = { intents += it },
+                        commands = rememberDocumentCommands(Workbench())
+                    )
+                }
+            }
+        }
+
+        awaitText("3 rows · 3 columns")
+        onNodeWithText("3 numbers").assertExists()
+        onNodeWithText("1,250.00").assertExists()
+        onPantrixNode("Header", "total", scope = "DataTable_table").performClick()
+        onNodeWithText("AUTUMN").performClick()
+        onPantrixNode("TextField", "filter").performTextInput("autumn")
+        awaitText("1 of 3 rows · 3 columns")
+        onPantrixNode("IconButton", "save_csv").performClick()
+
+        assertEquals(
+            listOf(
+                WorkspaceIntent.SortTable(TableSort("total", descending = false)),
+                WorkspaceIntent.Select("$.orders[0].coupon")
+            ),
+            intents
+        )
+        val file = saver.files.single()
+        assertEquals("orders.csv", file.name)
+        assertEquals("id,total,coupon\na,129.90,AUTUMN\n", file.readBytes().decodeToString())
+        assertNoFindings(findings)
+    }
+
+    @Test
+    fun aPhoneShowsACsvAsItsRecords() = runComposeUiTest {
+        val intents = mutableListOf<WorkspaceIntent>()
+        setContent {
+            PantrixTestTheme(window = phone, clock = clock) {
+                WorkspaceScreen(
+                    state = stateOf(
+                        "code,name,numeric\nAD,Andorra,020\nAL,Albania,008\n",
+                        Format.Csv,
+                        name = "countries.csv",
+                        view = DocumentView(pane = DocumentPane.Table)
+                    ),
+                    onIntent = { intents += it },
+                    commands = rememberDocumentCommands(Workbench())
+                )
+            }
+        }
+
+        awaitText("2 rows")
+        onNodeWithText("numeric: 008").assertExists()
+        onNodeWithText("Albania").performClick()
+        assertEquals(listOf<WorkspaceIntent>(WorkspaceIntent.Select("$[1]")), intents)
+        onPantrixNode("Button", "minify").assertDoesNotExist()
+    }
+
+    @Test
+    fun aTabletKeepsTheTablesToolsBesideItsViews() = runComposeUiTest {
+        setContent {
+            PantrixTestTheme(platform = PlatformType.Ios, window = tablet, clock = clock) {
+                WorkspaceScreen(
+                    state = stateOf(
+                        orders,
+                        Format.Json,
+                        name = "orders.json",
+                        view = DocumentView(pane = DocumentPane.Table)
+                    ),
+                    onIntent = {},
+                    commands = rememberDocumentCommands(Workbench())
+                )
+            }
+        }
+
+        awaitText("3 rows")
+        onPantrixNode("Breadcrumb", "path").assertExists()
+        onPantrixNode("TextField", "filter").assertWidthIsAtLeast(120.dp)
+        onPantrixNode("IconButton", "save_csv").assertWidthIsAtLeast(32.dp)
+    }
+
+    @Test
+    fun aDocumentWithNoArraySaysItHasNoTable() = runComposeUiTest {
+        setContent {
+            PantrixTestTheme(window = tablet, clock = clock) {
+                WorkspaceScreen(
+                    state = stateOf("{\"a\": 1}", Format.Json, view = DocumentView(pane = DocumentPane.Table)),
+                    onIntent = {},
+                    commands = rememberDocumentCommands(Workbench())
+                )
+            }
+        }
+
+        awaitText("No list to show as a table")
     }
 }

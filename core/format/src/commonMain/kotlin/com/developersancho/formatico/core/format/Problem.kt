@@ -94,5 +94,17 @@ enum class ProblemCode {
     YamlSyntax,
 
     /** A YAML alias whose anchor is not given before it. */
-    UndefinedAlias
+    UndefinedAlias,
+
+    /** A CSV field whose quote is never closed. */
+    UnclosedQuote,
+
+    /** Text after a CSV field's closing quote, before the delimiter. */
+    TextAfterQuote,
+
+    /** A quote inside a CSV field that is not quoted. */
+    StrayQuote,
+
+    /** A CSV record with another number of fields than the header. */
+    FieldCount
 }

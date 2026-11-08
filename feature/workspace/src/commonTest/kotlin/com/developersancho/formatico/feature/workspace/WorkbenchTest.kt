@@ -102,6 +102,17 @@ class WorkbenchTest {
     }
 
     @Test
+    fun aCsvOpensOnItsTableAndIsFormattedAlone() = runTest {
+        val id = workbench.open("a.csv", "\"a\",\"b\"\n\"1\",\"x, y\"\n", Format.Csv)
+
+        assertEquals(DocumentPane.Table, workbench.state.value.selected!!.view.pane)
+        assertIs<EditResult.Changed>(workbench.edit(id, DocumentEdit.Format))
+        assertEquals("a,b\n1,\"x, y\"\n", workbench.state.value.selected!!.text)
+        assertEquals(EditResult.NotPossible, workbench.edit(id, DocumentEdit.Minify))
+        assertEquals(EditResult.NotPossible, workbench.edit(id, DocumentEdit.SortKeys))
+    }
+
+    @Test
     fun yamlKeysAreNotSortedWhereAnAliasWouldComeBeforeItsAnchor() = runTest {
         val text = "b: &x 1\na: *x\n"
         val id = workbench.open("a.yaml", text, Format.Yaml)

@@ -57,6 +57,7 @@ internal class DocumentCommands(
     val copy: (OpenDocument) -> Unit,
     val copyValue: (String) -> Unit,
     val save: (OpenDocument) -> Unit,
+    val saveCsv: (OpenDocument, String) -> Unit,
     val report: (DocumentEdit, EditResult) -> Unit
 )
 
@@ -141,23 +142,26 @@ internal fun rememberDocumentCommands(workbench: Workbench): DocumentCommands {
         }
     }
 
+    fun save(file: PantrixFile) {
+        saver.save(file) { result ->
+            if (result == FileSaveResult.Failed) {
+                scope.launch {
+                    snackbars?.show(message = words.saveFailed, tone = SnackbarTone.Danger, tagKey = "save_failed")
+                }
+            }
+        }
+    }
+
     return remember(clipboard, saver, snackbars, scope, words, workbench) {
         DocumentCommands(
             copy = { copy(it.text, words.document) },
             copyValue = { copy(it, words.value) },
             save = { document ->
-                val file = PantrixFile(fileNameOf(document, words.untitled), document.text.encodeToByteArray())
-                saver.save(file) { result ->
-                    if (result == FileSaveResult.Failed) {
-                        scope.launch {
-                            snackbars?.show(
-                                message = words.saveFailed,
-                                tone = SnackbarTone.Danger,
-                                tagKey = "save_failed"
-                            )
-                        }
-                    }
-                }
+                save(PantrixFile(fileNameOf(document, words.untitled), document.text.encodeToByteArray()))
+            },
+            saveCsv = { document, csv ->
+                val name = fileNameOf(document, words.untitled).substringBeforeLast('.') + ".csv"
+                save(PantrixFile(name, csv.encodeToByteArray(), mimeType = "text/csv"))
             },
             report = { edit, result ->
                 scope.launch {
@@ -223,7 +227,7 @@ fun DocumentMoreMenu(documentId: Long) {
         items = DocumentMenuItems.SortCompareClose,
         size = ButtonSize.Large,
         // Whether the document is valid is the workspace's to know; one with errors is told why it is not sorted.
-        canSort = format?.isWritten == true,
+        canSort = format?.edits?.contains(DocumentEdit.SortKeys) == true,
         onSortKeys = {
             scope.launch { commands.report(DocumentEdit.SortKeys, workbench.edit(documentId, DocumentEdit.SortKeys)) }
         },

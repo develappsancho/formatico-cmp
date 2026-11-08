@@ -109,4 +109,49 @@
         <item quantity="one">in %1$d day</item>
         <item quantity="other">in %1$d days</item>
     </plurals>
+    <string name="workspace_editor_body_table">It comes in a later version. Until then, the table shows the document, and Format and Copy work on all of it.</string>
+    <plurals name="workspace_rows">
+        <item quantity="one">%1$d row</item>
+        <item quantity="other">%1$d rows</item>
+    </plurals>
+    <plurals name="workspace_rows_of">
+        <item quantity="one">%1$d of %2$d row</item>
+        <item quantity="other">%1$d of %2$d rows</item>
+    </plurals>
+    <plurals name="workspace_table_columns">
+        <item quantity="one">%1$d column</item>
+        <item quantity="other">%1$d columns</item>
+    </plurals>
+    <string name="workspace_filter_rows">Filter rows</string>
+    <string name="workspace_columns">Columns</string>
+    <string name="workspace_columns_all">Columns: all %1$d shown. Choose columns</string>
+    <string name="workspace_columns_some">Columns: %1$d of %2$d shown. Choose columns</string>
+    <string name="workspace_save_csv">Save as CSV</string>
+    <string name="workspace_value_column">value</string>
+    <string name="workspace_index">Index in the array</string>
+    <string name="workspace_missing_key">No %1$s key in this object</string>
+    <string name="workspace_open_value">%1$s. Open</string>
+    <plurals name="workspace_numbers">
+        <item quantity="one">%1$s number</item>
+        <item quantity="other">%1$s numbers</item>
+    </plurals>
+    <plurals name="workspace_values">
+        <item quantity="one">%1$s value</item>
+        <item quantity="other">%1$s values</item>
+    </plurals>
+    <string name="workspace_stat_min">min</string>
+    <string name="workspace_stat_max">max</string>
+    <string name="workspace_stat_average">average</string>
+    <string name="workspace_stat_different">different</string>
+    <string name="workspace_stat_empty">empty</string>
+    <string name="workspace_sorted_by">Sorted by %1$s, %2$s</string>
+    <string name="workspace_newest_first">newest first</string>
+    <string name="workspace_oldest_first">oldest first</string>
+    <string name="workspace_largest_first">largest first</string>
+    <string name="workspace_smallest_first">smallest first</string>
+    <string name="workspace_a_to_z">A to Z</string>
+    <string name="workspace_z_to_a">Z to A</string>
+    <string name="workspace_no_table_title">No list to show as a table</string>
+    <string name="workspace_no_table_body">The table shows an array, and this document has none.</string>
+    <string name="workspace_no_rows">No row holds “%1$s”</string>
 </resources>

@@ -43,6 +43,7 @@ import com.pantrixui.foundation.theme.PantrixTheme
 import formatico.feature.workspace.generated.resources.Res
 import formatico.feature.workspace.generated.resources.workspace_editor_body
 import formatico.feature.workspace.generated.resources.workspace_editor_body_read
+import formatico.feature.workspace.generated.resources.workspace_editor_body_table
 import formatico.feature.workspace.generated.resources.workspace_editor_body_unread
 import formatico.feature.workspace.generated.resources.workspace_editor_title
 import formatico.feature.workspace.generated.resources.workspace_empty_body
@@ -102,7 +103,8 @@ internal fun PaneMessage(icon: ImageVector, title: String, body: String, modifie
 @Composable
 internal fun EditorComing(state: WorkspaceState, modifier: Modifier = Modifier) {
     val body = when {
-        state.editable -> Res.string.workspace_editor_body
+        DocumentEdit.Minify in state.edits -> Res.string.workspace_editor_body
+        DocumentEdit.Format in state.edits -> Res.string.workspace_editor_body_table
         state.reading is Reading.Read -> Res.string.workspace_editor_body_read
         else -> Res.string.workspace_editor_body_unread
     }
@@ -116,7 +118,7 @@ internal fun EditorComing(state: WorkspaceState, modifier: Modifier = Modifier) 
 
 /** What the tree's pane says where there is no tree to show, or null where there is one. */
 @Composable
-private fun treeMessage(state: WorkspaceState): Pair<String, String>? {
+internal fun treeMessage(state: WorkspaceState): Pair<String, String>? {
     val document = state.document ?: return null
     return when (val reading = state.reading) {
         Reading.Pending -> null
@@ -163,7 +165,9 @@ internal fun TreePane(state: WorkspaceState, layout: WorkspaceLayout, onIntent: 
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(spacing.sm)
         ) {
-            ViewChoice(selected = DocumentPane.Tree, withText = false, onSelect = {})
+            ViewChoice(selected = DocumentPane.Tree, withText = false, onSelect = {
+                onIntent(WorkspaceIntent.ShowPane(it))
+            })
             if (!wide && message == null) {
                 PathTrail(state = state, onIntent = onIntent, modifier = Modifier.padding(start = spacing.sm))
             }
@@ -203,59 +207,33 @@ internal fun TreePane(state: WorkspaceState, layout: WorkspaceLayout, onIntent: 
     }
 }
 
-/** The views of a document: its text on a phone ([withText]), its tree, and its table, which is not open yet. */
+/**
+ * The views of a document: its text where [withText] says so, its tree, and its table. It fills its place's width
+ * where [fullWidth] says so, by default where it shows the text: on a row of its own.
+ */
 @Composable
 internal fun ViewChoice(
     selected: DocumentPane,
     withText: Boolean,
     onSelect: (DocumentPane) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    fullWidth: Boolean = withText
 ) {
     val textLabel = stringResource(Res.string.workspace_view_text)
     val treeLabel = stringResource(Res.string.workspace_view_tree)
     val text = SegmentOption<DocumentPane?>(value = DocumentPane.Text, label = textLabel, tagKey = "text")
     val tree = SegmentOption<DocumentPane?>(value = DocumentPane.Tree, label = treeLabel, tagKey = "tree")
-    // The table is a view of its own still to come: a choice that is not open yet.
-    val table = SegmentOption<DocumentPane?>(
-        value = null,
-        label = stringResource(Res.string.workspace_view_table),
-        enabled = false,
-        tagKey = "table"
-    )
+    val tableLabel = stringResource(Res.string.workspace_view_table)
+    val table = SegmentOption<DocumentPane?>(value = DocumentPane.Table, label = tableLabel, tagKey = "table")
     PantrixSegmentButton(
         options = listOfNotNull(text.takeIf { withText }, tree, table),
         selected = selected,
         onSelect = { pane -> pane?.let(onSelect) },
         modifier = modifier,
-        fullWidth = withText,
+        fullWidth = fullWidth,
         tagKey = "view"
     )
 }
-
-/** The trail from the document's root to the chosen value; a step of it chooses that value. */
-@Composable
-internal fun PathTrail(state: WorkspaceState, onIntent: (WorkspaceIntent) -> Unit, modifier: Modifier = Modifier) {
-    val trail = state.trail.ifEmpty { listOfNotNull(state.root) }
-    if (trail.isEmpty()) return
-    PantrixBreadcrumb(
-        items = trail.map { node ->
-            val label = when (val step = node.path.lastOrNull()) {
-                null -> ROOT_LABEL
-                is PathStep.Index -> "[${step.index}]"
-                is PathStep.Key -> step.name
-            }
-            BreadcrumbItem(key = node.key, label = label, tagKey = tagOf(node))
-        },
-        onSelect = { onIntent(WorkspaceIntent.Select(it)) },
-        modifier = modifier,
-        tagKey = "path"
-    )
-}
-
-private const val ROOT_LABEL = "$"
-
-/** A node's automation key, the same in every language: `root`, or its path without the `$`. */
-internal fun tagOf(node: ValueNode): String = if (node.path.isEmpty()) "root" else node.key.drop(1).removePrefix(".")
 
 /** The document's tree: a value to a row, its strings previewed. */
 @Composable

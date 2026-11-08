@@ -2,6 +2,8 @@ package com.developersancho.formatico.feature.workspace
 
 import com.developersancho.formatico.core.format.Format
 import com.developersancho.formatico.core.format.ProblemCode
+import com.developersancho.formatico.core.format.csv.CsvDocument
+import com.developersancho.formatico.core.format.csv.formatted
 import com.developersancho.formatico.core.format.json.JsonDialect
 import com.developersancho.formatico.core.format.json.JsonDocument
 import com.developersancho.formatico.core.format.json.formatted
@@ -39,20 +41,27 @@ data class OpenDocument(
 )
 
 /**
- * How a document's tree was left.
+ * How a document's tree and table were left.
  *
  * @property expanded the keys of the open branches, or null for those a document opens with.
  * @property selected the key of the chosen value, or null for none.
- * @property pane what a phone shows of it: its text or its tree.
+ * @property pane what is shown of it: its tree or its table beside its text, and on a phone one of the three.
+ * @property tableSort the column the table's rows are ordered by, or null for their own order.
+ * @property hiddenColumns the names of the table's columns that are not shown.
  */
 data class DocumentView(
     val expanded: Set<String>? = null,
     val selected: String? = null,
-    val pane: DocumentPane = DocumentPane.Tree
+    val pane: DocumentPane = DocumentPane.Tree,
+    val tableSort: TableSort? = null,
+    val hiddenColumns: Set<String> = emptySet()
 )
 
-/** What a phone shows of a document, one at a time. */
-enum class DocumentPane { Text, Tree }
+/** What is shown of a document: on a phone one at a time, elsewhere the tree or the table beside the text. */
+enum class DocumentPane { Text, Tree, Table }
+
+/** The column a table's rows are ordered by, [column], the largest first where [descending] says so. */
+data class TableSort(val column: String, val descending: Boolean)
 
 /**
  * The open documents, in the order of their tabs.
@@ -91,8 +100,13 @@ sealed interface EditResult {
     data object AliasBeforeAnchor : EditResult
 }
 
-/** Whether Formatico writes a document of this format out again: formats it, minifies it and sorts its keys. */
-internal val Format.isWritten: Boolean get() = jsonDialect != null || this == Format.Yaml
+/** What Formatico can make of a document of this format: all of it in JSON and YAML, Format in CSV and TSV. */
+internal val Format.edits: Set<DocumentEdit>
+    get() = when {
+        jsonDialect != null || this == Format.Yaml -> DocumentEdit.entries.toSet()
+        this == Format.Csv || this == Format.Tsv -> setOf(DocumentEdit.Format)
+        else -> emptySet()
+    }
 
 /** The JSON a format is read as, or null for a format Formatico does not read yet. */
 internal val Format.jsonDialect: JsonDialect?
@@ -128,7 +142,10 @@ class Workbench(private val worker: CoroutineDispatcher = Dispatchers.Default) {
             select(open.id)
             return open.id
         }
-        val document = OpenDocument(id = nextId++, name = name, text = text, format = format)
+        // A table opens on its table.
+        val pane = if (format == Format.Csv || format == Format.Tsv) DocumentPane.Table else DocumentPane.Tree
+        val document =
+            OpenDocument(id = nextId++, name = name, text = text, format = format, view = DocumentView(pane = pane))
         mutableState.update { it.copy(documents = it.documents + document, selectedId = document.id) }
         return document.id
     }
@@ -207,6 +224,7 @@ private fun edited(document: OpenDocument, edit: DocumentEdit): Edited {
     return when (val format = document.format) {
         null -> Edited.NotPossible
         Format.Yaml -> editedYaml(document.text, edit, indentation)
+        Format.Csv, Format.Tsv -> editedCsv(document.text, edit, delimiter = if (format == Format.Tsv) '\t' else null)
         else -> format.jsonDialect?.let { editedJson(document.text, it, edit, indentation) } ?: Edited.NotPossible
     }
 }
@@ -221,6 +239,12 @@ private fun editedJson(text: String, dialect: JsonDialect, edit: DocumentEdit, i
             DocumentEdit.SortKeys -> json.formatted(indentation, sortKeys = true)
         }
     )
+}
+
+/** What [edit] makes of a CSV or a TSV [text]: Format alone, which quotes only what needs it. */
+private fun editedCsv(text: String, edit: DocumentEdit, delimiter: Char?): Edited {
+    val csv = CsvDocument.parse(text, delimiter)
+    return if (edit == DocumentEdit.Format && csv.isValid) Edited.Text(csv.formatted()) else Edited.NotPossible
 }
 
 /** What [edit] makes of a YAML [text]; its keys are not sorted where an alias would come before its anchor. */

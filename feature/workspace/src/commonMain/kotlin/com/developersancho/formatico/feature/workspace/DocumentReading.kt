@@ -86,6 +86,7 @@ internal data class TextStats(val lines: Int, val bytes: Long, val layout: TextL
 /** Reads [text] as [format], for its tree. */
 internal fun readDocument(text: String, format: Format?): Reading {
     if (format == Format.Yaml) return readYaml(text)
+    if (format == Format.Csv || format == Format.Tsv) return readCsv(text, format)
     val dialect = format?.jsonDialect ?: return Reading.Unread(format)
     val document = JsonDocument.parse(text, dialect)
     return Reading.Read(

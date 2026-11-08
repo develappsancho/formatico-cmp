@@ -57,6 +57,9 @@ import org.koin.core.parameter.parametersOf
 /** The share of a wide window the text takes beside the tree: the design's 1.15 to 1. */
 private const val TEXT_SHARE = 1.15f / 2.15f
 
+/** The share of a wide window the text takes beside the table: the design's 0.72 to 1.28. */
+private const val TABLE_TEXT_SHARE = 0.72f / 2f
+
 /** How tall the text stands above the tree on a tablet. */
 private val TextHeight = 480.dp
 
@@ -98,9 +101,16 @@ internal fun WorkspaceScreen(
         return
     }
     val wide = layout == WorkspaceLayout.Wide
+    val table = document.view.pane == DocumentPane.Table
     Column(modifier = modifier.fillMaxSize().background(PantrixTheme.colors.surface)) {
         Toolbar(state = state, document = document, layout = layout, onIntent = onIntent, commands = commands)
         PantrixHorizontalDivider()
+        if (table && !wide) {
+            // A tablet gives the table the whole room, as its board draws it.
+            TablePane(state, layout, onIntent, commands, Modifier.weight(1f).fillMaxWidth())
+            StatusBar(state = state, layout = layout)
+            return@Column
+        }
         PantrixTwoPane(
             first = {
                 if (wide) {
@@ -115,10 +125,20 @@ internal fun WorkspaceScreen(
                     }
                 }
             },
-            second = { TreePane(state = state, layout = layout, onIntent = onIntent) },
+            second = {
+                if (table) {
+                    TablePane(state, layout, onIntent, commands)
+                } else {
+                    TreePane(state = state, layout = layout, onIntent = onIntent)
+                }
+            },
             modifier = Modifier.weight(1f).fillMaxWidth(),
             orientation = if (wide) TwoPaneOrientation.SideBySide else TwoPaneOrientation.Stacked,
-            firstSize = if (wide) PaneSize.Fraction(TEXT_SHARE) else PaneSize.Fixed(TextHeight),
+            firstSize = when {
+                !wide -> PaneSize.Fixed(TextHeight)
+                table -> PaneSize.Fraction(TABLE_TEXT_SHARE)
+                else -> PaneSize.Fraction(TEXT_SHARE)
+            },
             gap = 0.dp,
             tagKey = "panes"
         )
@@ -193,7 +213,7 @@ private fun EditButtons(state: WorkspaceState, layout: WorkspaceLayout, onIntent
         text = stringResource(Res.string.workspace_format),
         onClick = { onIntent(WorkspaceIntent.Edit(DocumentEdit.Format)) },
         size = size,
-        enabled = state.editable,
+        enabled = DocumentEdit.Format in state.edits,
         tagKey = "format"
     )
     PantrixButton(
@@ -201,7 +221,7 @@ private fun EditButtons(state: WorkspaceState, layout: WorkspaceLayout, onIntent
         onClick = { onIntent(WorkspaceIntent.Edit(DocumentEdit.Minify)) },
         variant = ButtonVariant.Outline,
         size = size,
-        enabled = state.editable,
+        enabled = DocumentEdit.Minify in state.edits,
         tagKey = "minify"
     )
     if (layout == WorkspaceLayout.Wide) {
@@ -210,7 +230,7 @@ private fun EditButtons(state: WorkspaceState, layout: WorkspaceLayout, onIntent
             onClick = { onIntent(WorkspaceIntent.Edit(DocumentEdit.SortKeys)) },
             variant = ButtonVariant.Subtle,
             size = size,
-            enabled = state.editable,
+            enabled = DocumentEdit.SortKeys in state.edits,
             tagKey = "sort_keys"
         )
     }
@@ -246,7 +266,7 @@ private fun DocumentButtons(
         DocumentMenu(
             items = if (wide) DocumentMenuItems.Close else DocumentMenuItems.SortCompareSaveClose,
             size = layout.buttons,
-            canSort = state.editable,
+            canSort = DocumentEdit.SortKeys in state.edits,
             onSortKeys = { onIntent(WorkspaceIntent.Edit(DocumentEdit.SortKeys)) },
             onSave = { commands.save(document) },
             onClose = { onIntent(WorkspaceIntent.Close) }

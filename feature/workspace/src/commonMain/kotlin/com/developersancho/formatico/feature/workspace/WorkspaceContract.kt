@@ -16,7 +16,8 @@ internal data class WorkspaceState(
     val reading: Reading = Reading.Pending,
     val stats: TextStats? = null,
     val expanded: Set<String> = emptySet(),
-    val trail: List<ValueNode> = emptyList()
+    val trail: List<ValueNode> = emptyList(),
+    val table: TableModel? = null
 ) {
     /** The value chosen in the tree, or null. */
     val selected: ValueNode? get() = trail.lastOrNull()
@@ -25,14 +26,18 @@ internal data class WorkspaceState(
     val root: ValueNode? get() = (reading as? Reading.Read)?.root
 
     /**
-     * Whether Format, Minify and Sort keys can change the document: it is in a format Formatico writes out, it is read,
-     * and it has no error.
+     * What Format, Minify and Sort keys can make of the document: what its format allows, where it is read and has no
+     * error.
      */
-    val editable: Boolean
-        get() = reading is Reading.Read &&
-            reading.format.isWritten &&
-            reading.errors == 0 &&
-            reading.root != null
+    val edits: Set<DocumentEdit>
+        get() = if (reading is Reading.Read && reading.errors == 0 && reading.root != null) {
+            reading.format.edits
+        } else {
+            emptySet()
+        }
+
+    /** Where the table stands in the tree's choice. */
+    val tableChoice: TableChoice? get() = tableChoice(table, trail)
 }
 
 /** What the user did, or asked for, in a workspace. */
@@ -51,6 +56,12 @@ internal sealed interface WorkspaceIntent {
 
     /** Make [edit] to the document. */
     data class Edit(val edit: DocumentEdit) : WorkspaceIntent
+
+    /** Order the table's rows by [sort], or give them their own order back. */
+    data class SortTable(val sort: TableSort?) : WorkspaceIntent
+
+    /** Hide the table's columns named in [hidden], and show the others. */
+    data class HideColumns(val hidden: Set<String>) : WorkspaceIntent
 
     /** Close the document. */
     data object Close : WorkspaceIntent

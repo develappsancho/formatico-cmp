@@ -54,6 +54,12 @@ internal class WorkspaceViewModel(
                 sendEffect(WorkspaceEffect.Edited(intent.edit, workbench.edit(documentId, intent.edit)))
             }
 
+            is WorkspaceIntent.SortTable -> workbench.changeView(documentId) { it.copy(tableSort = intent.sort) }
+
+            is WorkspaceIntent.HideColumns -> workbench.changeView(documentId) {
+                it.copy(hiddenColumns = intent.hidden)
+            }
+
             WorkspaceIntent.Close -> workbench.close(documentId)
         }
     }
@@ -69,6 +75,10 @@ internal class WorkspaceViewModel(
     /** The state with its open branches and the trail to its chosen value, from its document's view and its tree. */
     private fun WorkspaceState.arranged(): WorkspaceState {
         val view = document?.view ?: DocumentView()
-        return copy(expanded = view.expanded ?: defaultExpanded(root), trail = trail(root, view.selected))
+        return copy(
+            expanded = view.expanded ?: defaultExpanded(root),
+            trail = trail(root, view.selected),
+            table = tableOf(root, view.selected)
+        )
     }
 }

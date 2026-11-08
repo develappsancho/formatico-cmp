@@ -43,7 +43,7 @@ class WorkspaceViewModelTest {
         val reading = assertIs<Reading.Read>(state.reading)
         assertEquals(0, reading.errors)
         assertEquals(setOf("$", "$.a"), state.expanded)
-        assertTrue(state.editable)
+        assertEquals(DocumentEdit.entries.toSet(), state.edits)
         assertEquals(1, state.stats?.lines)
     }
 
@@ -97,7 +97,7 @@ class WorkspaceViewModelTest {
         val state = viewModel(id).state.value
 
         assertEquals(Reading.Unread(Format.Toml), state.reading)
-        assertFalse(state.editable)
+        assertTrue(state.edits.isEmpty())
     }
 
     @Test
@@ -107,9 +107,32 @@ class WorkspaceViewModelTest {
 
         val reading = assertIs<Reading.Read>(viewModel.state.value.reading)
         assertEquals(0, reading.errors)
-        assertTrue(viewModel.state.value.editable)
+        assertEquals(DocumentEdit.entries.toSet(), viewModel.state.value.edits)
         assertIs<EditResult.Changed>(workbench.edit(id, DocumentEdit.Format))
         assertEquals("a: &x 1\nb: *x\n", workbench.state.value.selected!!.text)
+    }
+
+    @Test
+    fun theTableFollowsTheChoiceAndKeepsItsOrderAndItsColumns() {
+        val id = workbench.open(null, """{"rows": [{"a": 2, "b": 1}, {"a": 1}]}""", Format.Json)
+        val viewModel = viewModel(id)
+
+        viewModel.dispatch(WorkspaceIntent.Select("$.rows[1].a"))
+        viewModel.dispatch(WorkspaceIntent.SortTable(TableSort("a", descending = true)))
+        viewModel.dispatch(WorkspaceIntent.HideColumns(setOf("b")))
+
+        val state = viewModel.state.value
+        assertEquals("$.rows", state.table?.source?.key)
+        assertEquals(TableChoice(row = 1, column = "a"), state.tableChoice)
+        assertEquals(TableSort("a", descending = true), state.document?.view?.tableSort)
+        assertEquals(setOf("b"), state.document?.view?.hiddenColumns)
+    }
+
+    @Test
+    fun aCsvCanBeFormattedOnly() {
+        val id = workbench.open("a.csv", "a,b\n1,2\n", Format.Csv)
+
+        assertEquals(setOf(DocumentEdit.Format), viewModel(id).state.value.edits)
     }
 
     @Test

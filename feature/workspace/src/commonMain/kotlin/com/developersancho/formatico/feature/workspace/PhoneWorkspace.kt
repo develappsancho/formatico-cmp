@@ -65,6 +65,11 @@ internal fun PhoneWorkspace(
                 .fillMaxWidth()
                 .padding(start = spacing.lg, end = spacing.lg, top = spacing.md, bottom = spacing.sm)
         )
+        if (pane == DocumentPane.Table) {
+            // The table's board gives it the room the tree's card and the actions take, under its own toolbar.
+            TablePane(state, WorkspaceLayout.Phone, onIntent, commands, Modifier.weight(1f).fillMaxWidth())
+            return@Column
+        }
         Row(
             modifier = Modifier.fillMaxWidth().height(44.dp).padding(horizontal = spacing.lg),
             verticalAlignment = Alignment.CenterVertically,
@@ -137,7 +142,7 @@ private fun PhoneToolbar(
             text = stringResource(Res.string.workspace_format),
             onClick = { onIntent(WorkspaceIntent.Edit(DocumentEdit.Format)) },
             size = ButtonSize.Large,
-            enabled = state.editable,
+            enabled = DocumentEdit.Format in state.edits,
             tagKey = "format"
         )
         PantrixButton(
@@ -145,7 +150,7 @@ private fun PhoneToolbar(
             onClick = { onIntent(WorkspaceIntent.Edit(DocumentEdit.Minify)) },
             variant = ButtonVariant.Outline,
             size = ButtonSize.Large,
-            enabled = state.editable,
+            enabled = DocumentEdit.Minify in state.edits,
             tagKey = "minify"
         )
         Spacer(modifier = Modifier.weight(1f))

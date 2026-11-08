@@ -109,4 +109,49 @@
         <item quantity="one">%1$d gün sonra</item>
         <item quantity="other">%1$d gün sonra</item>
     </plurals>
+    <string name="workspace_editor_body_table">Sonraki bir sürümle geliyor. O zamana kadar belge tabloda görünüyor; Biçimlendir ve Kopyala belgenin tamamında çalışıyor.</string>
+    <plurals name="workspace_rows">
+        <item quantity="one">%1$d satır</item>
+        <item quantity="other">%1$d satır</item>
+    </plurals>
+    <plurals name="workspace_rows_of">
+        <item quantity="one">%2$d satırdan %1$d</item>
+        <item quantity="other">%2$d satırdan %1$d</item>
+    </plurals>
+    <plurals name="workspace_table_columns">
+        <item quantity="one">%1$d sütun</item>
+        <item quantity="other">%1$d sütun</item>
+    </plurals>
+    <string name="workspace_filter_rows">Satırları süz</string>
+    <string name="workspace_columns">Sütunlar</string>
+    <string name="workspace_columns_all">Sütunlar: %1$d sütunun hepsi görünüyor. Sütunları seç</string>
+    <string name="workspace_columns_some">Sütunlar: %2$d sütunun %1$d tanesi görünüyor. Sütunları seç</string>
+    <string name="workspace_save_csv">CSV olarak kaydet</string>
+    <string name="workspace_value_column">değer</string>
+    <string name="workspace_index">Dizideki yeri</string>
+    <string name="workspace_missing_key">Bu nesnede %1$s anahtarı yok</string>
+    <string name="workspace_open_value">%1$s. Aç</string>
+    <plurals name="workspace_numbers">
+        <item quantity="one">%1$s sayı</item>
+        <item quantity="other">%1$s sayı</item>
+    </plurals>
+    <plurals name="workspace_values">
+        <item quantity="one">%1$s değer</item>
+        <item quantity="other">%1$s değer</item>
+    </plurals>
+    <string name="workspace_stat_min">en küçük</string>
+    <string name="workspace_stat_max">en büyük</string>
+    <string name="workspace_stat_average">ortalama</string>
+    <string name="workspace_stat_different">farklı</string>
+    <string name="workspace_stat_empty">boş</string>
+    <string name="workspace_sorted_by">%1$s sütununa göre sıralı, %2$s</string>
+    <string name="workspace_newest_first">en yeni önce</string>
+    <string name="workspace_oldest_first">en eski önce</string>
+    <string name="workspace_largest_first">en büyük önce</string>
+    <string name="workspace_smallest_first">en küçük önce</string>
+    <string name="workspace_a_to_z">A’dan Z’ye</string>
+    <string name="workspace_z_to_a">Z’den A’ya</string>
+    <string name="workspace_no_table_title">Tablo olarak gösterilecek bir liste yok</string>
+    <string name="workspace_no_table_body">Tablo bir diziyi gösterir; bu belgede dizi yok.</string>
+    <string name="workspace_no_rows">“%1$s” geçen bir satır yok</string>
 </resources>
