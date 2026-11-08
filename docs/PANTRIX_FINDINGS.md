@@ -174,6 +174,11 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Nerede: tuvalin kopyası (`1794244829-b310`), `project/ds/pantrix/components/index.d.ts` (`CodeEditorProps`); MCP `get_api CodeEditorState` (`revealLines`).
     *   Öneri: `CodeEditorProps`'a `reveal?: number[]` (ya da `firstLine` / `scrollTo`): verilen satırlar, yoksa seçim, açılışta görünür olsun; Compose'daki `revealLines`'ın karşılığı.
     *   Durum: açık. Formatico'yu tıkamıyor.
+*   [ ] **Tasarım sisteminin Dialog'u yerinde (inline) çizilince karartması yerini doldurmuyor (2026-11-09).**
+    *   Ne: Share panoları (1440, 834) paylaşım diyaloğunu `Pantrix.Dialog`'un `inline`'ıyla, panonun üstünde bütün panoyu kaplayan bir yerde çiziyor. `inline` diyaloğu "on a scrim block" çiziyor: `.ptx-dialog-stage`, diyaloğun boyu artı 24 piksel yüksekliğinde bir blok. Verilen yeri doldurmuyor. Karartma panonun yalnızca üstünde, diyaloğun boyunda bir şerit; altındaki metin karartılmamış. Diyalog da panonun ortasında değil, o şeridin ortasında. `DialogProps`'ta `style` ya da `className` yok, pano blokun boyunu veremiyor. Uygulamada diyalog bütün pencereyi karartıyor.
+    *   Nerede: tuvalin kopyası (`1794246052-74f6`), `project/ds/pantrix/components/index.d.ts` (`DialogProps.inline`) ve `components/bundle.css` (`.ptx-dialog-stage`).
+    *   Öneri: `inline` sahne, verilen yerin boyunu doldursun (`min-height: 100%`, diyalog ortada); ya da `DialogProps`'a `className`/`style`.
+    *   Durum: açık. Formatico'yu tıkamıyor. Tuval bileşenin sınıfını ezerek düzeltti (2026-11-09; `formatico-options.css`: `.ptx-dialog-stage { min-height: 100% }`). Share 1440 ile 834'te ve Start'ın `ask` durumunda karartma artık bütün panoyu kaplıyor, diyalog ortada. Chrome'da açık temada, Share-834'te koyu temada da bakıldı.
 
 ## 3. Detekt
 
