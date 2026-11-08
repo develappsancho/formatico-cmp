@@ -57,6 +57,9 @@ eksikler Faz 4'te.
         Dikkat: v1'in paylaşımı belgeyi bağlantının fragment'ında taşıyor (Faz 13); kütüphanenin `main`'i de yolu
         fragment'a yazıyor gibi. Birleşmemiş PR #9 (tam URL yolları, `ChronologicalBrowserRouteNavigation`, MIT) bu
         çakışmayı çözer, ama yolların sunucuda `index.html`'e yönlendirilmesini ister ve henüz incelenmemiş.
+    *   Önizlemeler ve testler (sahibinin kuralı, 2026-11-04; CLAUDE.md): bugüne kadarki her ekrana ve bileşene
+        (Start, Workspace, Table, çubuk, değiştirici, kayıt ve ötekiler) her durumu içeren `PreviewParameterProvider`'lı
+        önizlemeler; aynı durumların ekran görüntüsü testleri; eksik Compose UI ve birim testleri.
 *   [ ] **Faz 5: Metin editörü.** `PantrixCodeEditor` ve Formatico'nun renklendiricisi; metin ile ağacın seçimi iki
     yönde; Ln ve Col durum çubuğunda ve Table'da; telefonda "Show in text"; belge başına geri alma geçmişi; bul ve
     değiştir; sütun editörün saydığı birimle.

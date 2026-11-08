@@ -67,6 +67,14 @@ Formatico is also a test of Pantrix UI: it is built the way a developer who foun
 - **Build logic:** convention plugins are Kotlin classes (`Plugin<Project>`), never precompiled `.gradle.kts` script
   plugins.
 - **MVI:** the base view model, the base screen and every other base live in one module.
+- **Every screen and every component comes with its previews and its tests** (the owner's rule, 2026-11-04):
+  - **Previews:** one `@Preview` per case, fed by a `PreviewParameterProvider` that lists every state the screen or
+    component can be in (empty, filled, loading, error, each format it shows), at the boards' widths and in light and
+    dark.
+  - **Screenshot tests (Roborazzi):** the same cases, recorded and verified.
+  - **Compose UI tests:** what each case shows and what pressing it does, in `commonTest`, on every target.
+  - **Unit tests:** its view model, its state and every function it is built from.
+  - Work that adds a screen or a component without these is not done.
 
 ## Design
 
