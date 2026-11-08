@@ -65,7 +65,12 @@ Her madde: **ne**, **nerede** (sitenin sayfası ya da aracı), **öneri**, **dur
     *   Ne: Formatico'nun ana yüzeyi satır numaralı, renklendirilmiş, hata işaretli bir editör. Tasarım sisteminde ve kütüphanede salt okunur `CodeBlock` ile `JsonView` var; editör yok. Panolarda editör, bileşen değil işaretleme olarak çiziliyor.
     *   Nerede: kütüphanenin bileşenleri; tasarım sisteminin `Data` bölümü.
     *   Öneri: kütüphaneye `PantrixCodeEditor`, kendi tasarım önerisiyle (sahibinin kararı, 2026-11-02); tasarım sistemine web karşılığı.
-    *   Durum: açık, öneri bekliyor.
+    *   Durum: açık, öneri bekliyor. Workspace panolarında (1440, 834) editör yine işaretleme; tasarım sisteminin 2026-11-02'deki sürümünde (`1793640513-8bb4`) de `CodeEditor` yok.
+*   [ ] **Simgeler kapalı bir liste; bir uygulamanın sık simgeleri yok (2026-11-02).**
+    *   Ne: Tasarım sistemindeki bileşenlerin `icon` özelliği `IconName` türünde, PantrixIcons'ın 35 adından biri; uygulamanın kendi simgesi verilemiyor. Formatico'nun panolarında ayarlar, tema (ay), yapıştır (pano), dış bağlantı ve resim simgeleri yok; bu yüzden o düğmeler `Pantrix.IconButton` değil, elle çizilmiş SVG'li işaretleme. Compose tarafında sorun yok: `PantrixIconButton` her `ImageVector`'ü alıyor. README "uygulamanın simgeleri ızgarayı ve çizgiyi paylaşır" diyor, ama tasarım tuvalinde paylaşmanın yolu yok.
+    *   Nerede: tasarım sistemi, `project/components/index.d.ts` (`IconName`), `project/assets/Icons/README.md`.
+    *   Öneri: web karşılıklarında `icon`'a bir SVG ya da bir düğüm de verilebilmesi; PantrixIcons'a sık kullanılanlar: ayarlar, güneş ve ay, pano, dış bağlantı, resim, geçmiş, çöp kutusu, paylaş.
+    *   Durum: açık.
 
 ## 3. Detekt
 
@@ -109,4 +114,27 @@ Her madde: **ne**, **nerede** (sitenin sayfası ya da aracı), **öneri**, **dur
     *   Ne: Web uyumluluğu rehberi, Skia betiğindeki `import.meta.url`'nin derleyen makinenin yolunu (`file:///Users/…`) yayına taşıdığını ve bunun `webpack.config.d/stripFilePaths.js` ile silindiğini söylüyor; eklentinin kendisini vermiyor. Dışarıdan bir uygulama aynısını yapamıyor.
     *   Nerede: [Old Browsers and a Wasm That Will Not Start](https://pantrixui.com/docs/guides/web-compatibility), bölüm 7 ve 9.
     *   Öneri: eklentinin metni rehberde, ya da paket deposunda indirilebilir.
+    *   Durum: açık.
+
+## 6. Bileşenler
+
+*   [ ] **Belge sekmeleri için kapatılabilen bir sekme yok (2026-11-02).**
+    *   Ne: Workspace açık belgeleri sekmelerde tutuyor: her sekmenin bir kapatma düğmesi ve kaydedilmemiş değişiklik işareti var. `PantrixTabs`'ın `TabItem`'ı etiket, simge, rozet, `enabled` ve `tagKey` alıyor; kapatma ya da sekmenin sonuna bir düğme koyma yolu yok. Panolarda belge sekmeleri işaretleme.
+    *   Nerede: [Tabs](https://pantrixui.com/components/tabs); MCP `get_api TabItem`.
+    *   Öneri: `TabItem`'a `onClose` (ve okuyucuya "Kapat {label}") ya da sekmenin sonu için bir yuva; kaydedilmemiş işareti için `TabBadge`'in noktası yeterli olabilir.
+    *   Durum: açık.
+*   [ ] **TreeView satırının sonunda yalnızca bir metin var; büyük ağaçta her açık satır oluşturuluyor (2026-11-02).**
+    *   Ne: Formatico'nun ağacı değerleri önizliyor: tarih bir etiketle, renk bir örnekle, adres bir bağlantı simgesiyle, resim bir küçük resimle. `TreeNode.trailing` yalnızca `String`; satıra bir öğe konamıyor. Ayrıca `PantrixTreeView` kaydırmıyor ve her açık satırı oluşturuyor ("binlerce açık satır kendi listesini ister"); masaüstünde 50 MB'lık belge hedefi için yetmez. Panolarda ağaç işaretleme.
+    *   Nerede: [Tree View](https://pantrixui.com/components/tree-view); MCP `get_api PantrixTreeView`, `TreeNode`.
+    *   Öneri: satırın sonu için bir `@Composable` yuva; tembel bir liste üstünde çalışan bir biçim (ya da `PantrixTreeView`'ın `LazyColumn` içinde yaşayan bir kardeşi).
+    *   Durum: açık.
+*   [ ] **JsonView seçili bir yolu tutmuyor; metinle birlikte yürüyemiyor (2026-11-02).**
+    *   Ne: Formatico'da metindeki imleç ağaçta bir değeri seçiyor, ağaçta seçilen değer metinde imleci taşıyor. `PantrixJsonView` açık yolları (`expanded`) dışarıya veriyor ama seçili bir yol, `onSelect` ya da "bu yola kaydır" yok. JSON'u kendisi bir `String`'den okuyor ve yalnızca RFC 8259 JSON'u alıyor: JSONC, JSON5, YAML, TOML ağaçları için kullanılamıyor, Formatico'nun kendi okuyucusunun ağacını da alamıyor.
+    *   Nerede: [JSON View](https://pantrixui.com/components/json-view); MCP `get_api PantrixJsonView`.
+    *   Öneri: düğümlerle beslenen bir belge ağacı (anahtar, değer türü, yol), seçili yol ve `onSelect`, yola kaydırma; değer önizlemesi için satır yuvası.
+    *   Durum: açık.
+*   [ ] **Kısayolun tuşlarını çizen bir öğe yok (2026-11-02).**
+    *   Ne: `PantrixShortcut.keysOn` bir kısayolu tuş tuş veriyor (`⌘`, `K`), ama tuşları çizen bir bileşen yok; tasarım sisteminde de yok. Formatico'nun Start ve Workspace panolarındaki `⌘K` ve `⌘V` işaretleme.
+    *   Nerede: [Keyboard shortcuts](https://pantrixui.com/docs/guides/keyboard-shortcuts); tasarım sisteminin bileşen listesi.
+    *   Öneri: `CommandPalette`'in kısayol yazımını kullanan küçük bir `PantrixKeys` (ya da `PantrixShortcutLabel`).
     *   Durum: açık.
