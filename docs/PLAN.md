@@ -616,8 +616,20 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
             releases" diyor (`a41e931`). `pantrix-ui-local` yok; `pantrix-ui@pantrix-ui` 0.2.1 yalnızca proje
             kapsamında, MCP'si `pantrixui.com/mcp`. Yerel kapsamda ikinci bir kurulum çıktı ve kaldırıldı.
         *   Bütün hedefler 0.2.1 ile derlendi, testleri geçti.
-        *   Kalanlar: Formatico'nun deposu (`develappsancho/formatico-cmp`) açıldı ama boş, sahibi gönderecek;
-            `formatico.pantrixui.com`'un yayını; v2 sunucusu; imzalı DMG ve APK; indirme menüsü.
+        *   Depo herkese açık ve gönderildi (2026-11-12): `github.com/develappsancho/formatico-cmp`, dal `main`.
+    *   **Sahibinin kararları (2026-11-12):**
+        *   Windows şimdilik yok: 1.0.0 macOS DMG'si ve Android APK'sıyla çıkar.
+        *   Android'in APK'sı sahibinin var olan yayın anahtarıyla imzalanır; anahtar ve parolaları depoda değil.
+        *   İndirme menüsünün panolarını bu oturum çizer, sonra kodu.
+        *   Sıra: web ve sunucu (`deploy.sh web`, GHCR, Coolify) → APK ve DMG'nin imzası → indirme menüsü →
+            GitHub'da 1.0.0 sürümü (yayımlanmadan önce sahibinin onayı).
+        *   Lisans: Apache-2.0 (`LICENSE`, README'de; imajların etiketinde de).
+    *   **İlerleme (2026-11-12):**
+        *   `deploy.sh web`: imajlar iki mimari için GHCR'ye, Coolify kaynağı yeniden kuruyor, canlı adreste `check.sh`.
+            Kuru deneme geçti; Coolify'daki kaynağı sahibi kuracak (`CoolifyFormaticoUuid`).
+        *   APK'nın imzası: anahtarın dosyası ve parolaları `local.properties`'te (`storeFile`, `storePassword`,
+            `keyAlias`, `keyPassword`), anahtar depoya girmiyor (`signing/` yok sayılıyor). `assembleRelease` imzalı
+            APK veriyor (APK İmza Şeması v2), `versionCode` sürümden: 1.0.0 → 10000.
 
 ## Sahibinin kararını bekleyenler
 
@@ -631,4 +643,4 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
         Windows'ta yapabiliyor, Mac'te yapamıyor. Yol, deponun GitHub Actions'ında bir Windows makinesi: sürüm
         çıkınca JVM testlerini Windows'ta koşturur, MSI'ı yapıp sürüme ekler. İmzasız bir MSI'da Windows ilk açılışta
         "Windows bilgisayarınızı korudu" uyarısı verir; imza için ücretli bir kod imzalama sertifikası gerekir.
-        Sahibinin kararı.
+        Karara bağlandı (2026-11-12): şimdilik yok.
