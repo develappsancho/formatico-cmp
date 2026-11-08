@@ -452,6 +452,22 @@ class WorkspaceScreenTest {
     }
 
     @Test
+    fun aDocumentOpenedWithAChosenValueInViewShowsItsTreeFromTheTop() = runComposeUiTest {
+        val findings = PantrixFindings()
+        setContent {
+            PantrixTestTheme(window = phone, findings = findings, clock = clock) {
+                WorkspaceScreen(state = OrderSearched, onIntent = {}, commands = rememberDocumentCommands(Workbench()))
+            }
+        }
+
+        // The chosen name shows without scrolling, so the tree stays at its root, as the board draws it.
+        awaitNode(hasPantrixTag("Node", "customer.name", scope = "LazyTreeView_document"), "The chosen row", forgetting = findings)
+        onPantrixNode("Node", "customer.name", scope = "LazyTreeView_document").assertIsDisplayed()
+        onPantrixNode("Node", "root", scope = "LazyTreeView_document").assertIsDisplayed()
+        assertNoFindings(findings)
+    }
+
+    @Test
     fun theTreesRowsEndInWhatTheirStringsLookLike() = runComposeUiTest {
         val findings = PantrixFindings()
         val looks = "{\"createdAt\": \"2026-10-28T14:32:00Z\", \"accent\": \"#0F766E\", " +

@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
@@ -22,7 +21,6 @@ import com.pantrixui.components.data.treeview.TreeSelection
 import com.pantrixui.components.data.treeview.TreeViewStyle
 import com.pantrixui.foundation.theme.PantrixTheme
 import com.pantrixui.foundation.token.typography.TypeRole
-import kotlinx.coroutines.flow.first
 
 /**
  * What a search marks in the tree's rows: what is [sought], in small letters as [language] writes them, and the key of
@@ -181,11 +179,7 @@ internal fun DocumentTree(
     val words = previewWords()
     val tree = rememberTreeViewState()
     LaunchedEffect(tree, selected) {
-        val key = selected ?: return@LaunchedEffect
-        // Before its first layout the tree has no rows in view, and scrollToKey takes a row that would show for one
-        // out of view: the tree waits for it (PANTRIX_FINDINGS, "scrollToKey, ağacın ilk yerleşiminden önce").
-        snapshotFlow { tree.listState.layoutInfo.totalItemsCount > 0 }.first { it }
-        tree.scrollToKey(key)
+        tree.scrollToKey(selected ?: return@LaunchedEffect)
     }
     PantrixLazyTreeView(
         nodes = rows.nodes,
