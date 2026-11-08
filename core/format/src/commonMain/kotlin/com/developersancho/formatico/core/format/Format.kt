@@ -39,6 +39,22 @@ enum class Format(val extensions: List<String>) {
     /** INI files: sections of keys and values. */
     Ini(listOf("ini", "cfg", "conf"));
 
+    /** The format's name as it is written in every language: `JSON`, `YAML`, `NDJSON`. */
+    val displayName: String
+        get() = when (this) {
+            Json -> "JSON"
+            Jsonc -> "JSONC"
+            Json5 -> "JSON5"
+            Ndjson -> "NDJSON"
+            Xml -> "XML"
+            Yaml -> "YAML"
+            Toml -> "TOML"
+            Csv -> "CSV"
+            Tsv -> "TSV"
+            Properties -> "Properties"
+            Ini -> "INI"
+        }
+
     companion object {
         /** The format a file's name says, by its extension, or null when the extension is not one of Formatico's. */
         fun fromFileName(fileName: String): Format? {

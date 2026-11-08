@@ -118,6 +118,11 @@ Her madde: **ne**, **nerede** (sitenin sayfası ya da aracı), **öneri**, **dur
     *   Nerede: [For AI](https://pantrixui.com/ai), "Set it up in a minute".
     *   Öneri: `--scope project` satırı ve "yeni bir oturum açın" cümlesi.
     *   Durum: açık.
+*   [ ] **Test rehberi tarayıcıda UI testinin iki şartını söylemiyor (2026-11-03).**
+    *   Ne: Rehber "The common tests run on every target: jvmTest, iosSimulatorArm64Test, jsBrowserTest, wasmJsBrowserTest" diyor. Formatico'da `runComposeUiTest`'li ortak testler tarayıcıda iki yerde takıldı: Compose, Wasm hedefi `binaries.executable()` demedikçe UI testini hiç çalıştırmıyor (`checkComposeUiTestConfigurationForWasmJs`, CMP-4906); çalıştırınca da uygulamanın kendi kaynaklarından gelen metinler (`stringResource`) test boyunca hiç görünmüyor. `PantrixTestTheme` ve Pantrix'in kendi metinleri bunu yaşamıyor, çünkü onlar kaynaktan okunmuyor. Bu Compose'un davranışı, ama rehber bir uygulamanın ekranlarının tarayıcıda öyle sınanacağını söylüyor.
+    *   Nerede: `skill/testing` ("Running"); MCP `search_documentation testing`.
+    *   Öneri: rehberde `binaries.executable()` şartı ve uygulama kaynaklı metinlerin tarayıcıda nasıl beklenip yükleneceği; olmuyorsa tarayıcı testlerinin etiketle sınanması gerektiği.
+    *   Durum: açık.
 
 ## 5. Web
 
@@ -133,7 +138,7 @@ Her madde: **ne**, **nerede** (sitenin sayfası ya da aracı), **öneri**, **dur
     *   Ne: Workspace açık belgeleri sekmelerde tutuyor: her sekmenin bir kapatma düğmesi ve kaydedilmemiş değişiklik işareti var. `PantrixTabs`'ın `TabItem`'ı etiket, simge, rozet, `enabled` ve `tagKey` alıyor; kapatma ya da sekmenin sonuna bir düğme koyma yolu yok. Panolarda belge sekmeleri işaretleme.
     *   Nerede: [Tabs](https://pantrixui.com/components/tabs); MCP `get_api TabItem`.
     *   Öneri: `TabItem`'a `onClose` (ve okuyucuya "Kapat {label}") ya da sekmenin sonu için bir yuva; kaydedilmemiş işareti için `TabBadge`'in noktası yeterli olabilir.
-    *   Durum: açık.
+    *   Durum: açık. Kodda (2026-11-03) üst çubuk tek sekmeyi `PantrixTabs` ile çiziyor, kapatma düğmesi yok. `PantrixTabs` kendisine verilen genişliği dolduruyor; sekmelerin hemen ardından gelecek "+" düğmesi için bir yuva da yok, düğme şimdilik çizilmiyor.
 *   [ ] **TreeView satırının sonunda yalnızca bir metin var; büyük ağaçta her açık satır oluşturuluyor (2026-11-02).**
     *   Ne: Formatico'nun ağacı değerleri önizliyor: tarih bir etiketle, renk bir örnekle, adres bir bağlantı simgesiyle, resim bir küçük resimle. `TreeNode.trailing` yalnızca `String`; satıra bir öğe konamıyor. Ayrıca `PantrixTreeView` kaydırmıyor ve her açık satırı oluşturuyor ("binlerce açık satır kendi listesini ister"); masaüstünde 50 MB'lık belge hedefi için yetmez. Panolarda ağaç işaretleme.
     *   Nerede: [Tree View](https://pantrixui.com/components/tree-view); MCP `get_api PantrixTreeView`, `TreeNode`.
@@ -148,7 +153,7 @@ Her madde: **ne**, **nerede** (sitenin sayfası ya da aracı), **öneri**, **dur
     *   Ne: `PantrixShortcut.keysOn` bir kısayolu tuş tuş veriyor (`⌘`, `K`), ama tuşları çizen bir bileşen yok; tasarım sisteminde de yok. Formatico'nun Start ve Workspace panolarındaki `⌘K` ve `⌘V` işaretleme.
     *   Nerede: [Keyboard shortcuts](https://pantrixui.com/docs/guides/keyboard-shortcuts); tasarım sisteminin bileşen listesi.
     *   Öneri: `CommandPalette`'in kısayol yazımını kullanan küçük bir `PantrixKeys` (ya da `PantrixShortcutLabel`).
-    *   Durum: açık.
+    *   Durum: açık. Kodda (2026-11-03) başlatıcının `⌘K`'sı ve Start'ın `⌘V` ipucu `PantrixShortcut.writtenOn` ile düz metin; tuş kapağı çizilmiyor.
 *   [ ] **CodeBlock'un renk türlerinde anahtar yok (2026-11-02).**
     *   Ne: `CodeTokenKind`'in türleri `Plain`, `Comment`, `Keyword`, `Type`, `StringLiteral`, `Number`, `Punctuation`, `Annotation`; belgesi "bir özellik `Plain`'dir" diyor. JSON, YAML, TOML ve properties metninin yarısı anahtar; Formatico'nun sözdizimi renkleri (sahibinin kararı) anahtarı ayrı bir renkle yazıyor. `PantrixCodeBlock` bu yüzden dönüşümün çıktısını ve karşılaştırmayı Formatico'nun renkleriyle çizemiyor: anahtarlar düz metin olur ya da `Type` gibi anlamı başka bir türe yazılır.
     *   Nerede: [Code Block](https://pantrixui.com/components/code-block); MCP `get_api CodeTokenKind`.
@@ -163,4 +168,19 @@ Her madde: **ne**, **nerede** (sitenin sayfası ya da aracı), **öneri**, **dur
     *   Ne: Formatico'da metindeki imleç tabloda bir hücreyi gösteriyor (`$.orders[2].total`): satırı seçili, hücresi çerçeveli. `PantrixDataTable` satırları seçiyor (`selected`, `rowTone`), ama hücre düzeyinde bir seçim, odak ya da işaret yok. `cell` yalnızca hücrenin iç dolgusunun içini çiziyor; hücrenin tamamını çevreleyen bir çerçeveyi uygulama çizemez. Table panolarında (1440, 834) seçili hücre bu yüzden işaretleme.
     *   Nerede: [Data Table](https://pantrixui.com/components/data-table); MCP `get_api PantrixDataTable`, `DataTableColumn`.
     *   Öneri: `selectedCell` (satırın anahtarı ve sütunun anahtarı) ya da hücre başına bir ton; klavyeyle hücreden hücreye gidiş istenmiyorsa yalnızca çizim yeterli.
+    *   Durum: açık.
+*   [ ] **Pano okunamıyor; Pantrix yalnızca yazıyor (2026-11-03).**
+    *   Ne: Start'ın "Panodan yapıştır" düğmesi ve `⌘V` kısayolu panodaki metni okumalı. `PantrixClipboard` yalnızca `copyText` veriyor; okuma yolu yok. Compose'un ortak `Clipboard`'ı bir `ClipEntry` veriyor, ama `ClipEntry` her platformda başka bir tür ve ortak kodda metni okumanın yolu yok. Formatico bu yüzden Compose'un artık önerilmeyen `LocalClipboardManager`'ının `getText()`'ini kullanıyor: masaüstünde, Android'de ve iOS'ta çalışıyor; web'de her zaman `null` dönüyor (`WasmPlatformClipboardManager`: "Clipboard.readText() is async; no synchronous access on Web"). Web'de düğme bunu söyleyen bir ileti gösteriyor, kısayolun ipucu gösterilmiyor.
+    *   Nerede: belgelerin `clipboard` sayfası; MCP `get_api PantrixClipboard`; `skill/platform` ("Clipboard").
+    *   Öneri: `PantrixClipboard`'a askıya alınan bir `readText(): String?` ve `traits`'e okunup okunamadığı; web'de `navigator.clipboard.readText()` (izin isteğiyle) ve bir `paste` olayını dinleyen bir değiştirici (`Modifier.onPaste`), çünkü tarayıcı metni en rahat o olayla veriyor.
+    *   Durum: açık.
+*   [ ] **PageScaffold'un başlığı her genişlikte içerikte duramıyor (2026-11-03).**
+    *   Ne: Formatico'nun bir uygulama çubuğu var (marka, belge sekmeleri, başlatıcı); ekranların kendi çubuğu yok, başlıkları içerikte. Start'ın başlığı ("Paste anything") her genişlikte içerikte bir `display` başlığı. `PantrixPageScaffold`'un `PageTitlePlacement`'ı `Bar` ya da `Adaptive`: `Adaptive` dar pencerede başlığı yine kendi çubuğuna koyuyor, uygulamanın çubuğunun altına ikinci bir çubuk çiziliyor. Start bu yüzden `PantrixPageScaffold` değil, `pantrixVerticalScroll`'lu bir sütun; sayfanın verdiği pencere başlığı, `show` olayı ve klavyeden kaçış elle kalıyor.
+    *   Nerede: [Page Scaffold](https://pantrixui.com/components/page-scaffold); MCP `get_component_metadata PageScaffold`; `skill/layout` ("A screen inside the shell").
+    *   Öneri: başlığı her genişlikte içerikte tutan bir `PageTitlePlacement.Content` (ya da çubuğu hiç çizmeyen bir seçenek); rehberde, sekmeleri ya da kendi çubuğu olan bir kabuğun ekranlarının nasıl kurulacağı.
+    *   Durum: açık.
+*   [ ] **Boş bir listenin hâlini çizen bir bileşen yok (2026-11-03).**
+    *   Ne: Start'ın Recent kartı ilk açılışta boş: bir simge, bir başlık ve bir açıklama ("Nothing opened yet"). Pantrix'te bunu çizen bir bileşen yok; `search_components "empty state"` yalnızca `DataTable`'ın kendi boş hâlini buluyor. Formatico bunu `PantrixIcon` ve iki `PantrixText` ile kuruyor. Tipografi belgesi `callout`'u "an empty state's description" diye anıyor, yani tasarım sistemi bu hâli biliyor.
+    *   Nerede: [Components](https://pantrixui.com/components); MCP `search_components`.
+    *   Öneri: simge, başlık, açıklama ve isteğe bağlı bir eylem alan bir `PantrixEmptyState`; tasarım sisteminde karşılığı.
     *   Durum: açık.

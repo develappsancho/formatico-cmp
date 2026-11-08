@@ -1,0 +1,59 @@
+<resources>
+    <string name="start_title">Ne varsa yapıştır</string>
+    <string name="start_lead">JSON, XML, YAML, TOML, CSV ya da properties: Formatico hangisi olduğunu anlar, denetler ve düzenler. Metnin bu cihazdan hiç çıkmaz.</string>
+    <string name="start_lead_short">JSON, XML, YAML, TOML, CSV ya da properties. Metnin bu cihazdan hiç çıkmaz.</string>
+
+    <string name="start_paste">Panodan yapıştır</string>
+    <string name="start_paste_hint">ya da bu ekranın herhangi bir yerinde %1$s tuşlarına bas</string>
+    <string name="start_new_empty_document">Yeni boş belge</string>
+    <string name="start_new_document">Yeni belge</string>
+    <string name="start_open_file">Dosya aç</string>
+    <string name="start_clipboard_empty">Panoda metin yok</string>
+    <string name="start_clipboard_unreadable">Bu tarayıcı Formatico'nun panoyu okumasına henüz izin vermiyor. Bir dosya bırak ya da aç.</string>
+
+    <string name="start_file_drop_supporting">JSON, JSONC, JSON5, NDJSON, XML, YAML, TOML, CSV, TSV, properties ve INI, en çok %1$s</string>
+    <string name="start_file_too_large">%1$s, %2$s sınırından büyük</string>
+    <string name="start_file_wrong_type">%1$s, Formatico'nun okuduğu bir metin türü değil</string>
+    <string name="start_file_unreadable">%1$s okunamadı</string>
+
+    <string name="start_recent">Son açılanlar</string>
+    <string name="start_clear_history">Geçmişi temizle</string>
+    <string name="start_recent_empty_title">Henüz bir şey açılmadı</string>
+    <string name="start_recent_empty_text">Yapıştırdığın, açtığın ya da bıraktığın her şey burada listelenir ve bu cihazda kalır.</string>
+    <string name="start_untitled">Adsız</string>
+    <string name="start_plain_text">Metin</string>
+    <string name="start_recent_meta">%1$s · %2$s · %3$s</string>
+
+    <string name="start_edited_just_now">son düzenleme: az önce</string>
+    <plurals name="start_edited_minutes_ago">
+        <item quantity="one">son düzenleme: %1$d dakika önce</item>
+        <item quantity="other">son düzenleme: %1$d dakika önce</item>
+    </plurals>
+    <string name="start_edited_today_at">son düzenleme: bugün %1$s</string>
+    <string name="start_edited_yesterday">son düzenleme: dün</string>
+    <string name="start_edited_on">son düzenleme: %1$s</string>
+    <string name="start_just_now">az önce</string>
+    <plurals name="start_minutes_ago">
+        <item quantity="one">%1$d dakika önce</item>
+        <item quantity="other">%1$d dakika önce</item>
+    </plurals>
+    <string name="start_today">bugün</string>
+    <string name="start_yesterday">dün</string>
+
+    <string name="start_samples">Örnekler</string>
+    <string name="start_samples_hint">Formatico'yu denemek için birini aç</string>
+    <string name="start_all_samples">Tüm örnekler</string>
+    <string name="start_sample_order">Bir sipariş</string>
+    <string name="start_sample_order_detail">Tarihler, renkler, bağlantılar ve bir resim</string>
+    <string name="start_sample_order_detail_short">Tarihler, renkler, bağlantılar</string>
+    <string name="start_sample_deployment">Bir Kubernetes dağıtımı</string>
+    <string name="start_sample_deployment_short">Bir dağıtım</string>
+    <string name="start_sample_deployment_detail">İç içe listeler ve çapalar</string>
+    <string name="start_sample_deployment_detail_short">İç içe listeler</string>
+    <string name="start_sample_manifest">Bir Rust bildirimi</string>
+    <string name="start_sample_manifest_detail">Tablolar ve tablo dizileri</string>
+    <string name="start_sample_countries">Ülkeler</string>
+    <string name="start_sample_countries_detail">249 satır, 6 sütun</string>
+
+    <string name="start_privacy">Geçmiş bu cihazda kalır. Formatico'nun hesabı da sunucusu da yok.</string>
+</resources>

@@ -1,84 +1,70 @@
 package com.developersancho.formatico
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
+import androidx.navigation3.ui.NavDisplay
 import com.developersancho.formatico.core.designsystem.FormaticoTheme
-import com.developersancho.formatico.core.designsystem.SyntaxColors
-import com.pantrixui.components.container.surface.PantrixSurface
-import com.pantrixui.components.elements.text.PantrixText
-import com.pantrixui.components.elements.text.TextRole
-import com.pantrixui.foundation.theme.PantrixTheme
-import formatico.app.shared.generated.resources.Res
-import formatico.app.shared.generated.resources.app_name
-import formatico.app.shared.generated.resources.app_tagline
-import org.jetbrains.compose.resources.stringResource
+import com.developersancho.formatico.feature.start.StartRoute
+import com.developersancho.formatico.feature.start.startModule
+import com.pantrixui.components.container.scaffold.PantrixScaffold
+import com.pantrixui.components.overlay.snackbar.rememberPantrixSnackbarState
+import org.koin.compose.KoinApplication
+import org.koin.core.logger.Level
+import org.koin.dsl.koinConfiguration
+
+/** What the app is built from, in Koin. */
+private val Modules = koinConfiguration {
+    modules(startModule)
+}
 
 /**
- * Formatico, on every platform.
+ * Formatico, on every platform: its theme, its bar, and the screen at the top of the back stack.
  *
- * The screens are drawn on the design canvas before they are written; until the first of them, the app shows its
- * name in its theme, its typefaces and its syntax colours.
+ * The theme is the system's until the bar's switch is pressed; Settings will keep the choice.
  */
 @Composable
 fun App() {
-    FormaticoTheme {
-        PantrixSurface(
-            modifier = Modifier.fillMaxSize(),
-            color = PantrixTheme.colors.background,
-            shape = PantrixTheme.shapes.none
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .safeContentPadding()
-                    .padding(PantrixTheme.spacing.xl),
-                verticalArrangement = Arrangement.spacedBy(PantrixTheme.spacing.md, Alignment.CenterVertically),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                PantrixText(
-                    text = stringResource(Res.string.app_name),
-                    style = PantrixTheme.typography.display,
-                    role = TextRole.Heading(level = 1)
-                )
-                PantrixText(
-                    text = stringResource(Res.string.app_tagline),
-                    style = PantrixTheme.typography.callout,
-                    color = PantrixTheme.colors.textSecondary,
-                    textAlign = TextAlign.Center
-                )
-                PantrixText(
-                    text = sampleDocument(FormaticoTheme.syntax),
-                    style = PantrixTheme.typography.code
+    KoinApplication(configuration = Modules, logLevel = Level.ERROR) {
+        val systemDark = isSystemInDarkTheme()
+        var chosenDark by rememberSaveable { mutableStateOf<Boolean?>(null) }
+        val darkTheme = chosenDark ?: systemDark
+        FormaticoTheme(darkTheme = darkTheme) {
+            val snackbars = rememberPantrixSnackbarState()
+            val backStack = rememberNavBackStack(Destination.Saving, Destination.Start)
+            PantrixScaffold(
+                modifier = Modifier.fillMaxSize(),
+                topBar = { insets ->
+                    AppTopBar(insets = insets, darkTheme = darkTheme, onToggleTheme = { chosenDark = !darkTheme })
+                },
+                snackbars = snackbars
+            ) { padding ->
+                NavDisplay(
+                    backStack = backStack,
+                    modifier = Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding),
+                    entryDecorators = listOf(
+                        rememberSaveableStateHolderNavEntryDecorator(),
+                        rememberViewModelStoreNavEntryDecorator()
+                    ),
+                    entryProvider = entryProvider {
+                        entry<Destination.Start> {
+                            // The workspace that shows what was opened is the next screen to be written.
+                            StartRoute(onOpenDocument = {})
+                        }
+                    }
                 )
             }
         }
     }
-}
-
-/** A line of JSON in the syntax colours: `{"format": "json", "valid": true}`. */
-private fun sampleDocument(syntax: SyntaxColors): AnnotatedString = buildAnnotatedString {
-    fun part(text: String, color: Color) = withStyle(SpanStyle(color = color)) {
-        append(text)
-    }
-    part("{", syntax.punctuation)
-    part("\"format\"", syntax.key)
-    part(": ", syntax.punctuation)
-    part("\"json\"", syntax.string)
-    part(", ", syntax.punctuation)
-    part("\"valid\"", syntax.key)
-    part(": ", syntax.punctuation)
-    part("true", syntax.literal)
-    part("}", syntax.punctuation)
 }

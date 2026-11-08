@@ -1,0 +1,30 @@
+{
+  "id": "ord_8842",
+  "status": "shipped",
+  "createdAt": "2026-10-28T14:32:00Z",
+  "total": 129.90,
+  "currency": "EUR",
+  "paid": true,
+  "coupon": null,
+  "customer": {
+    "name": "Elif Yılmaz",
+    "email": "elif@example.com",
+    "avatar": "https://images.example.com/u/elif.png",
+    "website": "https://elif.dev"
+  },
+  "theme": {
+    "accent": "#0F766E"
+  },
+  "items": [
+    { "sku": "TS-001", "name": "T-shirt", "qty": 2, "price": 39.95 },
+    { "sku": "MG-014", "name": "Mug", "qty": 1, "price": 50.00 }
+  ],
+  "shipping": {
+    "method": "express",
+    "eta": "2026-11-04",
+    "address": {
+      "city": "İzmir",
+      "country": "TR"
+    }
+  }
+}

@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">Formatico</string>
-    <string name="app_tagline">Format, explore and convert any structured text.</string>
+    <string name="new_tab">New tab</string>
+    <string name="search_or_run_a_command">Search or run a command</string>
+    <string name="use_dark_theme">Use the dark theme</string>
+    <string name="use_light_theme">Use the light theme</string>
+    <string name="settings">Settings</string>
 </resources>

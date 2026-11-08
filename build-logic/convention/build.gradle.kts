@@ -23,6 +23,10 @@ gradlePlugin {
             id = libs.plugins.formatico.kmpCompose.get().pluginId
             implementationClass = "com.developersancho.formatico.buildlogic.KmpComposeConventionPlugin"
         }
+        register("feature") {
+            id = libs.plugins.formatico.feature.get().pluginId
+            implementationClass = "com.developersancho.formatico.buildlogic.FeatureConventionPlugin"
+        }
         register("quality") {
             id = libs.plugins.formatico.quality.get().pluginId
             implementationClass = "com.developersancho.formatico.buildlogic.QualityConventionPlugin"

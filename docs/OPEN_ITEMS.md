@@ -13,10 +13,10 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
 *   [x] **iOS paket kimliği CLAUDE.md'dekinden farklıydı (2026-11-02).**
     *   Ne: `Config.xcconfig` `com.developersancho.formatico.Formatico$(TEAM_ID)` diyordu; CLAUDE.md `com.developersancho.formatico` diyor.
     *   Durum: kapandı (2026-11-02). `PRODUCT_BUNDLE_IDENTIFIER=com.developersancho.formatico`; masaüstünün macOS paket kimliği de aynı.
-*   [ ] **Koin ve navigation3 henüz bağlı değil (2026-11-02).**
+*   [x] **Koin ve navigation3 henüz bağlı değil (2026-11-02).**
     *   Ne: Yığının ikisi de sahibinin kararı; ama tuvalde ekran panosu yok, ilk özellik modülü de yok. Boş bir Koin modülü ve tek hedefli bir gezinti, sınanamayan kod olurdu.
     *   Öneri: ilk özellik (Start ya da Workspace) panosu çizilince bir `formatico.kmp.feature` convention eklentisi: `core:base`, `core:designsystem`, `koin-compose-viewmodel`, `navigation3-ui`. Sürümler bugün Koin 4.2.2, navigation3 1.2.0.
-    *   Durum: açık.
+    *   Durum: kapandı (2026-11-03). `formatico.feature` eklentisi `core:base`, `core:designsystem`, coroutines, lifecycle ve Koin'i getiriyor; gezinti özelliklerde değil uygulamada (`app:shared`): `Destination` anahtarları, `rememberNavBackStack` ve `NavDisplay`. İlk özellik `feature:start`.
 *   [ ] **Web: derleyen makinenin yolları betiklerde kalabilir (2026-11-02).**
     *   Ne: Klib'lerin yolları `-Xklib-relative-path-base` ile köke göre yazılıyor (convention eklentilerinde). Ama Skia'nın betiğindeki `import.meta.url`, webpack'in yazdığı `file:///Users/…` yolu olarak kalıyor; Pantrix'in rehberi bunu bir webpack eklentisiyle (`stripFilePaths.js`) siliyor, eklentinin kendisini vermiyor (bulgu 1.x).
     *   Öneri: yayından önce `webpack.config.d/` altına kendi eklentimiz ve dağıtımda `strings | grep /Users/` denetimi.
@@ -53,4 +53,38 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Durum: açık.
 *   [ ] **Biçimlerin yalnızca JSON ailesi okunuyor (2026-11-02).**
     *   Ne: `core:format`'ta bugün JSON, JSONC ve JSON5 okuyucusu, biçim algılama, satır ve sütunlu problemler var. Biçimlendirme, küçültme, onarım, NDJSON okuyucusu, XML, YAML (`snakeyaml-engine-kmp` ve kendi yazıcımız), TOML, CSV/TSV, properties/INI sırada.
+    *   Durum: açık.
+
+## Start
+
+*   [ ] **Açılan belge bir yere gitmiyor (2026-11-03).**
+    *   Ne: Start bir belgeyi açınca `StartEffect.OpenDocument` gönderiyor; uygulama onu şimdilik bırakıyor (`App.kt`, `StartRoute(onOpenDocument = {})`). Belge yalnızca Recent'e ekleniyor.
+    *   Öneri: Workspace yazılınca `Destination.Workspace` ve belgenin sekmesi.
+    *   Durum: açık.
+*   [ ] **Recent yalnızca uygulama açıkken tutuluyor (2026-11-03).**
+    *   Ne: `SessionDocumentHistory` bellekte; uygulama kapanınca geçmiş gidiyor. Her açılışta Recent'in boş hâli görünüyor. Tasarım "History stays on this device" diyor.
+    *   Öneri: cihazda bir depo: üst bilgiler için küçük bir anahtar-değer deposu, içerik için dosyalar (web'de tarayıcının deposu). 50 MB'lık bir belgenin içeriği bir ayar deposuna sığmaz; ayrı bir tasarım kararı.
+    *   Durum: açık.
+*   [ ] **Üst çubuğun bazı düğmeleri basılmıyor (2026-11-03).**
+    *   Ne: Başlatıcı (komut paleti) ve Ayarlar kendi ekranları gelene kadar `enabled = false`; tek sekme var ve yeni sekme düğmesi çizilmiyor.
+    *   Öneri: Palette, Settings ve sekmeler yazıldıkça bağlamak.
+    *   Durum: açık.
+*   [ ] **Temanın seçimi saklanmıyor (2026-11-03).**
+    *   Ne: Çubuğun tema düğmesi seçimi `rememberSaveable` ile tutuyor; uygulama yeniden açılınca sistemin teması geri geliyor.
+    *   Öneri: Settings ekranıyla birlikte cihazda saklamak.
+    *   Durum: açık.
+*   [ ] **Recent "edited" diyor, belge yalnızca açılmış (2026-11-03).**
+    *   Ne: Tasarımın metni "edited 2 minutes ago". Workspace olmadığı için bir belge düzenlenemiyor; Recent'teki zaman açıldığı an.
+    *   Öneri: Workspace düzenlemeleri geçmişe yazınca zaman kendiliğinden doğru olur; o zamana kadar bilinçli bir sapma.
+    *   Durum: açık.
+*   [x] **Ülkeler örneği 249 satır (2026-11-03).**
+    *   Ne: Panolar "250 rows" diyordu; ISO 3166-1'de 249 kayıt var. Panolar ve metin 249'a düzeltildi.
+    *   Durum: kapandı (2026-11-03).
+*   [ ] **Tarayıcıda metne bakan UI testleri atlanıyor (2026-11-03).**
+    *   Ne: `StartScreenTest` ve `AppTest` masaüstünde ve iOS'ta geçiyor; `wasmJsBrowserTest`'te ekranın metinleri (Compose kaynakları) test beklerken hiç gelmiyor. Karma'nın kaynakları sunup `/composeResources/`'u oraya yönlendirmesi ve Mocha'nın süresini uzatmak sonucu değiştirmedi. Olası neden: `waitUntil` tarayıcının olay döngüsünü bırakmıyor, `fetch` tamamlanamıyor. İki sınıf web'de `@IgnoreInBrowser` ile atlanıyor (`kotlin.test.Ignore`, yalnız `webTest`'te); görünüm modeli ve zaman testleri tarayıcıda koşuyor.
+    *   Öneri: Compose'un web testlerinde kaynakları önceden yükleme yolu (`preloadResources` ya da askıya alınan bir bekleme) ya da metne değil etikete bakan ayrı bir tarayıcı testi; Maestro'nun web akışı da bir yol.
+    *   Durum: açık.
+*   [ ] **Compose'un kütüphane modülleri Wasm'da çalıştırılabilir ikili üretiyor (2026-11-03).**
+    *   Ne: Compose, `commonTest`'te UI testi olan bir modülün Wasm testini, hedef `binaries.executable()` demedikçe çalıştırmıyor (CMP-4906). `formatico.kmp.compose` bunu her çizen modüle ekliyor; kütüphane yine kütüphane olarak derleniyor, ama her modül için bir de çalıştırılabilir çıktı kuruluyor.
+    *   Öneri: Compose bu kısıtı kaldırınca geri almak.
     *   Durum: açık.

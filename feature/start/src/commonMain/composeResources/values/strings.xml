@@ -1,0 +1,59 @@
+<resources>
+    <string name="start_title">Paste anything</string>
+    <string name="start_lead">JSON, XML, YAML, TOML, CSV or properties: Formatico tells which it is, checks it and lays it out. Your text never leaves this device.</string>
+    <string name="start_lead_short">JSON, XML, YAML, TOML, CSV or properties. Your text never leaves this device.</string>
+
+    <string name="start_paste">Paste from clipboard</string>
+    <string name="start_paste_hint">or press %1$s anywhere on this screen</string>
+    <string name="start_new_empty_document">New empty document</string>
+    <string name="start_new_document">New document</string>
+    <string name="start_open_file">Open a file</string>
+    <string name="start_clipboard_empty">There is no text on the clipboard</string>
+    <string name="start_clipboard_unreadable">This browser does not let Formatico read the clipboard yet. Drop a file, or open one.</string>
+
+    <string name="start_file_drop_supporting">JSON, JSONC, JSON5, NDJSON, XML, YAML, TOML, CSV, TSV, properties and INI, up to %1$s</string>
+    <string name="start_file_too_large">%1$s is larger than %2$s</string>
+    <string name="start_file_wrong_type">%1$s is not a kind of text Formatico reads</string>
+    <string name="start_file_unreadable">%1$s could not be read</string>
+
+    <string name="start_recent">Recent</string>
+    <string name="start_clear_history">Clear history</string>
+    <string name="start_recent_empty_title">Nothing opened yet</string>
+    <string name="start_recent_empty_text">What you paste, open or drop is listed here, and stays on this device.</string>
+    <string name="start_untitled">Untitled</string>
+    <string name="start_plain_text">Text</string>
+    <string name="start_recent_meta">%1$s · %2$s · %3$s</string>
+
+    <string name="start_edited_just_now">edited just now</string>
+    <plurals name="start_edited_minutes_ago">
+        <item quantity="one">edited %1$d minute ago</item>
+        <item quantity="other">edited %1$d minutes ago</item>
+    </plurals>
+    <string name="start_edited_today_at">edited today at %1$s</string>
+    <string name="start_edited_yesterday">edited yesterday</string>
+    <string name="start_edited_on">edited on %1$s</string>
+    <string name="start_just_now">just now</string>
+    <plurals name="start_minutes_ago">
+        <item quantity="one">%1$d minute ago</item>
+        <item quantity="other">%1$d minutes ago</item>
+    </plurals>
+    <string name="start_today">today</string>
+    <string name="start_yesterday">yesterday</string>
+
+    <string name="start_samples">Samples</string>
+    <string name="start_samples_hint">Open one to try Formatico</string>
+    <string name="start_all_samples">All samples</string>
+    <string name="start_sample_order">An order</string>
+    <string name="start_sample_order_detail">Dates, colours, links and a picture</string>
+    <string name="start_sample_order_detail_short">Dates, colours, links</string>
+    <string name="start_sample_deployment">A Kubernetes deployment</string>
+    <string name="start_sample_deployment_short">A deployment</string>
+    <string name="start_sample_deployment_detail">Nested lists and anchors</string>
+    <string name="start_sample_deployment_detail_short">Nested lists</string>
+    <string name="start_sample_manifest">A Rust manifest</string>
+    <string name="start_sample_manifest_detail">Tables and arrays of tables</string>
+    <string name="start_sample_countries">Countries</string>
+    <string name="start_sample_countries_detail">249 rows, 6 columns</string>
+
+    <string name="start_privacy">History stays on this device. Formatico has no account and no server.</string>
+</resources>
