@@ -19,6 +19,9 @@
     <string name="workspace_view_tree">Ağaç</string>
     <string name="workspace_view_table">Tablo</string>
     <string name="workspace_find">Bir anahtar ya da değer bul</string>
+    <string name="workspace_find_in_tree">Ağaçta bul</string>
+    <string name="workspace_show_summary_item">Özeti göster</string>
+    <string name="workspace_match">eşleşme %1$s</string>
     <string name="workspace_open_to">Düzey</string>
     <string name="workspace_open_to_level">Ağacı %1$d. düzeye kadar aç</string>
     <string name="workspace_open_all">Tümü</string>

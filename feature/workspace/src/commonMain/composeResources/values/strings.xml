@@ -19,6 +19,9 @@
     <string name="workspace_view_tree">Tree</string>
     <string name="workspace_view_table">Table</string>
     <string name="workspace_find">Find a key or a value</string>
+    <string name="workspace_find_in_tree">Find in the tree</string>
+    <string name="workspace_show_summary_item">Show the summary</string>
+    <string name="workspace_match">match %1$s</string>
     <string name="workspace_open_to">Open to</string>
     <string name="workspace_open_to_level">Open the tree to level %1$d</string>
     <string name="workspace_open_all">All</string>

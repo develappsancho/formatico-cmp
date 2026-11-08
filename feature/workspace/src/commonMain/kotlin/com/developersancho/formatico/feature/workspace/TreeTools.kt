@@ -15,11 +15,9 @@ import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableIntState
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -46,6 +44,7 @@ import com.pantrixui.foundation.theme.PantrixTheme
 import formatico.feature.workspace.generated.resources.Res
 import formatico.feature.workspace.generated.resources.workspace_close_search
 import formatico.feature.workspace.generated.resources.workspace_find
+import formatico.feature.workspace.generated.resources.workspace_match
 import formatico.feature.workspace.generated.resources.workspace_open_all
 import formatico.feature.workspace.generated.resources.workspace_open_all_levels
 import formatico.feature.workspace.generated.resources.workspace_open_to
@@ -142,12 +141,13 @@ internal fun TreeSearchBar(
     val spacing = PantrixTheme.spacing
     val strings = PantrixTheme.strings
     val wide = layout == WorkspaceLayout.Wide
+    val phone = layout == WorkspaceLayout.Phone
     Row(
         modifier = modifier
             .fillMaxWidth()
             .height(if (wide) 48.dp else 56.dp)
-            .background(PantrixTheme.colors.background)
-            .padding(start = spacing.md, end = spacing.sm)
+            .background(if (phone) PantrixTheme.colors.surface else PantrixTheme.colors.background)
+            .padding(start = spacing.md, end = if (phone) spacing.xs else spacing.sm)
             .onPreviewKeyEvent { event ->
                 val escape = event.key == Key.Escape && event.type == KeyEventType.KeyDown
                 if (escape) onClose()
@@ -158,7 +158,8 @@ internal fun TreeSearchBar(
     ) {
         PantrixTextField(
             state = query,
-            modifier = Modifier.width(if (wide) 240.dp else 280.dp).focusRequester(focus),
+            // A phone's field takes what the buttons leave; a wider window's is as wide as its board draws it.
+            modifier = (if (phone) Modifier.weight(1f) else Modifier.width(if (wide) 240.dp else 280.dp)).focusRequester(focus),
             leadingIcon = { PantrixIcon(imageVector = PantrixIcons.Search, contentDescription = null) },
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             onKeyboardAction = { onStep(1) },
@@ -177,7 +178,7 @@ internal fun TreeSearchBar(
         val size = layout.buttons
         PantrixIconButton(PantrixIcons.ChevronBack, strings.previousMatch, onClick = { onStep(-1) }, size = size, tagKey = "previous_match")
         PantrixIconButton(PantrixIcons.ChevronForward, strings.nextMatch, onClick = { onStep(1) }, size = size, tagKey = "next_match")
-        Spacer(modifier = Modifier.weight(1f))
+        if (!phone) Spacer(modifier = Modifier.weight(1f))
         PantrixIconButton(
             imageVector = PantrixIcons.Close,
             contentDescription = stringResource(Res.string.workspace_close_search),
@@ -189,26 +190,29 @@ internal fun TreeSearchBar(
 }
 
 /**
- * A search in the tree: whether its bar is open, what is looked for in [query], the values it is [found] in and which of
- * them is chosen. Going to a match chooses it through [onSelect], which opens the branches it is in.
+ * A search in the tree: whether its bar is [open], what is looked for in [query], the values it is [found] in and which
+ * of them is chosen. Opening and closing the bar goes to [onOpen]; going to a match chooses it through [onSelect],
+ * which opens the branches it is in.
  */
 @Stable
 internal class TreeSearch(
-    private val opened: MutableState<Boolean>,
+    val open: Boolean,
     private val chosen: MutableIntState,
     val query: TextFieldState,
     private val found: State<List<ValueNode>>,
+    private val onOpen: (Boolean) -> Unit,
     private val onSelect: (String) -> Unit
 ) {
-    val open: Boolean get() = opened.value
-
     val matches: List<ValueNode> get() = found.value
 
+    /** Which of the [matches] is chosen, from 0. */
+    val current: Int get() = chosen.intValue
+
     /** Opens the bar, or closes it and forgets what was looked for. */
-    fun toggle() = if (open) close() else opened.value = true
+    fun toggle() = if (open) close() else onOpen(true)
 
     fun close() {
-        opened.value = false
+        onOpen(false)
         query.clearText()
     }
 
@@ -228,6 +232,38 @@ internal class TreeSearch(
     /** Which match of how many is chosen, "No matches", or nothing while nothing is looked for. */
     @Composable
     fun position(): String? = searchPosition(query.text.toString(), chosen.intValue, matches.size)
+
+    /** "match 1 of 4", where [node] is the chosen match, as a phone's card says it; or null. */
+    @Composable
+    fun matchOf(node: ValueNode): String? {
+        if (matches.getOrNull(chosen.intValue)?.key != node.key) return null
+        return stringResource(Res.string.workspace_match, PantrixTheme.strings.matchPosition(chosen.intValue + 1, matches.size))
+    }
+}
+
+/** The search in [state]'s tree, its bar open as the document's view says; what it does goes to [onIntent]. */
+@Composable
+internal fun rememberTreeSearch(state: WorkspaceState, onIntent: (WorkspaceIntent) -> Unit): TreeSearch {
+    val query = rememberTextFieldState()
+    val chosen = rememberSaveable { mutableIntStateOf(0) }
+    val language = PantrixTheme.locale.language
+    val text = query.text.toString()
+    val found = rememberUpdatedState(remember(state.root, text, language) { matchesOf(state.root, text, language) })
+    val intents = rememberUpdatedState(onIntent)
+    val open = state.document?.view?.searching == true
+    val search = remember(open, query, chosen, found) {
+        TreeSearch(
+            open = open,
+            chosen = chosen,
+            query = query,
+            found = found,
+            onOpen = { intents.value(WorkspaceIntent.Search(it)) },
+            onSelect = { intents.value(WorkspaceIntent.Select(it)) }
+        )
+    }
+    // A new search goes to its first match.
+    LaunchedEffect(query, text) { if (text.isNotBlank()) search.restart() }
+    return search
 }
 
 /** Which match of [count], the one at [current], a search for [query] has chosen: "1 of 4", "No matches", or null. */
@@ -239,22 +275,4 @@ internal fun searchPosition(query: String, current: Int, count: Int): String? {
         count == 0 -> strings.noMatches
         else -> strings.matchPosition(current + 1, count)
     }
-}
-
-/** The search in [state]'s tree, kept as the screen is; a match it goes to is chosen through [onIntent]. */
-@Composable
-internal fun rememberTreeSearch(state: WorkspaceState, onIntent: (WorkspaceIntent) -> Unit): TreeSearch {
-    val query = rememberTextFieldState()
-    val opened = rememberSaveable { mutableStateOf(false) }
-    val chosen = rememberSaveable { mutableIntStateOf(0) }
-    val language = PantrixTheme.locale.language
-    val text = query.text.toString()
-    val found = rememberUpdatedState(remember(state.root, text, language) { matchesOf(state.root, text, language) })
-    val intents = rememberUpdatedState(onIntent)
-    val search = remember(query, opened, chosen, found) {
-        TreeSearch(opened, chosen, query, found) { intents.value(WorkspaceIntent.Select(it)) }
-    }
-    // A new search goes to its first match.
-    LaunchedEffect(search, text) { if (text.isNotBlank()) search.restart() }
-    return search
 }

@@ -36,6 +36,7 @@ import formatico.feature.workspace.generated.resources.workspace_copied
 import formatico.feature.workspace.generated.resources.workspace_copy_failed
 import formatico.feature.workspace.generated.resources.workspace_document_label
 import formatico.feature.workspace.generated.resources.workspace_edit_impossible
+import formatico.feature.workspace.generated.resources.workspace_find_in_tree
 import formatico.feature.workspace.generated.resources.workspace_formatted
 import formatico.feature.workspace.generated.resources.workspace_keys_sorted
 import formatico.feature.workspace.generated.resources.workspace_minified
@@ -47,6 +48,7 @@ import formatico.feature.workspace.generated.resources.workspace_path_copy_faile
 import formatico.feature.workspace.generated.resources.workspace_path_label
 import formatico.feature.workspace.generated.resources.workspace_save_failed
 import formatico.feature.workspace.generated.resources.workspace_save_file
+import formatico.feature.workspace.generated.resources.workspace_show_summary_item
 import formatico.feature.workspace.generated.resources.workspace_sort_keys
 import formatico.feature.workspace.generated.resources.workspace_table_copied
 import formatico.feature.workspace.generated.resources.workspace_table_copy_failed
@@ -251,13 +253,14 @@ internal enum class DocumentMenuItems {
     /** In a tablet's toolbar: sorting the keys, comparing, saving and closing. */
     SortCompareSaveClose,
 
-    /** In a phone's bar, where Format, Minify, Copy and Save stand at the bottom. */
-    SortCompareClose
+    /** In a phone's bar, where Format, Minify, Copy and Save stand at the bottom: finding in the tree and the Summary too. */
+    FindSummarySortCompareClose
 }
 
 /**
  * The "more" button of a phone's bar while the document of [workbench] whose id is [documentId] is shown, and the menu
- * it opens: sorting the keys, comparing (not open yet) and closing the document.
+ * it opens: finding in the tree, showing the Summary, sorting the keys, comparing (not open yet) and closing the
+ * document. A phone has no room for the search's button over its tree, nor a status bar whose size shows the Summary.
  */
 @Composable
 fun DocumentMoreMenu(documentId: Long, workbench: Workbench) {
@@ -266,8 +269,12 @@ fun DocumentMoreMenu(documentId: Long, workbench: Workbench) {
     val state by workbench.state.collectAsState()
     val format = state.documents.firstOrNull { it.id == documentId }?.format
     DocumentMenu(
-        items = DocumentMenuItems.SortCompareClose,
+        items = DocumentMenuItems.FindSummarySortCompareClose,
         size = ButtonSize.Large,
+        // Plain text has no tree to find in, nor values to sum up.
+        read = format != null,
+        onFind = { workbench.changeView(documentId) { it.copy(pane = DocumentPane.Tree, searching = true) } },
+        onSummary = { workbench.changeView(documentId) { it.copy(pane = DocumentPane.Summary) } },
         // Whether the document is valid is the workspace's to know; one with errors is told why it is not sorted.
         canSort = format?.edits?.contains(DocumentEdit.SortKeys) == true,
         onSortKeys = {
@@ -283,6 +290,9 @@ fun DocumentMoreMenu(documentId: Long, workbench: Workbench) {
 internal fun DocumentMenu(
     items: DocumentMenuItems,
     size: ButtonSize,
+    read: Boolean = true,
+    onFind: () -> Unit = {},
+    onSummary: () -> Unit = {},
     canSort: Boolean,
     onSortKeys: () -> Unit,
     onSave: () -> Unit,
@@ -310,6 +320,7 @@ internal fun DocumentMenu(
         alignment = PopoverAlignment.End,
         tagKey = "document"
     ) {
+        if (items == DocumentMenuItems.FindSummarySortCompareClose) FindAndSummaryItems(read, onFind, onSummary)
         if (items != DocumentMenuItems.Close) {
             PantrixMenuItem(
                 text = stringResource(Res.string.workspace_sort_keys),
@@ -340,4 +351,22 @@ internal fun DocumentMenu(
             tagKey = "close"
         )
     }
+}
+
+/** The rows only a phone's menu holds: finding in the tree and showing the Summary, which a [read] document has. */
+@Composable
+private fun FindAndSummaryItems(read: Boolean, onFind: () -> Unit, onSummary: () -> Unit) {
+    PantrixMenuItem(
+        text = stringResource(Res.string.workspace_find_in_tree),
+        onClick = onFind,
+        icon = PantrixIcons.Search,
+        enabled = read,
+        tagKey = "find"
+    )
+    PantrixMenuItem(
+        text = stringResource(Res.string.workspace_show_summary_item),
+        onClick = onSummary,
+        enabled = read,
+        tagKey = "summary"
+    )
 }

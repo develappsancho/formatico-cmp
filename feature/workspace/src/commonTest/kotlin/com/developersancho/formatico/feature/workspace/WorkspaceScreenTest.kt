@@ -1,6 +1,8 @@
 package com.developersancho.formatico.feature.workspace
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -211,11 +213,17 @@ class WorkspaceScreenTest {
         val findings = PantrixFindings()
         val intents = mutableListOf<WorkspaceIntent>()
         val customer = "{\"customer\": {\"name\": \"Elif Yılmaz\", \"email\": \"elif@example.com\"}, \"site\": \"elif.dev\"}"
+        var view by mutableStateOf(DocumentView())
         setContent {
             PantrixTestTheme(window = desktop, findings = findings, clock = clock) {
-                WorkspaceScreen(state = stateOf(customer, Format.Json), onIntent = {
-                    intents += it
-                }, commands = rememberDocumentCommands(Workbench()))
+                WorkspaceScreen(
+                    state = stateOf(customer, Format.Json, view = view),
+                    onIntent = { intent ->
+                        intents += intent
+                        if (intent is WorkspaceIntent.Search) view = view.copy(searching = intent.open)
+                    },
+                    commands = rememberDocumentCommands(Workbench())
+                )
             }
         }
         awaitText("Valid JSON", forgetting = findings)
@@ -315,6 +323,51 @@ class WorkspaceScreenTest {
         onPantrixNode("Button", "size").performClick()
         assertEquals(listOf<WorkspaceIntent>(WorkspaceIntent.ShowPane(DocumentPane.Tree)), intents)
         assertNoFindings(findings)
+    }
+
+    @Test
+    fun aPhoneSearchesTheTreeInTheBarItsMoreMenuOpens() = runComposeUiTest {
+        val workbench = Workbench()
+        val customer = "{\"customer\": {\"name\": \"Elif Yılmaz\", \"email\": \"elif@example.com\"}, \"site\": \"elif.dev\"}"
+        val id = workbench.open("customer.json", customer, Format.Json)
+        setContent {
+            PantrixTestTheme(window = phone, clock = clock) {
+                val open by workbench.state.collectAsState()
+                Column {
+                    DocumentMoreMenu(documentId = id, workbench = workbench)
+                    WorkspaceScreen(
+                        state = readState(open.documents.single()),
+                        onIntent = { intent ->
+                            when (intent) {
+                                is WorkspaceIntent.Search -> workbench.changeView(id) { it.copy(searching = intent.open) }
+                                is WorkspaceIntent.Select -> workbench.changeView(id) { it.copy(selected = intent.key) }
+                                else -> {}
+                            }
+                        },
+                        commands = rememberDocumentCommands(workbench)
+                    )
+                }
+            }
+        }
+        awaitText("Valid JSON")
+
+        // The phone's "more" menu opens the search on the tree.
+        onPantrixNode("IconButton", "more").performClick()
+        onPantrixNode("MenuItem", "find", scope = "Menu_document").performClick()
+        onPantrixNode("TextField", "find").performTextInput("elif")
+        awaitText("1 of 3")
+        // The chosen value's card says which match it is.
+        awaitText("match 1 of 3", substring = true)
+        assertEquals("$.customer.name", workbench.state.value.documents.single().view.selected)
+
+        onPantrixNode("IconButton", "close_search").performClick()
+        onPantrixNode("TextField", "find").assertDoesNotExist()
+
+        // And the Summary.
+        onPantrixNode("IconButton", "more").performClick()
+        onPantrixNode("MenuItem", "summary", scope = "Menu_document").performClick()
+        awaitText("Size")
+        assertEquals(DocumentPane.Summary, workbench.state.value.documents.single().view.pane)
     }
 
     @Test

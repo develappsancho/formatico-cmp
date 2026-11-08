@@ -41,6 +41,7 @@ data class OpenDocument(
  * @property tableSort the column the table's rows are ordered by, or null for their own order.
  * @property hiddenColumns the names of the table's columns that are not shown.
  * @property tableFilter what the table's rows are filtered by, kept when the table is left for the tree.
+ * @property searching whether the tree's search bar is open: a phone's "more" menu opens it from the top bar.
  */
 data class DocumentView(
     val expanded: Set<String>? = null,
@@ -48,7 +49,8 @@ data class DocumentView(
     val pane: DocumentPane = DocumentPane.Tree,
     val tableSort: TableSort? = null,
     val hiddenColumns: Set<String> = emptySet(),
-    val tableFilter: String = ""
+    val tableFilter: String = "",
+    val searching: Boolean = false
 )
 
 /**

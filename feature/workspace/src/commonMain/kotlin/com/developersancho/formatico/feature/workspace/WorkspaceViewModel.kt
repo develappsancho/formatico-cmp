@@ -78,6 +78,8 @@ internal class WorkspaceViewModel(
 
             is WorkspaceIntent.ShowPane -> workbench.changeView(documentId) { it.copy(pane = intent.pane) }
 
+            is WorkspaceIntent.Search -> workbench.changeView(documentId) { it.copy(searching = intent.open) }
+
             is WorkspaceIntent.ChangeFormat -> workbench.changeFormat(documentId, intent.format)
 
             is WorkspaceIntent.Edit -> viewModelScope.launch {

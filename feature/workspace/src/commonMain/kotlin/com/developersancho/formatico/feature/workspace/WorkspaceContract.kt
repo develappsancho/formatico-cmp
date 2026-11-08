@@ -69,6 +69,9 @@ internal sealed interface WorkspaceIntent {
     /** Show [pane] of the document, on a phone. */
     data class ShowPane(val pane: DocumentPane) : WorkspaceIntent
 
+    /** Open the tree's search bar, or close it where [open] is false. */
+    data class Search(val open: Boolean) : WorkspaceIntent
+
     /** Read the document as [format], or as plain text. */
     data class ChangeFormat(val format: Format?) : WorkspaceIntent
 

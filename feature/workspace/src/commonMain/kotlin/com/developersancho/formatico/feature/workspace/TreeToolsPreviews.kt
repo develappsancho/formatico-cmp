@@ -17,13 +17,14 @@ internal class SearchCase(val query: String, val count: Int, val current: Int, v
     val board: Board get() = LaidOutState(WorkspaceState(), layout).board
 }
 
-/** The search bar's cases: a search that finds four values, one that finds none, one not typed yet, and a tablet's. */
+/** The search bar's cases: a search that finds four values, one that finds none, one not typed yet, a tablet's and a phone's. */
 internal class TreeSearchBarCases :
     PreviewCases<SearchCase>(
         "found" to SearchCase("elif", count = 4, current = 0, WorkspaceLayout.Wide),
         "no matches" to SearchCase("elif yilmaz", count = 0, current = 0, WorkspaceLayout.Wide),
         "not typed" to SearchCase("", count = 0, current = 0, WorkspaceLayout.Wide),
-        "found on a tablet" to SearchCase("elif", count = 4, current = 2, WorkspaceLayout.Tablet)
+        "found on a tablet" to SearchCase("elif", count = 4, current = 2, WorkspaceLayout.Tablet),
+        "found on a phone" to SearchCase("elif", count = 4, current = 0, WorkspaceLayout.Phone)
     )
 
 @Preview

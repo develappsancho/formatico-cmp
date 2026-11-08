@@ -253,6 +253,17 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Nerede: MCP `search_icons "image picture photo link external"`; kaynak jar'da `PantrixIcons.kt`.
     *   Öneri: `PantrixIcons.Image` ve `PantrixIcons.ExternalLink` (sağdan sola dillerde aynalanmayan); tasarım sisteminde karşılıkları.
     *   Durum: açık. Summary'de tarihin satırı takvimle, rengin satırı rengin kendisiyle açılıyor; resmin ve bağlantının satırında simgenin yeri boş.
+*   [ ] **Bir adresten resim yükleyen bir şey yok (2026-11-04).**
+    *   Ne: Ağacın değer önizlemesi bir resmin adresini tanıyor ("https://images.example.com/u/elif.png"). CLAUDE.md değerlerin önizlenmesini istiyor, resimler de içinde. `PantrixImage` yalnızca bir `Painter`, bir `ImageVector` ya da bir `ImageBitmap` alıyor: ağdan indirmiyor, önbelleğe almıyor, yüklenirken ya da yüklenemeyince ne göstereceğini bilmiyor. Panolar şimdilik gerçek bir küçük resim değil, 24×24'lük bir yer tutucu çiziyor: `neutral-container` zeminli, 4 piksel köşeli bir kutu ve içinde bir resim simgesi ("Picture at this address").
+    *   Nerede: MCP `get_api PantrixImage`; Pantrix ekibinin yanıtı (2026-11-04).
+    *   İstenen:
+        *   **Boy:** ağaçta 24×24, köşesi `shapes.sm`; seçili değer kartında daha büyüğü olabilir.
+        *   **Yüklenirken:** panonun yer tutucusu (resim simgeli kutu) ya da bir iskelet; bir dönen gösterge değil, çünkü bir ağaçta onlarca satırda aynı anda dönerdi.
+        *   **Yüklenemeyince:** aynı yer tutucu, ekran okuyucuya "resim yüklenemedi".
+        *   **Web'de:** başka bir sitedeki resmi Compose'un çözmesi için baytların okunabilmesi gerekiyor, bu da CORS ister; çoğu resim sunucusu izin vermez. O zaman da yer tutucu kalmalı. Uygulama, adresten bir şey indirmeden önce okuyucuya sormak (ya da Settings'te kapatmak) isteyebilir: belgedeki bir adres, belgeyi açanın IP'sini o sunucuya verir.
+        *   **Önbellek:** aynı adres bir oturumda bir kez indirilmeli.
+    *   Öneri: `PantrixImage(url = …, placeholder = …, error = …)` ya da ayrı bir `PantrixAsyncImage`; ya da Pantrix'in bir yükleyiciyle (Coil 3) nasıl kullanılacağını gösteren bir sayfa.
+    *   Durum: açık. Formatico'yu tıkamıyor; Pantrix ekibinin önerdiği geçici yol (Coil 3'ün `rememberAsyncImagePainter` ile `PantrixImage(painter = …)`) Formatico'ya bir bağımlılık ekler ve bu sahibinin kararı. Kodda resim adresi panodaki yer tutucuyla gösterilecek; resim simgesi de yok (bkz. "Resmin ve bağlantının simgesi yok").
 *   [ ] **Sık bir çubuktaki bir düğme dokunma hedefini alamıyor (2026-11-04).**
     *   Ne: Workspace panolarının durum çubuğu 1440'ta 28, 834'te 32 piksel; Summary'yi açan boyut bu çubukta bir düğme. Pantrix bir denetime platformun dokunma hedefini yerleşimde ayırıyor (masaüstünde 32, iOS'ta 44, Android'de 48 dp); daha az yer verilen düğme teşhislerde `SmallTouchTarget` oluyor. Masaüstü uygulamalarının durum çubukları (bir düzenleyicinin satır, sütun ve kodlama düğmeleri) işaretçiyle kullanılan sık çubuklar.
     *   Nerede: MCP `get_documentation_page skill/accessibility` ("Touch targets", `Modifier.minTouchTarget`).

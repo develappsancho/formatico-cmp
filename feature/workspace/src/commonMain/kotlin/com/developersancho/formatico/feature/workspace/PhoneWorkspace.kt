@@ -14,8 +14,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -85,20 +88,9 @@ internal fun PhoneWorkspace(
             }
             return@Column
         }
-        // An invalid document's text has the strip of the Invalid board in the trail's place, and its problem under it.
         val problemsInText = pane == DocumentPane.Text && state.problems.any { it.severity == Severity.Error }
-        if (problemsInText) {
-            InvalidStrip(state, onIntent, Modifier.fillMaxWidth().height(44.dp).padding(start = spacing.lg, end = spacing.sm))
-        } else {
-            Row(
-                modifier = Modifier.fillMaxWidth().height(44.dp).padding(horizontal = spacing.lg),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(spacing.sm)
-            ) {
-                PathTrail(state = state, onIntent = onIntent, modifier = Modifier.weight(1f))
-                StatusTag(state)
-            }
-        }
+        val search = rememberTreeSearch(state, onIntent)
+        UnderTheViews(state, pane, problemsInText, search, onIntent)
         PantrixHorizontalDivider()
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
             PhonePane(state = state, editor = editor, pane = pane, onIntent = onIntent)
@@ -115,10 +107,56 @@ internal fun PhoneWorkspace(
                 onCopy = { commands.copyText(Copied.Value, it) },
                 onCopyPath = { commands.copyText(Copied.Path, it) },
                 onGoTo = { onIntent(WorkspaceIntent.Select(it)) },
-                modifier = Modifier.fillMaxWidth().padding(start = spacing.sm, end = spacing.sm, top = spacing.sm)
+                modifier = Modifier.fillMaxWidth().padding(start = spacing.sm, end = spacing.sm, top = spacing.sm),
+                match = search.takeIf { it.open }?.matchOf(selected)
             )
         }
         PhoneToolbar(state = state, document = document, onIntent = onIntent, commands = commands)
+    }
+}
+
+/**
+ * The row under the views: an invalid document's text has the strip of the Invalid board, and its problem under it;
+ * the tree being searched has the search's bar; and otherwise the trail to the chosen value and whether it is valid.
+ */
+@Composable
+private fun UnderTheViews(
+    state: WorkspaceState,
+    pane: DocumentPane,
+    problemsInText: Boolean,
+    search: TreeSearch,
+    onIntent: (WorkspaceIntent) -> Unit
+) {
+    val spacing = PantrixTheme.spacing
+    when {
+        problemsInText -> {
+            InvalidStrip(state, onIntent, Modifier.fillMaxWidth().height(44.dp).padding(start = spacing.lg, end = spacing.sm))
+        }
+
+        pane == DocumentPane.Tree && search.open && state.root != null -> {
+            val focus = remember { FocusRequester() }
+            TreeSearchBar(
+                query = search.query,
+                position = search.position(),
+                layout = WorkspaceLayout.Phone,
+                onStep = search::step,
+                onClose = search::close,
+                focus = focus
+            )
+            // The caret goes to the field as the bar is opened.
+            LaunchedEffect(focus) { focus.requestFocus() }
+        }
+
+        else -> {
+            Row(
+                modifier = Modifier.fillMaxWidth().height(44.dp).padding(horizontal = spacing.lg),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(spacing.sm)
+            ) {
+                PathTrail(state = state, onIntent = onIntent, modifier = Modifier.weight(1f))
+                StatusTag(state)
+            }
+        }
     }
 }
 
@@ -231,7 +269,8 @@ private fun PhoneToolbar(
 }
 
 /**
- * The chosen value, read out: its path and its kind, the value itself, what more there is to say of it, and its
+ * The chosen value, read out: its path and its kind, the value itself, what more there is to say of it, which [match]
+ * of a search it is, and its
  * actions: copying its path ([onCopyPath]), showing it in the text ([onShowInText]), copying it, going to an alias's
  * anchor.
  */
@@ -243,7 +282,8 @@ private fun SelectedValueCard(
     onCopy: (String) -> Unit,
     onCopyPath: (String) -> Unit,
     onGoTo: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    match: String? = null
 ) {
     val spacing = PantrixTheme.spacing
     val reading = readValue(node)
@@ -286,7 +326,7 @@ private fun SelectedValueCard(
                 style = PantrixTheme.typography.callout.copy(fontWeight = FontWeight.SemiBold),
                 maxLines = 2
             )
-            reading.detail?.let {
+            listOfNotNull(reading.detail, match).joinToString(" · ").ifEmpty { null }?.let {
                 PantrixText(
                     text = it,
                     style = PantrixTheme.typography.footnote.copy(fontWeight = FontWeight.Medium),
