@@ -16,10 +16,13 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -31,7 +34,8 @@ import kotlinx.coroutines.withContext
  * @param readings what the open documents were read as: a document read before is not read again.
  * @param reader where the document is read, off the main thread.
  * @param queries the queries used on this device, which the Query view offers again.
- * @param language the language the words a conversion writes into the document are in.
+ * @param language the reader's language, as it changes: the words a conversion writes into the document are in it, and
+ *   a CSV whose first row is no header names its columns in it, again as it changes.
  * @param sharing the encrypted links the share makes, and those it made before.
  */
 @Suppress("LongParameterList") // Each is the view model's own, and a test gives each a stand-in: none is a part of another.
@@ -41,7 +45,7 @@ internal class WorkspaceViewModel(
     private val readings: Readings = Readings(workbench),
     private val reader: CoroutineDispatcher = Dispatchers.Default,
     private val queries: QueryHistory = QueryHistory(MemorySmallStore(), CoroutineScope(Dispatchers.Unconfined)),
-    private val language: () -> String = { "en" },
+    private val language: Flow<String> = flowOf("en"),
     private val sharing: EncryptedSharing = EncryptedSharing()
 ) : MviViewModel<WorkspaceState, WorkspaceIntent, WorkspaceEffect>(WorkspaceState()) {
     init {
@@ -52,8 +56,7 @@ internal class WorkspaceViewModel(
             document.collect { open -> setState { copy(document = open).arranged() } }
         }
         viewModelScope.launch {
-            document
-                .map { open -> open?.let { Triple(it.text, it.format, it.csvHeader(language())) } }
+            combine(document, language) { open, language -> open?.let { Triple(it.text, it.format, it.csvHeader(language)) } }
                 .distinctUntilChanged()
                 .collectLatest { source ->
                     val (text, format, header) = source ?: return@collectLatest
@@ -188,7 +191,7 @@ internal class WorkspaceViewModel(
                     if (shown == null) return@collectLatest setState { copy(conversion = null) }
                     val reading = readingOf(shown)
                     val comment = (reading as? Reading.Read)?.let {
-                        nullCommentOf(it.format, targetOf(it.format, shown.view.convert), language())
+                        nullCommentOf(it.format, targetOf(it.format, shown.view.convert), language.first())
                     }
                     val outcome = withContext(reader) { conversionOf(shown, reading, shown.view.convert, comment.orEmpty()) }
                     setState { copy(conversion = outcome) }
@@ -292,7 +295,7 @@ internal class WorkspaceViewModel(
 
     /** What [document] was read as: kept where it was read before, read again off the main thread otherwise. */
     private suspend fun readingOf(document: OpenDocument): Reading {
-        val header = document.csvHeader(language())
+        val header = document.csvHeader(language.first())
         return readings.of(document.id, document.text, document.format, header)?.first
             ?: withContext(reader) { readDocument(document.text, document.format, header) }
     }

@@ -21,6 +21,7 @@ import com.pantrixui.testing.hasPantrixTag
 import com.pantrixui.testing.onPantrixNode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
@@ -151,6 +152,26 @@ class CsvHeaderTest {
         viewModel.dispatch(WorkspaceIntent.FirstRowHeader(true))
         assertEquals(listOf("code", "numeric", "name"), viewModel.state.value.table?.columns)
         assertEquals("$[0]", viewModel.state.value.selected?.key)
+    }
+
+    @Test
+    fun aCsvWithNoHeaderNamesItsColumnsAgainWhenTheLanguageChanges() {
+        val workbench = Workbench(worker = dispatcher)
+        val id = workbench.open("c.csv", countries, Format.Csv)
+        workbench.change(id) { it.withFirstRowHeader(false) }
+        val language = MutableStateFlow("en")
+        val viewModel = WorkspaceViewModel(
+            documentId = id,
+            workbench = workbench,
+            readings = Readings(workbench),
+            reader = dispatcher,
+            language = language
+        )
+        assertEquals(listOf("column 1", "column 2", "column 3"), viewModel.state.value.table?.columns)
+
+        language.value = "tr"
+
+        assertEquals(listOf("sütun 1", "sütun 2", "sütun 3"), viewModel.state.value.table?.columns)
     }
 
     @Test

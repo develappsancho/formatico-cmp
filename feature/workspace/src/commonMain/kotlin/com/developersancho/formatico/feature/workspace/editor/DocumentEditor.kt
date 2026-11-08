@@ -84,7 +84,7 @@ internal fun DocumentEditor(
     match: Int? = null,
     onRepair: ((Problem) -> Unit)? = null
 ) {
-    val language = editorLanguage(document.format)
+    val language = editorLanguage(document.format, document.firstRowHeader)
     // The text the editor last wrote to the document, or took from it: a document's text that is another came from
     // elsewhere. The editor outlives this, as a phone shows its tree in the text's place: what it holds is what it
     // knows, and a change made to the document meanwhile, a Minify run from the tree, comes into it.

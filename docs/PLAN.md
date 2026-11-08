@@ -488,14 +488,16 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
             *   CSV'de "First row is the header": Columns seçicisinde (telefonda alttan açılan sayfa), yalnızca CSV ve
                 TSV'de; kapalıyken sütunlar okuyucunun dilinde "column 1"/"sütun 1". Seçenek belgenin okunuşu: ağaç,
                 tablo, sorgu ve dönüştürme ona uyuyor (Convert'in kodu değişmedi, belgenin okunuşunu alıyor). Seçili kayıt
-                metindeki satırında kalıyor; sekmeyle saklanıyor.
+                metindeki satırında kalıyor; sekmeyle saklanıyor. Dil değişince sütunlar yeni dilde adlandırılıyor; metinde
+                ilk satır kayıtlar gibi renkleniyor (Table-1440'ın `noheader` hâli de öyle, tuval `1794463269-4d2e`).
             *   Açık belgeye bırakılan dosya: Pantrix'in `fileDropTarget`'ı, Start'ın açıcısı (`openDropped`: tür ve
                 boyut Start'taki gibi denetleniyor), yeni bir sekmede. Kapağı Formatico çiziyor (`DropCover`); bulgusu
-                yazıldı.
+                yazıldı. Geniş pencerede ve tablette, panoların çizdiği yerde; telefon, Start'ı gibi, bırakılan dosya
+                almıyor.
             *   Denetim: JVM, iOS simülatörü, Wasm ve JS testleri (Workspace, Start, `core:network`, uygulama); web
                 testleri; `verifyRoborazzi` JVM'de, Android'de (Robolectric) ve iOS'ta; lint ve detekt temiz. Android'de
                 Pixel 7 Pro emülatöründe bir `data:image` değeriyle ağaçtaki ve karttaki küçük resim görüldü. Android'in
-                panoları küçük resimsiz (`OPEN_ITEMS.md`, "Android'in pano görüntülerinde küçük resim yok").
+                panoları da küçük resimle: okuma isteyen iş parçacığında başlıyor, küçük resim orada hemen kesiliyor.
     *   **Sahibinin kararları (2026-11-10):** sahibi önerileri kabul etti ("önerilerin olsun"):
         *   **Kodda seçilip panolarda olmayanlar: kod onaylandı, panolar koda göre çizilir.**
             *   Query'nin, Convert'in ve Compare'in hâlleri ve kuralları.

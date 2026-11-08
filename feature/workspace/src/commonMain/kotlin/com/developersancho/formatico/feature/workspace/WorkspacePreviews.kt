@@ -380,8 +380,7 @@ internal class ScreenCase(
  * them, the order converted to YAML and to TOML, as the Convert boards draw it, the order validated against its schema,
  * its caret in its first problem, as the Schema boards draw it, the boards' two orders compared by meaning and by
  * text, a note with long lines left long and wrapped, one being read, and a new, empty one; the order whose avatar could
- * not be read, the countries with no header, and a file dragged over the order, as the boards' `nopicture`, `noheader`
- * and `drop` states draw them.
+ * not be read and the countries with no header, as the boards' `nopicture` and `noheader` states draw them.
  */
 internal class WorkspaceScreenCases :
     PreviewCases<ScreenCase>(
@@ -418,8 +417,7 @@ internal class WorkspaceScreenCases :
         "empty" to ScreenCase(Empty),
         "plain" to ScreenCase(previewState(null, PreviewTyped, null, DocumentView(pane = DocumentPane.Text))),
         "picture unread" to ScreenCase(Order, picturesRead = false),
-        "csv no header" to ScreenCase(CountriesWithoutHeader),
-        "drop" to ScreenCase(OrderUnchosen, dropping = true)
+        "csv no header" to ScreenCase(CountriesWithoutHeader)
     )
 
 @BoardPreviews
@@ -439,6 +437,32 @@ internal fun WorkspaceScreenPreview(@PreviewParameter(WorkspaceScreenCases::clas
                     dropping = screen.dropping
                 )
             }
+        }
+    }
+}
+
+/**
+ * A file dragged over the order, as the Workspace boards' `drop` state draws it: in a wide window and on a tablet, the
+ * two boards that draw it, a phone taking no file dropped on a document.
+ */
+internal class DocumentDropCases :
+    PreviewCases<LaidOutState>(
+        "wide" to LaidOutState(OrderUnchosen, WorkspaceLayout.Wide),
+        "tablet" to LaidOutState(OrderUnchosen, WorkspaceLayout.Tablet)
+    )
+
+@Preview
+@Composable
+internal fun DocumentDropPreview(@PreviewParameter(DocumentDropCases::class) case: PreviewCase<LaidOutState>) {
+    val board = case.value.board
+    FormaticoPreview(case, Modifier.size(width = board.width.dp, height = board.height.dp)) { laidOut ->
+        PreviewPictures {
+            WorkspaceScreen(
+                state = laidOut.state,
+                onIntent = {},
+                commands = rememberDocumentCommands(remember { Workbench() }),
+                dropping = true
+            )
         }
     }
 }

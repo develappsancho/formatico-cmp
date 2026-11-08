@@ -23,6 +23,11 @@ class WorkspaceScreenshotTest {
     }
 
     @Test
+    fun documentDrop() = DocumentDropCases().values.forEach { case ->
+        capturePreview("DocumentDrop", case, case.value.board) { DocumentDropPreview(case) }
+    }
+
+    @Test
     fun statusBar() = StatusBarCases().values.forEach { case ->
         capturePreview("StatusBar", case, case.value.board) { StatusBarPreview(case) }
     }

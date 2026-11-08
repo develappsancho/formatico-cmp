@@ -75,7 +75,9 @@ fun WorkspaceRoute(documentId: Long, modifier: Modifier = Modifier) {
  * A workspace drawn from [state]; what the user does goes to [onIntent], or to [commands]. Its text is [editor]'s, the
  * document's own editor, which outlives the workspace; a preview or a test that gives none has one made for it. A file
  * dropped on it opens in a new tab, as [LocalDocumentDrop] opens it, and while one is dragged over it, or where
- * [dropping] says so, as a preview draws it, a cover says so over everything under the tabs.
+ * [dropping] says so, as a preview draws it, a cover says so over everything under the tabs. A phone takes no file
+ * dropped on a document, as its Start has no drop zone: the Workspace boards draw the cover in a wide window and on a
+ * tablet alone.
  */
 @Composable
 internal fun WorkspaceScreen(
@@ -87,9 +89,9 @@ internal fun WorkspaceScreen(
     dropping: Boolean = false
 ) {
     if (state.document == null) return
-    val drop = LocalDocumentDrop.current
-    var over by remember { mutableStateOf(false) }
     val layout = workspaceLayout()
+    val drop = LocalDocumentDrop.current?.takeIf { layout != WorkspaceLayout.Phone }
+    var over by remember { mutableStateOf(false) }
     Box(
         modifier = modifier.fileDropTarget(
             enabled = drop != null,
@@ -98,7 +100,9 @@ internal fun WorkspaceScreen(
         )
     ) {
         WorkspaceContent(state, onIntent, commands, editor, layout, Modifier.fillMaxSize())
-        if (over || dropping) DropCover(maxFileSize = drop?.maxFileSize ?: PREVIEW_MAX_FILE_SIZE, layout = layout)
+        if ((over || dropping) && layout != WorkspaceLayout.Phone) {
+            DropCover(maxFileSize = drop?.maxFileSize ?: PREVIEW_MAX_FILE_SIZE, layout = layout)
+        }
     }
 }
 

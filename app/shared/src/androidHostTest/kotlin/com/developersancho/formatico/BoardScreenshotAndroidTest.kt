@@ -114,9 +114,7 @@ class BoardScreenshotAndroidTest {
                 clipboard = board.clipboard(),
                 filePicker = files
             ) {
-                // Robolectric draws a thumbnail read after the screen's last frame only now and then: Android's boards
-                // are drawn with no pictures, their places as the boards' `nopicture` state draws them.
-                App(systemDark = dark, storage = memoryStorageModule, network = noPicturesNetworkModule)
+                App(systemDark = dark, storage = memoryStorageModule, network = boardNetworkModule)
             }
         }
         tour(board, window, BoardWords.English, files)

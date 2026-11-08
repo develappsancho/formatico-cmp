@@ -6,6 +6,8 @@ import com.pantrixui.foundation.platform.currentPlatformType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -42,7 +44,7 @@ val workspaceModule: Module = module {
             queries = get(),
             // The words a conversion writes into the document, and a CSV's columns named by their places, are in the
             // language the reader chose, the system's else.
-            language = { get<SettingsStore>().preferences.value.language?.tag ?: Locale.current.language },
+            language = get<SettingsStore>().preferences.map { it.language?.tag ?: Locale.current.language }.distinctUntilChanged(),
             sharing = EncryptedSharing(shares = get(), links = get())
         )
     }

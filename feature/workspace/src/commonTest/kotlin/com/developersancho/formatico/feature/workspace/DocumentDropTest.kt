@@ -41,6 +41,20 @@ class DocumentDropTest {
     }
 
     @Test
+    fun aPhoneShowsNoCover() = runComposeUiTest {
+        setContent {
+            PantrixTestTheme(window = PantrixWindow(DpSize(390.dp, 844.dp))) {
+                CompositionLocalProvider(LocalDocumentDrop provides Drop(maxFileSize = 10_000_000)) {
+                    WorkspaceScreen(state = OrderUnchosen, onIntent = {}, commands = rememberDocumentCommands(Workbench()), dropping = true)
+                }
+            }
+        }
+
+        awaitTexts("Valid JSON")
+        assertTrue(onAllNodes(hasText("Drop to open in a new tab")).fetchSemanticsNodes().isEmpty())
+    }
+
+    @Test
     fun aDocumentWithNothingOverItShowsNoCover() = runComposeUiTest {
         setContent {
             PantrixTestTheme(window = PantrixWindow(DpSize(1440.dp, 900.dp))) {

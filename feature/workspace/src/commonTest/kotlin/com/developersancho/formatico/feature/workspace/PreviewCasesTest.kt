@@ -41,6 +41,18 @@ class PreviewCasesTest {
     }
 
     @Test
+    fun aFileDraggedOverADocumentIsSaidToOpenInANewTab() = checkPreviewCases(
+        DocumentDropCases(),
+        boardsOf = { listOf(it.board) },
+        content = { DocumentDropPreview(it) }
+    ) { _, _ ->
+        awaitTexts(
+            "Drop to open in a new tab",
+            "JSON, JSONC, JSON5, NDJSON, XML, YAML, TOML, CSV, TSV, properties and INI, up to 50 MB"
+        )
+    }
+
+    @Test
     fun theStatusBarSaysWhatTheDocumentIs() = checkPreviewCases(
         StatusBarCases(),
         boardsOf = { listOf(it.board) },
@@ -295,11 +307,7 @@ class PreviewCasesTest {
             "empty" to listOf("The document is empty", "Plain text"),
             "plain" to listOf("Plain text"),
             "picture unread" to listOf("customer", "avatar"),
-            "csv no header" to listOf("code", "code3"),
-            "drop" to listOf(
-                "Drop to open in a new tab",
-                "JSON, JSONC, JSON5, NDJSON, XML, YAML, TOML, CSV, TSV, properties and INI, up to 50 MB"
-            )
+            "csv no header" to listOf("code", "code3")
         )
 
         val ShareTexts = mapOf(

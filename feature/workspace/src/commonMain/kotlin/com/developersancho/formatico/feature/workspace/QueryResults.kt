@@ -15,7 +15,7 @@ internal fun queryResults(document: OpenDocument, root: ValueNode?, outcome: Que
     val written = when (outcome) {
         is QueryOutcome.Found -> outcome.matches.takeIf { it.isNotEmpty() }?.let { matches ->
             when (language) {
-                QueryLanguage.JsonPath -> jsonResults(root ?: return null, document.format ?: return null, matches)
+                QueryLanguage.JsonPath -> jsonResults(root ?: return null, document.format, matches)
                 QueryLanguage.XPath -> xmlResults(document.text, matches)
             }
         }

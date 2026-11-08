@@ -678,19 +678,19 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
         dışında bırakmak, yalnızca seçimle göstermek.
     *   Durum: açık.
 
-*   [ ] **Başlığı olmayan bir CSV'nin sütun adları dil değişince yenilenmiyor (2026-11-12).**
+*   [x] **Başlığı olmayan bir CSV'nin sütun adları dil değişince yenilenmiyor (2026-11-12).**
     *   Ne: "First row is the header" kapalıyken sütunlar okuyucunun dilinde adlandırılıyor ("column 1", "sütun 1").
         Workspace'in view model'i dili belgeyi okurken soruyor; Settings'te dil değişince açık belge yeniden okunmuyor,
         adlar metin, biçim ya da seçenek değişene kadar eski dilde kalıyor.
     *   Öneri: view model dili bir akış olarak izlesin, ya da Settings dil değişince okunanları (`Readings`) bıraksın.
-    *   Durum: açık.
-*   [ ] **Başlığı olmayan bir CSV'nin ilk satırı metinde hâlâ anahtar renginde (2026-11-12).**
+    *   Durum: kapandı (2026-11-12). View model dili bir akış olarak alıyor (`language: Flow<String>`, Settings'in dilinden): başlıksız bir CSV dil değişince yeniden okunuyor, sütunları yeni dilde (`CsvHeaderTest.aCsvWithNoHeaderNamesItsColumnsAgainWhenTheLanguageChanges`). Başlığı olan bir belge dil değişince yeniden okunmuyor.
+*   [x] **Başlığı olmayan bir CSV'nin ilk satırı metinde hâlâ anahtar renginde (2026-11-12).**
     *   Ne: CSV'nin renklendiricisi (`TableHighlighter`) ilk satırı her zaman başlık (anahtar) renginde çiziyor. "First
         row is the header" kapalıyken ilk satır bir kayıt, ama Table panolarının `noheader` hâli de metnin ilk satırını
         anahtar renginde çiziyor; kod panoyla aynı.
     *   Öneri: sahibine sorulacak: seçenek kapalıyken ilk satır kayıtlar gibi mi renklensin? Öyleyse önce panolar.
-    *   Durum: açık.
-*   [ ] **Android'in pano görüntülerinde küçük resim yok (2026-11-12).**
+    *   Durum: kapandı (2026-11-12). Önce pano: Table-1440'ın `noheader` hâli ilk satırı kayıtlar gibi renklendiriyor (tuval `1794463269-4d2e`; 834 ve 390'da metin bölmesi yok). Kodda `TableHighlighter(header = false)`, `editorLanguage(format, firstRowHeader)`; `HighlightersTest`.
+*   [x] **Android'in pano görüntülerinde küçük resim yok (2026-11-12).**
     *   Ne: Robolectric, ağaçtaki bir satırın küçük resmini, resim ekranın son karesinden sonra (arka planda) okununca
         kimi kayıtta çiziyor kimi kayıtta çizmiyor: anlam ağacı resmin çizildiğini söylerken yakalanan karede simgeli
         kutu kalabiliyor; `invalidateDescendants` ve ana döngünün zamanını ilerletmek kararlı yapmadı. Tek başına,
@@ -699,7 +699,7 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
         JVM'de ve iOS'ta panolar küçük resimle.
     *   Öneri: Robolectric'in ya da Roborazzi'nin yeni sürümünde yeniden denemek; Android'de küçük resmi gerçek bir
         cihazda ya da emülatörde görmek.
-    *   Durum: açık.
+    *   Durum: kapandı (2026-11-12). Sebep, resmin arka plandan gelen geç bir durum değişikliği olmasıydı. Küçük resmin okunması artık isteyen iş parçacığında başlıyor (ağ beklenirken tutulmuyor), 32 KB'a kadarki resim orada hemen kesiliyor, büyüğü arka planda (`LoadedThumbnails`). Android'in panoları küçük resimle, iki kayıtta da aynı.
 *   [ ] **Web'de ağdaki resimlerin küçük resmi yok (2026-11-12).**
     *   Ne: Web uygulamasının içerik güvenliği politikası (`deploy/web/headers.conf`) `connect-src 'self'` diyor: sayfa
         yalnızca kendi sitesine istek atabiliyor. Bir değerin `https` adresindeki resim istense politika engeller,
@@ -709,18 +709,18 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Öneri: sahibinin kararı: web'de de gösterilsin mi? Öyleyse `connect-src`'a `https:` eklenir (politika
         gevşer), resim sunucusunun CORS izni de gerekir; çoğu vermez.
     *   Durum: açık.
-*   [ ] **Sorgu sonuçlarının yazılmasında derleyicinin uyarısı (2026-11-12).**
+*   [x] **Sorgu sonuçlarının yazılmasında derleyicinin uyarısı (2026-11-12).**
     *   Ne: `QueryResults.kt:18`'de `document.format ?: return null`: biçim satır 14'te `?: return null` ile zaten
         denetlenmiş, Kotlin onu boş olamaz biliyor ve her derlemede "Elvis operator always returns the left operand"
         uyarısı veriyor (`c1f1dec`'ten beri).
     *   Öneri: ikinci `?: return null`'ı kaldırmak.
-    *   Durum: açık.
-*   [ ] **Telefonun bırakma kapağının panosu yok (2026-11-12).**
+    *   Durum: kapandı (2026-11-12). Fazla `?: return null` kalktı.
+*   [x] **Telefonun bırakma kapağının panosu yok (2026-11-12).**
     *   Ne: Açık belgeye dosya bırakmanın panoları 1440 ve 834'te; telefonda bir dosya yalnızca yan yana iki uygulama
         açıkken sürüklenebiliyor. Kod telefonda da aynı kapağı çiziyor (`DropCover`, 600 genişliğe kadar), ekran
         görüntüsü testi onu 390'da da kaydediyor (`WorkspaceScreen/drop-*-390.png`); panoda karşılığı yok.
     *   Öneri: Workspace-390'a `drop` hâli, ya da telefonda kapağın kapatılması.
-    *   Durum: açık.
+    *   Durum: kapandı (2026-11-12). Telefon açık belgeye bırakılan dosyayı almıyor, Start'ı da almadığı gibi; kapak yalnızca geniş pencerede ve tablette, panoların çizdiği yerde (`WorkspaceScreen`, `DocumentDropPreview`, `DocumentDropTest.aPhoneShowsNoCover`).
 
 ## Üst çubuk
 

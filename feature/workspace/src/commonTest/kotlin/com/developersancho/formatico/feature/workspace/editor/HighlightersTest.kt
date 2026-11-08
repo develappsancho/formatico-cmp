@@ -100,6 +100,19 @@ class HighlightersTest {
     }
 
     @Test
+    fun aCsvsFirstRowIsARecordWhereItIsNoHeader() {
+        // Plain words are written in the text's own colour: they are no run of their own.
+        assertEquals(
+            listOf(listOf(",:sign"), listOf("004:number", ",:sign")),
+            TableHighlighter(',', header = false).read("code,name", "004,Åland")
+        )
+        val records = editorLanguage(Format.Csv, firstRowHeader = false).highlighter as TableHighlighter
+        assertEquals(listOf(emptyList()), records.read("code"))
+        val header = editorLanguage(Format.Csv).highlighter as TableHighlighter
+        assertEquals(listOf(listOf("code:key")), header.read("code"))
+    }
+
+    @Test
     fun settingsAndXml() {
         assertEquals(
             listOf(listOf("[package]:tag"), listOf("name :key", "=:sign", "\"formatico\":string"), listOf("# done:comment")),

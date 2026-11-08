@@ -25,6 +25,3 @@ private object BoardPictures : WebPictures {
  * would otherwise ask the network for as its workspace opens.
  */
 internal val boardNetworkModule: Module = networkModule(pictures = BoardPictures)
-
-/** The app's network in a test that reads no picture: every picture value keeps its icon. */
-internal val noPicturesNetworkModule: Module = networkModule(pictures = { _, _ -> null })

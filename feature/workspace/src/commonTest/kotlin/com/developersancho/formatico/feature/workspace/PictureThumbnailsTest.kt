@@ -18,10 +18,14 @@ import com.developersancho.formatico.core.testing.awaitUntil
 import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.foundation.adaptive.PantrixWindow
 import com.pantrixui.testing.PantrixTestTheme
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlin.io.encoding.Base64
 import kotlin.test.Test
@@ -81,7 +85,8 @@ class PictureThumbnailsTest {
     @Test
     fun aPictureIsReadOnceAndKept() = runTest {
         val pictures = Pictures(pngBytes)
-        val thumbnails = LoadedThumbnails(pictures, worker = UnconfinedTestDispatcher(testScheduler))
+        val dispatcher = UnconfinedTestDispatcher(testScheduler)
+        val thumbnails = LoadedThumbnails(pictures, caller = dispatcher, worker = dispatcher)
         val address = "https://images.example.com/u/elif.png"
 
         assertNull(thumbnails.known(address))
@@ -96,7 +101,8 @@ class PictureThumbnailsTest {
     @Test
     fun aPictureThatCouldNotBeReadIsNoneAndIsNotReadAgain() = runTest {
         val pictures = Pictures(null)
-        val thumbnails = LoadedThumbnails(pictures, worker = UnconfinedTestDispatcher(testScheduler))
+        val dispatcher = UnconfinedTestDispatcher(testScheduler)
+        val thumbnails = LoadedThumbnails(pictures, caller = dispatcher, worker = dispatcher)
         val address = "https://images.example.com/gone.png"
 
         assertEquals(Thumbnail.None, thumbnails.load(address))
@@ -105,9 +111,22 @@ class PictureThumbnailsTest {
     }
 
     @Test
+    fun aLargePictureIsCutOnTheWorker() = runTest {
+        // The picture's bytes, padded past what is cut at once: a PNG reads its chunks, and ignores what follows its end.
+        val pictures = Pictures(pngBytes + ByteArray(INLINE_DECODE_BYTES))
+        val worker = StandardTestDispatcher(testScheduler)
+        val thumbnails = LoadedThumbnails(pictures, caller = UnconfinedTestDispatcher(testScheduler), worker = worker)
+
+        val loading = async { thumbnails.load("https://images.example.com/large.png") }
+        runCurrent()
+        assertIs<Thumbnail.Shown>(loading.await())
+    }
+
+    @Test
     fun aDataAddressNeverReachesTheNetwork() = runTest {
         val pictures = Pictures(null)
-        val thumbnails = LoadedThumbnails(pictures, worker = UnconfinedTestDispatcher(testScheduler))
+        val dispatcher = UnconfinedTestDispatcher(testScheduler)
+        val thumbnails = LoadedThumbnails(pictures, caller = dispatcher, worker = dispatcher)
 
         assertIs<Thumbnail.Shown>(thumbnails.load("data:image/png;base64,$redAndBlue"))
         assertTrue(pictures.asked.isEmpty())
@@ -157,7 +176,7 @@ class PictureThumbnailsTest {
         val text = (0 until count).joinToString(",\n", "[\n", "\n]\n") { "  \"https://images.example.com/$it.png\"" }
         val state = readState(OpenDocument(id = 1, name = "pictures.json", text = text, format = Format.Json))
         val pictures = Pictures(pngBytes)
-        val thumbnails = LoadedThumbnails(pictures)
+        val thumbnails = LoadedThumbnails(pictures, caller = Dispatchers.Default)
         setContent {
             PantrixTestTheme(window = PantrixWindow(DpSize(1440.dp, 900.dp))) {
                 CompositionLocalProvider(LocalPictureThumbnails provides thumbnails) {

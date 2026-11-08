@@ -25,8 +25,13 @@ private val Toml = EditorLanguage(TomlHighlighter, CodeSyntax(quotes = "\"'", li
 private val Ini =
     EditorLanguage(SettingsHighlighter(comments = ";#", separators = "="), CodeSyntax(brackets = "[]", quotes = "\"", lineComment = ";"))
 private val Properties = EditorLanguage(PropertiesHighlighter, CodeSyntax(brackets = "", quotes = "", lineComment = "#"))
-private val Csv = EditorLanguage(TableHighlighter(','), CodeSyntax(brackets = "", quotes = "\""))
-private val Tsv = EditorLanguage(TableHighlighter('\t'), CodeSyntax(brackets = "", quotes = "\""))
+private val TableSyntax = CodeSyntax(brackets = "", quotes = "\"")
+private val Csv = EditorLanguage(TableHighlighter(','), TableSyntax)
+private val Tsv = EditorLanguage(TableHighlighter('\t'), TableSyntax)
+
+/** A CSV and a TSV whose first row is a record, written as the other records are. */
+private val CsvRecords = EditorLanguage(TableHighlighter(',', header = false), TableSyntax)
+private val TsvRecords = EditorLanguage(TableHighlighter('\t', header = false), TableSyntax)
 private val Xml = EditorLanguage(
     XmlHighlighter,
     CodeSyntax(brackets = "", quotes = "\"'", blockCommentStart = "<!--", blockCommentEnd = "-->")
@@ -35,8 +40,11 @@ private val Xml = EditorLanguage(
 /** Plain text: written in one colour, and no bracket or quote closed as it is typed. */
 private val PlainText = EditorLanguage(null, CodeSyntax(brackets = "", quotes = ""))
 
-/** What the editor knows of [format], or of plain text where it is null. */
-internal fun editorLanguage(format: Format?): EditorLanguage = when (format) {
+/**
+ * What the editor knows of [format], or of plain text where it is null; a CSV's or a TSV's first row in the key's colour
+ * where it is the [firstRowHeader].
+ */
+internal fun editorLanguage(format: Format?, firstRowHeader: Boolean = true): EditorLanguage = when (format) {
     Format.Json, Format.Ndjson -> Json
     Format.Jsonc -> JsonWithComments
     Format.Json5 -> Json5
@@ -44,8 +52,8 @@ internal fun editorLanguage(format: Format?): EditorLanguage = when (format) {
     Format.Toml -> Toml
     Format.Ini -> Ini
     Format.Properties -> Properties
-    Format.Csv -> Csv
-    Format.Tsv -> Tsv
+    Format.Csv -> if (firstRowHeader) Csv else CsvRecords
+    Format.Tsv -> if (firstRowHeader) Tsv else TsvRecords
     Format.Xml -> Xml
     null -> PlainText
 }

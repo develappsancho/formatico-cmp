@@ -23,6 +23,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.sync.withPermit
+import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.decodeToImageBitmap
 import kotlin.io.encoding.Base64
 
@@ -67,13 +68,18 @@ internal fun thumbnailOf(address: String): Thumbnail? {
  * The app's [PictureThumbnails]: each picture read once while the app runs, from its `https` address by [pictures] or
  * from a `data:` address on this device, no larger than [MAX_PICTURE_BYTES], cut to a square of [THUMBNAIL_PIXELS] at
  * most, and kept in memory, the last [MAX_KEPT] of them. A picture that could not be read is kept as none, and not read
- * again. Pictures are decoded one at a time, off the main thread: a large one is held whole only while it is cut.
+ * again.
+ *
+ * A reading starts on [caller], the thread the row asks on: the network is waited for without holding it, and a small
+ * picture, of [INLINE_DECODE_BYTES] at most, is cut there at once, so that a picture at hand is drawn in the frame that
+ * asks for it. A larger one is decoded on [worker], one at a time: it is held whole only while it is cut.
  */
 internal class LoadedThumbnails(
     private val pictures: WebPictures,
-    worker: CoroutineDispatcher = Dispatchers.Default
+    caller: CoroutineDispatcher = Dispatchers.Main.immediate,
+    private val worker: CoroutineDispatcher = Dispatchers.Default
 ) : PictureThumbnails {
-    private val scope = CoroutineScope(SupervisorJob() + worker)
+    private val scope = CoroutineScope(SupervisorJob() + caller)
 
     // In the order they were last kept, the one kept longest ago first.
     private val kept = MutableStateFlow<Map<String, Thumbnail>>(emptyMap())
@@ -92,7 +98,11 @@ internal class LoadedThumbnails(
 
     private suspend fun read(address: String): Thumbnail {
         val bytes = dataPictureBytes(address, MAX_PICTURE_BYTES) ?: pictures.read(address, MAX_PICTURE_BYTES)
-        val image = bytes?.let { decoding.withPermit { squareOf(it, THUMBNAIL_PIXELS) } }
+        val image = when {
+            bytes == null -> null
+            bytes.size <= INLINE_DECODE_BYTES -> squareOf(bytes, THUMBNAIL_PIXELS)
+            else -> withContext(worker) { decoding.withPermit { squareOf(bytes, THUMBNAIL_PIXELS) } }
+        }
         val thumbnail = image?.let(Thumbnail::Shown) ?: Thumbnail.None
         kept.update { map ->
             LinkedHashMap(map).apply {
@@ -108,6 +118,9 @@ internal class LoadedThumbnails(
 
 /** The most bytes a picture is read with: a larger one keeps its icon. */
 internal const val MAX_PICTURE_BYTES = 2_000_000L
+
+/** The most bytes a picture is cut with on the thread that asked for it: an avatar's, in a moment. */
+internal const val INLINE_DECODE_BYTES = 32_000
 
 /** The longest side of a thumbnail in pixels: the phone's card's 56 at a dense screen's scale. */
 internal const val THUMBNAIL_PIXELS = 192

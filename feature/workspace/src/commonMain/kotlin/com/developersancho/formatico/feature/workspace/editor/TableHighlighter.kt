@@ -13,10 +13,11 @@ private val TableNumber = wholeRegex("""[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?"
 
 /**
  * CSV or TSV, a line at a time, its fields split by [delimiter]: the header's names in the key's colour, numbers as
- * numbers, quoted fields as strings, even over several lines, and the delimiters as the signs between them.
+ * numbers, quoted fields as strings, even over several lines, and the delimiters as the signs between them. Where the
+ * first row is no [header], it is a record like the others.
  */
-internal class TableHighlighter(private val delimiter: Char) : CodeHighlighter<TableLine> {
-    override val initialState = TableLine()
+internal class TableHighlighter(private val delimiter: Char, header: Boolean = true) : CodeHighlighter<TableLine> {
+    override val initialState = TableLine(header = header)
 
     override fun highlight(line: String, state: TableLine): CodeHighlight<TableLine> {
         val scan = LineScanner(line)
