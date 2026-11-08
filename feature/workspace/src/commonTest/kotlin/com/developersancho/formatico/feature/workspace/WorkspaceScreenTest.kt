@@ -454,15 +454,20 @@ class WorkspaceScreenTest {
     @Test
     fun aDocumentOpenedWithAChosenValueInViewShowsItsTreeFromTheTop() = runComposeUiTest {
         val findings = PantrixFindings()
+        val long = (0 until 30).joinToString(",\n", prefix = "{\n", postfix = "\n}") { "  \"key$it\": $it" }
         setContent {
             PantrixTestTheme(window = phone, findings = findings, clock = clock) {
-                WorkspaceScreen(state = OrderSearched, onIntent = {}, commands = rememberDocumentCommands(Workbench()))
+                WorkspaceScreen(
+                    state = stateOf(long, Format.Json, view = DocumentView(selected = "$.key3")),
+                    onIntent = {},
+                    commands = rememberDocumentCommands(Workbench())
+                )
             }
         }
 
-        // The chosen name shows without scrolling, so the tree stays at its root, as the board draws it.
-        awaitNode(hasPantrixTag("Node", "customer.name", scope = "LazyTreeView_document"), "The chosen row", forgetting = findings)
-        onPantrixNode("Node", "customer.name", scope = "LazyTreeView_document").assertIsDisplayed()
+        // The chosen value shows without scrolling, so the tree stays at its root, as the board draws it.
+        awaitNode(hasPantrixTag("Node", "key3", scope = "LazyTreeView_document"), "The chosen row", forgetting = findings)
+        onPantrixNode("Node", "key3", scope = "LazyTreeView_document").assertIsDisplayed()
         onPantrixNode("Node", "root", scope = "LazyTreeView_document").assertIsDisplayed()
         assertNoFindings(findings)
     }
