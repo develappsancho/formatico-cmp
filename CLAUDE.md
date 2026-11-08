@@ -36,7 +36,9 @@ Formatico is also a test of Pantrix UI: it is built the way a developer who foun
     `claude plugin enable pantrix-ui@pantrix-ui --scope local` and `claude plugin marketplace remove pantrix-ui-local`
     are run; Formatico is built again on every target with the package from GitHub Packages.
 - **Never read the library's or the site's repositories** on this machine (`../pantrix-ui-cmp`, `../pantrix-ui-site`)
-  or anything of theirs that is not published, beyond the local packages and plugin above.
+  or anything of theirs that is not published, beyond the local packages and plugin above. One exception (the
+  owner's decision, 2026-11-06): for Formatico's hosting beside the site, the site's `deploy/` and `docs/deploy/` may
+  be read, and nothing else of it.
 - **Every gap goes into `docs/PANTRIX_FINDINGS.md`**, as its header says: what was looked for, where on the site, what
   was missing, what is proposed. The library and the site are fixed in another session, with the owner's yes; this
   project never edits them.

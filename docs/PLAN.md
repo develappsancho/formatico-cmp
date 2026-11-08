@@ -160,7 +160,39 @@ eksikler Faz 4'te.
 
 Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
 
-*   [ ] **Faz 16: Sunucu.** Spring Boot: uçtan uca şifreli paylaşım bağlantıları ve URL vekili.
+*   [ ] **Faz 16: Sunucu.** Spring Boot: uçtan uca şifreli paylaşım bağlantıları ve URL vekili. Sahibinin kararları
+    (2026-11-06):
+    *   **Yeri:** aynı depoda bir `server` modülü. Spring Boot, pantrix-ui-site'ın sunucusuyla aynı sürüm (4.1.2,
+        WebFlux), Java 21.
+    *   **Barındırma:** sitenin kurulduğu gibi: Coolify'da ayrı bir Docker Compose kaynağı
+        (`formatico`), önünde Coolify'ın Traefik'i (HTTPS, alan adı). Sitenin yayın düzenine sahibinin izniyle bakıldı,
+        yalnızca `deploy/` ve `docs/deploy/` klasörlerine.
+        *   `web`: `nginx:alpine` ve web dağıtımı (Wasm, JS yedeği, imaj yapılırken sıkıştırılmış `.gz`'ler).
+            Uygulama gezinirken adresi değiştirdiği için bilinmeyen her adreste `index.html` verir. `/api/`'yi
+            `server`'a aktarır. Yüklemeye yaklaşık 11 MB sınır, paylaşıma ve vekile ayrı istek sınırı; ziyaretçinin
+            adresi Traefik'in `X-Forwarded-For`'undan okunur.
+        *   `server`: `eclipse-temurin:21-jre-alpine` ve sunucunun jar'ı. Dışarıya port açmaz, ona yalnızca nginx
+            ulaşır; 512 MB bellek sınırı, hakları olmayan bir kullanıcı, sağlık denetimi `/api/health`.
+        *   Disk birimi `shares` (`server`'da `/data`): her paylaşım bir dosya ve küçük bir bilgi kaydı (oluşturulma,
+            son gün, boyut, silme anahtarının özeti). Süresi dolanları sunucu her gün siler. Ayrı bir veritabanı ve
+            yedek yok: paylaşımlar en çok 30 gün yaşar.
+        *   Yayın: imajlar bu Mac'te iki mimari için (amd64, arm64) derlenir, GHCR'ye gönderilir, Coolify'ın API'siyle
+            yayımlanır; sunucuda hiçbir şey derlenmez. Formatico'nun `deploy/` klasörü: `compose.yaml`, iki Dockerfile,
+            nginx şablonu, `deploy.sh` (`local`, `web`). Önce bu Mac'te `localhost`'ta denenir.
+        *   DNS: `formatico.pantrixui.com` için A kaydı sahibince açıldı (2026-11-06). Ad çözülüyor;
+            Coolify'da kaynak kurulana kadar Traefik 404 veriyor, HTTPS sertifikası alan adı kaynağa eklenince gelir.
+        *   GHCR imajlarının kaynağı olacak GitHub deposu Faz 22'de açılır.
+    *   **Paylaşım, iki hâli birlikte:** varsayılan bugünkü bağlantı; belge bağlantıya sığıyorsa sunucuya hiç uğramaz.
+        Sığmıyorsa ya da kullanıcı isterse, açık bir onayla şifreli kısa bağlantı: belge cihazda rastgele bir anahtarla
+        AES-GCM ile şifrelenir, sunucuya yalnızca şifreli hâli gider. Bağlantı
+        `https://formatico.pantrixui.com/#s=<kimlik>&k=<anahtar>`: anahtar fragment'ta kalır, sunucu onu hiç görmez.
+        En çok 10 MB; süresi 1, 7 ya da 30 gün; paylaşan silebilir (`POST`, `GET`, `DELETE /api/shares`). v1'in
+        `#d=` bağlantıları açılmaya devam eder. Start'ın "Metnin bu cihazdan hiç çıkmaz" sözü şifreli bağlantıyı
+        seçene açıkça söylenir. Paylaşma penceresi iki seçeneğiyle önce kanvasta çizilir.
+    *   **URL vekili:** bir adresteki belgeyi açmak v1'de yok; Start'a ve komut paletine eklenir, önce kanvasta çizilir.
+        Android, iOS ve masaüstü adresi kendisi indirir; web, tarayıcının izin kuralları (CORS) yüzünden
+        `GET /api/fetch?url=…` ile sunucudan. Yalnızca dışarıdaki `http` ve `https` adresleri: özel IP'ler, localhost,
+        Docker ağı ve `169.254.169.254` kapalı, her yönlendirme yeniden denetlenir; en çok 10 MB ve 15 saniye.
 *   [ ] **Faz 17: Tip üretimi.** Kotlin, TypeScript, Swift ve Go.
 *   [ ] **Faz 18: Grafik görünümü.**
 *   [ ] **Faz 19: JSON Schema.**
@@ -172,9 +204,26 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
     `OPEN_ITEMS.md` ve `PANTRIX_FINDINGS.md`. Eksik kalan her şey bu fazda kapanır.
 *   [ ] **Faz 22: Yayın.** Pantrix'in gerçek yayını; Formatico'nun yayımlanan sürüme dönmesi (`mavenLocal` bloğu
     kalkar, `pantrix-ui@pantrix-ui` açılır, `pantrix-ui-local` kaldırılır); GitHub Packages'tan gelen paketle bütün
-    hedeflerde yeniden derleme ve testler; `formatico.pantrixui.com`'un ve v2 sunucusunun yayını.
+    hedeflerde yeniden derleme ve testler; `formatico.pantrixui.com`'un ve v2 sunucusunun yayını. Sahibinin planı
+    (2026-11-06):
+    *   Bütün fazlar bitip sahibi onaylayınca Formatico için bir GitHub deposu açılır, proje oraya gönderilir. Yayın o
+        depodan: web Coolify'a (Faz 16'nın düzeni); macOS uygulaması sahibinin Mac'inde derlenen, imzalı ve Apple'ın
+        onayından geçmiş bir DMG; Android uygulaması imzalı bir APK (bir yayın anahtarı gerekecek). İkisi deponun
+        GitHub sürümlerinde indirilir. Google Play yok. iOS yayımlanmaz; hedefi kodda ve testlerde kalır.
+    *   **İndir:** masaüstünde ve web'de bir indirme menüsü, Android'i ve masaüstünü indirmek için; Android
+        uygulamasında yok. Sürümü, boyutu ve SHA-256'yı GitHub'ın API'sinden okur, pantrixui.com'un indirme sayfası
+        gibi. Yeni bir ekran: kodundan önce kanvasta 1440, 834 ve 390'da çizilir.
 
 ## Sahibinin kararını bekleyenler
 
-*   **Paylaşım:** CLAUDE.md fragment'ta paylaşımı v1'de, "share links"i v2'de anlatıyor. Şimdilik fragment
-    bağlantısı Faz 13'te, şifreli bağlantılar Faz 16'da.
+*   **Paylaşım** (karara bağlandı, 2026-11-06): CLAUDE.md fragment'ta paylaşımı v1'de, "share links"i v2'de
+    anlatıyor. Fragment bağlantısı Faz 13'te yapıldı; sahibinin kararıyla v2'de kalıyor, şifreli kısa bağlantı onun
+    yanına geliyor (Faz 16, "Paylaşım, iki hâli birlikte").
+*   **Yayın (Faz 22)** (karara bağlandı, 2026-11-06): iOS yayımlanmaz, ama hedefi kodda ve testlerde (simülatör
+    testleri, iOS ekran görüntüleri, Maestro) kalır; masaüstü yalnızca macOS; Android yalnızca GitHub'daki APK;
+    indirme menüsü masaüstünde ve web'de, bilgileri GitHub'ın API'sinden (Faz 22). Açık kalan:
+    *   Windows: sahibi olup olamayacağını öğrenmek istiyor. Compose bir Windows paketini (MSI, EXE) yalnızca
+        Windows'ta yapabiliyor, Mac'te yapamıyor. Yol, deponun GitHub Actions'ında bir Windows makinesi: sürüm
+        çıkınca JVM testlerini Windows'ta koşturur, MSI'ı yapıp sürüme ekler. İmzasız bir MSI'da Windows ilk açılışta
+        "Windows bilgisayarınızı korudu" uyarısı verir; imza için ücretli bir kod imzalama sertifikası gerekir.
+        Sahibinin kararı.
