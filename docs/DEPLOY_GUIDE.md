@@ -293,13 +293,22 @@ Betik şunları yapar (`deploy/desktop/macos-dmg.sh`, sitenin betiğinin Formati
     bir harf olunca bulamaz.
 3.  DMG'yi yapar ve imzalar, Apple'a onaya gönderir (birkaç dakika), onayı DMG'ye ekler ve Gatekeeper'a sorar.
 4.  DMG'yi bağlar ve içindeki uygulamayı açar (`deploy/desktop/macos-launch-check.sh`), kendine ait boş bir ev
-    klasörüyle, bu Mac'te tutulan geçmişe ve ayarlara dokunmadan: ana penceresi ekranda ve günlüğünde bir istisna
-    yoksa geçer. Yalnızca bir hata penceresi açılırsa ya da bir istisna yazılırsa DMG'yi siler ve durur. Ayakta kalan
+    klasörüyle, bu Mac'te tutulan geçmişe ve ayarlara dokunmadan; anahtarlarını da anahtar zincirinde değil o
+    klasörde tutar (`-Dksafe.jvm.keyVault=software`), kurulu uygulamanın anahtar zinciri kayıtlarına dokunmaz. Ana
+    penceresi ekranda ve günlüğünde bir istisna yoksa geçer. Yalnızca bir hata penceresi açılırsa ya da bir istisna yazılırsa DMG'yi siler ve durur. Ayakta kalan
     bir süreç yetmez: başlatıcının hata penceresi de süreci ayakta tutar.
 5.  `build/release/Formatico-macOS.dmg`'yi, boyutunu, SHA-256'sını ve commit'ini yazar.
 
 1.0.0 bu iki denetim olmadan çıktı ve açılışta `java.net.http`'yi bulamadığı için durdu (2026-11-12): ortamında Ktor'un,
 KSafe'in ve kotlinx.coroutines'in kullandığı dört modül yoktu.
+
+Kurulu uygulama verisini `~/Library/Application Support/Formatico`'da, anahtarlarını anahtar zincirinde
+`eu.anifantakis.ksafe.com.developersancho.formatico` adıyla tutar. Koddan çalıştırma (Gradle'ın `run`'ı, IDE) kendi
+yerini kullanır: `Formatico Development` klasörü ve `….formatico.development` adı. Anahtar zinciri bir kaydı onu yapan
+uygulamaya sormadan verir, başkasından giriş parolasını ister; 1.0.2'ye kadar ikisi de KSafe'in ortak adını
+(`eu.anifantakis.ksafe.shared`) kullanıyordu ve koddan çalıştırmanın yaptığı kayıtlar kurulu uygulamaya her açılışta
+parola sorduruyordu (2026-11-12). 1.0.2, eksik bir anahtarı ortak addan bir kez okuyup kendi adına yazar: eski
+kurulumun geçmişi kalır, bunun için bir kez parola sorulur.
 
 DMG Apple silikonlu Mac'ler içindir: içindeki Java ortamı bu Mac'inkidir (arm64). `--dry-run` imzalar, Apple'a
 göndermez; böyle bir DMG sürüme konmaz (Gatekeeper durdurur) ve `release` onu kabul etmez.

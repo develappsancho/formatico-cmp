@@ -716,8 +716,21 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
         *   **Formatico 1.0.1 yayımlandı** (2026-11-12, sahibinin onayıyla): etiketi `v1.0.1` (`47c3aa5`), GitHub'ın son
             sürümü. DMG 97,2 MB (iki denetimden geçti, Apple onaylı), APK 1.0.1 (`versionCode` 10001); GitHub'ın verdiği
             SHA-256'lar yerel dosyalarınkiyle aynı. Notlarının başında neyi düzelttiği yazıyor. 1.0.0'ın bozuk DMG'si
-            o sürümden silindi (sahibinin onayı), notları macOS için 1.0.1'i gösteriyor. Kalan: web'in 1.0.1'e
-            geçmesi (`deploy.sh web`) ve arkadaşın MSI'ı `47c3aa5`'ten.
+            o sürümden silindi (sahibinin onayı), notları macOS için 1.0.1'i gösteriyor.
+        *   Web 1.0.1'de (2026-11-12, `5a9f371`): sekiz denetim canlıda geçti. Tarayıcıda About "Formatico 1.0.1" ve
+            "Get the app" satırı, kenar çubuğunda About seçili; menü 1.0.1'in DMG'sini (97 MB) ve APK'sını (42 MB)
+            gösteriyor, Windows "henüz yok"; temiz bir sekmenin konsolunda hata yok. Kalan: arkadaşın MSI'ı
+            (`47c3aa5`'ten) ve Coolify panelinin 8000, 6001, 6002 portlarının kapanması.
+        *   Masaüstünde anahtar zinciri sorusu (2026-11-12): kurulu uygulama her açılışta giriş parolasını soruyordu.
+            KSafe anahtarlarını herkesin ortak adıyla (`eu.anifantakis.ksafe.shared`) tutuyordu; kayıtları koddan
+            çalıştırma yapmıştı ve anahtar zinciri onları yalnızca o Java'ya sormadan veriyordu. Artık kurulu uygulama
+            (jpackage'ın başlatıcısı `jpackage.app-path`'i verir) anahtarlarını kendi adıyla
+            (`com.developersancho.formatico`) tutuyor; koddan çalıştırma ayrı bir ad ve ayrı bir klasör
+            (`Formatico Development`) kullanıyor. Eski kurulumun verisini KSafe yeni ada bir kez taşıyor: anahtar
+            zincirinde atılacak adlarla bir denemede eski anahtarla yazılmış değer ve şifreli metin yeni adla okundu.
+            Açılış denetimi anahtarlarını kendi geçici klasöründe tutuyor (`-Dksafe.jvm.keyVault=software`) ve
+            pencereye her masaüstü alanında (Space) bakıyor: önde tam ekran bir uygulama varken pencere başka alanda
+            açılıyordu. Henüz bir sürümde değil.
 
 ## Sahibinin kararını bekleyenler
 

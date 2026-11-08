@@ -7,7 +7,8 @@
 #   deploy/desktop/macos-launch-check.sh <Formatico.app> [seconds]
 #
 # The app runs with a home of its own, so that what it keeps on this machine (its history, its settings) is not
-# touched; it is closed again after the check.
+# touched, and keeps its keys in that home rather than in the login keychain: an app that reads the installed one's
+# keychain items is asked for the login password (2026-11-12). It is closed again after the check.
 set -euo pipefail
 
 app="${1:?the app to open}"
@@ -28,16 +29,17 @@ cleanup() {
 trap cleanup EXIT
 
 mkdir -p "$work/home"
-JAVA_TOOL_OPTIONS="-Duser.home=$work/home" "$binary" > "$log" 2>&1 &
+JAVA_TOOL_OPTIONS="-Duser.home=$work/home -Dksafe.jvm.keyVault=software" "$binary" > "$log" 2>&1 &
 pid=$!
 sleep "$wait_for"
 
 # The windows the app has, as width x height: the window server tells them by the process, with no permission asked.
+# Those in every Space: with a full-screen app in front, the new window opens in another Space (2026-11-12).
 windows="$(osascript -l JavaScript - "$pid" << 'EOF'
 ObjC.import('CoreGraphics');
 function run(argv) {
     const pid = parseInt(argv[0]);
-    const all = ObjC.castRefToObject($.CGWindowListCopyWindowInfo($.kCGWindowListOptionOnScreenOnly, 0));
+    const all = ObjC.castRefToObject($.CGWindowListCopyWindowInfo($.kCGWindowListOptionAll, 0));
     const sizes = [];
     for (let i = 0; i < all.count; i++) {
         const window = all.objectAtIndex(i);
