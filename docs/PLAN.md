@@ -692,6 +692,10 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
                 tarayıcı testleri; yerel yığında web'den GitHub'ın API'sine gidildi, sürüm yok yanıtı menüde göründü.
                 Ekran görüntüleri: menünün 30'u yeni; Start'ın ve Settings'in 1440 görüntüleri yeniden kaydedildi
                 (834 ve 390 Android olduğu için değişmedi).
+        *   Taslak sürüm açıldı (2026-11-12, sahibinin onayı): `v1.0.0`, hedefi `872ba25`, yalnızca depo ortaklarına
+            açık. `Formatico-macOS.dmg` (94,8 MB, Developer ID ile imzalı, Apple onaylı) ve `Formatico-Android.apk`
+            (42,0 MB, yayın anahtarıyla imzalı); GitHub'ın verdiği SHA-256'lar dosyalarınkiyle aynı. Kalan: arkadaşın
+            MSI'ı (`deploy/windows.sh`), sahibinin yayımlaması (`deploy/deploy.sh publish`) ve web (`deploy.sh web`).
 
 ## Sahibinin kararını bekleyenler
 
