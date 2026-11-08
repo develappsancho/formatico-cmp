@@ -699,6 +699,9 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
         *   **Formatico 1.0.0 yayımlandı** (2026-11-12, sahibinin kararıyla MSI'ı beklemeden): GitHub'ın son sürümü,
             etiketi `v1.0.0` (`872ba25`). `releases/latest/download/` bağlantıları DMG'yi ve APK'yı veriyor; MSI'ı
             arkadaş `deploy/windows.sh` ile yayımlanmış sürüme ekleyecek. Kalan: MSI ve web (`deploy.sh web`).
+        *   Web yeniden yayında (2026-11-12, `dc45aa4`): indirme menüsü, HSTS ve Wasm konsolunun düzeltmesi.
+            `check.sh`'ın sekiz denetimi canlıda geçti; tarayıcıda menü 1.0.0'ı gösteriyor (DMG ve APK, Windows "henüz
+            yok"), temiz bir sekmenin konsolunda hata yok. Kalan: arkadaşın MSI'ı.
 
 ## Sahibinin kararını bekleyenler
 
