@@ -108,6 +108,7 @@
     <string name="workspace_kind_alias">Alias</string>
     <string name="workspace_colour_of">Colour %1$s</string>
     <string name="workspace_picture_at">Picture at this address</string>
+    <string name="workspace_open_link">Open the link</string>
     <string name="workspace_alias_detail">Points to the anchor &amp;%1$s</string>
     <string name="workspace_alias_missing">No anchor &amp;%1$s comes before it</string>
     <string name="workspace_go_to_anchor">Go to the anchor</string>

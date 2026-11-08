@@ -487,8 +487,8 @@ class WorkspaceScreenTest {
         awaitNode(hasContentDescription("Colour #0F766E"), "The colour's swatch", forgetting = findings)
         awaitNode(hasContentDescription("Picture at this address"), "The picture's place")
         awaitText("14:32 UTC", substring = true)
-        // A link ends its row in the link's icon, which says what it is.
-        awaitNode(hasContentDescription("Link"), "The link's icon")
+        // A link ends its row in the button that opens it (TreeLinkTest).
+        onPantrixNode("Action", "website", scope = "LazyTreeView_document", useUnmergedTree = true).assertExists()
         // A phone, with less room, shows the date by its icon, which says it.
         window = phone
         awaitNode(hasContentDescription("14:32 UTC", substring = true), "The date's icon", forgetting = findings)

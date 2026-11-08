@@ -326,10 +326,10 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Ne: Panolar kökün satırını iki nokta olmadan ve boşluksuz `$` ile boyutunu yan yana yazıyor: `${11}`, `${4}`. JavaScript'in şablon yazısına benziyor; bir boşluk (`$ {11}`) ya da yalnızca `$` daha az karışabilir. Kod panodaki gibi.
     *   Öneri: sahibinin kararı.
     *   Durum: açık.
-*   [ ] **Panoda ağaçtaki bağlantı simgesi bir bağlantı; satırın sonu basılamıyor (2026-11-04).**
+*   [x] **Panoda ağaçtaki bağlantı simgesi bir bağlantı; satırın sonu basılamıyor (2026-11-04).**
     *   Ne: Workspace panolarında bir adresin satırının sonundaki simge bir bağlantı ("Open the link"). `PantrixLazyTreeView`'in `trailing`'i "satırla okunur, kendi basışı yoktur" diyor; satırın içinde ikinci bir basılan şey de ekran okuyucuda ve klavyede satırı ikiye böler. Kodda bağlantının yerinde "Link" sözcüğü (simge yok, bkz. PANTRIX_FINDINGS "Resmin ve bağlantının simgesi yok").
     *   Öneri: bağlantıyı açmak seçili değerin kartında ve ağacın satır menüsünde ("Open the link"); satırın sonundaki simge yalnızca gösterir.
-    *   Durum: açık.
+    *   Durum: kapandı (2026-11-05). Sahibinin seçtiği biçimle Pantrix'e satırın eylemi geldi (`rowAction`, `TreeRowAction`; bkz. PANTRIX_FINDINGS "Ağacın satırının sonu basılamıyor"). Bağlantının satırı panodaki gibi bağlantı simgesiyle bitiyor ve o simge adresi açan düğme: tarayıcıda ya da adresi açan uygulamada, satırı seçmeden. Klavyede Shift+Enter, ekran okuyucuda satırın "Open the link" eylemi; hiçbir uygulamanın açamadığı bir adres yok sayılıyor. Renk ve resim yalnızca gösteriyor. `TreeLinkTest` her hedefte sınıyor.
 *   [ ] **Ağacın satırları her seçimde ve aramanın her harfinde yeniden kuruluyor (2026-11-04).**
     *   Ne: Seçili satırın ve aramanın işaretleri satırın etiketinde (`styledLabel`), bu yüzden `documentRows` seçim ya da aranan değişince bütün düğümleri yeniden kuruyor. Küçük belgelerde fark edilmiyor; Faz 14'ün 50 MB hedefinde ölçülmeli.
     *   Öneri: Faz 14'te ölçmek; gerekirse yalnızca değişen satırların yolunu yeniden kurmak.

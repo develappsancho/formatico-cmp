@@ -32,7 +32,7 @@ import org.jetbrains.compose.resources.stringResource
 internal fun RowEndOf(end: RowEnd, layout: WorkspaceLayout, chosen: Boolean, words: PreviewWords) {
     val colors = PantrixTheme.colors
     val quiet = if (chosen) colors.primary.onContainer else colors.textSecondary
-    end.preview?.let { PreviewOf(it, end.written.orEmpty(), layout, quiet, words) }
+    end.preview?.let { PreviewOf(it, end.written.orEmpty(), layout, words) }
     end.anchor?.let { PantrixTag(text = it) }
     end.target?.let {
         val typography = PantrixTheme.typography
@@ -46,11 +46,11 @@ internal fun RowEndOf(end: RowEnd, layout: WorkspaceLayout, chosen: Boolean, wor
 }
 
 /**
- * What a string looks like it holds, at its row's end: a date in the reader's language, a colour's swatch, a link's
- * icon, a picture's place with its icon. A phone, with less room, shows a date by its icon.
+ * What a string looks like it holds, at its row's end: a date in the reader's language, a colour's swatch, a picture's
+ * place with its icon. A phone, with less room, shows a date by its icon.
  */
 @Composable
-private fun PreviewOf(preview: ValuePreview, written: String, layout: WorkspaceLayout, quiet: Color, words: PreviewWords) {
+private fun PreviewOf(preview: ValuePreview, written: String, layout: WorkspaceLayout, words: PreviewWords) {
     val phone = layout == WorkspaceLayout.Phone
     when (preview) {
         is ValuePreview.Moment, is ValuePreview.Day -> {
@@ -69,14 +69,8 @@ private fun PreviewOf(preview: ValuePreview, written: String, layout: WorkspaceL
             )
         }
 
-        is ValuePreview.Link -> {
-            PantrixIcon(
-                imageVector = PantrixIcons.ExternalLink,
-                contentDescription = words.of(preview),
-                size = if (phone) 18.dp else 16.dp,
-                tint = quiet
-            )
-        }
+        // The tree draws a link's icon as the button that opens it, the row's action, after what stands here.
+        is ValuePreview.Link -> Unit
 
         is ValuePreview.Picture -> {
             // The board's place for a picture: its icon on the neutral container, not the picture itself.

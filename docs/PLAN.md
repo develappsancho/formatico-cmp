@@ -91,7 +91,8 @@ eksikler Faz 4'te.
     Summary "more" menüsünden açılıyor (sahibinin kararı, 2026-11-04). Ağaç `PantrixLazyTreeView`'e geçti
     (2026-11-04): satırlar sözdizimi renkleriyle, tarih, renk ve resim önizlemesi, aramanın vurgusu, seçili satıra
     kaydırma. Kapandı (2026-11-05): sütun türleri tablonun başlığında, bağlantının ve resmin simgesi ağaçta ve Summary'de;
-    ikisi de Pantrix'in tıkayan iki bulgusu düzelince geldi.
+    ikisi de Pantrix'in tıkayan iki bulgusu düzelince geldi. Ağaçta bağlantının simgesi onu açan düğme (2026-11-05):
+    Pantrix'in satır eylemiyle, Shift+Enter ve ekran okuyucunun eylemiyle de.
 *   [x] **Faz 9: Query.** JSONPath ve XPath. Yapıldı (2026-11-05): `core:format`'ta RFC 9535'in bütün JSONPath'i ve
     XPath 1.0 (ad alanı çözümü olmadan); Workspace'te Query görünümü üç genişlikte, araç çubuğundan, telefonda More
     menüsünden. JSONPath XML dışındaki her biçimin ağacında, XPath XML'in kendi düğümlerinde; eşleşmeler ağaçta ve

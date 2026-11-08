@@ -6,6 +6,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -17,10 +19,15 @@ import com.developersancho.formatico.core.format.json.jsonPath
 import com.pantrixui.components.data.lazytreeview.PantrixLazyTreeView
 import com.pantrixui.components.data.lazytreeview.rememberTreeViewState
 import com.pantrixui.components.data.treeview.TreeNode
+import com.pantrixui.components.data.treeview.TreeRowAction
 import com.pantrixui.components.data.treeview.TreeSelection
 import com.pantrixui.components.data.treeview.TreeViewStyle
+import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.theme.PantrixTheme
 import com.pantrixui.foundation.token.typography.TypeRole
+import formatico.feature.workspace.generated.resources.Res
+import formatico.feature.workspace.generated.resources.workspace_open_link
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * What a search marks in the tree's rows: what is [sought], in small letters as [language] writes them, and the key of
@@ -156,8 +163,9 @@ private fun endOf(node: ValueNode): RowEnd? {
 
 /**
  * The document's tree: a value to a row in the document's colours, what its strings look like they hold at the row's
- * end, and what a search found, as its [marks] say. The chosen value's row is brought into view as it is chosen, in
- * the text, by the search or by going to an anchor.
+ * end, and what a search found, as its [marks] say. A link's row ends in the button that opens it, in the browser or
+ * the app that handles the address, without choosing the row. The chosen value's row is brought into view as it is
+ * chosen, in the text, by the search or by going to an anchor.
  */
 @Composable
 internal fun DocumentTree(
@@ -172,6 +180,8 @@ internal fun DocumentTree(
     val selected = state.selected?.key
     val rows = remember(root, inks, selected, marks) { documentRows(root, inks, selected, marks) }
     val words = previewWords()
+    val links = LocalUriHandler.current
+    val openLink = stringResource(Res.string.workspace_open_link)
     val tree = rememberTreeViewState()
     LaunchedEffect(tree, selected) {
         tree.scrollToKey(selected ?: return@LaunchedEffect)
@@ -186,6 +196,11 @@ internal fun DocumentTree(
         selected = setOfNotNull(selected),
         onSelectionChange = { onIntent(WorkspaceIntent.Select(it.firstOrNull())) },
         trailing = { node -> rows.ends[node.key]?.let { RowEndOf(it, layout, chosen = node.key == selected, words = words) } },
+        rowAction = { node ->
+            (rows.ends[node.key]?.preview as? ValuePreview.Link)?.let { link ->
+                TreeRowAction(icon = PantrixIcons.ExternalLink, label = openLink) { links.open(link.url) }
+            }
+        },
         style = TreeViewStyle(
             rowHeight = when (layout) {
                 WorkspaceLayout.Wide -> 32.dp
@@ -197,4 +212,13 @@ internal fun DocumentTree(
         ),
         tagKey = "document"
     )
+}
+
+/** Opens [url] in the browser, or the app that handles it; an address nothing on the device opens is let go. */
+private fun UriHandler.open(url: String) {
+    try {
+        openUri(url)
+    } catch (@Suppress("SwallowedException") unopened: IllegalArgumentException) {
+        // No app opens the address: the press does nothing rather than end the app, as Pantrix's own links do.
+    }
 }
