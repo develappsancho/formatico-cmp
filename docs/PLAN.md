@@ -6,7 +6,7 @@ yalnızca sırayı tutar.
 
 Bir faz bitince işaretlenir, hangi commit'lerle bittiği yazılır. Her fazın sonunda: ilgili panolar 1440, 834 ve 390'da
 bire bir karşılanmış; bütün hedefler derleniyor ve testler geçiyor; bulgular ve açık maddeler yazılmış; Türkçe bir rapor
-ve bir commit mesajı. Bir fazı `tıkıyor` diye işaretlenmiş bir bulgu durdurursa önce o düzeltilir, yerel paket yenilenir.
+ve bir commit mesajı. Bir fazı `tıkıyor` diye işaretlenmiş bir bulgu durdurursa önce o düzeltilir ve yayımlanır.
 
 ## Bitenler
 
@@ -563,6 +563,15 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
         uygulamasında yok. Sürümü, boyutu ve SHA-256'yı GitHub'ın API'sinden okur, pantrixui.com'un indirme sayfası
         gibi. Yeni bir ekran: kodundan önce kanvasta 1440, 834 ve 390'da çizilir. Menünün yeri (sahibinin kararı,
         2026-11-09): hem Ayarlar'da hem Start ekranında.
+    *   **İlerleme (2026-11-11):**
+        *   Pantrix 0.2.1 yayımlandı. Formatico onu GitHub Packages'tan alıyor (`pantrix = "0.2.1"`, `75e51ee`).
+            Settings'in About satırı sürümü yazdığı için sekiz görüntü yeniden kaydedildi: altısı JVM'de, ikisi iOS'ta.
+        *   Yerel derleme yolu kapandı (sahibinin kararı): `mavenLocal` bloğu kalktı, CLAUDE.md "Pantrix comes from its
+            releases" diyor (`1ab716d`). `pantrix-ui-local` yok; `pantrix-ui@pantrix-ui` 0.2.1 yalnızca proje
+            kapsamında, MCP'si `pantrixui.com/mcp`. Yerel kapsamda ikinci bir kurulum çıktı ve kaldırıldı.
+        *   Bütün hedefler 0.2.1 ile derlendi, testleri geçti.
+        *   Kalanlar: Formatico'nun deposu (`develappsancho/formatico-cmp`) açıldı ama boş, sahibi gönderecek;
+            `formatico.pantrixui.com`'un yayını; v2 sunucusu; imzalı DMG ve APK; indirme menüsü.
 
 ## Sahibinin kararını bekleyenler
 
