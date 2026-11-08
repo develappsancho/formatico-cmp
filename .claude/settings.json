@@ -1,0 +1,13 @@
+{
+  "extraKnownMarketplaces": {
+    "pantrix-ui": {
+      "source": {
+        "source": "github",
+        "repo": "develappsancho/pantrix-ui-cmp-package"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "pantrix-ui@pantrix-ui": true
+  }
+}

@@ -1,0 +1,35 @@
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: #f8fafc;
+}
+
+#app {
+    width: 100%;
+    height: 100%;
+}
+
+#loading {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    font-family: system-ui, sans-serif;
+    color: #475569;
+}
+
+#loading .track { stroke: #ccfbf1; }
+#loading .arc { stroke: #0f766e; }
+
+@media (prefers-color-scheme: dark) {
+    html, body { background: #020617; }
+    #loading { color: #cbd5e1; }
+    #loading .track { stroke: #134e4a; }
+    #loading .arc { stroke: #2dd4bf; }
+}

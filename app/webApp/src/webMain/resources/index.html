@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+    <title>Formatico</title>
+    <!-- The typefaces are fetched while the app's code is; without crossorigin the browser fetches them twice. -->
+    <link rel="preload" as="fetch" type="font/ttf" crossorigin
+          href="composeResources/formatico.core.designsystem.generated.resources/font/geist.ttf">
+    <link rel="preload" as="fetch" type="font/ttf" crossorigin
+          href="composeResources/formatico.core.designsystem.generated.resources/font/geist_mono.ttf">
+    <link rel="preload" as="fetch" type="font/ttf" crossorigin
+          href="composeResources/com.pantrixui.foundation.generated.resources/font/pantrix_symbols.ttf">
+    <link type="text/css" rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="loading">
+        <svg class="spinner" xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 50 50"
+             role="img" aria-label="Loading">
+            <circle cx="25" cy="25" r="20" stroke-width="4" fill="none" class="track"/>
+            <circle cx="25" cy="25" r="20" stroke-width="4" fill="none" stroke-linecap="round"
+                    stroke-dasharray="90 125" class="arc">
+                <animateTransform attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="1s"
+                                  repeatCount="indefinite"/>
+            </circle>
+        </svg>
+        <p id="unsupported" hidden>Formatico cannot run in this browser.</p>
+    </div>
+    <div id="app"></div>
+    <!-- The loader: the Wasm build where the browser can run it, the JavaScript build where it cannot. -->
+    <script type="application/javascript" src="webApp.js"></script>
+</body>
+</html>

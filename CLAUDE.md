@@ -1,0 +1,89 @@
+# Formatico
+
+Formatico formats, validates, explores and converts structured text: JSON and its kin, XML, YAML, TOML, CSV and
+properties. It is a Compose Multiplatform app for Android, iOS, desktop and the web (`formatico.pantrixui.com`),
+built with Pantrix UI. Application id and iOS bundle id: `com.developersancho.formatico`.
+
+## How I want you to work
+
+You are my eyes on the code. If something catches your attention while reading code or logs — a bug,
+a risk, a smell, something surprising — flag it, even if it's unrelated to the task at hand. I will
+never see it unless you tell me.
+
+## Why it is built the way it is
+
+Formatico is also a test of Pantrix UI: it is built the way a developer who found pantrixui.com would build it.
+
+- **Learn Pantrix UI only from what an outsider has:** pantrixui.com (its Installation, Docs and For AI pages, the
+  guides and the component pages), the Claude Code plugin and skill the site describes, the MCP server, and the
+  published artifacts (the jars and source jars Gradle downloads).
+- **Never read the library's or the site's repositories** on this machine (`../pantrix-ui-cmp`, `../pantrix-ui-site`)
+  or anything of theirs that is not published.
+- **Every gap goes into `docs/PANTRIX_FINDINGS.md`**, as its header says: what was looked for, where on the site, what
+  was missing, what is proposed. The library and the site are fixed in another session, with the owner's yes; this
+  project never edits them.
+- A missing component is a finding too, not a reason to build one inside Formatico. Where the design asks for what
+  Pantrix cannot draw, say so in the findings and in the report.
+
+## The owner's decisions (2026-11-02)
+
+- **v1 scope:** one workspace for every format (JSON, JSONC, JSON5, NDJSON, XML, YAML, TOML, CSV/TSV,
+  properties/INI): detect the format, format and minify, validate with line and column and repair, text, tree and
+  table views, JSONPath and XPath queries, convert between formats, semantic diff, tabs, local history, a command
+  palette with shortcuts, drag and drop, the clipboard, English and Turkish, dark theme, adaptive layouts. In the
+  tree, values are previewed (dates, colours, URLs, images); the text and the tree keep their selection in step.
+- **Large files:** 50 MB on desktop, 10 MB on phones and the web, measured.
+- **v2:** share links, type generation (Kotlin, TypeScript, Swift, Go), a graph view, JSON Schema, in-app AI with the
+  user's own key.
+- **Parsers:** our own lossless ones in a pure Kotlin `core:format` module (comments, the spelling of numbers and the
+  order of keys kept), except YAML, which is parsed by `snakeyaml-engine-kmp` and printed by our own printer.
+- **Editor:** `PantrixCodeEditor`, a new component being built in the library. Until a release carries it, the
+  workspace's text pane waits for it.
+- **No backend in v1:** a small document is shared compressed in the link's fragment. v2 brings a Spring Boot server
+  for end-to-end encrypted links and a URL proxy.
+- **Navigation:** Compose's navigation3.
+- **Stack:** Compose Multiplatform 1.12.2, Kotlin 2.4.21, Pantrix UI 0.1.1 from GitHub Packages, MVI with feature
+  modules and Koin, detekt with `com.pantrixui:detekt-rules`, Kotlinter, tests in `commonTest` with Pantrix's testing
+  module, Roborazzi, Maestro and browser tests, the web in Wasm with a JavaScript fallback.
+- **Build logic:** convention plugins are Kotlin classes (`Plugin<Project>`), never precompiled `.gradle.kts` script
+  plugins.
+- **MVI:** the base view model, the base screen and every other base live in one module.
+
+## Design
+
+- **The screens are designed here, before their code,** on the Claude Design canvas
+  https://claude.ai/artifact/PKpxmvKfeisZ4bgPTWVdZp, with the "Pantrix UI" design system as an outsider finds it (its
+  README first). Each screen is drawn at 1440, 834 and 390 wide. The design is matched one to one in code.
+- **The boards to draw:** Start; Workspace (the editor and the tree, the toolbar); an invalid document (the marks, the
+  list of problems, repair); Table; Query; Convert; Compare; the command palette; Settings; the share dialog. The
+  tree's value previews and the text and tree kept in step are shown on them.
+- The canvas already holds the identity boards (A is the pick). It reads the design system's `tokens.css`;
+  `formatico-options.css` keeps only Formatico's brand, typefaces and syntax colours. Until the design system carries
+  a code editor, the editor is drawn as markup, and that is a finding.
+- **Identity: Teal with Geist and Geist Mono**, the owner's pick, as Formatico's own `DesignPreset`:
+  - Brand role, light: `#0F766E`, on it `#FFFFFF`, container `#CCFBF1`, on the container `#134E4A`, focus ring
+    `#0D9488`.
+  - Brand role, dark: `#2DD4BF`, on it `#042F2E`, container `#134E4A`, on the container `#CCFBF1`, focus ring
+    `#2DD4BF`.
+  - Syntax, light: key `#115E59`, string `#B45309`, number `#7C3AED`, `true`/`false`/`null` `#BE123C`, punctuation
+    `#475569`, comment `#64748B`, current line `#F0FDFA`.
+  - Syntax, dark: key `#5EEAD4`, string `#FCD34D`, number `#C4B5FD`, `true`/`false`/`null` `#FDA4AF`, punctuation
+    `#CBD5E1`, comment `#94A3B8`, current line `#13262B`.
+  - Geist for the interface, Geist Mono for every text the user brings; both are under the OFL.
+
+## Working here
+
+- **The owner commits.** Never run a git command that writes (`init`, `add`, `commit`, `restore`, `reset`, `stash`,
+  `checkout`, `mv`, `tag`, `push`); read-only git is fine. The repository is not initialised yet: that is the owner's
+  call.
+- **Every hand-over ends with one commit message:** one line, `[TYPE][Summary]` (`DEV`, `FIX`, `TEST`, `DOCS`, `CI`,
+  `RELEASE`), English, imperative, no body and no trailers, with the new files to add and a commit by path.
+- **Reports to the owner are in Turkish:** what was done, what was verified and on which targets, what was not, which
+  findings were added. Code, KDoc and commit messages are in English.
+- When the owner only asks a question, answer it; do not start work.
+- Never print or copy the values in `local.properties`, a token or a key. A download needs the owner's yes, with the
+  file, its source and its size.
+- Never `./gradlew --stop`: it stops the IDE's daemon too.
+- What catches the eye in Formatico itself and is outside the work at hand goes into `docs/OPEN_ITEMS.md`; what is
+  Pantrix's goes into `docs/PANTRIX_FINDINGS.md`.
+- Devices: the iPhone 18 Pro Max simulator stays booted; the Android emulator is the Pixel 7 Pro.

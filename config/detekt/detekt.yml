@@ -1,0 +1,37 @@
+# Formatico's detekt configuration, on top of detekt's defaults (buildUponDefaultConfig) and the configuration of
+# Pantrix UI's rule set (com.pantrixui:detekt-rules), as Pantrix UI's Detekt Guide recommends.
+
+build:
+  weights:
+    # Pantrix: these two report and do not stop the build.
+    UntaggedControl: 0
+    ImageWithoutDescription: 0
+
+PantrixUIRule:
+  # Formatico uses no Material.
+  NoMaterialImport:
+    active: true
+
+naming:
+  FunctionNaming:
+    ignoreAnnotated: ['Composable']
+
+complexity:
+  LongParameterList:
+    ignoreAnnotated: ['Composable']
+  # A lexer's or a parser's `when` over the kinds of a token is one decision, not one per kind.
+  CyclomaticComplexMethod:
+    ignoreSimpleWhenEntries: true
+
+style:
+  MagicNumber:
+    ignorePropertyDeclaration: true
+    ignoreCompanionObjectPropertyDeclaration: true
+  UnusedPrivateMember:
+    ignoreAnnotated: ['Preview']
+  ReturnCount:
+    max: 3
+    excludeGuardClauses: true
+  # A lexer's loop ends where its token ends: at a closing quote, a line break or the end of the text.
+  LoopWithTooManyJumpStatements:
+    maxJumpCount: 3
