@@ -736,8 +736,11 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
             anahtar zincirine kayıt eklemedi), APK 1.0.2 (`versionCode` 10002); GitHub'ın verdiği SHA-256'lar yerel
             dosyalarınkiyle aynı, `releases/latest/download` bağlantıları 1.0.2'nin dosyalarını veriyor. Notlarının
             başında neyi düzelttiği yazıyor. Sahibinin Mac'inde 1.0.2'nin ilk açılışta bir kez sorup sonra sormadığı
-            henüz görülmedi. Kalan: web'in 1.0.2'ye geçmesi (`deploy.sh web`), arkadaşın MSI'ı `addca45`'ten, Coolify
-            panelinin portları.
+            henüz görülmedi.
+        *   Web 1.0.2'de (2026-11-12, `9423c88`): sekiz denetim canlıda geçti. Tarayıcıda About "Formatico 1.0.2"; menü
+            "released Nov 12, 2026" ile 1.0.2'nin DMG'sini (97 MB) ve APK'sını (42 MB) gösteriyor, Windows "henüz yok";
+            temiz bir sekmenin konsolunda hata yok. Kalan: arkadaşın MSI'ı (`v1.0.2`'den) ve Coolify panelinin 8000,
+            6001, 6002 portlarının kapanması.
 
 ## Sahibinin kararını bekleyenler
 
