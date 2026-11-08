@@ -164,6 +164,11 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
     (2026-11-06):
     *   **Yeri:** aynı depoda bir `server` modülü. Spring Boot, pantrix-ui-site'ın sunucusuyla aynı sürüm (4.1.2,
         WebFlux), Java 21.
+    *   **Uygulamanın HTTP istemcisi:** Ktor Client 3.5.0, yalnızca istemcisi (sahibinin kararı, 2026-11-06). Pantrix'te
+        ağ için bir hizmet yok; Spring Boot uygulamada çalışmaz. Şifreli belgeyi yüklemek, indirmek ve bir adresteki
+        belgeyi açmak ortak kodda tek bir arayüzle; her platformda kendi motoru: Android'de OkHttp, iOS'ta Darwin
+        (`NSURLSession`), masaüstünde Java'nın istemcisi, web'de tarayıcının `fetch`'i. Testlerde Ktor'un sahte motoru
+        (`MockEngine`).
     *   **Barındırma:** sitenin kurulduğu gibi: Coolify'da ayrı bir Docker Compose kaynağı
         (`formatico`), önünde Coolify'ın Traefik'i (HTTPS, alan adı). Sitenin yayın düzenine sahibinin izniyle bakıldı,
         yalnızca `deploy/` ve `docs/deploy/` klasörlerine.

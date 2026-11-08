@@ -89,6 +89,11 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Nerede: tasarım sistemi, `project/components/index.d.ts` (`MenuProps`, `PopoverProps`); tasarım türünün `design-system-components.md`'si ("An overlay shown open").
     *   Öneri: `Menu`'ye ve `Popover`'a çapasız açık çizilebilen bir biçim. Örneğin tetikleyiciyi `children` olarak almak ya da `visible` ile yerinde çizilen bir hâl. README'de bir panoda açık menünün nasıl gösterileceğini söyleyen bir cümle.
     *   Durum: açık.
+*   [ ] **Tasarım sisteminin `Button`'ında Compose'daki `loading` yok (2026-11-06).**
+    *   Ne: Faz 16'nın panolarında "Create the link" ve "Open" düğmeleri iş sürerken bekliyor. Compose'un `PantrixButton`'ı bunu kendisi çiziyor (`loading`: simgenin yerinde bir spinner, basılmaz, ekran okuyucuya yükleniyor der); tasarım sisteminin web karşılığında `ButtonProps`'ta böyle bir özellik yok, README'si ve önizlemesi de anmıyor. Panolarda düğme `disabled` çizilip içine `Spinner` kondu; kodda bu, `loading = true`.
+    *   Nerede: tasarım sistemi, `project/components/index.d.ts` (`ButtonProps`), `components/Button/README.md`; MCP `get_component_metadata Button` (`loading`).
+    *   Öneri: web `Button`'ına `loading` (Compose'daki gibi: spinner simgenin yerinde, basılmaz, `aria-busy`), README'ye ve önizlemeye bir örnek.
+    *   Durum: açık. Formatico'yu tıkamıyor.
 
 ## 3. Detekt
 
