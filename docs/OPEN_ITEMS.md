@@ -42,6 +42,12 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Öneri: Faz 15'te (`PLAN.md`) her pano ve her platform.
     *   Durum: açık.
 
+*   [ ] **Kullanılmayan importlar lint'ten geçiyor (2026-11-04).**
+    *   Ne: `StartScreenTest.kt`'de yedi kullanılmayan import vardı (`Dispatchers`, `delay`, `withContext`, `TimeSource`, `seconds`, `milliseconds`, `ComposeUiTest`); bekleme yardımcıları `core:testing`'e taşınırken kalmışlar. `lintKotlin` ve detekt geçiyordu. ktlint 1.8.0'ın `no-unused-imports` kuralı jar'da var, ama bu dosyada bir şey söylemedi. detekt'in `style.UnusedImports`'u varsayılan ayarda kapalı ve `config/detekt/detekt.yml` onu açmıyor.
+    *   Nerede: `.editorconfig`, `config/detekt/detekt.yml`, Kotlinter'in `lintKotlinCommonTest`'i.
+    *   Öneri: kuralın neden susduğuna bakılsın (kural kümesi, `.editorconfig`, Kotlinter'in ayarı); olmazsa detekt'in `style.UnusedImports`'u açılsın. Ardından bütün modüllerde bir tarama.
+    *   Durum: açık. `StartScreenTest.kt`'dekiler silindi.
+
 ## core:format
 
 *   [ ] **Büyük dosyalar ölçülmedi (2026-11-02).**

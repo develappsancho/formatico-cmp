@@ -13,9 +13,6 @@ import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
 
-/** The Start screen as a case shows it: with [state], on a platform that reads the clipboard or not ([readsClipboard]). */
-internal class StartScreenCase(val state: StartState, val readsClipboard: Boolean = true)
-
 /**
  * Documents opened before, one at each distance from [PreviewNow] that Recent words differently: minutes, today,
  * yesterday, a day of this year and one of another. One was pasted, and one is plain text.
@@ -28,24 +25,21 @@ private val PreviewRecent = listOf(
     RecentDocument(id = 5, name = "notes.txt", format = null, size = 2048, at = Instant.parse("2025-03-02T08:05:00Z"))
 )
 
-/**
- * The Start screen's cases: a first start, documents opened before, a file it did not take, and a browser, which
- * cannot paste with the keyboard.
- */
+/** The Start screen's cases: a first start, documents opened before, and a file it did not take. */
 internal class StartScreenCases :
-    PreviewCases<StartScreenCase>(
-        "first start" to StartScreenCase(StartState()),
-        "recent" to StartScreenCase(StartState(recent = PreviewRecent)),
-        "refused file" to StartScreenCase(
-            StartState(recent = PreviewRecent.take(2), refusal = FileRefusal.TooLarge("logs.json", maxSize = 10_000_000))
-        ),
-        "in a browser" to StartScreenCase(StartState(), readsClipboard = false)
+    PreviewCases<StartState>(
+        "first start" to StartState(),
+        "recent" to StartState(recent = PreviewRecent),
+        "refused file" to StartState(
+            recent = PreviewRecent.take(2),
+            refusal = FileRefusal.TooLarge("logs.json", maxSize = 10_000_000)
+        )
     )
 
 @BoardPreviews
 @Composable
-internal fun StartScreenPreview(@PreviewParameter(StartScreenCases::class) case: PreviewCase<StartScreenCase>) {
+internal fun StartScreenPreview(@PreviewParameter(StartScreenCases::class) case: PreviewCase<StartState>) {
     FormaticoPreview(case) {
-        StartScreen(state = it.state, onIntent = {}, onPaste = {}, readsClipboard = it.readsClipboard)
+        StartScreen(state = it, onIntent = {})
     }
 }

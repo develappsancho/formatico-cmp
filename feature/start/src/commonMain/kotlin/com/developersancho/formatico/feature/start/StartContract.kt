@@ -78,7 +78,7 @@ sealed interface FileRefusal {
 
 /** What the user did, or asked for, on the Start screen. */
 sealed interface StartIntent {
-    /** Paste the clipboard's [text], or null where it holds none. */
+    /** Paste the clipboard's [text], or null where none was read: it held none, or its reader did not allow the read. */
     data class Paste(val text: String?) : StartIntent
 
     /** Start a new, empty document. */
@@ -105,6 +105,6 @@ sealed interface StartEffect {
     /** Show [document] in a workspace. */
     data class OpenDocument(val document: OpenedDocument) : StartEffect
 
-    /** The clipboard held no text to paste. */
+    /** No text was read from the clipboard to paste. */
     data object NothingToPaste : StartEffect
 }

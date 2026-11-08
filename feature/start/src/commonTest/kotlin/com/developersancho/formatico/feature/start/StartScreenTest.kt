@@ -1,39 +1,43 @@
 package com.developersancho.formatico.feature.start
 
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.test.ComposeUiTest
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performKeyInput
+import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.v2.runComposeUiTest
+import androidx.compose.ui.test.withKeyDown
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.format.Format
 import com.developersancho.formatico.core.testing.awaitText
+import com.developersancho.formatico.core.testing.awaitUntil
+import com.pantrixui.components.overlay.snackbar.LocalPantrixSnackbars
+import com.pantrixui.components.overlay.snackbar.PantrixSnackbarState
 import com.pantrixui.foundation.adaptive.PantrixWindow
 import com.pantrixui.foundation.diagnostics.PantrixFindings
+import com.pantrixui.foundation.platform.ClipboardTraits
 import com.pantrixui.foundation.platform.PlatformType
 import com.pantrixui.foundation.platform.currentPlatformType
 import com.pantrixui.testing.PantrixTestTheme
+import com.pantrixui.testing.TestClipboard
 import com.pantrixui.testing.TestClock
 import com.pantrixui.testing.assertNoFindings
 import com.pantrixui.testing.onPantrixNode
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
-import kotlin.time.TimeSource
 
 @OptIn(ExperimentalTestApi::class)
 class StartScreenTest {
@@ -47,7 +51,7 @@ class StartScreenTest {
         val intents = mutableListOf<StartIntent>()
         setContent {
             PantrixTestTheme(window = desktop, findings = findings) {
-                StartScreen(state = StartState(), onIntent = { intents += it }, onPaste = {}, readsClipboard = true)
+                StartScreen(state = StartState(), onIntent = { intents += it })
             }
         }
 
@@ -83,9 +87,7 @@ class StartScreenTest {
             PantrixTestTheme(window = desktop, clock = clock) {
                 StartScreen(
                     state = StartState(recent = listOf(edited, opened)),
-                    onIntent = { intents += it },
-                    onPaste = {},
-                    readsClipboard = true
+                    onIntent = { intents += it }
                 )
             }
         }
@@ -99,33 +101,88 @@ class StartScreenTest {
     }
 
     @Test
-    fun theButtonsPasteAndStartANewDocument() = runComposeUiTest {
-        var pasted = 0
+    fun thePasteButtonOpensTheClipboardsTextAndANewDocumentStartsEmpty() = runComposeUiTest {
+        val clipboard = TestClipboard().apply { putText("{\"a\": 1}") }
         val intents = mutableListOf<StartIntent>()
         setContent {
-            PantrixTestTheme(window = desktop) {
-                StartScreen(
-                    state = StartState(),
-                    onIntent = { intents += it },
-                    onPaste = { pasted++ },
-                    readsClipboard = true
-                )
+            PantrixTestTheme(window = desktop, clipboard = clipboard) {
+                StartScreen(state = StartState(), onIntent = { intents += it })
             }
         }
 
         awaitText("Paste from clipboard")
         onPantrixNode("Button", "paste").performClick()
+        awaitUntil("The paste") { intents.isNotEmpty() }
         onPantrixNode("Button", "new_document").performClick()
 
-        assertEquals(1, pasted)
-        assertEquals(listOf<StartIntent>(StartIntent.NewDocument), intents)
+        assertEquals(listOf(StartIntent.Paste("{\"a\": 1}"), StartIntent.NewDocument), intents)
+    }
+
+    @Test
+    fun anEmptyClipboardPastesNothing() = runComposeUiTest {
+        val intents = mutableListOf<StartIntent>()
+        setContent {
+            PantrixTestTheme(window = phone, clipboard = TestClipboard()) {
+                StartScreen(state = StartState(), onIntent = { intents += it })
+            }
+        }
+
+        awaitText("Paste from clipboard")
+        onPantrixNode("Button", "paste").performClick()
+
+        awaitUntil("The paste") { intents.isNotEmpty() }
+        assertEquals(listOf<StartIntent>(StartIntent.Paste(null)), intents)
+    }
+
+    @Test
+    fun aClipboardThatCannotBeReadIsSaidSoWhenPasteIsPressed() = runComposeUiTest {
+        val snackbars = PantrixSnackbarState()
+        val intents = mutableListOf<StartIntent>()
+        setContent {
+            // A browser that gives the page no clipboard to read, as one over plain http does.
+            PantrixTestTheme(window = desktop, clipboard = TestClipboard(ClipboardTraits(readable = false))) {
+                CompositionLocalProvider(LocalPantrixSnackbars provides snackbars) {
+                    StartScreen(state = StartState(), onIntent = { intents += it })
+                }
+            }
+        }
+
+        awaitText("Paste from clipboard")
+        onPantrixNode("Button", "paste").performClick()
+
+        awaitUntil("The snackbar") { snackbars.current?.tagKey == "clipboard_unreadable" }
+        assertEquals(
+            "This browser does not let Formatico read the clipboard. Paste with the keyboard, or open a file.",
+            snackbars.current?.message
+        )
+        assertEquals(emptyList(), intents)
+    }
+
+    @Test
+    fun theKeyboardsPasteIsHeardAnywhereOnTheScreen() = runComposeUiTest {
+        // In a browser the key is the browser's, which pastes from the machine's clipboard: there the button pastes.
+        if (currentPlatformType() == PlatformType.Web) return@runComposeUiTest
+        val clipboard = TestClipboard().apply { putText("a: 1\n") }
+        val intents = mutableListOf<StartIntent>()
+        setContent {
+            PantrixTestTheme(window = desktop, clipboard = clipboard) {
+                StartScreen(state = StartState(), onIntent = { intents += it })
+            }
+        }
+
+        awaitText("Paste from clipboard")
+        onAllNodes(hasText("anywhere on this screen", substring = true)).assertCountEquals(1)
+        onRoot().performKeyInput { withKeyDown(Key.CtrlLeft) { pressKey(Key.V) } }
+
+        awaitUntil("The paste") { intents.isNotEmpty() }
+        assertEquals(listOf<StartIntent>(StartIntent.Paste("a: 1\n")), intents)
     }
 
     @Test
     fun aPhoneListsTwoSamplesUntilItIsAskedForAll() = runComposeUiTest {
         setContent {
             PantrixTestTheme(window = phone) {
-                StartScreen(state = StartState(), onIntent = {}, onPaste = {}, readsClipboard = true)
+                StartScreen(state = StartState(), onIntent = {})
             }
         }
 
@@ -145,7 +202,7 @@ class StartScreenTest {
         var state by mutableStateOf(StartState())
         setContent {
             PantrixTestTheme(window = desktop) {
-                StartScreen(state = state, onIntent = {}, onPaste = {}, readsClipboard = true)
+                StartScreen(state = state, onIntent = {})
             }
         }
         awaitText("Paste anything")
@@ -163,24 +220,6 @@ class StartScreenTest {
     }
 
     @Test
-    fun theKeyboardsPasteIsOfferedOnlyWhereTheClipboardIsRead() = runComposeUiTest {
-        var readsClipboard by mutableStateOf(true)
-        setContent {
-            PantrixTestTheme(window = desktop) {
-                StartScreen(state = StartState(), onIntent = {}, onPaste = {}, readsClipboard = readsClipboard)
-            }
-        }
-        awaitText("Paste from clipboard")
-        onAllNodes(hasText("anywhere on this screen", substring = true)).assertCountEquals(1)
-
-        // A browser's clipboard is not read: the button says why when pressed, and no key is offered for it.
-        readsClipboard = false
-        awaitIdle()
-        onAllNodes(hasText("anywhere on this screen", substring = true)).assertCountEquals(0)
-        onPantrixNode("Button", "paste").assertExists()
-    }
-
-    @Test
     fun aPhoneListsThreeOfRecentAndSaysOnlyWhenOfEach() = runComposeUiTest {
         val clock = TestClock(now)
         val recent = listOf(
@@ -192,7 +231,7 @@ class StartScreenTest {
         val intents = mutableListOf<StartIntent>()
         setContent {
             PantrixTestTheme(window = phone, clock = clock) {
-                StartScreen(state = StartState(recent = recent), onIntent = { intents += it }, onPaste = {}, readsClipboard = true)
+                StartScreen(state = StartState(recent = recent), onIntent = { intents += it })
             }
         }
 
@@ -211,7 +250,7 @@ class StartScreenTest {
         val recent = listOf(RecentDocument(id = 1, name = "order.json", format = Format.Json, size = 665, at = now))
         setContent {
             PantrixTestTheme(platform = PlatformType.Desktop, window = desktop, clock = TestClock(now)) {
-                StartScreen(state = StartState(recent = recent), onIntent = {}, onPaste = {}, readsClipboard = true)
+                StartScreen(state = StartState(recent = recent), onIntent = {})
             }
         }
         awaitText("Clear history")

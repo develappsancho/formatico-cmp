@@ -8,8 +8,8 @@
     <string name="start_new_empty_document">Yeni boş belge</string>
     <string name="start_new_document">Yeni belge</string>
     <string name="start_open_file">Dosya aç</string>
-    <string name="start_clipboard_empty">Panoda metin yok</string>
-    <string name="start_clipboard_unreadable">Bu tarayıcı Formatico'nun panoyu okumasına henüz izin vermiyor. Bir dosya bırak ya da aç.</string>
+    <string name="start_clipboard_empty">Panodan metin okunamadı</string>
+    <string name="start_clipboard_unreadable">Bu tarayıcı Formatico'nun panoyu okumasına izin vermiyor. Klavyeyle yapıştır ya da bir dosya aç.</string>
 
     <string name="start_file_drop_supporting">JSON, JSONC, JSON5, NDJSON, XML, YAML, TOML, CSV, TSV, properties ve INI, en çok %1$s</string>
     <string name="start_file_too_large">%1$s, %2$s sınırından büyük</string>

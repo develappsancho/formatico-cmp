@@ -17,7 +17,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.platform.LocalClipboardManager
 import com.developersancho.formatico.core.base.MviScreen
 import com.pantrixui.components.elements.button.ButtonSize
 import com.pantrixui.components.elements.button.ButtonVariant
@@ -36,10 +35,10 @@ import com.pantrixui.foundation.files.FilePickRequest
 import com.pantrixui.foundation.files.rememberFilePicker
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.keyboard.PantrixShortcut
-import com.pantrixui.foundation.keyboard.onShortcut
 import com.pantrixui.foundation.keyboard.shortcutRoot
 import com.pantrixui.foundation.platform.LocalOperatingSystem
-import com.pantrixui.foundation.platform.PlatformType
+import com.pantrixui.foundation.platform.onPaste
+import com.pantrixui.foundation.platform.rememberPantrixClipboard
 import com.pantrixui.foundation.theme.PantrixTheme
 import formatico.feature.start.generated.resources.Res
 import formatico.feature.start.generated.resources.start_clipboard_empty
@@ -77,13 +76,6 @@ fun StartRoute(onOpenDocument: (OpenedDocument) -> Unit, modifier: Modifier = Mo
     val snackbars = LocalPantrixSnackbars.current
     val scope = rememberCoroutineScope()
     val nothingToPaste = stringResource(Res.string.start_clipboard_empty)
-    val clipboardUnreadable = stringResource(Res.string.start_clipboard_unreadable)
-
-    // PantrixClipboard only writes, and Compose reads no clipboard in a browser (docs/PANTRIX_FINDINGS.md): until
-    // Pantrix reads one, the clipboard is Compose's own, which the desktop, Android and iOS read.
-    @Suppress("DEPRECATION")
-    val clipboard = LocalClipboardManager.current
-    val readsClipboard = PantrixTheme.platform.type != PlatformType.Web
     MviScreen(
         viewModel = viewModel,
         onEffect = { effect ->
@@ -96,35 +88,16 @@ fun StartRoute(onOpenDocument: (OpenedDocument) -> Unit, modifier: Modifier = Mo
             }
         }
     ) { state, dispatch ->
-        StartScreen(
-            state = state,
-            onIntent = dispatch,
-            onPaste = {
-                if (readsClipboard) {
-                    @Suppress("DEPRECATION")
-                    dispatch(StartIntent.Paste(clipboard.getText()?.text))
-                } else {
-                    scope.launch { snackbars?.show(message = clipboardUnreadable, tagKey = "clipboard_unreadable") }
-                }
-            },
-            readsClipboard = readsClipboard,
-            modifier = modifier
-        )
+        StartScreen(state = state, onIntent = dispatch, modifier = modifier)
     }
 }
 
 /**
- * The Start screen, drawn from [state]: what the user does goes to [onIntent], and a paste to [onPaste], which reads
- * the clipboard. [readsClipboard] says whether this platform can, and so whether the screen offers its shortcut.
+ * The Start screen, drawn from [state]: what the user does goes to [onIntent]. What is pasted, by the paste button or
+ * by Cmd+V or Ctrl+V anywhere on the screen, is read from the clipboard here and handed on as a [StartIntent.Paste].
  */
 @Composable
-internal fun StartScreen(
-    state: StartState,
-    onIntent: (StartIntent) -> Unit,
-    onPaste: () -> Unit,
-    readsClipboard: Boolean,
-    modifier: Modifier = Modifier
-) {
+internal fun StartScreen(state: StartState, onIntent: (StartIntent) -> Unit, modifier: Modifier = Modifier) {
     val window = PantrixTheme.window
     val spacing = PantrixTheme.spacing
     val layout = when {
@@ -132,12 +105,17 @@ internal fun StartScreen(
         window.widthClass >= WindowWidthClass.Expanded -> StartLayout.Wide
         else -> StartLayout.Tablet
     }
+    // The paste itself is heard by onPaste, and not as a shortcut, which would keep a browser from pasting: this one
+    // only writes the keys out for the hint.
     val pasteShortcut = remember { PantrixShortcut(Key.V, command = true) }
     Box(
         modifier = modifier
             .fillMaxSize()
+            // Around the root, not inside it as onPaste's example has it: inside, it does not see the focus the root
+            // holds, and a browser's paste goes unheard until a control has the focus (PANTRIX_FINDINGS: "onPaste,
+            // shortcutRoot'un içinde web'de duymuyor").
+            .onPaste { onIntent(StartIntent.Paste(it)) }
             .shortcutRoot()
-            .onShortcut(pasteShortcut, enabled = readsClipboard, onTrigger = onPaste)
             .pantrixVerticalScroll(rememberScrollState()),
         contentAlignment = Alignment.TopCenter
     ) {
@@ -164,8 +142,8 @@ internal fun StartScreen(
             Actions(
                 layout = layout,
                 onIntent = onIntent,
-                onPaste = onPaste,
-                pasteHint = if (readsClipboard) pasteShortcut.writtenOn(LocalOperatingSystem.current) else null
+                onPaste = clipboardPaste(onIntent),
+                pasteHint = pasteShortcut.writtenOn(LocalOperatingSystem.current)
             )
             if (layout == StartLayout.Phone) {
                 RefusalMessage(state.refusal)
@@ -210,9 +188,30 @@ private fun Heading(layout: StartLayout) {
     }
 }
 
+/**
+ * What the paste button does: reads the clipboard's text, which a platform may ask its reader about first, and hands
+ * it to [onIntent]. Where there is no clipboard to read, as in a browser that gives the page none, it says so.
+ */
+@Composable
+private fun clipboardPaste(onIntent: (StartIntent) -> Unit): () -> Unit {
+    val clipboard = rememberPantrixClipboard()
+    val snackbars = LocalPantrixSnackbars.current
+    val scope = rememberCoroutineScope()
+    val unreadable = stringResource(Res.string.start_clipboard_unreadable)
+    return {
+        scope.launch {
+            if (clipboard.traits.readable) {
+                onIntent(StartIntent.Paste(clipboard.readText()))
+            } else {
+                snackbars?.show(message = unreadable, tagKey = "clipboard_unreadable")
+            }
+        }
+    }
+}
+
 /** Paste, a new document, and on a phone the picker in place of the drop zone; [pasteHint] is the paste's keys. */
 @Composable
-private fun Actions(layout: StartLayout, onIntent: (StartIntent) -> Unit, onPaste: () -> Unit, pasteHint: String?) {
+private fun Actions(layout: StartLayout, onIntent: (StartIntent) -> Unit, onPaste: () -> Unit, pasteHint: String) {
     val spacing = PantrixTheme.spacing
     val size = if (layout == StartLayout.Wide) ButtonSize.Medium else ButtonSize.Large
     val paste = @Composable {
@@ -237,13 +236,11 @@ private fun Actions(layout: StartLayout, onIntent: (StartIntent) -> Unit, onPast
         ) {
             paste()
             newDocument()
-            if (pasteHint != null) {
-                PantrixText(
-                    text = stringResource(Res.string.start_paste_hint, pasteHint),
-                    modifier = Modifier.padding(start = spacing.xs),
-                    color = PantrixTheme.colors.textSecondary
-                )
-            }
+            PantrixText(
+                text = stringResource(Res.string.start_paste_hint, pasteHint),
+                modifier = Modifier.padding(start = spacing.xs),
+                color = PantrixTheme.colors.textSecondary
+            )
         }
 
         StartLayout.Tablet -> FlowRow(
