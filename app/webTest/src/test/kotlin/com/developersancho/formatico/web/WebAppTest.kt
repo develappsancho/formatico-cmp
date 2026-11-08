@@ -44,6 +44,19 @@ class WebAppTest {
     }
 
     @Test
+    fun startNamesTheTabAndADocumentGivesItBack() = browse { page, chrome ->
+        page.open()
+        page.awaitText("Paste anything")
+        // Start's page names the browser's tab, the app's name after it; a document's screen leaves the page's own.
+        chrome.awaitUntil("Start named the tab") {
+            chrome.evaluate("document.title")?.jsonPrimitive?.content == "Paste anything · Formatico"
+        }
+        page.press("ListItem_sample_order")
+        page.awaitText("Valid JSON")
+        chrome.awaitUntil("the tab had its own name back") { chrome.evaluate("document.title")?.jsonPrimitive?.content == "Formatico" }
+    }
+
+    @Test
     fun aBrowserWithoutWasmsGarbageCollectionRunsTheJavaScriptBuild() = browse { page, chrome ->
         // The loader asks whether the browser takes a module with a struct type and a `try`: an older one does not.
         chrome.beforeEachPage("WebAssembly.validate = () => false;")

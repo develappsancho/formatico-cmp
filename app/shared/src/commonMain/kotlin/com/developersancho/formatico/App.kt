@@ -52,6 +52,8 @@ import com.pantrixui.components.container.scaffold.PantrixScaffold
 import com.pantrixui.components.overlay.snackbar.LocalPantrixSnackbars
 import com.pantrixui.components.overlay.snackbar.rememberPantrixSnackbarState
 import com.pantrixui.foundation.l10n.PantrixLocale
+import com.pantrixui.foundation.platform.LocalPantrixWindowTitleFormat
+import com.pantrixui.foundation.platform.PantrixWindowTitleFormat
 import org.koin.compose.KoinApplication
 import org.koin.compose.koinInject
 import org.koin.core.logger.Level
@@ -99,7 +101,10 @@ internal fun App(systemDark: Boolean, storage: Module, followsBrowser: Boolean =
         val backStack = rememberNavBackStack(Destination.Saving, Destination.Start)
         val settingsShown = rememberSaveable { mutableStateOf(false) }
         val language = preferences.language?.tag
-        CompositionLocalProvider(LocalWrapLines provides preferences.wrapLines) {
+        // A screen that names the window, as Start's page does, is followed by the app's name: "Paste anything · Formatico".
+        val appName = appStrings.appName
+        val windowTitles = remember(appName) { PantrixWindowTitleFormat { "$it · $appName" } }
+        CompositionLocalProvider(LocalWrapLines provides preferences.wrapLines, LocalPantrixWindowTitleFormat provides windowTitles) {
             FormaticoTheme(darkTheme = darkTheme, locale = language?.let(PantrixLocale::forLanguageTag)) {
                 AppContent(
                     backStack = backStack,

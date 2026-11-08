@@ -1,15 +1,13 @@
 package com.developersancho.formatico.feature.start
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -17,8 +15,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.base.MviScreen
 import com.developersancho.formatico.feature.start.strings.startStrings
+import com.pantrixui.components.container.page.PageScaffoldStyle
+import com.pantrixui.components.container.page.PageTitlePlacement
+import com.pantrixui.components.container.page.PageWidth
+import com.pantrixui.components.container.page.PantrixPageScaffold
 import com.pantrixui.components.elements.button.ButtonSize
 import com.pantrixui.components.elements.button.ButtonVariant
 import com.pantrixui.components.elements.button.PantrixButton
@@ -26,9 +30,7 @@ import com.pantrixui.components.elements.filedrop.FileRejection
 import com.pantrixui.components.elements.filedrop.PantrixFileDrop
 import com.pantrixui.components.elements.filedrop.RejectedFile
 import com.pantrixui.components.elements.icon.PantrixIcon
-import com.pantrixui.components.elements.scrollbar.pantrixVerticalScroll
 import com.pantrixui.components.elements.text.PantrixText
-import com.pantrixui.components.elements.text.TextRole
 import com.pantrixui.components.overlay.snackbar.LocalPantrixSnackbars
 import com.pantrixui.foundation.adaptive.WindowWidthClass
 import com.pantrixui.foundation.adaptive.isNarrow
@@ -44,8 +46,8 @@ import com.pantrixui.foundation.theme.PantrixTheme
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 
-/** How much of the window the lead paragraph takes in a wide window: about 720 of the design's 1040. */
-private const val LEAD_WIDTH = 0.7f
+/** How wide the sentence under Start's title runs at most in a wide window: the boards' 720. */
+private val LeadWidth = 720.dp
 
 /** The Start screen's three layouts, by the window's width: the design's boards at 390, 834 and 1440. */
 internal enum class StartLayout { Phone, Tablet, Wide }
@@ -114,47 +116,50 @@ internal fun StartScreen(state: StartState, onIntent: (StartIntent) -> Unit, mod
     // The paste itself is heard by onPaste, and not as a shortcut, which would keep a browser from pasting: this one
     // only writes the keys out for the hint.
     val pasteShortcut = remember { PantrixShortcut(Key.V, command = true) }
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .shortcutRoot()
-            .onPaste { onIntent(StartIntent.Paste(it)) }
-            .pantrixVerticalScroll(rememberScrollState()),
-        contentAlignment = Alignment.TopCenter
+    val typography = PantrixTheme.typography
+    val phone = layout == StartLayout.Phone
+    val gap = if (phone) spacing.lg + spacing.xs else spacing.xl
+    // The room under the page, and over it more: the boards' 48 over and 32 under in a wide window.
+    val bottom = if (phone) spacing.lg else spacing.xxl
+    val top = when (layout) {
+        StartLayout.Phone -> spacing.xl
+        StartLayout.Tablet -> spacing.xxl + spacing.sm
+        StartLayout.Wide -> spacing.xxl + spacing.lg
+    }
+    // Start's title and the sentence under it stand in the page's content at every width, as the boards have them: in
+    // the display's type, the sentence close under it and, in a wide window, no wider than 720; the page in a column of
+    // the theme's content width in the middle of a wide window.
+    PantrixPageScaffold(
+        title = startStrings.title,
+        modifier = modifier.fillMaxSize().shortcutRoot().onPaste { onIntent(StartIntent.Paste(it)) },
+        subtitle = if (phone) startStrings.leadShort else startStrings.lead,
+        titlePlacement = PageTitlePlacement.Content,
+        width = PageWidth.Centered,
+        // The app's scaffold keeps Start clear of its bars already: this is the room over the page beyond the style's.
+        padding = PaddingValues(top = top - bottom),
+        style = PageScaffoldStyle(
+            verticalPadding = bottom,
+            sectionGap = gap,
+            headingGap = spacing.sm,
+            subtitleMaxWidth = if (layout == StartLayout.Wide) LeadWidth else Dp.Unspecified
+        ),
+        titleStyle = if (phone) typography.headline else typography.display,
+        subtitleStyle = if (phone) typography.body else typography.callout
     ) {
-        Column(
-            modifier = Modifier
-                .padding(horizontal = PantrixTheme.layout.margin)
-                // The theme's content width, in the middle of a wide window as the design has it:
-                // Modifier.maxContentWidth keeps it at the start.
-                .widthIn(max = PantrixTheme.layout.maxContentWidth)
-                .fillMaxWidth()
-                .padding(
-                    top = when (layout) {
-                        StartLayout.Phone -> spacing.xl
-                        StartLayout.Tablet -> spacing.xxl + spacing.sm
-                        StartLayout.Wide -> spacing.xxl + spacing.lg
-                    },
-                    bottom = if (layout == StartLayout.Phone) spacing.lg else spacing.xxl
-                ),
-            verticalArrangement = Arrangement.spacedBy(
-                if (layout == StartLayout.Phone) spacing.lg + spacing.xs else spacing.xl
-            )
-        ) {
-            Heading(layout)
+        Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(gap)) {
             Actions(
                 layout = layout,
                 onIntent = onIntent,
                 onPaste = clipboardPaste(onIntent),
                 pasteShortcut = pasteShortcut
             )
-            if (layout == StartLayout.Phone) {
+            if (phone) {
                 RefusalMessage(state.refusal)
             } else {
                 FileZone(refusal = state.refusal, onIntent = onIntent)
             }
             RecentAndSamples(recent = state.recent, samples = state.samples, layout = layout, onIntent = onIntent)
-            if (layout != StartLayout.Phone) {
+            if (!phone) {
                 PantrixText(
                     // On the web a web address is fetched through the server as well, which the apps fetch themselves.
                     text = if (PantrixTheme.platform.type == PlatformType.Web) startStrings.privacyWeb else startStrings.privacy,
@@ -163,36 +168,6 @@ internal fun StartScreen(state: StartState, onIntent: (StartIntent) -> Unit, mod
                 )
             }
         }
-    }
-}
-
-/**
- * Start's title and the sentence under it, in the page's content at every width as the boards have them, in the
- * display's type, the sentence 720 wide and close under it, in a column in the middle of a wide window: the page
- * scaffold keeps a page of the content's width at the window's start (PANTRIX_FINDINGS, "PageScaffold içerik
- * genişliğindeki sayfayı ortalayamıyor").
- */
-@Composable
-private fun Heading(layout: StartLayout) {
-    val typography = PantrixTheme.typography
-    Column(verticalArrangement = Arrangement.spacedBy(PantrixTheme.spacing.sm)) {
-        PantrixText(
-            text = startStrings.title,
-            style = if (layout == StartLayout.Phone) typography.headline else typography.display,
-            role = TextRole.Heading(level = 1)
-        )
-        PantrixText(
-            text = if (layout ==
-                StartLayout.Phone
-            ) {
-                startStrings.leadShort
-            } else {
-                startStrings.lead
-            },
-            modifier = if (layout == StartLayout.Wide) Modifier.fillMaxWidth(LEAD_WIDTH) else Modifier,
-            style = if (layout == StartLayout.Phone) typography.body else typography.callout,
-            color = PantrixTheme.colors.textSecondary
-        )
     }
 }
 
