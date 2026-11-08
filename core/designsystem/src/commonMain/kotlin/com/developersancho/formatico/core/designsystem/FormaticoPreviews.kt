@@ -3,17 +3,17 @@ package com.developersancho.formatico.core.designsystem
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.pantrixui.foundation.adaptive.PantrixWindow
-import com.pantrixui.foundation.date.LocalPantrixClock
 import com.pantrixui.foundation.date.PantrixClock
 import com.pantrixui.foundation.platform.PlatformType
+import com.pantrixui.foundation.theme.PantrixPreviewTheme
 import com.pantrixui.foundation.theme.PantrixTheme
 import kotlin.time.Clock
 import kotlin.time.Duration
@@ -83,14 +83,23 @@ private val PreviewClock = PantrixClock(
 )
 
 /**
- * What a preview of [case] is drawn in: Formatico's theme, light or dark as the case is, on the theme's background,
- * with the clock standing at [PreviewNow]. A screenshot test draws the same inside Pantrix's test theme, which gives the
- * board's window and platform.
+ * What a preview of [case] is drawn in: Pantrix's preview theme, around Formatico's, light or dark as the case is, on
+ * the theme's background, with the clock standing at [PreviewNow]. Where the preview stands at a board's size, as
+ * [BoardPreviews] draws it and a screenshot does, it is shown on that board's platform and told its window, whatever
+ * the machine it is drawn on; elsewhere, as a test that draws every case does, on the platform and in the window of the
+ * theme around it.
  */
 @Composable
 fun <T> FormaticoPreview(case: PreviewCase<T>, modifier: Modifier = Modifier, content: @Composable (T) -> Unit) {
-    FormaticoTheme(darkTheme = case.dark) {
-        CompositionLocalProvider(LocalPantrixClock provides PreviewClock) {
+    val room = LocalWindowInfo.current.containerDpSize
+    val board = Board.entries.firstOrNull { it.width.dp == room.width && it.height.dp == room.height }
+    PantrixPreviewTheme(
+        platform = board?.platform ?: PantrixTheme.platform.type,
+        dark = case.dark,
+        window = board?.window,
+        clock = PreviewClock
+    ) {
+        FormaticoTheme(darkTheme = case.dark) {
             Box(modifier = modifier.testTag(PREVIEW_TAG).background(PantrixTheme.colors.background)) {
                 content(case.value)
             }

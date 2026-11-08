@@ -21,6 +21,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.format.Format
+import com.developersancho.formatico.core.testing.AtWindowSize
 import com.developersancho.formatico.core.testing.awaitText
 import com.developersancho.formatico.core.testing.awaitUntil
 import com.pantrixui.components.elements.button.ButtonSize
@@ -117,9 +118,12 @@ class QueryScreenTest {
 
     @Test
     fun aTabletQueriesAnXmlDocumentWithAnXPathUnderItsText() = runComposeUiTest {
+        val findings = PantrixFindings()
         setContent {
-            PantrixTestTheme(window = tablet, clock = clock) {
-                WorkspaceScreen(state = FeedReleases, onIntent = {}, commands = rememberDocumentCommands(Workbench()))
+            PantrixTestTheme(window = tablet, findings = findings, clock = clock) {
+                AtWindowSize(tablet) {
+                    WorkspaceScreen(state = FeedReleases, onIntent = {}, commands = rememberDocumentCommands(Workbench()))
+                }
             }
         }
 
@@ -128,9 +132,7 @@ class QueryScreenTest {
         onPantrixNode("ListItem", "match0").assert(hasText("/rss/channel/item[1]/title")).assert(hasText("Tabs that remember"))
         // A tablet copies with an icon.
         onPantrixNode("IconButton", "copy_results").assert(hasContentDescription("Copy the results"))
-        // What the diagnostics find here is not asked about: the test draws in less than the tablet's window, which
-        // leaves the field and the results' row less height than their touch targets (PANTRIX_FINDINGS, "Test
-        // temasına verilen pencere, testin çizdiği boy değil").
+        assertNoFindings(findings)
     }
 
     @Test
@@ -220,7 +222,7 @@ class QueryScreenTest {
 
         onPantrixNode("IconButton", "more").performClick()
         // The test draws in less than the phone's window, and the menu's third row stands past its foot: it is pressed
-        // as a screen reader presses it (PANTRIX_FINDINGS, "Test temasına verilen pencere, testin çizdiği boy değil").
+        // as a screen reader presses it (Pantrix's testing guide, 3.3).
         onPantrixNode("MenuItem", "query", scope = "Menu_document").performSemanticsAction(SemanticsActions.OnClick)
         awaitUntil("The query is opened") { queried }
     }

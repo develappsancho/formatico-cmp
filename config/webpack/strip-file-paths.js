@@ -1,7 +1,6 @@
 // Webpack writes a script's import.meta.url as the path the script had on the machine that built it
 // (file:///Users/…/kotlin/skiko.mjs). The page never fetches it: it is cut to the file's own name, so that no
-// machine's folders and no user's name go out with the app (PANTRIX_FINDINGS, "Yol silen webpack eklentisi rehberde
-// yok").
+// machine's folders and no user's name go out with the app (Pantrix's web compatibility guide, 3.3).
 class StripFilePaths {
     apply(compiler) {
         const { Compilation, sources } = compiler.webpack;

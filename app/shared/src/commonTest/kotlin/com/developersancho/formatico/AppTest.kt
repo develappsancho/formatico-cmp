@@ -102,7 +102,7 @@ class AppTest {
 
         onPantrixNode("IconButton", "more").performClick()
         // The test draws in less than the phone's window, and the menu's row stands past its foot: it is pressed as a
-        // screen reader presses it (PANTRIX_FINDINGS, "Test temasına verilen pencere, testin çizdiği boy değil").
+        // screen reader presses it (Pantrix's testing guide, 3.3).
         onPantrixNode("MenuItem", "convert", scope = "Menu_document").performSemanticsAction(SemanticsActions.OnClick)
         awaitText("Convert order.json")
         onPantrixNode("Button", "switch_documents").assertDoesNotExist()

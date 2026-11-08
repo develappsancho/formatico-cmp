@@ -442,6 +442,11 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
                 tek öncelik sırasıyla katlanıyor; açık görünümün düğmesi Repair kadar uzun kalıyor. Yeni bir bulgu,
                 "Seçili satırda uygulamanın işaretinin yazı rengi de siliniyor", aynı akşam kapandı. Snackbar'ın
                 web'deki ekran okuyucusu Compose 1.13'ü bekliyor; salt okunur editörün bandı tasarım sisteminde açık.
+            *   Kütüphanenin rehber partisi geldi (0.1.2-SNAPSHOT, 2026-11-10 20:50): on üç madde rehberlerde denendi ve
+                işaretlendi; derleme dosyalarının ve testlerin yorumları artık bulguları değil rehberleri anıyor.
+                `FormaticoPreview` Pantrix'in yeni `PantrixPreviewTheme`'inde çiziyor; tabletin dört testi
+                `AtWindowSize` ile tanılamayı da soruyor. Yeni bir bulgu: "Test rehberinin pencere boyundaki kutusu
+                ekranı odanın ortasına koyuyor".
         *   7 ve 8 sırada.
     *   **Sahibinin kararları (2026-11-10):** sahibi önerileri kabul etti ("önerilerin olsun"):
         *   **Kodda seçilip panolarda olmayanlar: kod onaylandı, panolar koda göre çizilir.**

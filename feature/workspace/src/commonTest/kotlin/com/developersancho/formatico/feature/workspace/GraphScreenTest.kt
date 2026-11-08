@@ -48,8 +48,8 @@ class GraphScreenTest {
         val customer = onPantrixNode("Node", "7", scope = "Graph_document")
         customer.assert(hasContentDescription("customer, an object of 4 keys")).assertIsSelected()
         onPantrixNode("Node", "root", scope = "Graph_document").assert(hasContentDescription("order.json, an object of 11 keys"))
-        // The test draws the window 1024 wide, whatever it is told (PANTRIX_FINDINGS, "Test temasına verilen pencere,
-        // testin çizdiği boy değil"): a pane that narrow has the zoom in the graph's corner, not in its header.
+        // The test draws the window 1024 wide, whatever it is told (Pantrix's testing guide, 3.3): a pane that narrow
+        // has the zoom in the graph's corner, not in its header.
         onPantrixNode("IconButton", "fit", scope = "document").assertExists()
         awaitText("85%")
 

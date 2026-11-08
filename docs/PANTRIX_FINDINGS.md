@@ -45,16 +45,16 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Nerede: [Installation](https://pantrixui.com/docs/installation), "Give it your brand".
     *   Öneri: örneği `theming.md`'deki `Harbor` gibi içe aktarmalarıyla ve var olan adlarla yazmak; site örnekleri derlenen örneklerden üretiliyorsa bu sayfanınki de.
     *   Durum: açık.
-*   [ ] **Test bağımlılıkları iki yerde iki türlü (2026-11-02).**
+*   [x] **Test bağımlılıkları iki yerde iki türlü (2026-11-02).**
     *   Ne: Kurulum sayfası `commonTest`'e yalnızca `com.pantrixui:testing`'i koyuyor. Becerinin `references/setup.md`'si `kotlin("test")`'i ve `jvmTest`'e `compose.desktop.currentOs`'u da ekliyor ("runComposeUiTest masaüstünde çizer"); o olmadan masaüstündeki UI testi çizemez.
     *   Nerede: [Installation](https://pantrixui.com/docs/installation), "Add the dependency"; beceri, `references/setup.md`, "Dependencies".
     *   Öneri: iki yerde aynı satırlar. (Bir convention eklentisinde `ComposePlugin.DesktopDependencies.currentOs` Compose 1.12.2'de kullanımdan kalkmış; `ComposeExtension`'ın `dependencies.desktop.currentOs`'u değil. Kotlin sınıfıyla yazan biri için bir cümle işe yarar.)
-    *   Durum: açık.
-*   [ ] **Test örnekleri kullanımdan kalkmış `runComposeUiTest`'i içe aktarıyor (2026-11-02).**
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-10 20:50). Beceri (`references/setup.md`) `commonTest`'e `testing` ile `kotlin("test")`'i, `jvmTest`'e `compose.desktop.currentOs`'u koyuyor; test rehberinin 3.1'i bir convention eklentisi için `extensions.getByType<ComposeExtension>().dependencies.desktop.currentOs` satırını veriyor. Formatico'nun `KmpComposeConventionPlugin`'i aynı satırı kullanıyor. Sitenin Kurulum sayfası kütüphanenin D partisinde. Önceki durum: açık.
+*   [x] **Test örnekleri kullanımdan kalkmış `runComposeUiTest`'i içe aktarıyor (2026-11-02).**
     *   Ne: Becerinin `references/testing.md`'si `androidx.compose.ui.test.runComposeUiTest`'i içe aktarıyor. Compose Multiplatform 1.12.2'de bu kullanımdan kalkmış: "Use `androidx.compose.ui.test.v2.runComposeUiTest` instead" (v2 `StandardTestDispatcher` kullanıyor). Formatico'nun testi v2 ile Pantrix'in teması altında geçti.
     *   Nerede: beceri, `references/testing.md`; [Guide to Testing a Screen](https://pantrixui.com/docs/guides/testing).
     *   Öneri: örneklerde `v2`; `onEachPlatform` ve `assertNoFindings` v2'nin `ComposeUiTest`'iyle çalışıyorsa bunu söylemek.
-    *   Durum: açık.
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-10 20:50). Beceri ve test rehberi `runComposeUiTest`'i `androidx.compose.ui.test.v2`'den içe aktarıyor; `onEachPlatform` ve `assertNoFindings` ikisinin `ComposeUiTest`'ini de alıyor. Formatico'nun testleri zaten v2'yi kullanıyordu. Önceki durum: açık.
 
 ## 2. Tasarım sistemi (Claude Design)
 
@@ -198,21 +198,21 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
 
 ## 3. Detekt
 
-*   [ ] **Kuralların hangi detekt'e yazıldığı söylenmiyor (2026-11-02).**
+*   [x] **Kuralların hangi detekt'e yazıldığı söylenmiyor (2026-11-02).**
     *   Ne: Kurulum ve Detekt rehberi `detektPlugins("com.pantrixui:detekt-rules:0.1.1")` diyor; detekt eklentisinin kimliğini ve sürümünü söylemiyor. Yayımlanan jar detekt 1.x API'sine (`io.gitlab.arturbosch.detekt.api`) yazılmış, yani `io.gitlab.arturbosch.detekt` 1.23.x ister; 2.0'ın `dev.detekt` API'siyle yüklenmez. Bunu bulmak için jar'ın sınıflarına bakmak gerekti. Kuralların POM'u `kotlin-stdlib 2.4.21`'i derleme bağımlılığı olarak getiriyor; detekt 1.23.8 kendi Kotlin'ini (2.0.21) `strictly` ile tutuyor ve ikisi yan yana çalıştı.
     *   Nerede: [Installation](https://pantrixui.com/docs/installation), "The other modules"; [Detekt Guide](https://pantrixui.com/docs/guides/detekt), bölüm 5.
     *   Öneri: rehberin 5. bölümüne `plugins { id("io.gitlab.arturbosch.detekt") version "1.23.8" }` satırı; uzun vadede detekt 2'ye taşınmak.
-    *   Durum: açık. Formatico detekt 1.23.8 ile kurdu; kurallar yükleniyor, `NoMaterialImport` bir deneme dosyasında tuttu. Not: ilk kurulumda "Kotlin 2.4'le detekt'in Kotlin'ini sabitlemek gerekir" sanılıp sabitleme yazılmıştı; sabitlemesiz bir koşu gereksiz olduğunu gösterdi ve kaldırıldı.
-*   [ ] **Çok platformlu bir uygulamada detekt'in neye bakacağı gösterilmiyor (2026-11-02).**
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-10 20:50). Detekt rehberinin 5'i: `id("io.gitlab.arturbosch.detekt") version "1.23.8"`, kuralların detekt 1'in API'sine yazıldığı (detekt 2 onları yüklemiyor), detekt'in Kotlin'ini sabitlemenin gerekmediği. Formatico 1.23.8'de. Önceki durum: açık. Formatico detekt 1.23.8 ile kurdu; kurallar yükleniyor, `NoMaterialImport` bir deneme dosyasında tuttu. Not: ilk kurulumda "Kotlin 2.4'le detekt'in Kotlin'ini sabitlemek gerekir" sanılıp sabitleme yazılmıştı; sabitlemesiz bir koşu gereksiz olduğunu gösterdi ve kaldırıldı.
+*   [x] **Çok platformlu bir uygulamada detekt'in neye bakacağı gösterilmiyor (2026-11-02).**
     *   Ne: Rehber, KMP'de düz `detekt` görevinin "hiçbir şeye bakmadan yeşil geçeceğini", kütüphanenin bunu kendi `build-logic`'inde bağladığını söylüyor; bir uygulamanın nasıl bağlayacağını göstermiyor.
     *   Nerede: [Detekt Guide](https://pantrixui.com/docs/guides/detekt), bölüm 2.
     *   Öneri: bölüm 5'e bir uygulamanın `source.setFrom("src")` (ya da kaynak kümelerine göre görevler) satırları.
-    *   Durum: açık.
-*   [ ] **Rehberin bağlantıları kapalı bir depoya gidiyor (2026-11-02).**
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-10 20:50). Detekt rehberinin 5'i, çok platformlu bir modülde düz detekt görevini her hedefin görevine bağlayan satırları ve üretilen kaynakları dışarıda bırakan süzgeci veriyor. Formatico'nun `QualityConventionPlugin`'i aynısını başka yoldan yapıyor (kaynağı `src`); yorumu artık rehberi anıyor. Önceki durum: açık.
+*   [x] **Rehberin bağlantıları kapalı bir depoya gidiyor (2026-11-02).**
     *   Ne: `config/detekt/detekt.yml` ve `demo.yml` bağlantıları `github.com/develappsancho/pantrix-ui-cmp`'ye gidiyor; depo özel, dışarıdan 404. Rehber ayrıca `build-logic`'teki `DetektSetupPlugin`'i ve `pantrix.demo.detekt`'i anıyor; dışarıdan görülemiyorlar.
     *   Nerede: [Detekt Guide](https://pantrixui.com/docs/guides/detekt), bölüm 2.
     *   Öneri: demonun yapılandırması (bir uygulamanın tutacağı) rehberin içinde ya da paket deposunda; kütüphanenin iç dosyaları anılmadan.
-    *   Durum: açık.
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-10 20:50). Detekt rehberinde depoya ve build-logic'in iç eklentilerine bağlantı kalmadı; demonun ayarı, bir uygulamanın tutacağı hâliyle, rehberin içinde. Önceki durum: açık.
 
 ## 4. Belgeler ve yapay zekâ araçları
 
@@ -231,34 +231,56 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Nerede: [For AI](https://pantrixui.com/ai), "Set it up in a minute".
     *   Öneri: `--scope project` satırı ve "yeni bir oturum açın" cümlesi.
     *   Durum: açık.
-*   [ ] **Test rehberi tarayıcıda UI testinin iki şartını söylemiyor (2026-11-03).**
+*   [x] **Test rehberi tarayıcıda UI testinin iki şartını söylemiyor (2026-11-03).**
     *   Ne: Rehber "The common tests run on every target: jvmTest, iosSimulatorArm64Test, jsBrowserTest, wasmJsBrowserTest" diyor. Formatico'da `runComposeUiTest`'li ortak testler tarayıcıda iki yerde takıldı: Compose, Wasm hedefi `binaries.executable()` demedikçe UI testini hiç çalıştırmıyor (`checkComposeUiTestConfigurationForWasmJs`, CMP-4906); çalıştırınca da uygulamanın kendi kaynaklarından gelen metinler (`stringResource`) test boyunca hiç görünmüyor. `PantrixTestTheme` ve Pantrix'in kendi metinleri bunu yaşamıyor, çünkü onlar kaynaktan okunmuyor. Bu Compose'un davranışı, ama rehber bir uygulamanın ekranlarının tarayıcıda öyle sınanacağını söylüyor.
     *   Nerede: `skill/testing` ("Running"); MCP `search_documentation testing`.
     *   Öneri: rehberde `binaries.executable()` şartı ve uygulama kaynaklı metinlerin tarayıcıda nasıl beklenip yükleneceği; olmuyorsa tarayıcı testlerinin etiketle sınanması gerektiği.
-    *   Durum: açık. Formatico'da çözüldü (2026-11-03), rehbere girecek olan bu: metin `waitUntil` ile değil, askıya alınan bir beklemeyle beklenmeli (`withContext(Dispatchers.Default) { delay(…) }` ve `awaitIdle()`), çünkü `waitUntil` tarayıcının olay döngüsünü tutuyor ve kaynakların `fetch`'i bitmiyor; Karma test paketinin `kotlin/composeResources/`'unu sunmalı ve `/composeResources/`'u oraya yönlendirmeli; Mocha'nın 2 saniyesi yetmiyor. Formatico'nun 161 testi böyle Wasm'da koşuyor. JavaScript'te üçüncü bir şart (2026-11-10): Formatico'nun JS testleri o güne kadar kapalıydı; açılınca UI dışı
-        testler geçti, `runComposeUiTest`'li her test `ReferenceError: org_jetbrains_skia_Surface__1nMakeRasterN32Premul
-        is not defined` ile düştü. JS'de Compose Skiko'nun işlevlerini sayfanın genel adları olarak arıyor; onları
-        test paketindeki `js-reexport-symbols.mjs` `skiko.mjs`'ten oraya koyuyor ve `skiko.wasm` sonra yükleniyor.
-        Uygulamanın sayfası bunu Compose'un Gradle eklentisiyle yapıyor, Karma'nın sayfası yapmıyor. Formatico'nun
-        çözümü (`config/karma/skiko-on-js.js`, `config/karma/browser/`): Karma o modülü bir `type: "module"` dosyası
-        olarak yüklüyor, `awaitSkiko`'yu bekliyor ve testleri ancak ondan sonra başlatıyor; JS hedefi de Wasm gibi
-        `binaries.executable()` (CMP-4906). Rehber "jsBrowserTest" diyor, bunların hiçbirini söylemiyor.
-*   [ ] **Test temasına verilen pencere, testin çizdiği boy değil (2026-11-03).**
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-10 20:50). Test rehberinin 3.8'i ("In the Browser"):
+        `binaries.executable()` (CMP-4906), JS'te Skiko'yu yükleyen Karma dosyası, Mocha'nın süresi ve uygulamanın
+        kaynaklarının Karma'da sunulması, metinleriyle. Formatico'nun `KmpComposeConventionPlugin`'i,
+        `config/karma/compose-resources.js`'i ve `mocha-timeout.js`'i aynısını yapıyor; yorumları artık rehberi anıyor.
+        Önceki durum: açık. Formatico'da çözüldü (2026-11-03), rehbere girecek olan bu: metin `waitUntil` ile değil,
+        askıya alınan bir beklemeyle beklenmeli (`withContext(Dispatchers.Default) { delay(…) }` ve `awaitIdle()`),
+        çünkü `waitUntil` tarayıcının olay döngüsünü tutuyor ve kaynakların `fetch`'i bitmiyor; Karma test paketinin
+        `kotlin/composeResources/`'unu sunmalı ve `/composeResources/`'u oraya yönlendirmeli; Mocha'nın 2 saniyesi
+        yetmiyor. Formatico'nun 161 testi böyle Wasm'da koşuyor. JavaScript'te üçüncü bir şart (2026-11-10):
+        Formatico'nun JS testleri o güne kadar kapalıydı; açılınca UI dışı testler geçti, `runComposeUiTest`'li her test
+        `ReferenceError: org_jetbrains_skia_Surface__1nMakeRasterN32Premul is not defined` ile düştü. JS'de Compose
+        Skiko'nun işlevlerini sayfanın genel adları olarak arıyor; onları test paketindeki `js-reexport-symbols.mjs`
+        `skiko.mjs`'ten oraya koyuyor ve `skiko.wasm` sonra yükleniyor. Uygulamanın sayfası bunu Compose'un Gradle
+        eklentisiyle yapıyor, Karma'nın sayfası yapmıyor. Formatico'nun çözümü (`config/karma/skiko-on-js.js`,
+        `config/karma/browser/`): Karma o modülü bir `type: "module"` dosyası olarak yüklüyor, `awaitSkiko`'yu bekliyor
+        ve testleri ancak ondan sonra başlatıyor; JS hedefi de Wasm gibi `binaries.executable()` (CMP-4906). Rehber
+        "jsBrowserTest" diyor, bunların hiçbirini söylemiyor.
+*   [x] **Test temasına verilen pencere, testin çizdiği boy değil (2026-11-03).**
     *   Ne: `PantrixTestTheme(window = PantrixWindow(DpSize(1440.dp, 900.dp)))` ekrana 1440'lık bir pencerede olduğunu söylüyor, ama masaüstünde `runComposeUiTest` ekranı kendi 1024×768 piksellik yüzeyinde çiziyor. Formatico'nun geniş Table testi bu yüzden 1024'te koştu: araç çubuğu sığmadı, sondaki "Save as CSV" düğmesi sıfır genişlikte kaldı ve tıklama hiçbir şey yapmadı. Test ekranın kendisi değil, düzenin pencereden küçük olduğu bir hâli sınıyordu; hata bulunana kadar "düğme çalışmıyor" gibi göründü. `window`'un belgesi "the window the screen is told it is in" diyor, yani söylenen bu; ama test rehberi, ekranı o boyda çizmek için `PantrixWindowFrame`'in boyutlu bir kutuyla kullanılacağını söylemiyor (yalnızca uyarlanabilir rehberde, katlanan pencere örneğinde geçiyor).
     *   Nerede: MCP `get_api PantrixTestTheme` (`window`); `guide/testing`; `guide/adaptive` ("A folding window in a preview and a test").
     *   Öneri: test rehberine "bir genişlikteki düzeni sınamak için ekranı o boyda bir `PantrixWindowFrame`'e koyun" cümlesi ve örneği; ya da `PantrixTestTheme`'in `window` verildiğinde içeriği o boyda çizmesi.
-    *   Durum: açık. Formatico (2026-11-03) araç çubuğunu dar genişlikte de sığacak biçimde düzeltti (yol izi önce daralıyor); testler 1024'te koşmaya devam ediyor. Faz 15'te (2026-11-06) iki yol bulundu: ortak testte ekran panonun boyunda bir `PantrixWindowFrame`'e (`requiredSize`) konuyor; iOS'ta ve web'de Compose'un `runSkikoComposeUiTest(size = …)`'su testi o boyda çiziyor (iOS'un pano resimleri böyle). Rehber ikisini de anmıyor.
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-10 20:50). Test rehberinin 3.3'ü: pencere ekranın söylendiği boy, çizildiği boy değil; masaüstünde `runDesktopComposeUiTest(width, height)`, iOS'ta ve web'de `runSkikoComposeUiTest(size)`, ortak testte temanın içinde o boyda bir kutu; testin odasının dışında kalan çizilmiyor, oraya basılmıyor. Formatico `core:testing`'e `AtWindowSize`'ı koydu (kutu odanın sol üstünden); tabletteki dört test (Query, Convert, Schema, Types) artık tanılamayı da soruyor. Odanın dışında kalan bir menü satırına ekran okuyucusunun bastığı gibi basan beş test kalıyor; yorumları artık rehberi anıyor. Rehberin örneği kutuyu `requiredSize` ile veriyor: yeni bulgu, "Test rehberinin pencere boyundaki kutusu ekranı odanın ortasına koyuyor". Önceki durum: açık. Formatico (2026-11-03) araç çubuğunu dar genişlikte de sığacak biçimde düzeltti (yol izi önce daralıyor); testler 1024'te koşmaya devam ediyor. Faz 15'te (2026-11-06) iki yol bulundu: ortak testte ekran panonun boyunda bir `PantrixWindowFrame`'e (`requiredSize`) konuyor; iOS'ta ve web'de Compose'un `runSkikoComposeUiTest(size = …)`'su testi o boyda çiziyor (iOS'un pano resimleri böyle). Rehber ikisini de anmıyor.
 
-*   [ ] **Ekran görüntüsü testinin kurulumu sitede yok; Maestro görevleri yayımlanmıyor (2026-11-03).**
+*   [ ] **Test rehberinin pencere boyundaki kutusu ekranı odanın ortasına koyuyor (2026-11-10).**
+    *   Ne: Test rehberinin 3.3'ü bir ortak testte ekranı penceresinin boyunda çizmek için
+        `Box(Modifier.requiredSize(window.size))` veriyor. `requiredSize` odadan büyük bir kutuyu odanın ortasına
+        koyuyor (Compose'un belgesi: "the position of the content will be automatically offset to be centered"):
+        1024×768'lik bir odada 1440×900'lük kutunun soldan 208, üstten 66 pikseli odanın dışında kalıyor, yani ekranın
+        üst çubuğu çizilmiyor, ona basılmıyor. Rehberin aynı paragrafı "What stands outside the test's room is not
+        drawn, and a press there misses" diyor; okuyan, kesilenin alt ve sağ olduğunu sanıyor.
+    *   Nerede: MCP `get_documentation_page guide/testing`, 3.3 ("A Fixed Theme").
+    *   Öneri: örnek kutuyu odanın sol üstüne koysun:
+        `Modifier.wrapContentSize(Alignment.TopStart, unbounded = true).size(window.size)`; ya da
+        `requiredSize`'ın ortaladığını bir cümleyle söylesin.
+    *   Durum: açık. Formatico'yu tıkamıyor. Formatico `core:testing`'in `AtWindowSize`'ında kutuyu sol üstten veriyor.
+        Rehberin örneği Formatico'da denenmedi; Compose'un `requiredSize` belgesinden.
+*   [x] **Ekran görüntüsü testinin kurulumu sitede yok; Maestro görevleri yayımlanmıyor (2026-11-03).**
     *   Ne: Test rehberi Roborazzi için "Pantrix's own setup is in the Roborazzi guide" diyor ve deponun bir dosyasına bağlıyor; dışarıdan biri o depoyu okuyamıyor, sitede ve MCP'de o rehber yok. Kurulum özetin üç maddesinden çıkarıldı (eklenti, `roborazzi-compose-desktop`, `captureRoboImage`, `runDesktopComposeUiTest(width, height)`). Maestro'da rehber `maestroTest` ve `maestroIosTest` görevlerini anlatıyor; görevler Pantrix'in kendi `build-logic`'inde (`pantrix.demo.maestro`), bir uygulamaya verilmiyor. Formatico akışlarını `maestro test` ile koşturuyor.
     *   Nerede: MCP `get_documentation_page guide/testing`, bölüm 3.6 ve 3.7.
     *   Öneri: Roborazzi rehberi sitede ve MCP'de; Maestro görevleri yayımlanan bir Gradle eklentisi ya da rehberde kopyalanabilir bir görev.
-    *   Durum: açık.
-*   [ ] **Bir ekranın önizlemesi nasıl yazılır, belgelerde yok (2026-11-04).**
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-10 20:50). Test rehberinin 3.6'sı kopyalanabilir Roborazzi kurulumunu (eklenti, üç platformun bağımlılıkları, `filePathStrategy`) ve üç platformun test örneğini, 3.7'si bir Android uygulaması için kopyalanabilir `maestroTest` görevini veriyor. Kütüphanenin notu: bunlar bir uygulamada koşturulmadı, rehberde de öyle yazıyor. Formatico'nun kendi kurulumu değişmedi. Önceki durum: açık.
+*   [x] **Bir ekranın önizlemesi nasıl yazılır, belgelerde yok (2026-11-04).**
     *   Ne: Formatico her ekranı ve bileşeni `@Preview` ile, her hâlini sayan bir `PreviewParameterProvider`'la, panoların genişliklerinde, açık ve koyu temada önizliyor. Belgelerde önizlemeye dair bir rehber yok: hangi temanın içinde çizileceği, bir önizlemede masaüstünün ya da telefonun platformunun nasıl verileceği, saatin nasıl durdurulacağı yazmıyor. Sayfalar yalnızca geçerken anıyor ("a preview or a test gives…": `LocalPantrixClock`, `LocalFilePicker`, `PantrixWindowFrame`). `PantrixTestTheme` tam bunu yapıyor (platform, pencere, koyu tema, saat), ama `com.pantrixui:testing`'de: uygulamanın `commonMain`'indeki bir önizleme onu kullanamaz. Test rehberi ekran görüntüsünü bilerek uygulamaya bırakıyor ("There is no helper in the module for screenshot tests").
     *   Nerede: MCP `search_documentation "preview"`, `search_api "preview"`; `guide/testing`.
     *   Öneri: `guide/previews`: bir ekranın önizlemesi uygulamanın temasında, bir `PreviewParameterProvider`'la hâlleri, `@Preview(widthDp, heightDp)` ile pencereleri; ve `foundation`'da `PantrixTestTheme`'in önizlemeye uyan bir eşi (`PantrixPreviewTheme(platform, dark, window, clock)`), aynı hâller hem önizlemede hem ekran görüntüsünde çizilsin diye.
-    *   Durum: açık. Formatico kendisi yazdı (`core:designsystem`'de `FormaticoPreview`, `PreviewCases`, `BoardPreviews`, `Board`): önizleme Formatico'nun temasında, saat sabit; ekran görüntüsü aynı önizlemeyi `PantrixTestTheme`'in içinde çiziyor.
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-10 20:50). Yeni API `PantrixPreviewTheme(platform, dark, window, clock)` (`com.pantrixui.foundation.theme`) ve yeni rehber `guides/previews`. Formatico'nun `FormaticoPreview`'ü artık onun içinde çiziyor: bir panonun boyundaki önizleme o panonun platformunda ve penceresinde (IDE'de telefonun ve tabletin dokunma hedefleri), başka boydaki önizleme çevresindeki temanınkinde; saat `PreviewNow`. Ekran görüntüleri değişmedi (`verifyRoborazziJvm`); `FormaticoPreviewTest` iki durumu sınıyor. Önceki durum: açık. Formatico kendisi yazdı (`core:designsystem`'de `FormaticoPreview`, `PreviewCases`, `BoardPreviews`, `Board`): önizleme Formatico'nun temasında, saat sabit; ekran görüntüsü aynı önizlemeyi `PantrixTestTheme`'in içinde çiziyor.
 *   [ ] **Bir bileşen, içinde durduğu temanın koyu olup olmadığını okuyamıyor (2026-11-04).**
     *   Ne: `PantrixTheme`'in koyu temayı dıştaki temadan alan varsayılanı `inheritedDarkThemeOrSystem()`; API'de yok, uygulama çağıramıyor. Formatico'nun teması (`FormaticoTheme`) kendi sözdizimi renklerini koyu ya da açık seçiyor; dışında koyu bir tema varken onu bilemiyor, `isSystemInDarkTheme()`'e bakıyor. Bir testte `PantrixTestTheme(dark = true)` içine konan `FormaticoTheme()` sistemin moduna göre açık çiziliyor; önizlemede de aynı.
     *   Nerede: MCP `get_api com.pantrixui.foundation.theme.PantrixTheme` (`darkTheme`'in `defaultNote`'u), `search_api "isDark"`.
@@ -271,16 +293,16 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Öneri: sunucu hangi derlemeden olduğunu söylesin (sürüm ve derleme zamanı, `get_changelog`'un başında ya da her cevabın yapısal içeriğinde), eskisiyle çalışıldığı görülsün. CLAUDE.md'deki adım da yerel derlemeden sonra yeni bir oturum (ya da MCP sunucusunun yeniden bağlanması) desin.
     *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-10 18:58). Sunucu hangi derlemeden olduğunu söylüyor: `serverInfo.version` `0.1.2-SNAPSHOT+20261110T1558Z`, her cevabın başında "Answered by the MCP server of Pantrix UI 0.1.2-SNAPSHOT, built 2026-11-10 15:58 UTC." Denendi: yerel eklentinin jar'ı stdio'yla, `get_changelog`. Bu oturumun sunucusu 13:05'te eski jar'la başladı ve onunla cevap veriyor; yeni bir oturum yenisini alır. Önceki durum: açık. Formatico'yu tıkamıyor. Yeni bir oturum sunucuyu yeni jar'la başlatır.
 
-*   [ ] **Test rehberi Android'in host testlerinin ortak testleri almadığını söylüyor; almaları ve Android 17'nin iki şartı yazmıyor (2026-11-06).**
+*   [x] **Test rehberi Android'in host testlerinin ortak testleri almadığını söylüyor; almaları ve Android 17'nin iki şartı yazmıyor (2026-11-06).**
     *   Ne: Rehberin tuzaklarında "On Android the common tests do not run in the host tree" yazıyor. Formatico `app/shared`'de `withHostTest` açınca (AGP 9.5.0, Kotlin 2.4.21) derleyici `commonTest`'in `androidHostTest`'in bir parçası olduğunu söyledi: aynı dosyayı iki ağaca vermek "can be a part of only one module" hatası verdi, ortak testler de host testinin görevine girdi. Ortak testlerde Robolectric'in koşucusu (`@RunWith`) olmadığı için Android'de koşamıyorlar. Robolectric'le Roborazzi'nin özeti (bölüm 3.6) iki şeyi de anmıyor. Birincisi, Compose Multiplatform 1.12.2'nin Android `ui-test`'i Espresso 3.5.0 getiriyor; Espresso, Android 17'de (API 37, `compileSdk 37`) olmayan `InputManager.getInstance()`'ı arıyor ve her test düşüyor. İkincisi, Robolectric 4.17'nin Android 17'si JDK 21'de `jdk.internal.access`'e erişemiyor ("Failed to interact with raw FileDescriptor internals").
     *   Nerede: MCP `guide/testing`, bölüm 3.6 ve 7; `skill/testing` ("Running").
     *   Öneri: tuzak düzeltilsin ("host testi ortak testleri de alır; Robolectric'le koşmaları için…"); 3.6'ya Espresso 3.7.0 ve `--add-exports=java.base/jdk.internal.access=ALL-UNNAMED` eklensin.
-    *   Durum: açık. Formatico'yu tıkamıyor. Formatico (2026-11-06) host testinin görevini kendi resim testine süzüyor, Espresso 3.7.0'ı ve JVM bayrağını `app/shared/build.gradle.kts`'te veriyor; ikisi de önbellekteydi, indirme yok.
-*   [ ] **Web'de etiketin nerede olduğu ve nasıl basılacağı rehberde "doğrulanmadı" olarak kalıyor (2026-11-06).**
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-10 20:50). Test rehberinin 3.1'i ve tuzakları: host testleri kendi kaynak ağacında değilse ortak testler orada düz JUnit'le yeniden koşar (`withHostTestBuilder { sourceSetTreeName = "androidScreenshot" }`); Android 17 için Espresso 3.7.0 ve `--add-exports=java.base/jdk.internal.access=ALL-UNNAMED`. Formatico'nun `app/shared/build.gradle.kts`'i Espresso'yu ve JDK'nın bayraklarını aynı veriyor, host testinde yalnızca pano testini bir süzgeçle koşturuyor; yorumları artık rehberi anıyor. Önceki durum: açık. Formatico'yu tıkamıyor. Formatico (2026-11-06) host testinin görevini kendi resim testine süzüyor, Espresso 3.7.0'ı ve JVM bayrağını `app/shared/build.gradle.kts`'te veriyor; ikisi de önbellekteydi, indirme yok.
+*   [x] **Web'de etiketin nerede olduğu ve nasıl basılacağı rehberde "doğrulanmadı" olarak kalıyor (2026-11-06).**
     *   Ne: Rehber web'de cihaz otomasyonunu yok sayıyor: Maestro 2.10'un Chromium'u gölge kökün içini görmüyor (Formatico'da da öyle: Maestro'nun ağacında yalnızca `#app` var). "Not Verified" altında gölge köke giren bir aracın (Playwright) etiketleri bulup bulamayacağı denenmemiş. Formatico denedi: gölge kök açık (`element.shadowRoot`), `#cmp_a11y_root`'ta Pantrix etiketi `id`, adı `aria-label`, metni düğümün yazısı. Düğüm ekrandaysa kendi yerinde ve boyunda duruyor; ortasına DevTools'un fare olayıyla basmak Compose'a gerçek bir basış olarak gidiyor. Ekrandışı düğümler sıfır boyda.
     *   Nerede: MCP `guide/testing`, bölüm 5 ("Device automation on the web"), 8 ("The web (Maestro's Chromium)", "Not Verified").
     *   Öneri: rehbere web'de uçtan uca test için bir bölüm: kökü bulan bir satır JavaScript, etiketle seçim, kutunun ortasına basış. `com.pantrixui:testing`'de JVM'den Chrome'u süren küçük bir yardımcı da olabilir.
-    *   Durum: açık, bilgi. Formatico'nun tarayıcı testleri (`app/webTest`) bunu kendi yazdığı istemciyle yapıyor.
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-10 20:50). Test rehberinin 3.9'u ("End to End on the Web"): gölge kökteki `#cmp_a11y_root`'u bulan JavaScript, öğenin `id`'sinin Pantrix etiketi olduğu, `aria-label`, düğümün ortasına DevTools'un fare olayıyla ya da `click()` ile basmak, kopyanın 100 ms gecikmesi ve bir katmandan sonra donması. Formatico'nun `app/webTest`'i aynı yoldan yürüyor. Önceki durum: açık, bilgi. Formatico'nun tarayıcı testleri (`app/webTest`) bunu kendi yazdığı istemciyle yapıyor.
 *   [x] **`onKeyboardAction` bir eylem adı verilmeyince sessizce hiç çağrılmıyor (2026-11-06).**
     *   Ne: `PantrixTextField(state, …, onKeyboardAction = …)`'ın belgesi "It is called only for a named action, since the default one never reaches a handler" diyor; doğru, ama tek satırlık bir alana işleyici verip `keyboardOptions`'ta eylemi adlandırmayan bir çağrı hiçbir şey yapmıyor, hata ya da uyarı da çıkmıyor. Formatico'nun sorgu alanı Faz 9'dan beri böyleydi: Enter ve klavyenin tuşu sorguyu son kullanılanlara hiç eklemedi, test de yakalamadı. Formun aşırı yüklemesi bu durumda kendisi `ImeAction.Done` veriyor ("since the default action never reaches a handler"); durumun (`TextFieldState`) aşırı yüklemesi vermiyor.
     *   Nerede: MCP `get_component_metadata TextField` (`onKeyboardAction`, ve form aşırı yüklemesinin `form`'u).
@@ -289,11 +311,11 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
 
 ## 5. Web
 
-*   [ ] **Yol silen webpack eklentisi rehberde yok (2026-11-02).**
+*   [x] **Yol silen webpack eklentisi rehberde yok (2026-11-02).**
     *   Ne: Web uyumluluğu rehberi, Skia betiğindeki `import.meta.url`'nin derleyen makinenin yolunu (`file:///Users/…`) yayına taşıdığını ve bunun `webpack.config.d/stripFilePaths.js` ile silindiğini söylüyor; eklentinin kendisini vermiyor. Dışarıdan bir uygulama aynısını yapamıyor.
     *   Nerede: [Old Browsers and a Wasm That Will Not Start](https://pantrixui.com/docs/guides/web-compatibility), bölüm 7 ve 9.
     *   Öneri: eklentinin metni rehberde, ya da paket deposunda indirilebilir.
-    *   Durum: açık.
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-10 20:50). Web uyumluluğu rehberinin 3.3'ü `stripFilePaths.js`'in metnini veriyor. Formatico'nun `config/webpack/strip-file-paths.js`'i aynı işi yapıyor; yorumu artık rehberi anıyor. Önceki durum: açık.
 
 *   [x] **Teşhisler, web'de kelimeler yüklenirken adı boş satırları bildiriyor (MissingName, kelimeler yüklenirken) (2026-11-03).**
     *   Ne: Tarayıcıda uygulamanın kendi kelimeleri (Compose kaynakları) ilk kareden sonra geliyor. O arada `PantrixListItem`'ın başlığı boş; teşhisler bunu hemen `MissingName` diye bildiriyor ("ListItem has a blank name"). Kelimeler birkaç kare sonra geliyor, satırın adı oluyor, bulgu ise kalıyor ve `assertNoFindings` başarısız. Sıkışan dokunma alanı yarım saniye, iki düğümdeki etiket bir buçuk saniye bekleniyor; boş ad hiç beklenmiyor. Masaüstünde ve iOS'ta kelimeler ilk karede olduğu için görülmüyor.
@@ -543,11 +565,11 @@ Formatico'nun işini tıkayan bir maddenin durumu `tıkıyor` der (`Durum: açı
     *   Öneri: `PantrixCodeEditor`'a `softWrap: Boolean` (varsayılanı bugünkü gibi `false`): satır, editörün genişliğinde alttan devam eder; devam eden parçanın numarası yok (oluk boş), girintisi satırın girintisi kadar; imleç, seçim, bul ve işaretler (`lineMarks`, `rangeMarks`) kaydırılmış satırda da doğru yerde. `PantrixCodeBlock`'ta da aynı seçenek.
     *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-05). Geldi: `PantrixCodeEditor`'ın `softWrap`'ı (varsayılanı `false`); devam eden sıra kodun başladığı yerden başlıyor (asılı girinti yok: Compose 1.12'de satır başına `ParagraphStyle` her satıra boş bir sıra ekliyor), numara ve oluk işareti ilk sıranın yanında, `lineMarks`'ın bandı bütün sıraları kaplıyor, `revealLines` kaydırılmış satırı bütün olarak getiriyor. Settings'in "Wrap long lines"ı (ilk değeri açık, panodaki gibi) Workspace'in metnine, Convert'in çıktısına ve Compare'in iki metnine `LocalWrapLines` ile veriliyor. Denendi: JVM, iOS simülatörü ve Wasm testleri; ekran görüntüleri ("long lines" ve "long lines wrapped"). Önceki durum: açık, tıkıyor (sahibinin kararı, 2026-11-05).
 
-*   [ ] **Uygulamanın kendi sözcüklerinin dili için yol gösterilmiyor (2026-11-05).**
+*   [x] **Uygulamanın kendi sözcüklerinin dili için yol gösterilmiyor (2026-11-05).**
     *   Ne: Settings'te dil seçiliyor (English, Türkçe). `PantrixTheme(locale = …)` Pantrix'in bileşenlerinin sözcüklerini ve yönünü veriyor; ama uygulamanın kendi sözcükleri Compose'un kaynaklarından (`stringResource`) geliyor ve onlar platformun dilini okuyor. Sitede, bir uygulamanın kendi sözcüklerini seçilen dile nasıl geçireceği yazmıyor; Formatico bunu JetBrains'in belgelediği yolla, her platformda ayrı (`LocalAppLocale`: JVM'de ve Android'de `Locale`, iOS'ta `AppleLanguages`, web'de `navigator.languages`'ı değiştiren bir betik) ve bileşimi `key` ile baştan kurarak yaptı.
     *   Nerede: MCP `get_documentation_page language` ("Language and words"); MCP `search_documentation "app chooses its own language"`.
     *   Öneri: sayfaya "uygulamanın kendi dili" bölümü; ya da Pantrix'te bir yardımcı (`PantrixTheme`'in dili Compose'un kaynaklarına da geçirmesi, ya da `rememberAppLanguage`), testteki karşılığıyla.
-    *   Durum: açık. Formatico (2026-11-06, sahibinin isteği) yolu değiştirdi: sözcükleri Compose'un kaynaklarından çıkardı, her özelliğin kendi Kotlin arayüzüne ve dil başına nesnesine taşıdı, Pantrix'in `PantrixStrings`'i gibi; hangisinin okunacağını `PantrixTheme.locale` söylüyor. Platformun dili artık değiştirilmiyor. Sitede bu yol da yazmıyor; önerisi geçerli. Önceki durum: açık. Formatico'yu tıkamıyor. Cihazlarda denendi (2026-11-06): Android'de, iOS simülatöründe ve web'de dil anında geçiyor, yeniden açılışta kalıyor. Web'de bir tuzak çıktı: bileşimin sözcükleri `navigator.languages`'tan, bileşim dışında okunanlar (`getString`; Convert'in TOML'da bırakılan null'ı anan yorumu) `navigator.language`'tan geliyor (Compose kaynaklarının Wasm ve JS `getSystemEnvironment`'ı). Yalnızca `languages` değiştirildiğinde arayüz Türkçe, yorum İngilizce kaldı; `index.html` şimdi ikisini de değiştiriyor. Bir yardımcı ya da bölüm bunu da söylemeli.
+    *   Durum: kapandı (0.1.2-SNAPSHOT, 2026-11-10 20:50). Yeni rehber `guides/language`: uygulamanın kendi sözcükleri. A yolu sözcükleri Kotlin'de tutup `PantrixTheme.locale` ile seçiyor (Formatico'nun ve demonun yolu); B yolu Compose'un kaynakları, platform başına dili, web'de `navigator.languages` ile `navigator.language`'ı. Formatico'da değişen yok. Önceki durum: açık. Formatico (2026-11-06, sahibinin isteği) yolu değiştirdi: sözcükleri Compose'un kaynaklarından çıkardı, her özelliğin kendi Kotlin arayüzüne ve dil başına nesnesine taşıdı, Pantrix'in `PantrixStrings`'i gibi; hangisinin okunacağını `PantrixTheme.locale` söylüyor. Platformun dili artık değiştirilmiyor. Sitede bu yol da yazmıyor; önerisi geçerli. Önceki durum: açık. Formatico'yu tıkamıyor. Cihazlarda denendi (2026-11-06): Android'de, iOS simülatöründe ve web'de dil anında geçiyor, yeniden açılışta kalıyor. Web'de bir tuzak çıktı: bileşimin sözcükleri `navigator.languages`'tan, bileşim dışında okunanlar (`getString`; Convert'in TOML'da bırakılan null'ı anan yorumu) `navigator.language`'tan geliyor (Compose kaynaklarının Wasm ve JS `getSystemEnvironment`'ı). Yalnızca `languages` değiştirildiğinde arayüz Türkçe, yorum İngilizce kaldı; `index.html` şimdi ikisini de değiştiriyor. Bir yardımcı ya da bölüm bunu da söylemeli.
 
 *   [x] **iOS'ta `systemPantrixLocale()` cihazın dilini değil, uygulamanın paketinin dilini veriyor (2026-11-06).**
     *   Ne: iOS'ta `systemPantrixLocale()` `NSLocale.currentLocale`'i okuyor. iOS o locale'in dilini, cihazın sıraladığı dillerden uygulamanın paketinin bildirdiği bir dil olarak seçiyor: paketi ne `.lproj` klasörü ne `CFBundleLocalizations` taşıyan bir uygulama geliştirme dilinde, İngilizcede kalıyor. Sözcüklerini Pantrix'in `PantrixStrings`'i gibi Kotlin'de tutan, temaya dil vermeyen Formatico, simülatörün dili Türkçeyken (`AppleLanguages` `tr-TR, en-TR`, `AppleLocale` `tr_TR`) `en-TR` aldı: kendi sözcükleri de Pantrix'in bileşenlerininki de İngilizceydi. Android'de (`Configuration`'ın dili, uygulama açıkken de anında) ve web'de (`navigator.language`) cihazın dili geliyor.

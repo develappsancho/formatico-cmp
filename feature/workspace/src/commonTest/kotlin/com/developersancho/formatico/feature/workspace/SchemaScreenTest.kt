@@ -11,6 +11,7 @@ import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.format.Format
+import com.developersancho.formatico.core.testing.AtWindowSize
 import com.developersancho.formatico.core.testing.awaitNode
 import com.developersancho.formatico.core.testing.awaitText
 import com.pantrixui.components.data.codeeditor.CodeEditorState
@@ -78,10 +79,15 @@ class SchemaScreenTest {
 
     @Test
     fun aTabletValidatesInTheWholeRoomAndAProblemPressedShowsTheText() = runComposeUiTest {
+        val findings = PantrixFindings()
         val intents = mutableListOf<WorkspaceIntent>()
         setContent {
-            PantrixTestTheme(window = tablet, clock = clock) {
-                WorkspaceScreen(state = OrderAgainstSchema, onIntent = { intents += it }, commands = rememberDocumentCommands(Workbench()))
+            PantrixTestTheme(window = tablet, findings = findings, clock = clock) {
+                AtWindowSize(tablet) {
+                    WorkspaceScreen(state = OrderAgainstSchema, onIntent = {
+                        intents += it
+                    }, commands = rememberDocumentCommands(Workbench()))
+                }
             }
         }
 
@@ -90,8 +96,7 @@ class SchemaScreenTest {
         onPantrixNode("Tag", "source_format").assertDoesNotExist()
         onNodeWithText("coupon must be a string, and is null.").performClick()
         assertEquals(WorkspaceIntent.ShowPane(DocumentPane.Text), intents.last())
-        // The diagnostics are not asked about: the test draws in less than the tablet's window (PANTRIX_FINDINGS, "Test
-        // temasına verilen pencere, testin çizdiği boy değil").
+        assertNoFindings(findings)
     }
 
     @Test

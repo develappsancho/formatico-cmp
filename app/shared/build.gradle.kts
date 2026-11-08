@@ -56,8 +56,7 @@ kotlin {
             implementation(libs.kotlin.testJunit)
             implementation(libs.robolectric)
             // Compose's Android test brings Espresso 3.5, which looks for an input manager Android 17 has no more
-            // (PANTRIX_FINDINGS, "Test rehberi Android'in host testlerinin ortak testleri almadığını söylüyor; almaları
-            // ve Android 17'nin iki şartı yazmıyor").
+            // (Pantrix's testing guide, 3.1, "Android 17 under Robolectric").
             implementation(libs.androidx.test.espressoCore)
             implementation(libs.roborazzi.android)
             implementation(libs.roborazzi.compose)
@@ -72,6 +71,6 @@ dependencies {
 tasks.withType<Test>().matching { it.name == "testAndroidHostTest" }.configureEach {
     filter { includeTestsMatching("com.developersancho.formatico.BoardScreenshotAndroidTest") }
     // Robolectric's Android 17 sets a file descriptor's fields through the JDK's own access, which JDK 21 keeps closed
-    // (PANTRIX_FINDINGS, the same finding as Espresso's above).
+    // (Pantrix's testing guide, 3.1, as Espresso's above).
     jvmArgs("--add-exports=java.base/jdk.internal.access=ALL-UNNAMED", "--add-opens=java.base/java.io=ALL-UNNAMED")
 }

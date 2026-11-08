@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.format.Format
 import com.developersancho.formatico.core.format.convert.NullHandling
+import com.developersancho.formatico.core.testing.AtWindowSize
 import com.developersancho.formatico.core.testing.awaitNode
 import com.developersancho.formatico.core.testing.awaitText
 import com.developersancho.formatico.core.testing.awaitUntil
@@ -121,10 +122,13 @@ class ConvertScreenTest {
 
     @Test
     fun aTabletConvertsInTheWholeRoomAndSaysWhatTomlLeavesOut() = runComposeUiTest {
+        val findings = PantrixFindings()
         val intents = mutableListOf<WorkspaceIntent>()
         setContent {
-            PantrixTestTheme(window = tablet, clock = clock) {
-                WorkspaceScreen(state = OrderToToml, onIntent = { intents += it }, commands = rememberDocumentCommands(Workbench()))
+            PantrixTestTheme(window = tablet, findings = findings, clock = clock) {
+                AtWindowSize(tablet) {
+                    WorkspaceScreen(state = OrderToToml, onIntent = { intents += it }, commands = rememberDocumentCommands(Workbench()))
+                }
             }
         }
 
@@ -142,8 +146,7 @@ class ConvertScreenTest {
 
         onPantrixNode("Segment", "empty", scope = "SegmentButton_nulls").performClick()
         assertEquals(WorkspaceIntent.Convert(ConvertChoice(to = Format.Toml, nulls = NullHandling.EmptyString)), intents.last())
-        // The diagnostics are not asked about: the test draws in less than the tablet's window (PANTRIX_FINDINGS, "Test
-        // temasına verilen pencere, testin çizdiği boy değil").
+        assertNoFindings(findings)
     }
 
     @Test
@@ -187,7 +190,7 @@ class ConvertScreenTest {
 
         onPantrixNode("IconButton", "more").performClick()
         // The test draws in less than the phone's window, and the menu's row stands past its foot: it is pressed as a
-        // screen reader presses it (PANTRIX_FINDINGS, "Test temasına verilen pencere, testin çizdiği boy değil").
+        // screen reader presses it (Pantrix's testing guide, 3.3).
         onPantrixNode("MenuItem", "convert", scope = "Menu_document").performSemanticsAction(SemanticsActions.OnClick)
         awaitUntil("The conversion is opened") { converting }
     }

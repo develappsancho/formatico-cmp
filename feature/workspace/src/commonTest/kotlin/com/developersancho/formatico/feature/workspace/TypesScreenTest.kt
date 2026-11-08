@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.developersancho.formatico.core.format.Format
 import com.developersancho.formatico.core.format.types.TypeLanguage
+import com.developersancho.formatico.core.testing.AtWindowSize
 import com.developersancho.formatico.core.testing.awaitNode
 import com.developersancho.formatico.core.testing.awaitText
 import com.developersancho.formatico.core.testing.awaitUntil
@@ -105,10 +106,15 @@ class TypesScreenTest {
 
     @Test
     fun aTabletWritesTheTypesInTheWholeRoom() = runComposeUiTest {
+        val findings = PantrixFindings()
         val intents = mutableListOf<WorkspaceIntent>()
         setContent {
-            PantrixTestTheme(window = tablet, clock = clock) {
-                WorkspaceScreen(state = OrderInTypeScript, onIntent = { intents += it }, commands = rememberDocumentCommands(Workbench()))
+            PantrixTestTheme(window = tablet, findings = findings, clock = clock) {
+                AtWindowSize(tablet) {
+                    WorkspaceScreen(state = OrderInTypeScript, onIntent = {
+                        intents += it
+                    }, commands = rememberDocumentCommands(Workbench()))
+                }
             }
         }
 
@@ -119,8 +125,7 @@ class TypesScreenTest {
         onPantrixNode("Button", "save_types").assert(hasText("Save as order.ts"))
         onPantrixNode("IconButton", "copy_types").assert(hasContentDescription("Copy the TypeScript"))
         awaitText(" B → TypeScript: 6 types, ", substring = true)
-        // The diagnostics are not asked about: the test draws in less than the tablet's window (PANTRIX_FINDINGS, "Test
-        // temasına verilen pencere, testin çizdiği boy değil").
+        assertNoFindings(findings)
     }
 
     @Test
@@ -164,8 +169,8 @@ class TypesScreenTest {
         }
 
         onPantrixNode("IconButton", "more").performClick()
-        // The menu's row stands past the test's foot: it is pressed as a screen reader presses it (PANTRIX_FINDINGS,
-        // "Test temasına verilen pencere, testin çizdiği boy değil").
+        // The menu's row stands past the test's foot: it is pressed as a screen reader presses it (Pantrix's testing
+        // guide, 3.3).
         onPantrixNode("MenuItem", "types", scope = "Menu_document").performSemanticsAction(SemanticsActions.OnClick)
         awaitUntil("The types are opened") { typing }
     }
