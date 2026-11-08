@@ -2,6 +2,8 @@ package com.developersancho.formatico.feature.workspace
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -11,25 +13,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import com.developersancho.formatico.core.share.ShareKeep
 import com.developersancho.formatico.core.share.ShareOutcome
 import com.developersancho.formatico.feature.workspace.strings.shareStrings
 import com.developersancho.formatico.feature.workspace.strings.workspaceStrings
 import com.pantrixui.components.elements.button.ButtonSize
 import com.pantrixui.components.elements.button.ButtonVariant
 import com.pantrixui.components.elements.button.PantrixButton
-import com.pantrixui.components.elements.icon.PantrixIcon
-import com.pantrixui.components.elements.switchbutton.PantrixSwitchButton
 import com.pantrixui.components.elements.text.PantrixText
-import com.pantrixui.components.inputs.textfield.PantrixTextField
 import com.pantrixui.components.overlay.dialog.PantrixDialog
 import com.pantrixui.components.overlay.sheet.PantrixSheet
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.theme.PantrixTheme
 
 /**
- * The document's share while [state] holds one, as the Share boards draw it: its link, how long it is, and whether the
- * link carries the document formatted, in a dialog; on a phone in a sheet, with the platform's own way of sending it
- * to another app where it has one ([sending]). A document too large for a link is told so, and saved as a file instead.
+ * The document's share while [state] holds one, as the Share boards draw it: in the link itself, or as an encrypted
+ * link Formatico's server keeps, in a dialog; on a phone in a sheet, with the platform's own way of sending the link
+ * to another app where it has one ([sending]). A document a link cannot hold goes as an encrypted link, and one too
+ * large for that as well is saved as a file instead.
  */
 @Composable
 internal fun ShareDocument(
@@ -60,7 +61,7 @@ internal fun ShareDocument(
                 close()
             }
         },
-        format = { onIntent(WorkspaceIntent.ShareFormatted(it)) }
+        intent = onIntent
     )
     if (layout == WorkspaceLayout.Phone) {
         ShareSheet(visible = state.share != null, share = share, actions = actions)
@@ -69,46 +70,87 @@ internal fun ShareDocument(
     }
 }
 
-/** What the share's buttons do: close it, copy or send the link, save the document as a file, format it in the link. */
+/**
+ * What the share's buttons do: close it, copy or send the link, save the document as a file; the rest are asked of the
+ * workspace by [intent]: format it in the link, choose how it is shared and for how long, make its encrypted link and
+ * delete it.
+ */
 internal class ShareActions(
     val close: () -> Unit,
     val copy: (String) -> Unit,
     val save: () -> Unit,
     val send: ((String) -> Unit)?,
-    val format: (Boolean) -> Unit
-)
+    private val intent: (WorkspaceIntent) -> Unit = {}
+) {
+    val format: (Boolean) -> Unit = { intent(WorkspaceIntent.ShareFormatted(it)) }
+    val way: (ShareWay) -> Unit = { intent(WorkspaceIntent.ShareBy(it)) }
+    val keep: (ShareKeep) -> Unit = { intent(WorkspaceIntent.ShareKept(it)) }
+    val create: () -> Unit = { intent(WorkspaceIntent.CreateEncryptedLink) }
+    val delete: () -> Unit = { intent(WorkspaceIntent.DeleteEncryptedLink) }
+}
 
 /** The share's name for the document: its own, or the untitled one's. */
 @Composable
 private fun DocumentShare.title(): String = name ?: workspaceStrings.untitled
 
-/** The share in a dialog, in a wide window and on a tablet: Share-1440, and Share-834 for a document too large. */
+/** The share's title: the document's name, or that it is too large to share at all. */
+@Composable
+private fun DocumentShare.heading(): String = if (tooLarge) shareStrings.tooLargeTitle(title()) else shareStrings.title(title())
+
+/** What the share says before its choices: why the document goes as an encrypted link, or as a file. */
+@Composable
+private fun DocumentShare.preface(): String? {
+    val bytes = (outcome as? ShareOutcome.TooLarge)?.bytes ?: return null
+    val size = PantrixTheme.strings.fileSize(bytes.toLong())
+    return if (tooLarge) shareStrings.tooLargeBody(size) else shareStrings.encryptedOnlyBody(title(), size)
+}
+
+/** The share in a dialog, in a wide window and on a tablet: Share-1440 and Share-834. */
 @Composable
 private fun ShareDialog(visible: Boolean, share: DocumentShare, actions: ShareActions) {
-    val tooLarge = share.outcome as? ShareOutcome.TooLarge
     val link = share.outcome as? ShareOutcome.Link
     PantrixDialog(
         visible = visible,
         onDismissRequest = actions.close,
-        title = if (tooLarge != null) shareStrings.tooLargeTitle(share.title()) else shareStrings.title(share.title()),
-        message = if (tooLarge != null) tooLargeBody(tooLarge) else shareStrings.body,
-        icon = if (tooLarge != null) PantrixIcons.Warning else null,
-        actions = {
-            PantrixButton(
-                text = shareStrings.cancel,
-                onClick = actions.close,
-                variant = ButtonVariant.Text,
-                tagKey = "cancel"
-            )
-            if (tooLarge != null) SaveButton(actions) else CopyButton(link, actions)
-        },
+        title = share.heading(),
+        message = share.preface(),
+        icon = if (share.tooLarge) PantrixIcons.Warning else null,
+        actions = { DialogActions(share, link, actions) },
         tagKey = "share"
     ) {
-        if (tooLarge == null) {
+        if (!share.tooLarge) {
             Column(verticalArrangement = Arrangement.spacedBy(PantrixTheme.spacing.lg)) {
-                LinkField(share, link, phone = false)
-                FormattedSwitch(share, actions)
+                ShareChoices(share, link, actions, phone = false)
             }
+        }
+    }
+}
+
+/** The dialog's buttons, as each state of the boards ends. */
+@Composable
+private fun RowScope.DialogActions(share: DocumentShare, link: ShareOutcome.Link?, actions: ShareActions) {
+    val encrypted = share.encrypted
+    when {
+        share.tooLarge -> {
+            CancelButton(actions)
+            SaveButton(actions)
+        }
+
+        share.shownWay == ShareWay.Link -> {
+            CancelButton(actions)
+            CopyButton(link?.link, actions)
+        }
+
+        encrypted is EncryptedShare.Created -> {
+            DeleteButton(actions)
+            Spacer(Modifier.weight(1f))
+            PantrixButton(text = shareStrings.done, onClick = actions.close, variant = ButtonVariant.Text, tagKey = "done")
+            CopyButton(encrypted.link.link, actions)
+        }
+
+        else -> {
+            CancelButton(actions)
+            CreateButton(encrypted, actions)
         }
     }
 }
@@ -116,122 +158,40 @@ private fun ShareDialog(visible: Boolean, share: DocumentShare, actions: ShareAc
 /** The share in a sheet, on a phone: Share-390, with the platform's own way of sending the link where it has one. */
 @Composable
 private fun ShareSheet(visible: Boolean, share: DocumentShare, actions: ShareActions) {
-    val tooLarge = share.outcome as? ShareOutcome.TooLarge
     val link = share.outcome as? ShareOutcome.Link
-    PantrixSheet(
-        visible = visible,
-        onDismissRequest = actions.close,
-        title = if (tooLarge != null) shareStrings.tooLargeTitle(share.title()) else shareStrings.title(share.title()),
-        tagKey = "share"
-    ) {
+    val encrypted = share.encrypted
+    PantrixSheet(visible = visible, onDismissRequest = actions.close, title = share.heading(), tagKey = "share") {
         Column(
             modifier = Modifier.fillMaxWidth().padding(horizontal = PantrixTheme.spacing.lg).padding(bottom = PantrixTheme.spacing.sm),
             verticalArrangement = Arrangement.spacedBy(PantrixTheme.spacing.lg)
         ) {
-            PantrixText(
-                text = if (tooLarge != null) tooLargeBody(tooLarge) else shareStrings.bodyPhone,
-                style = PantrixTheme.typography.body.copy(fontWeight = FontWeight.Medium),
-                color = PantrixTheme.colors.textSecondary
-            )
-            if (tooLarge == null) {
-                LinkField(share, link, phone = true)
-                FormattedSwitch(share, actions)
+            share.preface()?.let {
+                PantrixText(
+                    text = it,
+                    style = PantrixTheme.typography.body.copy(fontWeight = FontWeight.Medium),
+                    color = PantrixTheme.colors.textSecondary
+                )
             }
+            if (!share.tooLarge) ShareChoices(share, link, actions, phone = true)
             Column(verticalArrangement = Arrangement.spacedBy(PantrixTheme.spacing.sm)) {
-                if (tooLarge != null) {
-                    SaveButton(actions, Modifier.fillMaxWidth(), ButtonSize.Large)
-                } else {
-                    CopyButton(link, actions, Modifier.fillMaxWidth(), ButtonSize.Large)
-                    actions.send?.let { send ->
-                        PantrixButton(
-                            text = shareStrings.send,
-                            onClick = { link?.let { send(it.link) } },
-                            modifier = Modifier.fillMaxWidth(),
-                            variant = ButtonVariant.Outline,
-                            size = ButtonSize.Large,
-                            enabled = link != null,
-                            tagKey = "send"
-                        )
+                val wide = Modifier.fillMaxWidth()
+                when {
+                    share.tooLarge -> SaveButton(actions, wide, ButtonSize.Large)
+
+                    share.shownWay == ShareWay.Link -> {
+                        CopyButton(link?.link, actions, wide, ButtonSize.Large)
+                        SendButton(link?.link, actions)
                     }
+
+                    encrypted is EncryptedShare.Created -> {
+                        CopyButton(encrypted.link.link, actions, wide, ButtonSize.Large)
+                        SendButton(encrypted.link.link, actions)
+                        DeleteButton(actions, wide, ButtonSize.Large)
+                    }
+
+                    else -> CreateButton(encrypted, actions, wide, ButtonSize.Large)
                 }
             }
         }
     }
-}
-
-/** Why the document has no link: how large it is beside what a link holds. */
-@Composable
-private fun tooLargeBody(tooLarge: ShareOutcome.TooLarge): String =
-    shareStrings.tooLargeBody(PantrixTheme.strings.fileSize(tooLarge.bytes.toLong()))
-
-/**
- * The link, to read and select, and under it how much of the document it carries in how many characters, and whether
- * every app takes it whole. Empty while the first link is being made.
- */
-@Composable
-private fun LinkField(share: DocumentShare, link: ShareOutcome.Link?, phone: Boolean) {
-    val strings = PantrixTheme.strings
-    val fits = link?.let {
-        val words = when {
-            !it.short -> shareStrings::fitsLong
-            phone -> shareStrings::fitsShortPhone
-            else -> shareStrings::fitsShort
-        }
-        words(
-            strings.fileSize(it.bytes.toLong()),
-            share.format?.displayName ?: shareStrings.plainText,
-            strings.decimal(it.characters.toDouble())
-        )
-    }
-    PantrixTextField(
-        value = link?.link.orEmpty(),
-        onValueChange = {},
-        modifier = Modifier.fillMaxWidth(),
-        readOnly = true,
-        label = shareStrings.link,
-        supportingText = fits,
-        tagKey = "link"
-    )
-}
-
-/** Whether the link carries the document as Format writes it: not for plain text, nor a document with errors. */
-@Composable
-private fun FormattedSwitch(share: DocumentShare, actions: ShareActions) {
-    PantrixSwitchButton(
-        checked = share.formatted && share.canFormat,
-        onCheckedChange = actions.format,
-        label = shareStrings.formatted,
-        enabled = share.canFormat,
-        tagKey = "formatted"
-    )
-}
-
-@Composable
-private fun CopyButton(
-    link: ShareOutcome.Link?,
-    actions: ShareActions,
-    modifier: Modifier = Modifier,
-    size: ButtonSize = ButtonSize.Medium
-) {
-    PantrixButton(
-        text = shareStrings.copy,
-        onClick = { link?.let { actions.copy(it.link) } },
-        modifier = modifier,
-        size = size,
-        enabled = link != null,
-        leadingIcon = { PantrixIcon(imageVector = PantrixIcons.Copy, contentDescription = null) },
-        tagKey = "copy_link"
-    )
-}
-
-@Composable
-private fun SaveButton(actions: ShareActions, modifier: Modifier = Modifier, size: ButtonSize = ButtonSize.Medium) {
-    PantrixButton(
-        text = workspaceStrings.saveFile,
-        onClick = actions.save,
-        modifier = modifier,
-        size = size,
-        leadingIcon = { PantrixIcon(imageVector = PantrixIcons.Download, contentDescription = null) },
-        tagKey = "save"
-    )
 }

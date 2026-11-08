@@ -6,6 +6,7 @@ import com.developersancho.formatico.core.format.Format
 import com.developersancho.formatico.core.format.Repairs
 import com.developersancho.formatico.core.format.convert.ConvertOptions
 import com.developersancho.formatico.core.format.xml.XmlDocument
+import com.developersancho.formatico.core.share.ShareKeep
 import com.developersancho.formatico.core.share.ShareLinks
 import com.developersancho.formatico.core.share.SharedDocument
 import com.developersancho.formatico.core.storage.MemorySmallStore
@@ -28,14 +29,18 @@ import kotlinx.coroutines.withContext
  * @param readings what the open documents were read as: a document read before is not read again.
  * @param reader where the document is read, off the main thread.
  * @param queries the queries used on this device, which the Query view offers again.
+ * @param language the language the words a conversion writes into the document are in.
+ * @param sharing the encrypted links the share makes, and those it made before.
  */
+@Suppress("LongParameterList") // Each is the view model's own, and a test gives each a stand-in: none is a part of another.
 internal class WorkspaceViewModel(
     private val documentId: Long,
     private val workbench: Workbench,
     private val readings: Readings = Readings(workbench),
     private val reader: CoroutineDispatcher = Dispatchers.Default,
     private val queries: QueryHistory = QueryHistory(MemorySmallStore(), CoroutineScope(Dispatchers.Unconfined)),
-    private val language: () -> String = { "en" }
+    private val language: () -> String = { "en" },
+    private val sharing: EncryptedSharing = EncryptedSharing()
 ) : MviViewModel<WorkspaceState, WorkspaceIntent, WorkspaceEffect>(WorkspaceState()) {
     init {
         val document = workbench.state
@@ -67,6 +72,9 @@ internal class WorkspaceViewModel(
     /** Whether the link is to carry the document formatted: off each time the share opens, as its boards draw it. */
     private val shareFormatted = MutableStateFlow(false)
 
+    /** The document as the share sends it: its text, formatted where the reader chose, and its name. */
+    private var shared: SharedDocument? = null
+
     init {
         // The link is made while the share is shown, off the main thread, again as the text or the choice changes; the
         // link made before stays until the next is made.
@@ -83,12 +91,32 @@ internal class WorkspaceViewModel(
                     val document = OpenDocument(id = documentId, name = name, text = text, format = format)
                     (edited(document, DocumentEdit.Format, options) as? Edited.Text)?.text
                 }
-                val sent = if (formatted && formattedText != null) formattedText else text
+                val sent = SharedDocument(if (formatted && formattedText != null) formattedText else text, name)
+                this@WorkspaceViewModel.shared = sent
                 setState {
-                    copy(share = DocumentShare(name, format, formatted, canFormat = formattedText != null, outcome = share?.outcome))
+                    val before = share
+                    copy(
+                        share = DocumentShare(
+                            name = name,
+                            format = format,
+                            formatted = formatted,
+                            canFormat = formattedText != null,
+                            outcome = before?.outcome,
+                            way = before?.way ?: ShareWay.Link,
+                            keep = before?.keep ?: ShareKeep.Week
+                        )
+                    )
                 }
-                val outcome = withContext(reader) { ShareLinks.share(SharedDocument(sent, name)) }
+                val outcome = withContext(reader) { ShareLinks.share(sent) }
                 setState { copy(share = share?.copy(outcome = outcome)) }
+                // An encrypted link made of this very text before, and not expired, is shown again. It is looked for apart:
+                // a browser's fingerprint of the text is a promise, which the next text or choice should not wait for.
+                viewModelScope.launch {
+                    val made = sharing.find(sent.text) ?: return@launch
+                    if (this@WorkspaceViewModel.shared == sent) {
+                        setState { copy(share = share?.copy(way = ShareWay.Encrypted, encrypted = EncryptedShare.Created(made))) }
+                    }
+                }
             }
         }
     }
@@ -260,6 +288,39 @@ internal class WorkspaceViewModel(
             }
 
             is WorkspaceIntent.ShareFormatted -> shareFormatted.value = intent.formatted
+
+            is WorkspaceIntent.ShareBy -> setState { copy(share = share?.copy(way = intent.way)) }
+
+            is WorkspaceIntent.ShareKept -> setState { copy(share = share?.copy(keep = intent.keep)) }
+
+            WorkspaceIntent.CreateEncryptedLink -> createEncryptedLink()
+
+            WorkspaceIntent.DeleteEncryptedLink -> deleteEncryptedLink()
+        }
+    }
+
+    /**
+     * Makes the document's encrypted link: encrypted off the screen's thread, sent to Formatico's server, and kept on
+     * this device with what deleting it takes.
+     */
+    private fun createEncryptedLink() {
+        val share = state.value.share ?: return
+        val document = shared ?: return
+        if (share.encrypted == EncryptedShare.Creating || share.encrypted is EncryptedShare.Created) return
+        setState { copy(share = this.share?.copy(encrypted = EncryptedShare.Creating)) }
+        viewModelScope.launch {
+            val encrypted = withContext(reader) { sharing.create(document, share.keep) }
+            // The share may have closed meanwhile, or now send another text.
+            if (shared == document) setState { copy(share = this.share?.copy(encrypted = encrypted)) }
+        }
+    }
+
+    /** Deletes the encrypted link from Formatico's server, and forgets it here; it stays where the server is not reached. */
+    private fun deleteEncryptedLink() {
+        val created = state.value.share?.encrypted as? EncryptedShare.Created ?: return
+        viewModelScope.launch {
+            val encrypted = sharing.delete(created)
+            setState { copy(share = share?.copy(encrypted = encrypted)) }
         }
     }
 

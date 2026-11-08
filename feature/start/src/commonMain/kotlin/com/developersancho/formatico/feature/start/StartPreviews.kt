@@ -8,6 +8,8 @@ import com.developersancho.formatico.core.designsystem.PreviewCase
 import com.developersancho.formatico.core.designsystem.PreviewCases
 import com.developersancho.formatico.core.designsystem.PreviewNow
 import com.developersancho.formatico.core.format.Format
+import com.developersancho.formatico.core.network.AddressReading
+import com.pantrixui.foundation.theme.PantrixTheme
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -61,5 +63,53 @@ internal fun UnknownFormatPreview(@PreviewParameter(UnknownFormatCases::class) c
     FormaticoPreview(case) {
         StartScreen(state = StartState(), onIntent = {})
         UnknownFormatDialog(document = it, onOpen = {}, onDismiss = {})
+    }
+}
+
+/** The web address's cases: asked for, typed, being opened, and each reason a document was not opened. */
+internal class WebAddressCases :
+    PreviewCases<AddressAsk>(
+        "empty" to AddressAsk(),
+        "typed" to AddressAsk(text = PREVIEW_ADDRESS),
+        "opening" to AddressAsk(text = PREVIEW_ADDRESS, opening = true),
+        "not there" to AddressAsk(text = PREVIEW_ADDRESS, refusal = AddressReading.Answered(NOT_FOUND)),
+        "answered" to AddressAsk(text = PREVIEW_ADDRESS, refusal = AddressReading.Answered(UNAVAILABLE)),
+        "not allowed" to AddressAsk(text = "ftp://example.com/orders/8842.json", refusal = AddressReading.NotAllowed),
+        "too large" to AddressAsk(text = PREVIEW_ADDRESS, refusal = AddressReading.TooLarge(LARGE_BYTES)),
+        "too large untold" to AddressAsk(text = PREVIEW_ADDRESS, refusal = AddressReading.TooLarge(null)),
+        "not text" to AddressAsk(text = PREVIEW_ADDRESS, refusal = AddressReading.NotText),
+        "unreachable" to AddressAsk(text = PREVIEW_ADDRESS, refusal = AddressReading.Unreachable),
+        "server unreachable" to AddressAsk(text = PREVIEW_ADDRESS, refusal = AddressReading.ServerUnreachable)
+    )
+
+/** The address the Start boards open. */
+private const val PREVIEW_ADDRESS = "https://example.com/orders/8842.json"
+
+/** What an address answers where it holds no document, and where it cannot give one now. */
+private const val NOT_FOUND = 404
+private const val UNAVAILABLE = 503
+
+/** A document of 24 MB: too large to open from an address on a phone and on the web. */
+private const val LARGE_BYTES = 24_000_000L
+
+@BoardPreviews
+@Composable
+internal fun WebAddressPreview(@PreviewParameter(WebAddressCases::class) case: PreviewCase<AddressAsk>) {
+    FormaticoPreview(case) {
+        StartScreen(state = StartState(), onIntent = {})
+        WebAddressDialog(ask = it, maxFileSize = maxFileSize(PantrixTheme.platform.type), onChange = {}, onOpen = {}, onDismiss = {})
+    }
+}
+
+/** The wait for an encrypted link's share: its one case, while the share is fetched. */
+internal class SharedLinkWaitCases : PreviewCases<Boolean>("opening" to true)
+
+/** The wait for an encrypted link's share, over Start, as the Start boards draw it (link: opening). */
+@BoardPreviews
+@Composable
+internal fun SharedLinkWaitPreview(@PreviewParameter(SharedLinkWaitCases::class) case: PreviewCase<Boolean>) {
+    FormaticoPreview(case) {
+        StartScreen(state = StartState(), onIntent = {})
+        SharedLinkWait(fetching = it, onCancel = {})
     }
 }

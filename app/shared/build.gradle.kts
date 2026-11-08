@@ -27,6 +27,8 @@ kotlin {
             implementation(projects.core.base)
             implementation(projects.core.designsystem)
             implementation(projects.core.navigation)
+            // Formatico's server and the documents at web addresses, which Start and Share reach.
+            implementation(projects.core.network)
             implementation(projects.core.settings)
             implementation(projects.core.storage)
             implementation(projects.feature.settings)

@@ -77,7 +77,11 @@ internal object StartStringsTurkish : StartStrings {
     override val sampleManifestDetail = "Tablolar ve tablo dizileri"
     override val sampleCountries = "Ülkeler"
     override val sampleCountriesDetail = "249 satır, 6 sütun"
-    override val privacy = "Geçmiş bu cihazda kalır. Formatico hesap istemez, sunucu da kullanmaz."
+    override val privacy =
+        "Geçmiş bu cihazda kalır, Formatico hesap da istemez. Bir belge sunucusuna yalnızca şifreli bir bağlantı paylaştığında gider."
+    override val privacyWeb =
+        "Geçmiş bu cihazda kalır, Formatico hesap da istemez. Bir belge sunucusundan yalnızca şifreli bir bağlantı paylaştığında " +
+            "ya da web’de bir web adresi açtığında geçer."
     override val unknownTitle = "Bu hangi biçim?"
     override val unknownPasted = "Formatico yapıştırdığın metnin biçimini anlayamadı. Nasıl okunacağını seç."
 
@@ -87,4 +91,35 @@ internal object StartStringsTurkish : StartStrings {
     override val unknownRule = "Ayarlar’daki Biçimler bölümünden bunlardan birini varsayılan yapabilirsin."
     override val unknownLeave = "Metin olarak bırak"
     override val unknownOpen = "Aç"
+    override val openAddress = "Bir web adresi aç"
+    override val addressMessage = "Formatico herkese açık bir http ya da https adresindeki belgeyi açar."
+    override val addressLabel = "Adres"
+    override val addressPlaceholder = "https://example.com/orders/8842.json"
+    override val addressHelpWeb = "Web’de Formatico’nun sunucusundan gelir; sunucu hiçbir şey tutmaz. En çok 10 MB."
+
+    override fun addressHelp(first: String) = "Formatico onu kendisi indirir. En çok $first."
+
+    override val addressCancel = "Vazgeç"
+    override val addressOpen = "Aç"
+    override val addressOpening = "Açılıyor"
+    override val addressNotAllowed = "Formatico yalnızca herkese açık http ve https adreslerini açar."
+
+    override fun addressNotThere(first: String) = "Adres $first ile cevap verdi: orada bir belge yok."
+
+    override fun addressAnswered(first: String) = "Adres $first ile cevap verdi ve bir belge vermedi."
+
+    override fun addressTooLarge(first: String, second: String) = "Belge $first; Formatico burada en çok $second açar."
+
+    override fun addressTooLargeUntold(first: String) = "Belge, Formatico’nun burada açtığından büyük: $first."
+
+    override val addressNotText = "Bu adresteki şey metin değil; Formatico yalnızca metin açar."
+    override val addressUnreachable = "Adrese ulaşılamadı. Adresi denetle ya da yeniden dene."
+    override val addressServerUnreachable = "Web’de belgeyi getiren Formatico sunucusuna ulaşılamadı. Yeniden dene."
+    override val sharedOpeningTitle = "Paylaşılan bir belge açılıyor"
+    override val sharedOpeningMessage = "Formatico’nun sunucusundan alınıyor ve bu cihazda çözülüyor."
+    override val sharedOpeningMessagePhone = "Formatico’nun sunucusundan alınıyor ve bu telefonda çözülüyor."
+    override val sharedOpeningCancel = "Vazgeç"
+    override val sharedLinkGone = "Bu paylaşılan bağlantının süresi dolmuş ya da paylaşan kişi onu silmiş."
+    override val sharedLinkUnreachable = "Formatico’nun sunucusuna ulaşılamadı, bu yüzden paylaşılan belge açılamadı."
+    override val sharedLinkTryAgain = "Yeniden dene"
 }

@@ -40,13 +40,10 @@ class StartViewModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun TestScope.viewModel(samples: SampleSource = SampleSource { "{}" }) = StartViewModel(
-        history = StoredDocumentHistory(small = MemorySmallStore(), texts = MemoryTextStore(), scope = backgroundScope),
-        samples = samples,
-        clock = clock,
-        maxFileSize = MAX_SIZE,
-        reader = dispatcher
-    )
+    private fun TestScope.viewModel(samples: SampleSource = SampleSource { "{}" }): StartViewModel {
+        val history = StoredDocumentHistory(small = MemorySmallStore(), texts = MemoryTextStore(), scope = backgroundScope)
+        return StartViewModel(history = history, samples = samples, opener = DocumentOpener(history, clock, MAX_SIZE, dispatcher))
+    }
 
     private fun TestScope.effectsOf(viewModel: StartViewModel): List<StartEffect> {
         val effects = mutableListOf<StartEffect>()
@@ -68,6 +65,27 @@ class StartViewModelTest {
         assertEquals(8L, recent.size)
         assertEquals(moment, recent.at)
         assertFalse(recent.edited)
+    }
+
+    @Test
+    fun anEncryptedLinkWhoseServerIsNotReachedIsSaidAndOpenedAgain() = runTest(dispatcher) {
+        val viewModel = viewModel()
+        val effects = effectsOf(viewModel)
+
+        viewModel.dispatch(StartIntent.Paste(TestSharedLink))
+        viewModel.dispatch(StartIntent.OpenLink(TestSharedLink))
+
+        assertEquals(List<StartEffect>(2) { StartEffect.SharedLinkUnreachable(TestSharedLink) }, effects)
+    }
+
+    @Test
+    fun aWebAddressIsAskedForInTheAppsDialog() = runTest(dispatcher) {
+        val viewModel = viewModel()
+        val effects = effectsOf(viewModel)
+
+        viewModel.dispatch(StartIntent.AskAddress)
+
+        assertEquals(listOf<StartEffect>(StartEffect.AskAddress), effects)
     }
 
     @Test

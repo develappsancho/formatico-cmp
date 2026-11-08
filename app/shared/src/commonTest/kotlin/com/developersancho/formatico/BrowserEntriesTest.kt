@@ -68,6 +68,7 @@ class BrowserEntriesTest {
     @Test
     fun anAddressThatCarriesADocumentIsTheLinksAlone() {
         assertEquals("#d=eJxLAQ&n=a.json", sharedEntryOf(listOf("#d=eJxLAQ&n=a.json")))
+        assertEquals("#s=7Qm2xLp9fK&k=AAEC", sharedEntryOf(listOf("#s=7Qm2xLp9fK&k=AAEC")))
         assertNull(sharedEntryOf(listOf("#start")))
         assertNull(sharedEntryOf(listOf("#start", "#d=eJxLAQ")))
         assertNull(sharedEntryOf(emptyList()))

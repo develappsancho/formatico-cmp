@@ -12,8 +12,10 @@ kotlin {
             implementation(projects.core.storage)
             // Whether a history is kept, and what a text of no format told becomes, are Settings'.
             implementation(projects.core.settings)
-            // A link of Formatico's, pasted or opened, carries a document of its own.
+            // A link of Formatico's, pasted or opened, carries a document of its own, or names an encrypted share; a web
+            // address holds one too, both fetched through core:network.
             implementation(projects.core.share)
+            implementation(projects.core.network)
         }
     }
 }

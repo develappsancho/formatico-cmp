@@ -1,11 +1,21 @@
 package com.developersancho.formatico.feature.start
 
 import com.developersancho.formatico.core.format.FormatDetector
+import com.developersancho.formatico.core.network.AddressReading
+import com.developersancho.formatico.core.network.Online
+import com.developersancho.formatico.core.network.SharedOpening
 import com.developersancho.formatico.core.share.LinkReading
 import com.developersancho.formatico.core.share.ShareLinks
+import com.developersancho.formatico.core.share.SharedDocument
 import com.pantrixui.foundation.files.PantrixFile
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.job
 import kotlinx.coroutines.withContext
 import kotlin.time.Clock
 
@@ -22,6 +32,15 @@ sealed interface Opening {
 
     /** A link of Formatico's whose document cannot be read back: cut short, or changed on its way. */
     data object BrokenLink : Opening
+
+    /** An encrypted link whose share is gone: it expired, or whoever shared it deleted it. */
+    data object SharedLinkGone : Opening
+
+    /** An encrypted link at [address] whose share Formatico's server, not reached, could not give. */
+    data class SharedLinkUnreachable(val address: String) : Opening
+
+    /** The document at a web address was not opened, for what [reading] says. */
+    data class AddressRefused(val reading: AddressReading) : Opening
 }
 
 /**
@@ -30,17 +49,31 @@ sealed interface Opening {
  *
  * @param history the documents opened before.
  * @param clock what a document is recorded as opened by.
- * @param maxFileSize the most bytes a file may have, by the platform.
+ * @param maxFileSize the most bytes a file, or the document at a web address, may have, by the platform.
  * @param reader where files are read and their formats told.
  * @param keeps whether the history is kept, as Settings has it: where it is not, nothing goes to it.
+ * @param online where an encrypted link's share and the document at a web address are fetched from: none in a test
+ *   that opens neither.
  */
 class DocumentOpener(
     private val history: DocumentHistory,
     private val clock: Clock,
-    private val maxFileSize: Long,
+    val maxFileSize: Long,
     private val reader: CoroutineDispatcher = Dispatchers.Default,
-    private val keeps: () -> Boolean = { true }
+    private val keeps: () -> Boolean = { true },
+    private val online: Online? = null
 ) {
+    private var fetchingJob: Job? = null
+    private val fetchingNow = MutableStateFlow(false)
+
+    /** Whether an encrypted link's share is being fetched, which the app waits for over whatever it shows. */
+    val fetching: StateFlow<Boolean> = fetchingNow.asStateFlow()
+
+    /** Stops fetching the encrypted link's share: nothing is opened. */
+    fun cancelFetching() {
+        fetchingJob?.cancel()
+    }
+
     /**
      * [text], pasted, as a document: the one it carries where it is a link of Formatico's, and else itself. Nothing to
      * open where it is null or blank.
@@ -57,13 +90,45 @@ class DocumentOpener(
      */
     suspend fun link(address: String): Opening? = when (val reading = withContext(reader) { ShareLinks.read(address) }) {
         LinkReading.NotALink -> null
-
         LinkReading.Broken -> Opening.BrokenLink
+        is LinkReading.Read -> opened(reading.document)
+        is LinkReading.Encrypted -> encrypted(reading, address)
+    }
 
-        is LinkReading.Read -> {
-            val (text, name) = reading.document
-            Opening.Opened(record(OpenedDocument(name = name, text = text, format = detect(text, name))))
+    /** The document an encrypted link shares, fetched from Formatico's server and decrypted off the screen's thread. */
+    private suspend fun encrypted(link: LinkReading.Encrypted, address: String): Opening {
+        val shares = online?.shares ?: return Opening.SharedLinkUnreachable(address)
+        fetchingJob = currentCoroutineContext().job
+        fetchingNow.value = true
+        val opening = try {
+            withContext(reader) { shares.open(link) }
+        } finally {
+            fetchingJob = null
+            fetchingNow.value = false
         }
+        return when (opening) {
+            is SharedOpening.Opened -> opened(opening.document)
+            SharedOpening.Gone -> Opening.SharedLinkGone
+            SharedOpening.Unreachable -> Opening.SharedLinkUnreachable(address)
+            SharedOpening.Broken -> Opening.BrokenLink
+        }
+    }
+
+    /**
+     * The document at the web [address], as a file of the name its address gives it is opened; refused where it is
+     * not a public web address, is not there, is larger than [maxFileSize], is no text, or cannot be reached.
+     */
+    suspend fun address(address: String): Opening {
+        val addresses = online?.addresses ?: return Opening.AddressRefused(AddressReading.Unreachable)
+        return when (val reading = addresses.open(address, maxFileSize)) {
+            is AddressReading.Read -> opened(SharedDocument(reading.text, reading.name))
+            else -> Opening.AddressRefused(reading)
+        }
+    }
+
+    private suspend fun opened(document: SharedDocument): Opening.Opened {
+        val (text, name) = document
+        return Opening.Opened(record(OpenedDocument(name = name, text = text, format = detect(text, name))))
     }
 
     private suspend fun detect(text: String, name: String?) = withContext(reader) { FormatDetector.detect(text, name) }

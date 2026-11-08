@@ -21,5 +21,6 @@ internal object AppStringsTurkish : AppStrings {
     override val paletteEmpty = "Bu sözcüklerle bir komut yok"
     override val paletteNewDocument = "Yeni belge"
     override val paletteOpenFile = "Dosya aç"
+    override val paletteOpenAddress = "Bir web adresi aç"
     override val palettePaste = "Yeni belge olarak yapıştır"
 }

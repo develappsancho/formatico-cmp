@@ -98,6 +98,7 @@ internal interface StartStrings {
     val sampleCountries: String
     val sampleCountriesDetail: String
     val privacy: String
+    val privacyWeb: String
     val unknownTitle: String
     val unknownPasted: String
 
@@ -108,6 +109,42 @@ internal interface StartStrings {
     val unknownRule: String
     val unknownLeave: String
     val unknownOpen: String
+    val openAddress: String
+    val addressMessage: String
+    val addressLabel: String
+    val addressPlaceholder: String
+    val addressHelpWeb: String
+
+    /** "Formatico downloads it itself. Up to {first}." */
+    fun addressHelp(first: String): String
+
+    val addressCancel: String
+    val addressOpen: String
+    val addressOpening: String
+    val addressNotAllowed: String
+
+    /** "The address answered {first}: there is no document there." */
+    fun addressNotThere(first: String): String
+
+    /** "The address answered {first}, and gave no document." */
+    fun addressAnswered(first: String): String
+
+    /** "The document is {first}, and Formatico opens up to {second} here." */
+    fun addressTooLarge(first: String, second: String): String
+
+    /** "The document is larger than Formatico opens here, {first}." */
+    fun addressTooLargeUntold(first: String): String
+
+    val addressNotText: String
+    val addressUnreachable: String
+    val addressServerUnreachable: String
+    val sharedOpeningTitle: String
+    val sharedOpeningMessage: String
+    val sharedOpeningMessagePhone: String
+    val sharedOpeningCancel: String
+    val sharedLinkGone: String
+    val sharedLinkUnreachable: String
+    val sharedLinkTryAgain: String
 }
 
 /** [StartStrings] in the theme's language. */

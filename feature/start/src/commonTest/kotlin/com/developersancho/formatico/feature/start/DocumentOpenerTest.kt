@@ -1,19 +1,28 @@
 package com.developersancho.formatico.feature.start
 
 import com.developersancho.formatico.core.format.Format
+import com.developersancho.formatico.core.network.AddressReading
+import com.developersancho.formatico.core.network.EncryptedShares
+import com.developersancho.formatico.core.network.Online
+import com.developersancho.formatico.core.network.SharedOpening
+import com.developersancho.formatico.core.network.WebAddresses
 import com.developersancho.formatico.core.share.ShareLinks
 import com.developersancho.formatico.core.share.ShareOutcome
 import com.developersancho.formatico.core.share.SharedDocument
 import com.developersancho.formatico.core.storage.MemorySmallStore
 import com.developersancho.formatico.core.storage.MemoryTextStore
 import com.pantrixui.foundation.files.PantrixFile
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 import kotlin.time.Clock
 import kotlin.time.Instant
 
@@ -25,9 +34,81 @@ class DocumentOpenerTest {
         override fun now(): Instant = moment
     }
 
-    private fun TestScope.opener(): Pair<DocumentOpener, DocumentHistory> {
+    private fun TestScope.opener(
+        shares: EncryptedShares? = null,
+        addresses: WebAddresses? = null
+    ): Pair<DocumentOpener, DocumentHistory> {
         val history = StoredDocumentHistory(small = MemorySmallStore(), texts = MemoryTextStore(), scope = backgroundScope)
-        return DocumentOpener(history, clock, maxFileSize = MAX_SIZE, reader = dispatcher) to history
+        val online = if (shares == null &&
+            addresses == null
+        ) {
+            null
+        } else {
+            Online(
+                shares ?: OpenedShares(SharedOpening.Gone),
+                addresses ?: FakeAddresses(AddressReading.Unreachable)
+            )
+        }
+        val opener = DocumentOpener(history, clock, maxFileSize = MAX_SIZE, reader = dispatcher, online = online)
+        return opener to history
+    }
+
+    @Test
+    fun anEncryptedLinkOpensTheDocumentItsShareHolds() = runTest(dispatcher) {
+        val shares = OpenedShares(SharedOpening.Opened(SharedDocument("a: 1\n", "deployment.yaml")))
+        val (opener, history) = opener(shares = shares)
+
+        val opened = opener.paste(TestSharedLink)
+
+        assertEquals(
+            Opening.Opened(OpenedDocument(name = "deployment.yaml", text = "a: 1\n", format = Format.Yaml, historyId = 1)),
+            opened
+        )
+        assertEquals(listOf("7Qm2xLp9fK"), shares.asked)
+        assertEquals("deployment.yaml", history.documents.value.single().name)
+    }
+
+    @Test
+    fun anEncryptedLinkGoneUnreachableOrWithAnotherKeyIsSaidSo() = runTest(dispatcher) {
+        val shares = OpenedShares(SharedOpening.Gone)
+        val (opener, _) = opener(shares = shares)
+        assertEquals(Opening.SharedLinkGone, opener.link(TestSharedLink))
+
+        shares.answer = SharedOpening.Unreachable
+        assertEquals(Opening.SharedLinkUnreachable(TestSharedLink), opener.link(TestSharedLink))
+
+        shares.answer = SharedOpening.Broken
+        assertEquals(Opening.BrokenLink, opener.link(TestSharedLink))
+    }
+
+    @Test
+    fun theAppWaitsWhileAShareIsFetchedAndMayStopIt() = runTest(dispatcher) {
+        val shares = OpenedShares(SharedOpening.Gone).apply { given = CompletableDeferred() }
+        val (opener, _) = opener(shares = shares)
+
+        val fetching = launch { opener.link(TestSharedLink) }
+        assertTrue(opener.fetching.value)
+
+        opener.cancelFetching()
+        assertTrue(fetching.isCancelled)
+        assertFalse(opener.fetching.value)
+    }
+
+    @Test
+    fun aWebAddressOpensTheDocumentThereUnderTheNameItGivesIt() = runTest(dispatcher) {
+        val addresses = FakeAddresses(AddressReading.Read("""{"id": "ord_8842"}""", "8842.json"))
+        val (opener, _) = opener(addresses = addresses)
+
+        val opened = opener.address("https://example.com/orders/8842.json")
+
+        assertEquals(
+            Opening.Opened(OpenedDocument(name = "8842.json", text = """{"id": "ord_8842"}""", format = Format.Json, historyId = 1)),
+            opened
+        )
+        assertEquals(listOf("https://example.com/orders/8842.json" to MAX_SIZE), addresses.asked)
+
+        addresses.answer = AddressReading.Answered(404)
+        assertEquals(Opening.AddressRefused(AddressReading.Answered(404)), opener.address("https://example.com/none.json"))
     }
 
     @Test

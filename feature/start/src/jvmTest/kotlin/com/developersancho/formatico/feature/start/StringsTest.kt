@@ -10,6 +10,7 @@ import kotlin.test.assertEquals
 class StringsTest {
     @Test
     fun everyWordIsTurkishInTurkish() {
-        assertEquals(emptySet(), untranslated(StartStringsEnglish, StartStringsTurkish))
+        // An example of an address is one in every language.
+        assertEquals(setOf("addressPlaceholder"), untranslated(StartStringsEnglish, StartStringsTurkish))
     }
 }

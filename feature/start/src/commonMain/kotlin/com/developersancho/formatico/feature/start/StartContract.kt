@@ -98,6 +98,12 @@ sealed interface StartIntent {
 
     /** Forget every document of the history. */
     data object ClearHistory : StartIntent
+
+    /** Open the link at [address] again: an encrypted one whose server was not reached before. */
+    data class OpenLink(val address: String) : StartIntent
+
+    /** Ask for a web address to open the document at. */
+    data object AskAddress : StartIntent
 }
 
 /** What happens once on the Start screen. */
@@ -110,4 +116,13 @@ sealed interface StartEffect {
 
     /** What was pasted is a link of Formatico's whose document cannot be read back. */
     data object BrokenLink : StartEffect
+
+    /** An encrypted link's share is gone: it expired, or whoever shared it deleted it. */
+    data object SharedLinkGone : StartEffect
+
+    /** The app is to ask for a web address, in the dialog it opens addresses from anywhere with. */
+    data object AskAddress : StartEffect
+
+    /** An encrypted link at [address] could not be opened: Formatico's server was not reached. */
+    data class SharedLinkUnreachable(val address: String) : StartEffect
 }

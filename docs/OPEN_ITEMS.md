@@ -545,6 +545,26 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Öneri: sahibinin onayı.
     *   Durum: açık.
 
+*   [ ] **Web'de açılamayan bir bağlantı adres çubuğunda kalıyor (2026-11-07).**
+    *   Ne: Açık bir Formatico sekmesinin adresine yazılan bir bağlantı açılamayınca (`#d=` bozuk, `#s=` silinmiş ya da
+        süresi dolmuş, sunucuya ulaşılamıyor) uyarı çıkıyor, ekran olduğu gibi kalıyor, ama adres `#s=…&k=…` olarak
+        kalıyor: yeniden yükleyince aynı uyarı yine geliyor. Açılınca adres `#document?id=…` oluyor, anahtar o girişten
+        gidiyor. Sayfa bağlantıyla yeni açıldığında da adres `#start`'a dönüyor; yalnızca açık bir sekmede kalıyor.
+        Faz 16'da yerel yığında, tarayıcıda görüldü; `#d=` için Faz 15'ten beri böyle.
+    *   Nerede: `core:navigation` (`BrowserHistory.web.kt`: adres yalnızca ekranlar değişince yazılıyor),
+        `app/shared` (`FollowBrowserHistory`).
+    *   Öneri: `onLink` bir belge açmadan bitince, sekmenin girişine o anki ekranlar yazılsın (`replaceState`).
+    *   Durum: açık.
+
+*   [ ] **Yerel yığında ve bir deneme ortamında yapılan bağlantı sitenin adresini taşıyor (2026-11-07).**
+    *   Ne: Bağlantılar her yerde `https://formatico.pantrixui.com/#…` (`ShareLinks.SITE`). Web'de sunucu sayfanın kendi
+        adresinde (`platformServer()`), ama bağlantı değil: `localhost:4005`'te yapılan şifreli bir bağlantı sitede
+        açılıyor, paylaşım ise yerel sunucuda. Faz 16'nın denemesinde adres elle `localhost:4005` yapıldı. Yayındaki
+        sitede fark yok.
+    *   Öneri: web'de, sayfa http(s) ile açıldıysa, bağlantı sayfanın kendi adresiyle (`window.location.origin`);
+        uygulamalarda site. Sahibinin kararı: bir deneme ortamı (Coolify'da `staging`) olacaksa gerekli.
+    *   Durum: açık.
+
 ## Komut paleti
 
 *   [ ] **Komut paletinin panolardan ayrıldığı yerler (2026-11-05).**
@@ -583,6 +603,25 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Ne: Android 13'ün Ayarlar > Uygulamalar > Formatico > Dil satırı çıkmıyor: uygulama `localeConfig` bildirmiyor. `cmd locale set-app-locales` ile verilen dili uygulama yine de anında izliyor (denendi, 2026-11-06). iOS'ta `Info.plist`'in `CFBundleLocalizations`'ı aynı satırı Ayarlar'da açıyor olmalı; denenmedi.
     *   Nerede: `app/androidApp/src/main/AndroidManifest.xml`.
     *   Öneri: `res/xml/locales_config.xml` (`en`, `tr`) ve manifest'te `android:localeConfig`. Settings'in "Sistemdeki gibi"si o zaman Android'in uygulama için seçtiği dili izler. Sahibinin kararı.
+    *   Durum: açık.
+
+## Sunucu
+
+*   [ ] **Paylaşımların sayısına ve diskine sınır yok (2026-11-07).**
+    *   Ne: Sunucu bir paylaşımı en çok 10 MB ve 30 gün tutuyor; nginx bir adresten saniyede ikiden fazla paylaşım ve
+        vekil isteği almıyor (`limit_req`). Ama bir adresin toplamda kaç paylaşım bırakabileceğine, sunucunun diskte
+        ne kadar tutacağına sınır yok: biri günlerce yükleyerek sunucunun diskini doldurabilir.
+    *   Nerede: `server` (`ShareStore`), `deploy/web/default.conf`.
+    *   Öneri: sunucuya toplam bir sınır (örneğin 5 GB; aşılınca `507` ve uygulamada "sunucu şu an paylaşım
+        almıyor"), ve bir adrese günde bir paylaşım sayısı. Sahibinin kararı: diskin ve ne kadar paylaşılacağının sınırı.
+    *   Durum: açık.
+
+*   [ ] **Web'in sayfası bir Content-Security-Policy olmadan sunuluyor (2026-11-07).**
+    *   Ne: `deploy/web/default.conf` `nosniff`, `no-referrer` ve `X-Frame-Options` gönderiyor, ama sayfanın neyi
+        yükleyip çalıştırabileceğini söyleyen bir CSP yok. Site raporlayan (report-only) bir CSP gönderiyor.
+        Vekilin verdiği belgeler kendi `sandbox` CSP'siyle, indirilecek dosya olarak geliyor (sunucunun kararı).
+    *   Öneri: sayfanın yüklediklerini (Wasm, JS yedeği, yükleyicinin satır içi betiği, yazı tipleri) ölçüp önce
+        raporlayan bir CSP; tarayıcı testleriyle denendikten sonra zorlayan.
     *   Durum: açık.
 
 ## Metinler

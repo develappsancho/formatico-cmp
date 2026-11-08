@@ -15,8 +15,12 @@ internal interface ShareStrings {
     /** "Share {first}" */
     fun title(first: String): String
 
-    val body: String
-    val bodyPhone: String
+    val ways: String
+    val inLink: String
+    val encrypted: String
+    val inLinkBody: String
+    val encryptedBody: String
+    val encryptedBodyPhone: String
     val link: String
 
     /** "{first} of {second} in {third} characters: short enough for every browser and app." */
@@ -33,15 +37,44 @@ internal interface ShareStrings {
 
     val plainText: String
     val formatted: String
+    val formattedEncrypted: String
+    val keepFor: String
+
+    /** "{count} days", "1 day" */
+    fun days(count: Int): String
+
+    val trust: String
+    val unreachableTitle: String
+    val unreachableBody: String
+    val unreachableBodyEncryptedOnly: String
+    val deleteFailed: String
     val cancel: String
     val copy: String
     val send: String
+    val create: String
+    val creating: String
+    val tryAgain: String
+    val done: String
+    val delete: String
 
-    /** "{first} is too large for a link" */
+    /** "Kept, encrypted, until {first}. {second} characters: short enough for every browser and app." */
+    fun kept(first: String, second: String): String
+
+    /** "Kept, encrypted, until {first}" */
+    fun keptPhone(first: String): String
+
+    /**
+     * "At {second}, {first} is too large to go in a link, which holds about 32 KB. It can go as an encrypted link
+     * instead."
+     */
+    fun encryptedOnlyBody(first: String, second: String): String
+
+    /** "{first} is too large to share" */
     fun tooLargeTitle(first: String): String
 
     /**
-     * "A link holds about 32 KB of text, and this document is {first}. Save it as a file and send the file instead."
+     * "A link holds about 32 KB and an encrypted link up to 10 MB, and this document is {first}. Save it as a file
+     * and send the file instead."
      */
     fun tooLargeBody(first: String): String
 

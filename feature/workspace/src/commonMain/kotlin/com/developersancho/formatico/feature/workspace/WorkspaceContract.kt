@@ -3,6 +3,7 @@ package com.developersancho.formatico.feature.workspace
 import com.developersancho.formatico.core.format.Format
 import com.developersancho.formatico.core.format.Problem
 import com.developersancho.formatico.core.format.Repairs
+import com.developersancho.formatico.core.share.ShareKeep
 
 /**
  * What a workspace draws: one open document, what was read of it, and how its tree is left.
@@ -95,6 +96,18 @@ internal sealed interface WorkspaceIntent {
 
     /** Format the document in the link where [formatted], or leave its text as it is. */
     data class ShareFormatted(val formatted: Boolean) : WorkspaceIntent
+
+    /** Share the document the [way] chosen. */
+    data class ShareBy(val way: ShareWay) : WorkspaceIntent
+
+    /** Keep the encrypted link for [keep]. */
+    data class ShareKept(val keep: ShareKeep) : WorkspaceIntent
+
+    /** Make the encrypted link: encrypt the document on this device and send it to Formatico's server. */
+    data object CreateEncryptedLink : WorkspaceIntent
+
+    /** Delete the encrypted link from Formatico's server, before it expires. */
+    data object DeleteEncryptedLink : WorkspaceIntent
 
     /** Open the tree's branches whose keys are [keys], and close the others. */
     data class Expand(val keys: Set<String>) : WorkspaceIntent

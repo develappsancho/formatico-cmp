@@ -37,6 +37,7 @@ import com.pantrixui.foundation.files.rememberFilePicker
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.keyboard.PantrixShortcut
 import com.pantrixui.foundation.keyboard.shortcutRoot
+import com.pantrixui.foundation.platform.PlatformType
 import com.pantrixui.foundation.platform.onPaste
 import com.pantrixui.foundation.platform.rememberPantrixClipboard
 import com.pantrixui.foundation.theme.PantrixTheme
@@ -51,15 +52,18 @@ internal enum class StartLayout { Phone, Tablet, Wide }
 
 /**
  * The Start screen with its view model: what a new tab shows. What the user opens there is handed to
- * [onOpenDocument].
+ * [onOpenDocument]; a web address is asked for with [onOpenAddress], in the dialog the app opens addresses with.
  */
 @Composable
-fun StartRoute(onOpenDocument: (OpenedDocument) -> Unit, modifier: Modifier = Modifier) {
+fun StartRoute(onOpenDocument: (OpenedDocument) -> Unit, modifier: Modifier = Modifier, onOpenAddress: () -> Unit = {}) {
     val viewModel = koinViewModel<StartViewModel>()
     val snackbars = LocalPantrixSnackbars.current
     val scope = rememberCoroutineScope()
     val nothingToPaste = startStrings.clipboardEmpty
     val brokenLink = startStrings.linkBroken
+    val sharedLinkGone = startStrings.sharedLinkGone
+    val sharedLinkUnreachable = startStrings.sharedLinkUnreachable
+    val tryAgain = startStrings.sharedLinkTryAgain
     MviScreen(
         viewModel = viewModel,
         onEffect = { effect ->
@@ -71,6 +75,16 @@ fun StartRoute(onOpenDocument: (OpenedDocument) -> Unit, modifier: Modifier = Mo
                 }
 
                 StartEffect.BrokenLink -> scope.launch { snackbars?.showBrokenLink(brokenLink) }
+
+                StartEffect.SharedLinkGone -> scope.launch { snackbars?.showSharedLinkGone(sharedLinkGone) }
+
+                is StartEffect.SharedLinkUnreachable -> scope.launch {
+                    if (snackbars?.showSharedLinkUnreachable(sharedLinkUnreachable, tryAgain) == true) {
+                        viewModel.dispatch(StartIntent.OpenLink(effect.address))
+                    }
+                }
+
+                StartEffect.AskAddress -> onOpenAddress()
             }
         }
     ) { state, dispatch ->
@@ -136,7 +150,8 @@ internal fun StartScreen(state: StartState, onIntent: (StartIntent) -> Unit, mod
             RecentAndSamples(recent = state.recent, samples = state.samples, layout = layout, onIntent = onIntent)
             if (layout != StartLayout.Phone) {
                 PantrixText(
-                    text = startStrings.privacy,
+                    // On the web a web address is fetched through the server as well, which the apps fetch themselves.
+                    text = if (PantrixTheme.platform.type == PlatformType.Web) startStrings.privacyWeb else startStrings.privacy,
                     style = PantrixTheme.typography.footnote,
                     color = PantrixTheme.colors.textSecondary
                 )
@@ -208,6 +223,15 @@ private fun Actions(layout: StartLayout, onIntent: (StartIntent) -> Unit, onPast
             tagKey = "new_document"
         )
     }
+    val openAddress = @Composable {
+        PantrixButton(
+            text = startStrings.openAddress,
+            onClick = { onIntent(StartIntent.AskAddress) },
+            variant = ButtonVariant.Outline,
+            size = size,
+            tagKey = "open_address"
+        )
+    }
     when (layout) {
         StartLayout.Wide -> Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -215,6 +239,7 @@ private fun Actions(layout: StartLayout, onIntent: (StartIntent) -> Unit, onPast
         ) {
             paste()
             newDocument()
+            openAddress()
             PasteHint(pasteShortcut, Modifier.padding(start = spacing.xs))
         }
 
@@ -224,6 +249,7 @@ private fun Actions(layout: StartLayout, onIntent: (StartIntent) -> Unit, onPast
         ) {
             paste()
             newDocument()
+            openAddress()
         }
 
         StartLayout.Phone -> Column(verticalArrangement = Arrangement.spacedBy(spacing.md)) {
@@ -233,6 +259,7 @@ private fun Actions(layout: StartLayout, onIntent: (StartIntent) -> Unit, onPast
                 verticalArrangement = Arrangement.spacedBy(spacing.sm)
             ) {
                 OpenFileButton(onIntent)
+                openAddress()
                 newDocument()
             }
         }

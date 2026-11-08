@@ -14,10 +14,14 @@ properties. It is a Compose Multiplatform app for Android, iOS, the desktop and 
 | [`core/base`](core/base) | The bases every feature builds on: `MviViewModel`, `MviScreen` |
 | [`core/storage`](core/storage) | What is kept on the device: the small values in KSafe, the documents' texts encrypted (AES-GCM, KSafe's key) as files, and in a browser in IndexedDB |
 | [`core/testing`](core/testing) | What the tests share: waiting while a browser runs, a preview's screenshot, an open menu's |
+| [`core/share`](core/share) | Pure Kotlin: a document in a link (`#d=`, zlib in Base64), an encrypted link (`#s=` and its key, `&k=`), the envelope a document is encrypted in, and what the app and the server agree on (`ShareServer`) |
+| [`core/network`](core/network) | What the app reaches on the network, on Ktor's client (OkHttp, `NSURLSession`, Java's, `fetch`): Formatico's server, the encrypted shares (AES-GCM on the device, a key of each share's own), the documents at web addresses |
 | [`core/navigation`](core/navigation) | A browser tab's history and address kept with the app's screens (adapted from navigation3-browser, MIT) |
 | [`core/designsystem`](core/designsystem) | Formatico's look over Pantrix UI: `FormaticoPreset` (Teal), Geist and Geist Mono, the syntax colours, `FormaticoTheme`, Formatico's own icons |
 | [`feature/start`](feature/start) | The Start screen: paste, open, drop, recent documents and samples |
 | [`feature/workspace`](feature/workspace) | The open documents and their workspace: the toolbar, the tree with its value previews, the table of an array or a CSV (sorting, filtering, columns, a column summed up, saved as CSV), the status bar |
+| [`server`](server) | Formatico's server, Spring Boot on WebFlux: the encrypted shares it keeps and cannot read, and web addresses fetched for a browser, public ones alone |
+| [`deploy`](deploy) | The stack: nginx with the web app and the server beside it, in Docker; `deploy/deploy.sh local` runs it on this machine at `localhost:4005`, `deploy/check.sh` checks it |
 | [`build-logic`](build-logic) | The convention plugins, as Kotlin classes: `formatico.kmp.library`, `formatico.kmp.compose`, `formatico.feature`, `formatico.quality`, `formatico.web.application` |
 
 ## Setting up
@@ -41,6 +45,9 @@ loads it.
 - Web, JavaScript: `./gradlew :app:webApp:jsBrowserDevelopmentRun`
 - Web, both builds and the loader that picks one: `./gradlew :app:webApp:wasmJsBrowserDistribution`
 - iOS: open [`app/iosApp`](app/iosApp) in Xcode and run it.
+- The server: `FORMATICO_SHARES_DIRECTORY=build/shares ./gradlew :server:bootRun`, at `localhost:8080`, its shares
+  in a folder it can write; a desktop app run against it takes `-Dformatico.server=http://localhost:8080`.
+- The whole stack, the web app behind nginx and the server: `deploy/deploy.sh local` (Docker), at `localhost:4005`.
 
 ## Checking
 

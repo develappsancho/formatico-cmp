@@ -77,7 +77,11 @@ internal object StartStringsEnglish : StartStrings {
     override val sampleManifestDetail = "Tables and arrays of tables"
     override val sampleCountries = "Countries"
     override val sampleCountriesDetail = "249 rows, 6 columns"
-    override val privacy = "History stays on this device. Formatico has no account and no server."
+    override val privacy =
+        "History stays on this device, and Formatico has no account. A document goes to its server only when you share an encrypted link."
+    override val privacyWeb =
+        "History stays on this device, and Formatico has no account. A document goes through its server only when you share an " +
+            "encrypted link or, on the web, open a web address."
     override val unknownTitle = "What format is this?"
     override val unknownPasted = "Formatico could not tell the format of the text you pasted. Choose how to read it."
 
@@ -87,4 +91,35 @@ internal object StartStringsEnglish : StartStrings {
     override val unknownRule = "Settings, under Formats, can make one of these the rule."
     override val unknownLeave = "Leave it as text"
     override val unknownOpen = "Open"
+    override val openAddress = "Open a web address"
+    override val addressMessage = "Formatico opens the document at a public http or https address."
+    override val addressLabel = "Address"
+    override val addressPlaceholder = "https://example.com/orders/8842.json"
+    override val addressHelpWeb = "On the web it comes through Formatico’s server, which keeps nothing. Up to 10 MB."
+
+    override fun addressHelp(first: String) = "Formatico downloads it itself. Up to $first."
+
+    override val addressCancel = "Cancel"
+    override val addressOpen = "Open"
+    override val addressOpening = "Opening"
+    override val addressNotAllowed = "Formatico opens only public http and https addresses."
+
+    override fun addressNotThere(first: String) = "The address answered $first: there is no document there."
+
+    override fun addressAnswered(first: String) = "The address answered $first, and gave no document."
+
+    override fun addressTooLarge(first: String, second: String) = "The document is $first, and Formatico opens up to $second here."
+
+    override fun addressTooLargeUntold(first: String) = "The document is larger than Formatico opens here, $first."
+
+    override val addressNotText = "What is at this address is not text, and Formatico opens only text."
+    override val addressUnreachable = "The address could not be reached. Check it, or try again."
+    override val addressServerUnreachable = "Formatico’s server, which fetches it on the web, could not be reached. Try again."
+    override val sharedOpeningTitle = "Opening a shared document"
+    override val sharedOpeningMessage = "It is fetched from Formatico’s server and decrypted on this device."
+    override val sharedOpeningMessagePhone = "It is fetched from Formatico’s server and decrypted on this phone."
+    override val sharedOpeningCancel = "Cancel"
+    override val sharedLinkGone = "This shared link has expired, or whoever shared it deleted it."
+    override val sharedLinkUnreachable = "Formatico’s server could not be reached, so the shared document could not be opened."
+    override val sharedLinkTryAgain = "Try again"
 }

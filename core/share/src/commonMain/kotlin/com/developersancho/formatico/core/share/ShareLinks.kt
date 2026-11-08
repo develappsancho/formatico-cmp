@@ -15,6 +15,15 @@ sealed interface LinkReading {
 
     /** A link of Formatico's, and the [document] it carries. */
     data class Read(val document: SharedDocument) : LinkReading
+
+    /**
+     * An encrypted link of Formatico's: the share [id] the server keeps, and the [key] it is decrypted with, in Base64
+     * for addresses as the link writes it. The server has never seen the key.
+     */
+    data class Encrypted(val id: String, val key: String) : LinkReading {
+        /** The key's bytes: an AES key of [ShareLinks.KEY_BYTES]. */
+        fun keyBytes(): ByteArray = ShareLinks.keyBytes(key)
+    }
 }
 
 /** A link made of a document, or why none was made. */
@@ -35,6 +44,9 @@ sealed interface ShareOutcome {
  * Formatico's links that carry a document, with no server: `https://formatico.pantrixui.com/#d=…&n=…`, the text
  * compressed in zlib's format and written in Base64 for addresses after `d`, and the name after `n`. A browser sends
  * no part after `#` to the site, so the document reaches no one but whoever opens the link.
+ *
+ * An encrypted link, `#s=…&k=…`, names a share Formatico's server keeps after `s`, and the key that decrypts it after
+ * `k`: the key, after the `#` as well, never reaches the server.
  */
 object ShareLinks {
     /** Where a link opens: Formatico on the web. */
@@ -49,6 +61,9 @@ object ShareLinks {
     /** The most a link is unpacked to: the largest document a phone or a browser opens, 10 MB. */
     const val MAX_TEXT = 10 * 1024 * 1024
 
+    /** An encrypted link's key: 256 bits of AES. */
+    const val KEY_BYTES = 32
+
     /**
      * The most text Formatico tries to compress into a link: no text compresses into 32 KB from more. A larger one is
      * too large at once, without the time compressing it would take.
@@ -57,6 +72,12 @@ object ShareLinks {
 
     private val Address = Regex("""^https?://formatico\.pantrixui\.com/?(?:index\.html)?(#.*)$""", RegexOption.IGNORE_CASE)
     private val Base64Url = Base64.UrlSafe.withPadding(Base64.PaddingOption.ABSENT_OPTIONAL)
+
+    /** The encrypted link of the share [id] the server keeps, decrypted with [key]. */
+    fun encrypted(id: String, key: ByteArray): String = SITE + "#s=" + id + "&k=" + Base64Url.encode(key)
+
+    /** The bytes of an encrypted link's [key], as the link writes it. Throws where it is not a key's. */
+    internal fun keyBytes(key: String): ByteArray = Base64Url.decode(key).also { require(it.size == KEY_BYTES) }
 
     /** The link of [document], or why there is none: it is too large for a link. */
     fun share(document: SharedDocument): ShareOutcome {
@@ -73,14 +94,22 @@ object ShareLinks {
     fun read(text: String): LinkReading {
         val trimmed = text.trim()
         // A bare fragment is one of Formatico's only where it carries a document: a text may begin with a comment.
-        val fragment = if (trimmed.startsWith("#d=")) trimmed else Address.matchEntire(trimmed)?.groupValues?.get(1)
+        val bare = trimmed.startsWith("#d=") || trimmed.startsWith("#s=")
+        val fragment = if (bare) trimmed else Address.matchEntire(trimmed)?.groupValues?.get(1)
         val parts = fragment?.removePrefix("#")?.split('&')?.associate { part ->
             part.substringBefore('=') to part.substringAfter('=', missingDelimiterValue = "")
         }
+        parts?.get("s")?.let { id -> return encryptedOf(id, parts["k"]) }
         val packed = parts?.get("d") ?: return LinkReading.NotALink
         val bytes = runCatching { Zlib.decompress(Base64Url.decode(packed), MAX_TEXT) }.getOrNull()
         val unpacked = bytes?.let { runCatching { it.decodeToString(throwOnInvalidSequence = true) }.getOrNull() }
         return unpacked?.let { LinkReading.Read(SharedDocument(it, parts["n"]?.let(::nameOf))) } ?: LinkReading.Broken
+    }
+
+    /** The encrypted link of [id] and [key], or a broken one where either is not what Formatico writes. */
+    private fun encryptedOf(id: String, key: String?): LinkReading {
+        val read = key?.takeIf { ShareServer.Id.matches(id) && runCatching { keyBytes(it) }.isSuccess }
+        return read?.let { LinkReading.Encrypted(id, it) } ?: LinkReading.Broken
     }
 
     private fun fragmentOf(packed: ByteArray, name: String?): String =

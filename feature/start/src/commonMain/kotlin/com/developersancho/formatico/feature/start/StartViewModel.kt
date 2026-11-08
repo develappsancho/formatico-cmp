@@ -3,10 +3,7 @@ package com.developersancho.formatico.feature.start
 import androidx.lifecycle.viewModelScope
 import com.developersancho.formatico.core.base.MviViewModel
 import com.pantrixui.foundation.files.PantrixFile
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlin.time.Clock
 
 /**
  * The Start screen's view model: what the user pastes, opens, drops or picks becomes an [OpenedDocument], which is
@@ -14,21 +11,14 @@ import kotlin.time.Clock
  *
  * @param history the documents opened before, which Recent lists.
  * @param samples where the samples' texts are read from.
- * @param clock what a document is recorded as opened by.
- * @param maxFileSize the most bytes a file may have, by the platform.
- * @param reader where files are read and their formats told: off the screen's thread.
- * @param keeps whether the history is kept, as Settings has it.
+ * @param opener what turns what is pasted, dropped or picked into a document: the app's own, whose wait for an
+ *   encrypted link the app shows over every screen.
  */
 class StartViewModel(
     private val history: DocumentHistory,
     private val samples: SampleSource,
-    clock: Clock,
-    maxFileSize: Long,
-    reader: CoroutineDispatcher = Dispatchers.Default,
-    keeps: () -> Boolean = { true }
+    private val opener: DocumentOpener
 ) : MviViewModel<StartState, StartIntent, StartEffect>(StartState()) {
-    private val opener = DocumentOpener(history, clock, maxFileSize, reader, keeps)
-
     init {
         viewModelScope.launch {
             history.documents.collect { recent -> setState { copy(recent = recent) } }
@@ -52,6 +42,10 @@ class StartViewModel(
             is StartIntent.OpenSample -> openSample(intent.sample)
 
             StartIntent.ClearHistory -> viewModelScope.launch { history.clear() }
+
+            is StartIntent.OpenLink -> viewModelScope.launch { opener.link(intent.address)?.let(::show) }
+
+            StartIntent.AskAddress -> sendEffect(StartEffect.AskAddress)
         }
     }
 
@@ -88,7 +82,14 @@ class StartViewModel(
 
             Opening.BrokenLink -> sendEffect(StartEffect.BrokenLink)
 
+            Opening.SharedLinkGone -> sendEffect(StartEffect.SharedLinkGone)
+
+            is Opening.SharedLinkUnreachable -> sendEffect(StartEffect.SharedLinkUnreachable(opening.address))
+
             is Opening.Refused -> setState { copy(refusal = opening.refusal) }
+
+            // Start opens no web address itself: the app's DocumentOpening does, from Start's button too.
+            is Opening.AddressRefused -> Unit
         }
     }
 }

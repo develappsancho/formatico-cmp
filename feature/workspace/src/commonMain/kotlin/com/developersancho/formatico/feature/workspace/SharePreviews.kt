@@ -8,12 +8,25 @@ import com.developersancho.formatico.core.designsystem.FormaticoPreview
 import com.developersancho.formatico.core.designsystem.PreviewCase
 import com.developersancho.formatico.core.designsystem.PreviewCases
 import com.developersancho.formatico.core.format.Format
+import com.developersancho.formatico.core.network.EncryptedLink
 import com.developersancho.formatico.core.share.ShareLinks
 import com.developersancho.formatico.core.share.ShareOutcome
 import com.developersancho.formatico.core.share.SharedDocument
+import kotlin.time.Instant
 
 /** The size of the Share-834 board's events.ndjson, too large for a link: 4.2 MB. */
 private const val EVENTS_BYTES = 4_200_000
+
+/** The size of the Share-834 board's access.ndjson, too large for an encrypted link as well: 24 MB. */
+private const val ACCESS_BYTES = 24_000_000
+
+/** The boards' encrypted link, kept for a week from the day they were drawn. */
+private val PreviewEncryptedLink = EncryptedLink(
+    link = "https://formatico.pantrixui.com/#s=7Qm2xLp9fK&k=Hq3vN8cTz1Wb5yRk0LmPa2XsD7eFgJ4uV9nQ6tYhC8w",
+    id = "7Qm2xLp9fK",
+    deleteToken = "preview",
+    expiresAt = Instant.parse("2026-11-13T18:30:00Z")
+)
 
 /** How many events the long link's document holds: enough for a link some apps cut, as Share-1440's long state has. */
 private const val LONG_EVENTS = 300
@@ -34,33 +47,47 @@ private val PreviewLongEvents = (0 until LONG_EVENTS).joinToString("\n", postfix
     """{"at": "2026-10-29T09:$minute:12Z", "event": "$event", "bytes": ${BYTES_FIRST + index * BYTES_STEP}, "session": "$session"}"""
 }
 
-/** [state] with its document shared as [share] says, its link made as Formatico makes it unless [outcome] is given. */
+/**
+ * [state] with its document shared, its link made as Formatico makes it unless [outcome] is given, and the share as
+ * [shown] makes it: formatted, the way chosen, where its encrypted link stands.
+ */
 private fun shared(
     state: WorkspaceState,
-    formatted: Boolean = false,
-    canFormat: Boolean = true,
-    outcome: ShareOutcome? = state.document?.let { ShareLinks.share(SharedDocument(it.text, it.name)) }
+    outcome: ShareOutcome? = state.document?.let { ShareLinks.share(SharedDocument(it.text, it.name)) },
+    shown: DocumentShare.() -> DocumentShare = { this }
 ): WorkspaceState {
     val document = requireNotNull(state.document)
-    return state.copy(share = DocumentShare(document.name, document.format, formatted, canFormat, outcome))
+    return state.copy(share = DocumentShare(document.name, document.format, canFormat = true, outcome = outcome).shown())
 }
+
+private val PreviewOrderState = previewState("order.json", PreviewOrder, Format.Json)
+private val PreviewEventsState = previewState("events.ndjson", PreviewEvents, Format.Ndjson)
 
 /**
  * The share's cases: the Share boards' order, whose link every app takes; a link that some apps cut; the order in
- * the link formatted; plain text, which cannot be formatted; a document too large for a link, as Share-834 draws it;
- * and the dialog while its first link is being made.
+ * the link formatted; plain text, which cannot be formatted; the dialog while its first link is being made. Then the
+ * encrypted link: chosen, being made, its server not reached, made, and not deleted; a document too large for a link
+ * that goes only as an encrypted one, as Share-834 draws it, and that link made; one too large for that as well.
  */
 internal class ShareCases :
     PreviewCases<WorkspaceState>(
-        "short" to shared(previewState("order.json", PreviewOrder, Format.Json)),
+        "short" to shared(PreviewOrderState),
         "long" to shared(previewState("events.ndjson", PreviewLongEvents, Format.Ndjson)),
-        "formatted" to shared(previewState("order.json", PreviewOrder, Format.Json), formatted = true),
-        "plain text" to shared(previewState("notes.txt", "Things to check before the release.\n", null), canFormat = false),
-        "too large" to shared(
-            previewState("events.ndjson", PreviewEvents, Format.Ndjson),
-            outcome = ShareOutcome.TooLarge(EVENTS_BYTES)
-        ),
-        "making" to shared(previewState("order.json", PreviewOrder, Format.Json), outcome = null)
+        "formatted" to shared(PreviewOrderState) { copy(formatted = true) },
+        "plain text" to shared(previewState("notes.txt", "Things to check before the release.\n", null)) { copy(canFormat = false) },
+        "making" to shared(PreviewOrderState, outcome = null),
+        "encrypted" to shared(PreviewOrderState) { copy(way = ShareWay.Encrypted) },
+        "creating" to shared(PreviewOrderState) { copy(way = ShareWay.Encrypted, encrypted = EncryptedShare.Creating) },
+        "unreachable" to shared(PreviewOrderState) { copy(way = ShareWay.Encrypted, encrypted = EncryptedShare.Failed) },
+        "created" to shared(PreviewOrderState) { copy(way = ShareWay.Encrypted, encrypted = EncryptedShare.Created(PreviewEncryptedLink)) },
+        "not deleted" to shared(PreviewOrderState) {
+            copy(way = ShareWay.Encrypted, encrypted = EncryptedShare.Created(PreviewEncryptedLink, deleteFailed = true))
+        },
+        "encrypted only" to shared(PreviewEventsState, outcome = ShareOutcome.TooLarge(EVENTS_BYTES)),
+        "encrypted only created" to shared(PreviewEventsState, ShareOutcome.TooLarge(EVENTS_BYTES)) {
+            copy(encrypted = EncryptedShare.Created(PreviewEncryptedLink))
+        },
+        "too large" to shared(previewState("access.ndjson", PreviewEvents, Format.Ndjson), outcome = ShareOutcome.TooLarge(ACCESS_BYTES))
     )
 
 /**

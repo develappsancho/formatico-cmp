@@ -29,16 +29,9 @@ val startModule: Module = module {
             history = get(),
             clock = Clock.System,
             maxFileSize = maxFileSize(currentPlatformType()),
-            keeps = { get<SettingsStore>().preferences.value.keepHistory }
+            keeps = { get<SettingsStore>().preferences.value.keepHistory },
+            online = get()
         )
     }
-    viewModel {
-        StartViewModel(
-            history = get(),
-            samples = get(),
-            clock = Clock.System,
-            maxFileSize = maxFileSize(currentPlatformType()),
-            keeps = { get<SettingsStore>().preferences.value.keepHistory }
-        )
-    }
+    viewModel { StartViewModel(history = get(), samples = get(), opener = get()) }
 }

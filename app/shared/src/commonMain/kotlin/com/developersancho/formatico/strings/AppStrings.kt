@@ -34,6 +34,7 @@ internal interface AppStrings {
     val paletteEmpty: String
     val paletteNewDocument: String
     val paletteOpenFile: String
+    val paletteOpenAddress: String
     val palettePaste: String
 }
 

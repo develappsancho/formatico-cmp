@@ -30,6 +30,8 @@ val workspaceModule: Module = module {
     }
     single { Readings(workbench = get(), budget = readingsBudget(currentPlatformType())) }
     single { Editors(workbench = get()) }
+    // The encrypted links made on this device, with what deleting them takes.
+    single { SharedLinks(small = get()) }
     viewModel { (documentId: Long) ->
         WorkspaceViewModel(
             documentId = documentId,
@@ -37,7 +39,8 @@ val workspaceModule: Module = module {
             readings = get(),
             queries = get(),
             // The words a conversion writes into the document are in the language the reader chose, the system's else.
-            language = { get<SettingsStore>().preferences.value.language?.tag ?: Locale.current.language }
+            language = { get<SettingsStore>().preferences.value.language?.tag ?: Locale.current.language },
+            sharing = EncryptedSharing(shares = get(), links = get())
         )
     }
 }

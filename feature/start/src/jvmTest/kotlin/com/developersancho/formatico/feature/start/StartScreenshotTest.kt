@@ -19,4 +19,14 @@ class StartScreenshotTest {
     fun unknownFormat() = UnknownFormatCases().values.forEach { case ->
         Board.entries.forEach { board -> captureOverlay("UnknownFormat", case, board) { UnknownFormatPreview(case) } }
     }
+
+    @Test
+    fun webAddress() = WebAddressCases().values.forEach { case ->
+        Board.entries.forEach { board -> captureOverlay("WebAddress", case, board) { WebAddressPreview(case) } }
+    }
+
+    @Test
+    fun sharedLinkWait() = SharedLinkWaitCases().values.forEach { case ->
+        Board.entries.forEach { board -> captureOverlay("SharedLinkWait", case, board) { SharedLinkWaitPreview(case) } }
+    }
 }

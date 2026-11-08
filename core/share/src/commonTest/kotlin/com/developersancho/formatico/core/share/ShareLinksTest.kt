@@ -76,6 +76,34 @@ class ShareLinksTest {
     }
 
     @Test
+    fun anEncryptedLinkNamesTheShareAndCarriesItsKey() {
+        val key = ByteArray(ShareLinks.KEY_BYTES) { it.toByte() }
+        val link = ShareLinks.encrypted("7Qm2xLp9fK", key)
+
+        assertEquals("https://formatico.pantrixui.com/#s=7Qm2xLp9fK&k=AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8", link)
+        val read = assertIs<LinkReading.Encrypted>(ShareLinks.read(link))
+        assertEquals("7Qm2xLp9fK", read.id)
+        assertTrue(key.contentEquals(read.keyBytes()))
+        assertEquals(read, ShareLinks.read(link.substringAfter(ShareLinks.SITE)))
+        assertEquals(read, ShareLinks.read("  $link\n"))
+    }
+
+    @Test
+    fun anEncryptedLinkWithoutItsWholeKeyOrWithAnotherIdIsBroken() {
+        val key = ShareLinks.encrypted("7Qm2xLp9fK", ByteArray(ShareLinks.KEY_BYTES)).substringAfter("&k=")
+        for (text in listOf(
+            "#s=7Qm2xLp9fK",
+            "#s=7Qm2xLp9fK&k=${key.dropLast(2)}",
+            "#s=7Qm2xLp9fK&k=not*base64",
+            "#s=7Qm2xLp&k=$key",
+            "#s=7Qm2xLp9f!&k=$key",
+            "https://formatico.pantrixui.com/#s=&k=$key"
+        )) {
+            assertEquals(LinkReading.Broken, ShareLinks.read(text), text)
+        }
+    }
+
+    @Test
     fun aDocumentTooLargeForALinkHasNone() {
         // Bytes that hardly compress: 40 KB of them make a link longer than 32 KB.
         val noise = SharedDocument(pseudoRandom(40_000).joinToString("") { (it.toInt() and 0x3F).plus(48).toChar().toString() })

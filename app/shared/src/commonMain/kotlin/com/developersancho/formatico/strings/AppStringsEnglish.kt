@@ -26,5 +26,6 @@ internal object AppStringsEnglish : AppStrings {
     override val paletteEmpty = "No command has those words"
     override val paletteNewDocument = "New document"
     override val paletteOpenFile = "Open a file"
+    override val paletteOpenAddress = "Open a web address"
     override val palettePaste = "Paste as a new document"
 }

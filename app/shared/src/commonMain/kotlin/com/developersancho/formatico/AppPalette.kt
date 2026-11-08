@@ -31,6 +31,7 @@ internal object AppCommandKeys {
     const val PALETTE = "palette"
     const val NEW = "new"
     const val OPEN = "open"
+    const val OPEN_ADDRESS = "open_address"
     const val PASTE = "paste"
     const val THEME = "theme"
     const val SETTINGS = "settings"
@@ -88,6 +89,7 @@ internal fun appPaletteCommands(workbench: WorkbenchState, darkTheme: Boolean, s
             icon = PantrixIcons.File,
             shortcut = keys(AppShortcuts.Open)
         ),
+        PantrixCommand(key = AppCommandKeys.OPEN_ADDRESS, label = appStrings.paletteOpenAddress, group = group),
         PantrixCommand(
             key = AppCommandKeys.PASTE,
             label = appStrings.palettePaste,
@@ -186,6 +188,8 @@ internal fun rememberAppPalette(
                 }
 
                 AppCommandKeys.OPEN -> opening.pickFile()
+
+                AppCommandKeys.OPEN_ADDRESS -> opening.askAddress()
 
                 AppCommandKeys.PASTE -> opening.paste()
 

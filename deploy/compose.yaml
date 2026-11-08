@@ -1,0 +1,32 @@
+# Formatico on a host (Faz 16): its web app behind nginx (`web`), and beside it Formatico's server (`server`), which
+# only nginx reaches, at /api. The same stack runs on this machine (with compose.local.yaml) and, through Coolify, on
+# the host.
+name: formatico
+
+services:
+  web:
+    image: ghcr.io/develappsancho/formatico-web:${FORMATICO_TAG:-latest}
+    # Pulled at each deploy: latest is the last release's, and FORMATICO_TAG pins one.
+    pull_policy: always
+    restart: unless-stopped
+    depends_on:
+      - server
+
+  server:
+    image: ghcr.io/develappsancho/formatico-server:${FORMATICO_TAG:-latest}
+    pull_policy: always
+    restart: unless-stopped
+    # The encrypted shares, kept on the host's disk from one deploy to the next: none lives more than 30 days.
+    volumes:
+      - shares:/data
+    # Reached by nginx on the stack's own network, and published on no port of the host.
+    expose:
+      - "8080"
+    # The host runs other applications: the server's Java takes three quarters of this for its heap, and no more.
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+volumes:
+  shares:

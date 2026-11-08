@@ -34,11 +34,18 @@ internal fun FollowBrowserHistory(workbench: Workbench, settings: MutableState<B
     )
 }
 
-/** The `#` part of an address that carries a document, where the browser's [entries] are that alone. */
-internal fun sharedEntryOf(entries: List<String>): String? = entries.singleOrNull()?.takeIf { it.startsWith(SHARED_ENTRY) }
+/**
+ * The `#` part of an address that carries a document, or names an encrypted share, where the browser's [entries] are
+ * that alone.
+ */
+internal fun sharedEntryOf(entries: List<String>): String? =
+    entries.singleOrNull()?.takeIf { it.startsWith(SHARED_ENTRY) || it.startsWith(ENCRYPTED_ENTRY) }
 
 /** A document a link carries, as its address writes it after its `#`: `#d=…`, compressed, and `&n=` and its name. */
 internal const val SHARED_ENTRY = "#d="
+
+/** An encrypted share, as its link writes it after its `#`: `#s=…`, its id, and `&k=` and its key. */
+internal const val ENCRYPTED_ENTRY = "#s="
 
 /**
  * The app's screens, as a browser's addresses write them after their `#`: Start, the document shown over it, and

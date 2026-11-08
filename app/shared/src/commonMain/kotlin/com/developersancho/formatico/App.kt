@@ -25,6 +25,7 @@ import androidx.navigation3.ui.NavDisplay
 import com.developersancho.formatico.Destination.Companion.show
 import com.developersancho.formatico.core.designsystem.FormaticoTheme
 import com.developersancho.formatico.core.navigation.systemBackLeavesScreens
+import com.developersancho.formatico.core.network.networkModule
 import com.developersancho.formatico.core.settings.SettingsStore
 import com.developersancho.formatico.core.settings.ThemeChoice
 import com.developersancho.formatico.core.settings.settingsModule
@@ -79,9 +80,9 @@ fun App() {
  * as they are, in the other language.
  */
 @Composable
-internal fun App(systemDark: Boolean, storage: Module, followsBrowser: Boolean = false) {
-    val configuration = remember(storage) {
-        koinConfiguration { modules(storage, settingsModule, startModule, workspaceModule, settingsFeatureModule, appModule) }
+internal fun App(systemDark: Boolean, storage: Module, followsBrowser: Boolean = false, network: Module = networkModule) {
+    val configuration = remember(storage, network) {
+        koinConfiguration { modules(storage, network, settingsModule, startModule, workspaceModule, settingsFeatureModule, appModule) }
     }
     KoinApplication(configuration = configuration, logLevel = Level.ERROR) {
         val settings = koinInject<SettingsStore>()
@@ -170,6 +171,7 @@ private fun AppContent(
                 backStack = backStack,
                 workbench = workbench,
                 onOpen = opening::open,
+                onOpenAddress = documentOpening::askAddress,
                 onCloseSettings = { showSettings = false },
                 modifier = Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding)
             )
@@ -190,6 +192,7 @@ private fun AppScreens(
     backStack: NavBackStack<NavKey>,
     workbench: Workbench,
     onOpen: (OpenedDocument) -> Unit,
+    onOpenAddress: () -> Unit,
     onCloseSettings: () -> Unit,
     modifier: Modifier
 ) {
@@ -210,7 +213,7 @@ private fun AppScreens(
             }
         },
         entryProvider = entryProvider {
-            entry<Destination.Start> { StartRoute(onOpenDocument = onOpen) }
+            entry<Destination.Start> { StartRoute(onOpenDocument = onOpen, onOpenAddress = onOpenAddress) }
             entry<Destination.Workspace> { destination -> WorkspaceRoute(documentId = destination.documentId) }
             entry<Destination.Settings> { SettingsRoute(onClose = onCloseSettings, shortcuts = shortcutCommands()) }
         }

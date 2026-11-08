@@ -98,6 +98,20 @@ class StartScreenTest {
     }
 
     @Test
+    fun aWebAddressIsAskedForFromEveryWidth() = runComposeUiTest {
+        val intents = mutableListOf<StartIntent>()
+        var window by mutableStateOf(desktop)
+        setContent { PantrixTestTheme(window = window) { StartScreen(state = StartState(), onIntent = { intents += it }) } }
+
+        onPantrixNode("Button", "open_address").performClick()
+        window = PantrixWindow(DpSize(390.dp, 844.dp))
+        waitForIdle()
+        onPantrixNode("Button", "open_address").performClick()
+
+        assertEquals(listOf<StartIntent>(StartIntent.AskAddress, StartIntent.AskAddress), intents)
+    }
+
+    @Test
     fun thePasteButtonOpensTheClipboardsTextAndANewDocumentStartsEmpty() = runComposeUiTest {
         val clipboard = TestClipboard().apply { putText("{\"a\": 1}") }
         val intents = mutableListOf<StartIntent>()

@@ -198,6 +198,14 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
         Android, iOS ve masaüstü adresi kendisi indirir; web, tarayıcının izin kuralları (CORS) yüzünden
         `GET /api/fetch?url=…` ile sunucudan. Yalnızca dışarıdaki `http` ve `https` adresleri: özel IP'ler, localhost,
         Docker ağı ve `169.254.169.254` kapalı, her yönlendirme yeniden denetlenir; en çok 10 MB ve 15 saniye.
+    *   **Durum (2026-11-07):** panolar kanvasta (sürüm 85–92: Share ve Start üç genişlikte, palette komut).
+        `core:network` (Ktor Client 3.5.0, `ServerShares`, `HttpWebAddresses`), `core:share`'de şifreli bağlantı
+        (`#s=…&k=…`), zarf (`ShareEnvelope`) ve anlaşma (`ShareServer`), `server` modülü (Spring Boot 4.1.2, WebFlux;
+        paylaşımlar diskte, vekilin adres koruması çözücüde), Share'in yeni penceresi, Start'ta ve paletde "Open a web
+        address", şifreli bağlantının açılışı ve uyarıları, `deploy/` (compose, iki Dockerfile, nginx, `deploy.sh
+        local`, `check.sh`). Yığın bu Mac'te çalıştı (`deploy.sh local`, `localhost:4005`): `check.sh` geçti, tarayıcıda
+        şifreli bağlantı yapıldı, açıldı, silindi; bir web adresi sunucu üzerinden açıldı, özel bir adres geri
+        çevrildi. Kalan: yayın (GHCR, Coolify'da kaynak), Faz 22'de.
 *   [ ] **Faz 17: Tip üretimi.** Kotlin, TypeScript, Swift ve Go.
 *   [ ] **Faz 18: Grafik görünümü.**
 *   [ ] **Faz 19: JSON Schema.**
