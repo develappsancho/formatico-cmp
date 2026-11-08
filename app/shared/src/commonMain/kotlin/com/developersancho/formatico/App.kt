@@ -25,6 +25,7 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.developersancho.formatico.Destination.Companion.show
 import com.developersancho.formatico.core.designsystem.FormaticoTheme
+import com.developersancho.formatico.core.navigation.systemBackLeavesScreens
 import com.developersancho.formatico.core.settings.SettingsStore
 import com.developersancho.formatico.core.settings.ThemeChoice
 import com.developersancho.formatico.core.settings.settingsModule
@@ -171,8 +172,9 @@ private fun AppContent(
 
 /**
  * The screen at the top of [backStack]: Start for a new tab, the workspace of a document of [workbench], or Settings.
- * Going back from a document goes to a new tab, and from Settings to the screen under it. What Start opens goes to
- * [onOpen].
+ * The system's back, where it leaves screens ([systemBackLeavesScreens]), goes from a document to a new tab and from
+ * Settings to the screen under it; on the desktop and the web, where it is Escape, it leaves the screen as it is. What
+ * Start opens goes to [onOpen].
  */
 @Composable
 private fun AppScreens(
@@ -182,6 +184,7 @@ private fun AppScreens(
     onCloseSettings: () -> Unit,
     modifier: Modifier
 ) {
+    val leaves = systemBackLeavesScreens
     NavDisplay(
         backStack = backStack,
         modifier = modifier,
@@ -189,7 +192,8 @@ private fun AppScreens(
             rememberSaveableStateHolderNavEntryDecorator(),
             rememberViewModelStoreNavEntryDecorator()
         ),
-        onBack = {
+        onBack = back@{
+            if (!leaves) return@back
             when (backStack.lastOrNull()) {
                 Destination.Settings -> onCloseSettings()
                 is Destination.Workspace -> workbench.select(null)

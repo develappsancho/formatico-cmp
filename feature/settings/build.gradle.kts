@@ -20,7 +20,7 @@ kotlin {
                 // What Settings changes is kept in core:settings.
                 api(projects.core.settings)
                 // A phone's Settings is a screen of its own, which the system's back leaves, a page at a time.
-                implementation(libs.navigationevent.compose)
+                implementation(projects.core.navigation)
             }
         }
     }

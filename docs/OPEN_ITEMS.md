@@ -399,10 +399,10 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
     *   Ne: Dışarıda bırakılan bir null'ın yeni belgedeki yorumu (`# coupon = null in the JSON: TOML has no null`) view model'de `getString` ile okunuyor; o da sistemin dilini kullanıyor, uygulamanınkini değil.
     *   Öneri: Settings uygulamanın kendi dilini getirince (Faz 12) yorumun dili de ondan.
     *   Durum: kapandı (2026-11-06). Cihazlarda denendi: Android'de, iOS simülatöründe ve web'de Türkçe seçilince TOML'daki yorum `# coupon = null (JSON); TOML biçiminde null yok`; masaüstünde `AppLanguageTest` aynısını sınıyor. Web'de önce İngilizce çıktı: bileşim dışında `getString` `navigator.language`'ı okuyor, `index.html` yalnızca `navigator.languages`'ı değiştiriyordu; şimdi ikisini de değiştiriyor (PANTRIX_FINDINGS: "Uygulamanın kendi sözcüklerinin dili için yol gösterilmiyor"). Önceki durum: açık. Settings'in dili geldi (2026-11-05): seçilen dil platformun dili yapılıyor (`LocalAppLocale`: JVM'in ve Android'in `Locale`'i, iOS'un `AppleLanguages`'ı, web'de `navigator.languages`), `getString` de onu okumalı. Masaüstünde ekranın sözcükleri sınandı; yorumun dili hiçbir platformda sınanmadı.
-*   [ ] **Masaüstünde ve web'de Escape belgeden Yeni sekme'ye geçiyor (2026-11-06).**
+*   [x] **Masaüstünde ve web'de Escape belgeden Yeni sekme'ye geçiyor (2026-11-06).**
     *   Ne: Compose masaüstünde ve web'de Escape'i sistemin geri hareketi sayıyor; o da `NavDisplay`'in `onBack`'ine gidiyor ve bir belgeden geri, Yeni sekme (Start) demek (telefonun geri hareketi için seçilmişti). Odak metinde değilken (Convert'in boş bir yerine tıklanınca, bir seçim kutusundan sonra) Escape'e basılınca belge sekmesi açık kalıyor ama Start'a geçiliyor. Web'de denendi; metnin içindeyken Escape belgede kalıyor.
     *   Öneri: masaüstünde ve web'de Escape açık olanı kapatsın (palet, menü, arama çubuğu), belgeden çıkarmasın; geri yığınının geri'si yalnızca telefonda ve tablette sistemin geri hareketiyle.
-    *   Durum: açık.
+    *   Durum: kapandı (2026-11-06). Compose'un masaüstündeki ve web'deki penceresi, ekranda hiçbir şeyin almadığı Escape'i geri sayıyor (`BackNavigationEventInput`); ayırt etmenin yolu yok, ondan karar platforma göre: `core:navigation`'ın `systemBackLeavesScreens`'i Android'de ve iOS'ta doğru, masaüstünde ve web'de yanlış. `NavDisplay`'in geri'si, Settings'in ve telefonun Convert ile Compare ekranlarının geri'si (ortak `SystemBack`) ona bakıyor: masaüstünde ve web'de Escape belgeyi, Settings'i ve dar pencerede Convert'i, Compare'i yerinde bırakıyor, bunları kendi geri düğmeleri kapatıyor. Paleti, menüleri, seçim kutularını Escape eskisi gibi kapatıyor; tarayıcının geri düğmesi `BrowserHistory`'den geçiyor, değişmedi. Bilinen sınır: iPad'e bağlı klavyenin Escape'i de iOS'ta geri sayılıyor ve kaydırma hareketinden ayırt edilemiyor; orada belgeden çıkarmaya devam ediyor. Pantrix'in list-detail düzeni Escape'i masaüstünde geri sayıyor (sitede "Escape on a desktop"); Formatico onu kullanmıyor. Sınandı: `AppBackTest` (masaüstünde ve web'de kalıyor, Android'de ve iOS'ta gidiyor) ve `SystemBackTest`, JVM'de, iOS simülatöründe ve Wasm'da. Elle: web'de Escape belgede ve Settings'te kalıyor, paleti kapatıyor, tarayıcının geri'si Settings'ten belgeye dönüyor; Android emülatöründe geri tuşu belgeden Yeni sekme'ye gidiyor. Masaüstünde elle denenmedi.
 *   [ ] **Sorgu sonuçlarının JSON'ı ayrı bir yazıcıyla yazılıyor (2026-11-05).**
     *   Ne: `QueryResults.kt`'nin kendi `JsonWriter`'ı var; `core:format`'ın dönüştürücüsü aynı işi (değerleri JSON olarak yazmak, YAML'ın takma adlarını açmak, JSON'ın yazamadığı sayıları dizgi yapmak) yapıyor.
     *   Öneri: sorgunun sonuçlarını dönüştürücüyle yazmak; ayrı bir temizlik değişikliği.
@@ -438,6 +438,13 @@ Her madde: **ne**, **nerede**, **öneri**, **durum**. Kapanan madde silinmez: ne
         ayrılıyor, ama ortası büyükse fark tek bir koşu.
     *   Öneri: Faz 14'te ölçmek; Myers'ın algoritması ya da satırları özetleriyle (hash) karşılaştırmak.
     *   Durum: açık, Faz 14'le.
+
+## Üst çubuk
+
+*   [ ] **Sekmeler sığmayınca ilki logonun yanında yarım kesiliyor (2026-11-06).**
+    *   Ne: Belge sekmeleri `PantrixTabs(scrollable = true)`; şerit, seçili sekmeyi ortasında tutuyor. Şeridin genişliği logo ile arama alanı arasında kalanla sınırlı: Android'in geniş penceresinde iki sekme ("order.json", "New tab") bile sığmıyor ve ilki "ler.json" diye logonun yanında kesiliyor; web'de altı sekmede ilki "ız" kalıyor. Kenarda bir solma ya da devamının olduğunu gösteren bir işaret yok.
+    *   Öneri: şeridin başında ve sonunda bir solma (Pantrix'te `PantrixTabs`'ın kaydırılan kenarı için bir seçenek yoksa bulgu); ya da seçili sekme ortada değil görünür olduğu kadar kaydırılsın, ilk sekmeler sığdığı sürece başta kalsın.
+    *   Durum: açık.
 
 ## Komut paleti
 

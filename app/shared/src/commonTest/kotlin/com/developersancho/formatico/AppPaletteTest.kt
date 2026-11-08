@@ -41,9 +41,13 @@ class AppPaletteTest {
 
     private fun ComposeUiTest.command(key: String) = onPantrixNode("Command", key, scope = "CommandPalette_commands")
 
-    /** Types [words] in the palette's field: the list is drawn as far as it is seen, and the rest only once found. */
-    private fun ComposeUiTest.find(words: String) {
+    /**
+     * Types [words] in the palette's field, and waits for [key]'s command where one is named: the list is drawn as far as
+     * it is seen, the rest only once found, and in a browser a frame after the words.
+     */
+    private suspend fun ComposeUiTest.find(words: String, key: String? = null) {
         onPantrixNode("TextField", "query", scope = "CommandPalette_commands").performTextInput(words)
+        if (key != null) awaitNode(hasPantrixTag("Command", key, scope = "CommandPalette_commands"), "The command $key")
     }
 
     /** Waits for the status bar's size to say [lines], as a screen reader hears it. */
@@ -65,7 +69,7 @@ class AppPaletteTest {
 
         awaitText("Format document")
         command("format").assertIsEnabled()
-        find("yaml")
+        find("yaml", key = "convert_yaml")
         command("convert_yaml").performClick()
         awaitText("Nothing is lost")
         command("convert_yaml").assertDoesNotExist()
@@ -104,7 +108,7 @@ class AppPaletteTest {
         awaitText("Valid JSON")
 
         onPantrixNode("Button", "launcher").performClick()
-        find("settings")
+        find("settings", key = "settings")
         command("settings").performClick()
 
         awaitText("Keep a history of documents")

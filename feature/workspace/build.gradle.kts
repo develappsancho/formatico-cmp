@@ -12,8 +12,8 @@ kotlin {
             implementation(projects.core.storage)
             // Format writes as Settings chose.
             implementation(projects.core.settings)
-            // A phone's Convert is a screen of its own, which the system's back leaves: navigation3's own version.
-            implementation(libs.navigationevent.compose)
+            // A phone's Convert is a screen of its own, which the system's back leaves.
+            implementation(projects.core.navigation)
         }
     }
 }

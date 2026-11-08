@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.developersancho.formatico.core.navigation.SystemBack
 import com.pantrixui.components.container.card.CardColors
 import com.pantrixui.components.container.card.CardVariant
 import com.pantrixui.components.container.card.PantrixCard

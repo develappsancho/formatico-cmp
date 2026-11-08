@@ -25,11 +25,8 @@ import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.navigationevent.NavigationEventInfo
-import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
-import androidx.navigationevent.compose.NavigationBackHandler
-import androidx.navigationevent.compose.rememberNavigationEventState
 import com.developersancho.formatico.core.base.MviScreen
+import com.developersancho.formatico.core.navigation.SystemBack
 import com.developersancho.formatico.core.settings.AppLanguage
 import com.pantrixui.components.container.topbar.PantrixBackButton
 import com.pantrixui.components.elements.divider.PantrixHorizontalDivider
@@ -247,11 +244,4 @@ private fun PhoneSettingsBar(page: SettingsPage, onIntent: (SettingsIntent) -> U
         }
         PantrixHorizontalDivider()
     }
-}
-
-/** Calls [onBack] when the system goes back, where the window has a way of going back to listen to. */
-@Composable
-private fun SystemBack(onBack: () -> Unit) {
-    if (LocalNavigationEventDispatcherOwner.current == null) return
-    NavigationBackHandler(state = rememberNavigationEventState(NavigationEventInfo.None), onBackCompleted = onBack)
 }
