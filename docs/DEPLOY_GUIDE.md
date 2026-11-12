@@ -231,6 +231,7 @@ silinince yığın yine `latest`'e döner. Paylaşımlar `shares` diskinde durur
 | Coolify'ın `401` ya da `403` yanıtı | Anahtar yanlış ya da `deploy` yetkisi yok |
 | Coolify'ın `404` yanıtı | `CoolifyFormaticoUuid` kaynağın adındaki kimlik; adresin son parçası olmalı |
 | Coolify'ın `405` yanıtı | Coolify 4.5'ten beri yayın POST ile istenir; betiğin eski bir kopyası GET gönderiyor |
+| Coolify'ın `503` yanıtı ("This site is not available at the moment"), panel de alan adından açılmıyor | Vekilin panel için kullandığı dosya (`/data/coolify/proxy/dynamic/coolify.yaml`) yok. Panele SSH tüneliyle girin (`ssh -L 8000:localhost:8000 …`, sonra `http://localhost:8000`); Settings'te Domain'i yeniden yazıp Save'e basın. Dosya geri gelir, vekil kendisi okur (2026-11-13) |
 | Coolify imajı çekemiyor | Paket hâlâ gizli (5.1, adım 4) |
 | `… has no domain on formatico-web` | Kaynakta `formatico-web`'in alan adı boş (5.1, adım 5) |
 | `… still answers 503 after two minutes` | Yığın istek almıyor: Coolify'da kaynağın günlüklerine bakın |
