@@ -597,7 +597,7 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
             uyarısı ve Wasm'da kütüphane modüllerinin `binaries.executable()` gerektirmesi (CMP-4906).
         *   **Sahibinin kararı (2026-11-10):** 316, 331 ve 275 kütüphanede düzeltilir. Üçü de kapandı: 316 ve 275
             2026-11-10'da, 331 2026-11-11'de, Compare `PantrixDiffView`'a geçince.
-*   [ ] **Faz 22: Yayın.** Pantrix'in gerçek yayını; Formatico'nun yayımlanan sürüme dönmesi (`mavenLocal` bloğu
+*   [x] **Faz 22: Yayın.** Pantrix'in gerçek yayını; Formatico'nun yayımlanan sürüme dönmesi (`mavenLocal` bloğu
     kalkar, `pantrix-ui@pantrix-ui` açılır, `pantrix-ui-local` kaldırılır); GitHub Packages'tan gelen paketle bütün
     hedeflerde yeniden derleme ve testler; `formatico.pantrixui.com`'un ve v2 sunucusunun yayını. Sahibinin planı
     (2026-11-06):
@@ -735,12 +735,17 @@ Her v2 ekranı, kodundan önce kanvasta üç genişlikte çizilir.
             sürümü, anahtar zinciri düzeltmesiyle. DMG 97,5 MB (iki denetimden geçti, Apple onaylı; açılış denetimi
             anahtar zincirine kayıt eklemedi), APK 1.0.2 (`versionCode` 10002); GitHub'ın verdiği SHA-256'lar yerel
             dosyalarınkiyle aynı, `releases/latest/download` bağlantıları 1.0.2'nin dosyalarını veriyor. Notlarının
-            başında neyi düzelttiği yazıyor. Sahibinin Mac'inde 1.0.2'nin ilk açılışta bir kez sorup sonra sormadığı
-            henüz görülmedi.
+            başında neyi düzelttiği yazıyor. Sahibinin Mac'inde 1.0.2 ikinci açılışta parola sormadı (sahibi,
+            2026-11-12): anahtarlar anahtar zincirinde artık `eu.anifantakis.ksafe.com.developersancho.formatico`
+            adıyla, uygulamanın kendisinin yaptığı kayıtlarda; KSafe'in deposu da kendi klasörüne taşındı.
         *   Web 1.0.2'de (2026-11-12, `9423c88`): sekiz denetim canlıda geçti. Tarayıcıda About "Formatico 1.0.2"; menü
             "released Nov 12, 2026" ile 1.0.2'nin DMG'sini (97 MB) ve APK'sını (42 MB) gösteriyor, Windows "henüz yok";
-            temiz bir sekmenin konsolunda hata yok. Kalan: arkadaşın MSI'ı (`v1.0.2`'den) ve Coolify panelinin 8000,
-            6001, 6002 portlarının kapanması.
+            temiz bir sekmenin konsolunda hata yok.
+    *   **Kapanış (2026-11-12):** Faz 22 kapandı. Pantrix 0.2.1 yayımlandı ve Formatico onu GitHub Packages'tan alıyor;
+        depo herkese açık; web ve sunucu `formatico.pantrixui.com`'da; GitHub'da Formatico 1.0.2 son sürüm, Apple
+        onaylı DMG'si ve imzalı APK'sıyla; indirme menüsü Start'ta ve Settings'te. Fazı bekletmeden kalanlar: arkadaşın
+        Windows MSI'ı (`v1.0.2`'den, `deploy/windows.sh`; menü o güne dek "Not in this release yet" diyor) ve Coolify
+        panelinin 8000, 6001, 6002 portlarının kapanması (sahibinin, sunucunun güvenlik duvarında).
 
 ## Sahibinin kararını bekleyenler
 
